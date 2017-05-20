@@ -1,0 +1,10 @@
+Automa
+BioCore
+BioSymbols
+BufferedStreams
+IndexableBitVectors
+Iterators
+IntervalTrees
+julia 0.6
+PairwiseListMatrices
+Twiddle
