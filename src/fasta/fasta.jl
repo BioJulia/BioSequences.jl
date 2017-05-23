@@ -5,8 +5,8 @@ module FASTA
 
 import Automa
 import Automa.RegExp: @re_str
-import Bio: Bio, isfilled
-import Bio.Exceptions: missingerror
+import BioCore: BioCore, isfilled
+import BioCore.Exceptions: missingerror
 import BufferedStreams
 
 export description,

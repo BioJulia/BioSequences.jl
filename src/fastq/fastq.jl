@@ -2,7 +2,7 @@ module FASTQ
 
 import Automa
 import Automa.RegExp: @re_str
-import Bio: Bio, isfilled
+import BioCore: BioCore, isfilled
 import BioSymbols
 import BufferedStreams
 import BufferedStreams: BufferedInputStream

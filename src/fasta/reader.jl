@@ -1,12 +1,12 @@
 # FASTA Reader
 # ============
 
-type Reader <: Bio.IO.AbstractReader
-    state::Bio.Ragel.State
+type Reader <: BioCore.IO.AbstractReader
+    state::BioCore.Ragel.State
     index::Nullable{Index}
 
     function Reader(input::BufferedStreams.BufferedInputStream, index)
-        return new(Bio.Ragel.State(file_machine.start_state, input), index)
+        return new(BioCore.Ragel.State(file_machine.start_state, input), index)
     end
 end
 
@@ -34,7 +34,7 @@ function Base.eltype(::Type{Reader})
     return Record
 end
 
-function Bio.IO.stream(reader::Reader)
+function BioCore.IO.stream(reader::Reader)
     return reader.state.stream
 end
 
@@ -129,13 +129,13 @@ const record_actions = Dict(
     :mark => :(mark = p),
     :countline => :(#= linenum += 1 =#))
 eval(
-    Bio.ReaderHelper.generate_index_function(
+    BioCore.ReaderHelper.generate_index_function(
         Record,
         record_machine,
         :(filled = mark = 0),
         record_actions))
 eval(
-    Bio.ReaderHelper.generate_read_function(
+    BioCore.ReaderHelper.generate_read_function(
         Reader,
         file_machine,
         :(filled = mark = 0),
@@ -143,8 +143,8 @@ eval(
             :identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
             :description => :(record.description = (mark:p-1) - stream.anchor + 1),
             :header => quote
-                range = Bio.ReaderHelper.upanchor!(stream):p-1
-                Bio.ReaderHelper.resize_and_copy!(record.data, filled + 1, data, range)
+                range = BioCore.ReaderHelper.upanchor!(stream):p-1
+                BioCore.ReaderHelper.resize_and_copy!(record.data, filled + 1, data, range)
                 filled += length(range)
                 if filled + 1 ≤ endof(record.data)
                     record.data[filled+1] = UInt8('\n')
@@ -156,7 +156,7 @@ eval(
             :sequence_start => :(record.sequence = filled+1:filled),
             :letters => quote
                 let len = p - stream.anchor
-                    Bio.ReaderHelper.append_from_anchor!(record.data, filled + 1, stream, p - 1)
+                    BioCore.ReaderHelper.append_from_anchor!(record.data, filled + 1, stream, p - 1)
                     filled += len
                     record.sequence = first(record.sequence):last(record.sequence)+len
                 end
@@ -167,5 +167,5 @@ eval(
                 @escape
             end,
             :countline => :(linenum += 1),
-            :anchor => :(Bio.ReaderHelper.anchor!(stream, p)),
-            :movable_anchor => :(Bio.ReaderHelper.anchor!(stream, p, false))))))
+            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p)),
+            :movable_anchor => :(BioCore.ReaderHelper.anchor!(stream, p, false))))))
