@@ -45,7 +45,7 @@ as julia arrays are laid out in column major order.
 # Examples
 ```julia
 julia> seqs = [dna"AAA", dna"TTT", dna"CCC", dna"GGG"]
-4-element Array{Bio.Seq.BioSequence{Bio.Seq.DNAAlphabet{4}},1}:
+4-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
  3nt DNA Sequence:
 AAA
  3nt DNA Sequence:
@@ -56,14 +56,14 @@ CCC
 GGG
 
 julia> seqmatrix(seqs, :site)
-4x3 Array{Bio.Seq.DNA,2}:
+4x3 Array{BioSequences.DNA,2}:
  DNA_A  DNA_A  DNA_A
  DNA_T  DNA_T  DNA_T
  DNA_C  DNA_C  DNA_C
  DNA_G  DNA_G  DNA_G
 
  julia> seqmatrix(seqs, :seq)
- 3x4 Array{Bio.Seq.DNA,2}:
+ 3x4 Array{BioSequences.DNA,2}:
   DNA_A  DNA_T  DNA_C  DNA_G
   DNA_A  DNA_T  DNA_C  DNA_G
   DNA_A  DNA_T  DNA_C  DNA_G
@@ -113,7 +113,7 @@ as julia arrays are laid out in column major order.
 # Examples
 ```julia
 julia> seqs = [dna"AAA", dna"TTT", dna"CCC", dna"GGG"]
-4-element Array{Bio.Seq.BioSequence{Bio.Seq.DNAAlphabet{4}},1}:
+4-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
  3nt DNA Sequence:
 AAA
  3nt DNA Sequence:
@@ -182,7 +182,7 @@ gap, even though they tied.
 ```julia
 julia> seqs = [dna"CTCGATCGATCC", dna"CTCGAAAAATCA", dna"ATCGAAAAATCG", dna"ATCGGGGGATCG"]
 
-4-element Array{Bio.Seq.BioSequence{Bio.Seq.DNAAlphabet{4}},1}:
+4-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
  CTCGATCGATCC
  CTCGAAAAATCA
  ATCGAAAAATCG

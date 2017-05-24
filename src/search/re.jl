@@ -4,7 +4,7 @@
 # Regular expression sequence search tools.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # String Decorators
 # -----------------
@@ -34,7 +34,7 @@ end
 
 module RE
 
-import Bio
+import BioCore, BioSequences
 
 # Syntax tree
 # -----------
@@ -65,9 +65,9 @@ end
 
 # list of symbols available for each symbol type
 const symbols = ObjectIdDict(
-    Bio.Seq.DNA => charset("ACGTMRWSYKVHDBN"),
-    Bio.Seq.RNA => charset("ACGUMRWSYKVHDBN"),
-    Bio.Seq.AminoAcid     => charset("ARNDCQEGHILKMFPSTWYVOUBJZX"))
+    BioSequences.DNA => charset("ACGTMRWSYKVHDBN"),
+    BioSequences.RNA => charset("ACGUMRWSYKVHDBN"),
+    BioSequences.AminoAcid     => charset("ARNDCQEGHILKMFPSTWYVOUBJZX"))
 
 macro check(ex, err)
     quote
@@ -242,13 +242,13 @@ function parse_prosite(pat)
             # concat
             continue
         elseif c == 'x'
-            push!(args, expr(:sym, [Bio.Seq.AA_X]))
+            push!(args, expr(:sym, [BioSequences.AA_X]))
         elseif c == '<'
             push!(args, expr(:head, []))
         elseif c == '>'
             push!(args, expr(:last, []))
-        elseif c ∈ symbols[Bio.Seq.AminoAcid]
-            push!(args, expr(:sym, [convert(Bio.Seq.AminoAcid, c)]))
+        elseif c ∈ symbols[BioSequences.AminoAcid]
+            push!(args, expr(:sym, [convert(BioSequences.AminoAcid, c)]))
         else
             throw(ArgumentError("unexpected input: '$c'"))
         end
@@ -296,11 +296,11 @@ function parserange_prosite(pat, s)
 end
 
 function parseset_prosite(pat, s, close)
-    set = Bio.Seq.AminoAcid[]
+    set = BioSequences.AminoAcid[]
     while !done(pat, s)
         c, s = next(pat, s)
-        if c ∈ symbols[Bio.Seq.AminoAcid]
-            push!(set, convert(Bio.Seq.AminoAcid, c))
+        if c ∈ symbols[BioSequences.AminoAcid]
+            push!(set, convert(BioSequences.AminoAcid, c))
         elseif c == close
             if close == ']'
                 return expr(:set, set), s
@@ -315,17 +315,17 @@ function parseset_prosite(pat, s, close)
 end
 
 function bits2sym{T}(::Type{T}, bits::UInt32)
-    for x in Bio.Seq.alphabet(T)
-        if Bio.Seq.compatbits(x) == bits
+    for x in BioSequences.alphabet(T)
+        if BioSequences.compatbits(x) == bits
             return x
         end
     end
     error("bits are not found")
 end
 
-mask{T<:Bio.Seq.NucleicAcid}(::Type{T}) = (UInt32(1) << 4) - one(UInt32)
-@assert Int(Bio.Seq.AA_U) + 1 == 22  # check there are 22 unambiguous amino acids
-mask(::Type{Bio.Seq.AminoAcid}) = (UInt32(1) << 22) - one(UInt32)
+mask{T<:BioSequences.NucleicAcid}(::Type{T}) = (UInt32(1) << 4) - one(UInt32)
+@assert Int(BioSequences.AA_U) + 1 == 22  # check there are 22 unambiguous amino acids
+mask(::Type{BioSequences.AminoAcid}) = (UInt32(1) << 22) - one(UInt32)
 
 function desugar{T}(::Type{T}, tree::SyntaxTree)
     head = tree.head
@@ -348,18 +348,18 @@ function desugar{T}(::Type{T}, tree::SyntaxTree)
         args = [expr(:concat, []), args[1]]
     elseif head == :sym
         head = :bits
-        args = [Bio.Seq.compatbits(args[1])]
+        args = [BioSequences.compatbits(args[1])]
     elseif head == :set
         bits = UInt32(0)
         for arg in args
-            bits |= Bio.Seq.compatbits(arg)
+            bits |= BioSequences.compatbits(arg)
         end
         head = :bits
         args = [bits]
     elseif head == :compset
         bits = UInt32(0)
         for arg in args
-            bits |= Bio.Seq.compatbits(arg)
+            bits |= BioSequences.compatbits(arg)
         end
         head = :bits
         args = [~bits & mask(T)]
@@ -574,10 +574,10 @@ immutable Regex{T}
         if syntax == :pcre
             ast = desugar(T, parse(T, pat))
         elseif syntax == :prosite
-            if T != Bio.Seq.AminoAcid
+            if T != BioSequences.AminoAcid
                 throw(ArgumentError("alphabet must be AminoAcid for PROSITE syntax"))
             end
-            ast = desugar(Bio.Seq.AminoAcid, parse_prosite(pat))
+            ast = desugar(BioSequences.AminoAcid, parse_prosite(pat))
         else
             throw(ArgumentError("invalid syntax: $syntax"))
         end
@@ -592,11 +592,11 @@ immutable Regex{T}
 end
 
 function Base.show{T}(io::IO, re::Regex{T})
-    if T == Bio.Seq.DNA
+    if T == BioSequences.DNA
         opt = "dna"
-    elseif T == Bio.Seq.RNA
+    elseif T == BioSequences.RNA
         opt = "rna"
-    elseif T == Bio.Seq.AminoAcid
+    elseif T == BioSequences.AminoAcid
         opt = "aa"
     else
         assert(false)
@@ -652,13 +652,13 @@ function captured{S}(m::Nullable{RegexMatch{S}})
     return captured(get(m))
 end
 
-function checkeltype{T}(re::Regex{T}, seq::Bio.Seq.BioSequence)
+function checkeltype{T}(re::Regex{T}, seq::BioSequences.BioSequence)
     if eltype(seq) != T
         throw(ArgumentError("element type of sequence doesn't match with regex"))
     end
 end
 
-function Base.match{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, start::Integer=1)
+function Base.match{T}(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=1)
     checkeltype(re, seq)
 
     # use the first unambiguous symbol in the regular expression to find the
@@ -666,7 +666,7 @@ function Base.match{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, start::Integer=1)
     if length(re.code) ≥ 2 && tag(re.code[2]) == BitsTag && count_ones(operand(re.code[2])) == 1
         firstsym = bits2sym(T, operand(re.code[2]))
     else
-        firstsym = Bio.Seq.gap(T)
+        firstsym = BioSequences.gap(T)
     end
 
     # a thread is `(<program counter>, <sequence's iterator state>)`
@@ -674,7 +674,7 @@ function Base.match{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, start::Integer=1)
     captured = Vector{Int}(re.nsaves)
     s = start
     while true
-        if firstsym != Bio.Seq.gap(T)
+        if firstsym != BioSequences.gap(T)
             s = findnext(seq, firstsym, s)
             if s == 0
                 break
@@ -694,7 +694,7 @@ function Base.match{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, start::Integer=1)
     return Nullable{RegexMatch{typeof(seq)}}()
 end
 
-function Base.search{T}(seq::Bio.Seq.BioSequence, re::Regex{T}, start::Integer=1)
+function Base.search{T}(seq::BioSequences.BioSequence, re::Regex{T}, start::Integer=1)
     checkeltype(re, seq)
     m = Base.match(re, seq, start)
     if isnull(m)
@@ -766,12 +766,12 @@ function advance!(threads, captured, s, re, seq, overlap)
     return Nullable{typeof(seq)}(), threads, captured, s
 end
 
-function Base.eachmatch{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, overlap::Bool=true)
+function Base.eachmatch{T}(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true)
     checkeltype(re, seq)
     return RegexMatchIterator{T,typeof(seq)}(re, seq, overlap)
 end
 
-function Base.matchall{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, overlap::Bool=true)
+function Base.matchall{T}(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true)
     # this will work on v0.5
     #   return map(matched, eachmatch(re, seq))
     ret = Vector{typeof(seq)}()
@@ -781,7 +781,7 @@ function Base.matchall{T}(re::Regex{T}, seq::Bio.Seq.BioSequence, overlap::Bool=
     return ret
 end
 
-function Base.ismatch{T}(re::Regex{T}, seq::Bio.Seq.BioSequence)
+function Base.ismatch{T}(re::Regex{T}, seq::BioSequences.BioSequence)
     return !isnull(Base.match(re, seq))
 end
 
@@ -823,7 +823,7 @@ end
 # immediately; otherwise returns `false`.
 function runmatch!(threads::Stack{Tuple{Int,Int}},
                    captured::Vector{Int},
-                   re::Regex, seq::Bio.Seq.BioSequence)
+                   re::Regex, seq::BioSequences.BioSequence)
     while !isempty(threads)
         pc::Int, s = pop!(threads)
         while true
@@ -834,7 +834,7 @@ function runmatch!(threads::Stack{Tuple{Int,Int}},
                     break
                 end
                 sym, s = next(seq, s)
-                if Bio.Seq.compatbits(sym) & operand(op) != 0
+                if BioSequences.compatbits(sym) & operand(op) != 0
                     pc += 1
                 else
                     break
@@ -872,6 +872,6 @@ end
 
 end  # module RE
 
-# exported from Bio.Seq
+# exported from BioSequences
 const matched = RE.matched
 const captured = RE.captured

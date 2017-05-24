@@ -4,7 +4,7 @@
 # A julia package for the representation and manipulation of biological sequences.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 __precompile__()
 
@@ -209,7 +209,6 @@ include("refseq.jl")
 include("eachkmer.jl")
 include("composition.jl")
 include("geneticcode.jl")
-include("seqrecord.jl")
 include("demultiplexer.jl")
 
 # Parsing file types
@@ -224,6 +223,4 @@ include("search/re.jl")
 
 include("minhash.jl")
 
-include("deprecated.jl")
-
-end  # module Bio.Seq
+end  # module BioSequences

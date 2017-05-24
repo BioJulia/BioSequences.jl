@@ -98,38 +98,38 @@ end
 
 Get the sequence of `record` as `S`.
 
-`S` can be either `Bio.Seq.ReferenceSequence` or `Bio.Seq.DNASequence`.
-If `S` is omitted, the default type is `Bio.Seq.ReferenceSequence`.
+`S` can be either `BioSequences.ReferenceSequence` or `BioSequences.DNASequence`.
+If `S` is omitted, the default type is `BioSequences.ReferenceSequence`.
 """
 function sequence(record::Record)
-    return sequence(Bio.Seq.ReferenceSequence, record)
+    return sequence(BioSequences.ReferenceSequence, record)
 end
 
-function sequence(::Type{Bio.Seq.ReferenceSequence}, record::Record)
+function sequence(::Type{BioSequences.ReferenceSequence}, record::Record)
     checkfilled(record)
     data = decode_sequence(record.packeddna, record.dnasize, 2, twobit2refseq_table)
     nmask = falses(record.dnasize)
     for i in 1:record.blockcount
         nmask[record.blockstarts[i] + (1:record.blocksizes[i])] = true
     end
-    return Bio.Seq.ReferenceSequence(data, nmask, 1:record.dnasize)
+    return BioSequences.ReferenceSequence(data, nmask, 1:record.dnasize)
 end
 
-function sequence(::Type{Bio.Seq.DNASequence}, record::Record)
+function sequence(::Type{BioSequences.DNASequence}, record::Record)
     checkfilled(record)
     data = decode_sequence(record.packeddna, record.dnasize, 4, twobit2dnaseq_table)
-    seq = Bio.Seq.DNASequence(data, 1:record.dnasize, false)
+    seq = BioSequences.DNASequence(data, 1:record.dnasize, false)
     for i in 1:record.blockcount
-        seq[record.blockstarts[i] + (1:record.blocksizes[i])] = Bio.Seq.DNA_N
+        seq[record.blockstarts[i] + (1:record.blocksizes[i])] = BioSequences.DNA_N
     end
     return seq
 end
 
-function Bio.sequence(record::Record)
+function BioCore.sequence(record::Record)
     return sequence(record)
 end
 
-function Bio.hassequence(record::Record)
+function BioCore.hassequence(record::Record)
     return hassequence(record)
 end
 
@@ -150,11 +150,11 @@ end
 function decode_sequence(packeddna, seqlen, nbits, table)
     @assert nbits ∈ (2, 4)
     data = zeros(UInt64, cld(seqlen, div(64, nbits)))
-    stop = Bio.Seq.BitIndex(seqlen, nbits)
-    i = Bio.Seq.BitIndex(1, nbits)
+    stop = BioSequences.BitIndex(seqlen, nbits)
+    i = BioSequences.BitIndex(1, nbits)
     j = 1
     while i ≤ stop
-        data[Bio.Seq.index(i)] |= table[Int(packeddna[j])+1] << Bio.Seq.offset(i)
+        data[BioSequences.index(i)] |= table[Int(packeddna[j])+1] << BioSequences.offset(i)
         i += 4 * nbits
         j += 1
     end
@@ -177,10 +177,10 @@ end
 
 const twobit2dnaseq_table = let
     # T: 00, C: 01, A: 10, G: 11
-    f(x) = x == 0b00 ? UInt64(Bio.Seq.DNA_T) :
-           x == 0b01 ? UInt64(Bio.Seq.DNA_C) :
-           x == 0b10 ? UInt64(Bio.Seq.DNA_A) :
-           x == 0b11 ? UInt64(Bio.Seq.DNA_G) : error()
+    f(x) = x == 0b00 ? UInt64(BioSequences.DNA_T) :
+           x == 0b01 ? UInt64(BioSequences.DNA_C) :
+           x == 0b10 ? UInt64(BioSequences.DNA_A) :
+           x == 0b11 ? UInt64(BioSequences.DNA_G) : error()
     tcag = 0b00:0b11
     tbl = UInt64[]
     for x in tcag, y in tcag, z in tcag, w in tcag

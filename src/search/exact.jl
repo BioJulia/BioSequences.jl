@@ -4,7 +4,7 @@
 # Exact sequence search tools.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Reference Implementation
 # ------------------------
@@ -106,7 +106,7 @@ end
     search(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]`; symbol
-comparison is done using `Bio.Seq.iscompatible`.
+comparison is done using `BioSequences.iscompatible`.
 """
 function Base.search(seq::Sequence, val,
                      start::Integer=1, stop::Integer=endof(seq))
@@ -136,7 +136,7 @@ end
     searchindex(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
 
 Return the index of the first occurrence of `pat` in `seq[start:stop]`; symbol
-comparison is done using `Bio.Seq.iscompatible`.
+comparison is done using `BioSequences.iscompatible`.
 """
 function Base.searchindex(seq::Sequence, val,
                           start::Integer=1, stop::Integer=endof(seq))
@@ -214,7 +214,7 @@ end
     rsearch(seq::Sequence, pat[, start=endof(seq)[, stop=1]])
 
 Return the range of the last occurrence of `pat` in `seq[stop:start]`; symbol
-comparison is done using `Bio.Seq.iscompatible`.
+comparison is done using `BioSequences.iscompatible`.
 """
 function Base.rsearch(seq::Sequence, val,
                       start::Integer=endof(seq), stop::Integer=1)
@@ -244,7 +244,7 @@ end
     rsearchindex(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
 
 Return the index of the last occurrence of `pat` in `seq[start:stop]`; symbol
-comparison is done using `Bio.Seq.iscompatible`.
+comparison is done using `BioSequences.iscompatible`.
 """
 function Base.rsearchindex(seq::Sequence, val,
                            start::Integer=endof(seq), stop::Integer=1)

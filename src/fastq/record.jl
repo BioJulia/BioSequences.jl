@@ -126,7 +126,7 @@ function initialize!(record::Record)
     return record
 end
 
-function Bio.isfilled(record::Record)
+function BioCore.isfilled(record::Record)
     return !isempty(record.filled)
 end
 
@@ -173,10 +173,10 @@ end
 
 Get the sequence of `record`.
 
-`S` can be either a subtype of `Bio.Seq.Sequence` or `String`.
+`S` can be either a subtype of `BioSequences.Sequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence{S<:Bio.Seq.Sequence}(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S
+function sequence{S<:BioSequences.Sequence}(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -194,13 +194,13 @@ function sequence(::Type{String}, record::Record, part::UnitRange{Int}=1:endof(r
 end
 
 """
-    sequence(record::Record, [part::UnitRange{Int}])::Bio.Seq.DNASequence
+    sequence(record::Record, [part::UnitRange{Int}])::BioSequences.DNASequence
 
 Get the sequence of `record`.
 """
-function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))::Bio.Seq.DNASequence
+function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))::BioSequences.DNASequence
     checkfilled(record)
-    return sequence(Bio.Seq.DNASequence, record, part)
+    return sequence(BioSequences.DNASequence, record, part)
 end
 
 function hassequence(record::Record)
@@ -252,19 +252,19 @@ function hasquality(record::Record)
     return isfilled(record)
 end
 
-function Bio.seqname(record::Record)
+function BioCore.seqname(record::Record)
     return identifier(record)
 end
 
-function Bio.hasseqname(record::Record)
+function BioCore.hasseqname(record::Record)
     return hasidentifier(record)
 end
 
-function Bio.sequence(record::Record)
+function BioCore.sequence(record::Record)
     return sequence(record)
 end
 
-function Bio.hassequence(record::Record)
+function BioCore.hassequence(record::Record)
     return hassequence(record)
 end
 

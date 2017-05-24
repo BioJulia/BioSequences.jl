@@ -1,0 +1,15 @@
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.5
+  - nightly
+matrix:
+  allow_failures:
+    - julia: nightly
+notifications:
+  email: false
+after_success:
+  - julia -e 'cd(Pkg.dir("BioSequences")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'cd(Pkg.dir("BioSequences")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'

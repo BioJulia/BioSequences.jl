@@ -138,7 +138,7 @@ function initialize!(record::Record)
     return record
 end
 
-function Bio.isfilled(record::Record)
+function BioCore.isfilled(record::Record)
     return !isempty(record.filled)
 end
 
@@ -167,11 +167,11 @@ function hasidentifier(record)
     return isfilled(record) && !isempty(record.identifier)
 end
 
-function Bio.seqname(record::Record)
+function BioCore.seqname(record::Record)
     return identifier(record)
 end
 
-function Bio.hasseqname(record::Record)
+function BioCore.hasseqname(record::Record)
     return hasidentifier(record)
 end
 
@@ -197,10 +197,10 @@ end
 
 Get the sequence of `record`.
 
-`S` can be either a subtype of `Bio.Seq.Sequence` or `String`.
+`S` can be either a subtype of `BioSequences.Sequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence{S<:Bio.Seq.Sequence}(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S
+function sequence{S<:BioSequences.Sequence}(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -237,11 +237,11 @@ function hassequence(record::Record)
     return isfilled(record)
 end
 
-function Bio.sequence(record::Record)
+function BioCore.sequence(record::Record)
     return sequence(record)
 end
 
-function Bio.hassequence(record::Record)
+function BioCore.hassequence(record::Record)
     return hassequence(record)
 end
 
@@ -282,11 +282,11 @@ function predict_seqtype(seq::Vector{UInt8}, range)
     # the threshold (= 0.95) is somewhat arbitrary
     if (a + c + g + t + u + n) / alpha > 0.95
         if t ≥ u
-            return Bio.Seq.DNASequence
+            return BioSequences.DNASequence
         else
-            return Bio.Seq.RNASequence
+            return BioSequences.RNASequence
         end
     else
-        return Bio.Seq.AminoAcidSequence
+        return BioSequences.AminoAcidSequence
     end
 end

@@ -1,12 +1,12 @@
 # FASTQ Reader
 # ============
 
-immutable Reader <: Bio.IO.AbstractReader
-    state::Bio.Ragel.State
+immutable Reader <: BioCore.IO.AbstractReader
+    state::BioCore.Ragel.State
     seq_transform::Nullable{Function}
 
     function Reader(input::BufferedInputStream, seq_transform)
-        return new(Bio.Ragel.State(file_machine.start_state, input), seq_transform)
+        return new(BioCore.Ragel.State(file_machine.start_state, input), seq_transform)
     end
 end
 
@@ -32,7 +32,7 @@ function Base.eltype(::Type{Reader})
     return Record
 end
 
-function Bio.IO.stream(reader::Reader)
+function BioCore.IO.stream(reader::Reader)
     return reader.state.stream
 end
 
@@ -140,13 +140,13 @@ const record_actions = Dict(
     :mark   => :(mark = p),
     :countline => :())
 eval(
-    Bio.ReaderHelper.generate_index_function(
+    BioCore.ReaderHelper.generate_index_function(
         Record,
         record_machine,
         :(mark = 0),
         record_actions))
 eval(
-    Bio.ReaderHelper.generate_read_function(
+    BioCore.ReaderHelper.generate_read_function(
         Reader,
         file_machine,
         :(mark = offset = 0),
@@ -161,7 +161,7 @@ eval(
                 if length(record.sequence) != length(record.quality)
                     error("the length of sequence does not match the length of quality")
                 end
-                Bio.ReaderHelper.resize_and_copy!(record.data, data, Bio.ReaderHelper.upanchor!(stream):p-1)
+                BioCore.ReaderHelper.resize_and_copy!(record.data, data, BioCore.ReaderHelper.upanchor!(stream):p-1)
                 record.filled = (offset+1:p-1) - offset
                 if !isnull(reader.seq_transform)
                     get(reader.seq_transform)(record.data, record.sequence)
@@ -170,4 +170,4 @@ eval(
                 @escape
             end,
             :countline => :(linenum += 1),
-            :anchor => :(Bio.ReaderHelper.anchor!(stream, p); offset = p - 1)))))
+            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p); offset = p - 1)))))

@@ -8,11 +8,12 @@
 # See https://genome.ucsc.edu/FAQ/FAQformat.html#format7 for the details.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 module TwoBit
 
-import Bio
+import BioCore
+import BioSequences
 
 include("record.jl")
 include("reader.jl")

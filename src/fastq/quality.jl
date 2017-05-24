@@ -4,7 +4,7 @@
 # A representation of positions-specific integer quality scores, as in FASTQ.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 immutable QualityEncoding
     # valid ASCII character range

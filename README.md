@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioSequences.jl/stable)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://biojulia.github.io/BioSequences.jl/latest)
+![BioJulia maintainer: bicycle1885](https://img.shields.io/badge/BioJulia%20Maintainer-bicycle1885-orange.svg)
 ![BioJulia maintainer: Ward9250](https://img.shields.io/badge/BioJulia%20Maintainer-Ward9250-orange.svg)
 
 

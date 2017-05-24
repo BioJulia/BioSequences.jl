@@ -1,7 +1,7 @@
 # 2bit Writer
 # ===========
 
-type Writer{T<:IO} <: Bio.IO.AbstractWriter
+type Writer{T<:IO} <: BioCore.IO.AbstractWriter
     # output stream
     output::T
     # sequence names
@@ -26,7 +26,7 @@ function Writer(output::IO, names::AbstractVector)
     return writer
 end
 
-function Bio.IO.stream(writer::Writer)
+function BioCore.IO.stream(writer::Writer)
     return writer.output
 end
 
@@ -73,7 +73,7 @@ function update_offset(writer::Writer, seqname, seqoffset)
     end
 end
 
-function Base.write(writer::Writer, record::Bio.Seq.SeqRecord)
+function Base.write(writer::Writer, record::Record)
     i = findfirst(writer.names, record.name)
     if i == 0
         error("sequence \"", record.name, "\" doesn't exist in the writing list")
@@ -101,14 +101,14 @@ function make_n_blocks(seq)
     i = 1
     while i ≤ endof(seq)
         nt = seq[i]
-        if nt == Bio.Seq.DNA_N
+        if nt == BioSequences.DNA_N
             start = i - 1  # 0-based index
             push!(starts, start)
-            while i ≤ endof(seq) && seq[i] == Bio.Seq.DNA_N
+            while i ≤ endof(seq) && seq[i] == BioSequences.DNA_N
                 i += 1
             end
             push!(sizes, (i - 1) - start)
-        elseif Bio.Seq.isambiguous(nt)
+        elseif BioSequences.isambiguous(nt)
             error("ambiguous nucleotide except N is not supported")
         else
             i += 1
@@ -172,11 +172,11 @@ function write_twobit_sequence(output, seq)
     return n
 end
 
-function nuc2twobit(nt::Bio.Seq.DNA)
+function nuc2twobit(nt::BioSequences.DNA)
     return (
-        nt == Bio.Seq.DNA_A ? 0b10 :
-        nt == Bio.Seq.DNA_C ? 0b01 :
-        nt == Bio.Seq.DNA_G ? 0b11 :
-        nt == Bio.Seq.DNA_T ? 0b00 :
-        nt == Bio.Seq.DNA_N ? 0b00 : error())
+        nt == BioSequences.DNA_A ? 0b10 :
+        nt == BioSequences.DNA_C ? 0b01 :
+        nt == BioSequences.DNA_G ? 0b11 :
+        nt == BioSequences.DNA_T ? 0b00 :
+        nt == BioSequences.DNA_N ? 0b00 : error())
 end

@@ -4,7 +4,7 @@
 # Counting sites in a bitparallel fashion.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 @inline bp_counter_type{S<:Site,A<:Alphabet}(::Type{S}, ::Type{A}) = Int
 @inline bp_start_counter{S<:Site,A<:Alphabet}(::Type{S}, ::Type{A}) = zero(bp_counter_type(S, A))

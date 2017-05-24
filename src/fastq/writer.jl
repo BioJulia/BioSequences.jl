@@ -1,12 +1,12 @@
 # FASTQ Writer
 # ============
 
-immutable Writer <: Bio.IO.AbstractWriter
+immutable Writer <: BioCore.IO.AbstractWriter
     output::IO
     quality_header::Bool
 end
 
-function Bio.IO.stream(writer::Writer)
+function BioCore.IO.stream(writer::Writer)
     return writer.output
 end
 

@@ -4,7 +4,7 @@
 # Approximate sequence search tools.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/Bio.jl/blob/master/LICENSE.md
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
 Query type for approximate sequence search.
@@ -68,7 +68,7 @@ end
     approxsearch(seq, pat, k[, start=1[, stop=endof(seq)]])
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
-up to `k` errors; symbol comparison is done using `Bio.Seq.iscompatible`.
+up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxsearch(seq::Sequence, pat::Sequence, k::Integer,
                       start::Integer=1, stop::Integer=endof(seq))
@@ -84,7 +84,7 @@ end
     approxrsearch(seq, pat, k[, start=endof(seq)[, stop=1]])
 
 Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
-up to `k` errors; symbol comparison is done using `Bio.Seq.iscompatible`.
+up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxrsearch(seq::Sequence, pat::Sequence, k::Integer,
                        start::Integer=endof(seq), stop::Integer=1)
@@ -100,7 +100,7 @@ end
     approxsearchindex(seq, pat, k[, start=1[, stop=endof(seq)]])
 
 Return the index of the first occurrence of `pat` in `seq[start:stop]` allowing
-up to `k` errors; symbol comparison is done using `Bio.Seq.iscompatible`.
+up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxsearchindex(seq::Sequence, pat::Sequence, k::Integer,
                            start::Integer=1, stop::Integer=endof(seq))
@@ -116,7 +116,7 @@ end
     approxrsearchindex(seq, pat, k[, start=endof(seq)[, stop=1]])
 
 Return the index of the last occurrence of `pat` in `seq[stop:start]` allowing
-up to `k` errors; symbol comparison is done using `Bio.Seq.iscompatible`.
+up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxrsearchindex(seq::Sequence, pat::Sequence, k::Integer,
                             start::Integer=endof(seq), stop::Integer=1)

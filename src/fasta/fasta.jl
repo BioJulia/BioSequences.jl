@@ -7,6 +7,7 @@ import Automa
 import Automa.RegExp: @re_str
 import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
+import BioSequences
 import BufferedStreams
 
 export description,

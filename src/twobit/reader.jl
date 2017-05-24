@@ -1,7 +1,7 @@
 # 2bit Reader
 # ===========
 
-type Reader{T<:IO} <: Bio.IO.AbstractReader
+type Reader{T<:IO} <: BioCore.IO.AbstractReader
     # input stream
     input::T
     # sequence names
@@ -27,7 +27,7 @@ function Reader(input::IO)
     return Reader(input, names, offsets, swap)
 end
 
-function Bio.IO.stream(reader::Reader)
+function BioCore.IO.stream(reader::Reader)
     return reader.input
 end
 
