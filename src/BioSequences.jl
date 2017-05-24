@@ -8,7 +8,7 @@
 
 __precompile__()
 
-module Seq
+module BioSequences
 
 export
     NucleicAcid,

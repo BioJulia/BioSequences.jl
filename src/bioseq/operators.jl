@@ -8,7 +8,7 @@ The first argument should be a function which accepts a nucleotide as its parame
 """
 function Base.count(f::Function, seq::BioSequence)
     n = 0
-    for x in seq
+    @inbounds for x in seq
         if f(x)
             n += 1
         end
@@ -16,143 +16,10 @@ function Base.count(f::Function, seq::BioSequence)
     return n
 end
 
-# Mismatch counting
-# -----------------
+# Site counting
+# -------------
 
-"""
-    mismatches(seq1::BioSequence, seq2::BioSequence[, compatible=false])
-
-Return the number of mismatches between `seq1` and `seq2`.
-
-If `seq1` and `seq2` are of differing lengths, only the first `min(length(seq1),
-length(seq2))` nucleotides are compared.  When `compatible` is `true`, sequence
-symbols are comapred using `iscompatible`; otherwise using `==`.
-"""
-function mismatches{A<:Alphabet}(
-        seq1::BioSequence{A},
-        seq2::BioSequence{A},
-        compatible::Bool=false)
-    if ((bitsof(A) == 2 || bitsof(A) == 4) && !compatible) ||
-        A == DNAAlphabet{2} ||
-        A == RNAAlphabet{2}
-        return bitparallel_mismatches(seq1, seq2)
-    end
-
-    mis = 0
-    if compatible
-        for (x, y) in zip(seq1, seq2)
-            if !iscompatible(x, y)
-                mis += 1
-            end
-        end
-    else
-        for (x, y) in zip(seq1, seq2)
-            if x != y
-                mis += 1
-            end
-        end
-    end
-    return mis
-end
-
-@generated function bitparallel_mismatches{A}(a::BioSequence{A}, b::BioSequence{A})
-    n = bitsof(A)
-    if n == 2
-        bitpar_mismatches = :bitpar_mismatches2
-    elseif n == 4
-        bitpar_mismatches = :bitpar_mismatches4
-    else
-        error("n (= $n) ∉ (2, 4)")
-    end
-
-    quote
-        if length(a) > length(b)
-            return bitparallel_mismatches(b, a)
-        end
-        @assert length(a) ≤ length(b)
-
-        nexta = bitindex(a, 1)
-        nextb = bitindex(b, 1)
-        stopa = bitindex(a, endof(a) + 1)
-        mismatches = 0
-
-        # align reading position of `a.data` so that `offset(nexta) == 0`
-        if nexta < stopa && offset(nexta) != 0
-            x = a.data[index(nexta)] >> offset(nexta)
-            y = b.data[index(nextb)] >> offset(nextb)
-            if offset(nextb) > offset(nexta)
-                y |= b.data[index(nextb)+1] << (64 - offset(nextb))
-            end
-            k = 64 - offset(nexta)
-            m = mask(k)
-            mismatches += $bitpar_mismatches(x & m, y & m)
-            nexta += k
-            nextb += k
-        end
-        @assert offset(nexta) == 0
-
-        if offset(nextb) == 0  # data are aligned with each other
-            while stopa - nexta ≥ 64
-                x = a.data[index(nexta)]
-                y = b.data[index(nextb)]
-                mismatches += $bitpar_mismatches(x, y)
-                nexta += 64
-                nextb += 64
-            end
-
-            if nexta < stopa
-                x = a.data[index(nexta)]
-                y = b.data[index(nextb)]
-                m = mask(stopa - nexta)
-                mismatches += $bitpar_mismatches(x & m, y & m)
-            end
-        elseif nexta < stopa
-            y = b.data[index(nextb)]
-            nextb += 64
-
-            while stopa - nexta ≥ 64
-                x = a.data[index(nexta)]
-                z = b.data[index(nextb)]
-                y = y >> offset(nextb) | z << (64 - offset(nextb))
-                mismatches += $bitpar_mismatches(x, y)
-                y = z
-                nexta += 64
-                nextb += 64
-            end
-
-            if nexta < stopa
-                x = a.data[index(nexta)]
-                y = y >> offset(nextb)
-                if 64 - offset(nextb) < stopa - nexta
-                    y |= a.data[index(nextb)] << (64 - offset(nextb))
-                end
-                m = mask(stopa - nexta)
-                mismatches += $bitpar_mismatches(x & m, y & m)
-            end
-        end
-
-        return mismatches
-    end
-end
-
-# bit-parallel mismatch count algorithm for 2 and 4-bit encoding
-@inline function bitpar_mismatches2(x::UInt64, y::UInt64)
-    xyxor = x $ y
-    mismatches = UInt64(0)
-    mismatches |=  xyxor & 0x5555555555555555
-    mismatches |= (xyxor & 0xAAAAAAAAAAAAAAAA) >> 1
-    return count_ones(mismatches)
-end
-
-@inline function bitpar_mismatches4(x::UInt64, y::UInt64)
-    xyxor = x $ y
-    mismatches = UInt64(0)
-    mismatches |=  xyxor & 0x1111111111111111
-    mismatches |= (xyxor & 0x2222222222222222) >> 1
-    mismatches |= (xyxor & 0x4444444444444444) >> 2
-    mismatches |= (xyxor & 0x8888888888888888) >> 3
-    return count_ones(mismatches)
-end
+include("site_counting/site_counting.jl")
 
 
 # Sequences to Matrix
