@@ -67,7 +67,7 @@ function random_seq(n::Integer, nts, probs)
     for i in 1:n
         x[i] = nts[searchsorted(cumprobs, rand()).start]
     end
-    return convert(AbstractString, x)
+    return convert(String, x)
 end
 
 function random_seq{A<:Alphabet}(::Type{A}, n::Integer)
@@ -161,5 +161,6 @@ function random_interval(minstart, maxstop)
 end
 
 include("testsymbols.jl")
+include("testconversion.jl")
 
 end
