@@ -56,7 +56,7 @@ function approx_preprocess(pat, forward)
     for i in 1:m
         y = forward ? pat[i] : pat[end-i+1]
         for x in Σ
-            if Seq.iscompatible(x, y)
+            if BioSequences.iscompatible(x, y)
                 Pcom[UInt8(x)+1] |= one(T) << (i - 1)
             end
         end

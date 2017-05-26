@@ -29,11 +29,11 @@
         for i in 1:3:length(seq) - 3 + 1
             aaseq[div(i, 3) + 1] = standard_genetic_code_dict[seq[i:i+2]]
         end
-        return convert(AbstractString, aaseq)
+        return convert(String, aaseq)
     end
 
     function check_translate(seq::AbstractString)
-        return string_translate(seq) == convert(AbstractString, translate(RNASequence(seq)))
+        return string_translate(seq) == convert(String, translate(RNASequence(seq)))
     end
 
     reps = 10

@@ -6,6 +6,7 @@ using BioSequences
 using IntervalTrees.IntervalValue
 using PairwiseListMatrices
 using StatsBase
+using YAML
 
 typealias PWM PairwiseListMatrix
 

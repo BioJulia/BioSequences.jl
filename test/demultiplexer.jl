@@ -46,7 +46,7 @@
                 barcode′ = copy(barcode)
                 for nt in [DNA_A, DNA_C, DNA_G, DNA_T, DNA_N]
                     barcode′[j] = nt
-                    @test demultiplex(dplxr, barcode′) == (i, mismatches(barcode, barcode′))
+                    @test demultiplex(dplxr, barcode′) == (i, count(Mismatch, barcode, barcode′))
                 end
             end
         end

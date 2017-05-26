@@ -1,10 +1,10 @@
 @testset "Regular Expression" begin
-    @test isa(biore"A+"d, Seq.RE.Regex{DNA})
-    @test isa(biore"A+"r, Seq.RE.Regex{RNA})
-    @test isa(biore"A+"a, Seq.RE.Regex{AminoAcid})
-    @test isa(biore"A+"dna, Seq.RE.Regex{DNA})
-    @test isa(biore"A+"rna, Seq.RE.Regex{RNA})
-    @test isa(biore"A+"aa, Seq.RE.Regex{AminoAcid})
+    @test isa(biore"A+"d, BioSequences.RE.Regex{DNA})
+    @test isa(biore"A+"r, BioSequences.RE.Regex{RNA})
+    @test isa(biore"A+"a, BioSequences.RE.Regex{AminoAcid})
+    @test isa(biore"A+"dna, BioSequences.RE.Regex{DNA})
+    @test isa(biore"A+"rna, BioSequences.RE.Regex{RNA})
+    @test isa(biore"A+"aa, BioSequences.RE.Regex{AminoAcid})
     @test_throws Exception eval(:(biore"A+"))
     @test_throws Exception eval(:(biore"A+"foo))
     @test string(biore"A+"dna) == "biore\"A+\"dna"

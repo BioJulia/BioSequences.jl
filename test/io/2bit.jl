@@ -3,8 +3,8 @@
     writer = TwoBit.Writer(buffer, ["chr1", "chr2"])
     chr1 = dna"ACGTNN"
     chr2 = dna"N"^100 * dna"ACGT"^100 * dna"N"^100
-    write(writer, SeqRecord("chr1", chr1))
-    write(writer, SeqRecord("chr2", chr2))
+    write(writer, TwoBit.Record("chr1", chr1))
+    write(writer, TwoBit.Record("chr2", chr2))
     seekstart(buffer)
     reader = TwoBit.Reader(buffer)
     @test length(reader) == 2
