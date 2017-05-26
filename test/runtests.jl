@@ -161,6 +161,9 @@ function random_interval(minstart, maxstop)
 end
 
 include("testsymbols.jl")
-include("testconversion.jl")
+@testset "BioSequences" begin
+    include("testconversion.jl")
+    include("testbasics.jl")
+end
 
 end
