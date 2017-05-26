@@ -221,7 +221,7 @@ include("demultiplexer.jl")
 @testset "Reading and Writing" begin
     include("io/FASTA.jl")
     include("io/FASTQ.jl")
-    include("io/2bit.jl")
+    include("io/twobit.jl")
     include("io/abif.jl")
 end
 

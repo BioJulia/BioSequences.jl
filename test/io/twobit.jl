@@ -31,7 +31,7 @@
         writer = TwoBit.Writer(buffer, TwoBit.seqnames(reader))
         expected_entries = TwoBit.Record[]
         for (name, record) in zip(TwoBit.seqnames(reader), reader)
-            write(writer, SeqRecord(name, TwoBit.sequence(record), TwoBit.maskedblocks(record)))
+            write(writer, TwoBit.Record(name, TwoBit.sequence(record), TwoBit.maskedblocks(record)))
             push!(expected_entries, record)
         end
 

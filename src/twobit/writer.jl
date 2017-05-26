@@ -73,7 +73,7 @@ function update_offset(writer::Writer, seqname, seqoffset)
     end
 end
 
-function Base.write(writer::Writer, record::Record)
+function Base.write(writer::Writer, record::WriteRecord)
     i = findfirst(writer.names, record.name)
     if i == 0
         error("sequence \"", record.name, "\" doesn't exist in the writing list")
@@ -87,7 +87,7 @@ function Base.write(writer::Writer, record::Record)
     n = 0
     n += write(output, UInt32(length(record.seq)))
     n += write_n_blocks(output, record.seq)
-    n += write_masked_blocks(output, record.metadata)
+    n += write_masked_blocks(output, record.masks)
     n += write(output, UInt32(0))  # reserved bytes
     n += write_twobit_sequence(output, record.seq)
 
@@ -109,7 +109,7 @@ function make_n_blocks(seq)
             end
             push!(sizes, (i - 1) - start)
         elseif BioSequences.isambiguous(nt)
-            error("ambiguous nucleotide except N is not supported")
+            error("ambiguous nucleotide except N is not supported in the 2bit file format")
         else
             i += 1
         end
@@ -127,20 +127,19 @@ function write_n_blocks(output, seq)
     return n
 end
 
-function write_masked_blocks(output, metadata)
+function write_masked_blocks(output, masks)
     n = 0
-    if isa(metadata, Vector{UnitRange{Int}})
-        n += write(output, UInt32(length(metadata)))
-        for mblock in metadata
+    if !isnull(masks)
+        m = get(masks)
+        n += write(output, UInt32(length(m)))
+        for mblock in m
             n += write(output, UInt32(first(mblock) - 1))  # 0-based
         end
-        for mblock in metadata
+        for mblock in m
             n += write(output, UInt32(length(mblock)))
         end
-    elseif metadata === nothing
-        n += write(output, UInt32(0))
     else
-        error("metadata is not serializable in the 2bit file format")
+        n += write(output, UInt32(0))
     end
     return n
 end

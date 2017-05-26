@@ -198,3 +198,34 @@ end
 function memcmp(p1::Ptr, p2::Ptr, n::Integer)
     return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, n)
 end
+
+"""
+`WriteRecord{S,T}` is a type holding a named sequence of type `S`, along with
+a mask.
+
+Mostly to make writing 2bit sequences painless with the depreceation of
+SeqRecord.
+I can't see this existing much beyond the addition of masked sequences.
+Creates a sequence record suitable for writing to 2bit, in a similar way that
+FASTA and FASTQ records are created before being written to file. i.e. by calling
+a `Record` method on a name, some sequence, and some masks. 
+
+B. Ward - 26 May, 2017.
+"""
+type WriteRecord{S<:BioSequences.Sequence}
+    name::String
+    seq::S
+    masks::Nullable{Vector{UnitRange{Int}}}
+end
+
+function Record(name::AbstractString,
+                seq::BioSequences.Sequence,
+                masks = Nullable{Vector{UnitRange{Int}}}())
+    return WriteRecord(string(name), seq, masks)
+end
+
+function Record(name::AbstractString,
+                seq::BioSequences.Sequence,
+                masks::Vector{UnitRange{Int}})
+    return Record(name, seq, Nullable(masks))
+end

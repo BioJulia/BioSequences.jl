@@ -122,7 +122,7 @@ function readheader!(input)
     elseif signature == bswap(SIGNATURE)
         swap = true
     else
-        error("invalid 2bit signature")
+        error("invalid 2bit file signature")
     end
     version  = read32(input, swap)
     seqcount = read32(input, swap)
