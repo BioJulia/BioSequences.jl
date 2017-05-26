@@ -5,6 +5,7 @@ import BioSymbols
 using BioSequences
 using IntervalTrees.IntervalValue
 using PairwiseListMatrices
+using StatsBase
 
 typealias PWM PairwiseListMatrix
 
@@ -177,6 +178,13 @@ include("symbols.jl")
     include("bioseq/gc_content.jl")
     include("bioseq/ambiguous.jl")
     include("bioseq/shuffle.jl")
+end
+@testset "ReferenceSequences" begin
+    include("refseq/conversion.jl")
+    include("refseq/basics.jl")
+    include("refseq/long.jl")
+    include("refseq/print.jl")
+    include("refseq/random.jl")
 end
 
 end
