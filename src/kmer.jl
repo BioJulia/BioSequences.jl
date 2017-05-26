@@ -169,7 +169,9 @@ reverse_complement(x::Kmer) = complement(reverse(x))
 
 Return the number of mismatches between `a` and `b`.
 """
-mismatches{T,k}(a::Kmer{T,k}, b::Kmer{T,k}) = bitpar_mismatches2(UInt64(a), UInt64(b))
+function mismatches{T,k}(a::Kmer{T,k}, b::Kmer{T,k})
+    return count_nonzero_bitpairs(UInt64(a) $ UInt64(b))
+end
 
 """
     canonical(kmer::Kmer)

@@ -162,6 +162,7 @@ function random_interval(minstart, maxstop)
 end
 
 include("symbols.jl")
+
 @testset "BioSequences" begin
     include("bioseq/conversion.jl")
     include("bioseq/basics.jl")
@@ -179,6 +180,7 @@ include("symbols.jl")
     include("bioseq/ambiguous.jl")
     include("bioseq/shuffle.jl")
 end
+
 @testset "ReferenceSequences" begin
     include("refseq/conversion.jl")
     include("refseq/basics.jl")
@@ -186,5 +188,43 @@ end
     include("refseq/print.jl")
     include("refseq/random.jl")
 end
+
+include("composition.jl")
+
+@testset "Kmers" begin
+    include("kmers/conversion.jl")
+    include("kmers/comparisons.jl")
+    include("kmers/length.jl")
+    include("kmers/arithmetic.jl")
+    include("kmers/access.jl")
+    include("kmers/random.jl")
+    include("kmers/find.jl")
+    include("kmers/print.jl")
+    include("kmers/transformations.jl")
+    include("kmers/mismatches.jl")
+    include("kmers/eachkmer.jl")
+    include("kmers/debruijn_neighbors.jl")
+    include("kmers/shuffle.jl")
+end
+
+@testset "Search" begin
+    include("search/exact.jl")
+    include("search/approximate.jl")
+    include("search/regex.jl")
+end
+
+include("translation.jl")
+
+include("demultiplexer.jl")
+
+@testset "Reading and Writing" begin
+    include("io/FASTA.jl")
+    include("io/FASTQ.jl")
+    include("io/2bit.jl")
+    include("io/abif.jl")
+end
+
+include("quality.jl")
+
 
 end
