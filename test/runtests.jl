@@ -134,7 +134,7 @@ function dna_complement(seq::AbstractString)
             seqc[i] = seq[i]
         end
     end
-    return convert(AbstractString, seqc)
+    return convert(String, seqc)
 end
 
 function rna_complement(seq::AbstractString)
@@ -152,7 +152,7 @@ function rna_complement(seq::AbstractString)
             seqc[i] = seq[i]
         end
     end
-    return convert(AbstractString, seqc)
+    return convert(String, seqc)
 end
 
 function random_interval(minstart, maxstop)
@@ -160,10 +160,23 @@ function random_interval(minstart, maxstop)
     return start:rand(start:maxstop)
 end
 
-include("testsymbols.jl")
+include("symbols.jl")
 @testset "BioSequences" begin
-    include("testconversion.jl")
-    include("testbasics.jl")
+    include("bioseq/conversion.jl")
+    include("bioseq/basics.jl")
+    include("bioseq/hashing.jl")
+    include("bioseq/iteration.jl")
+    include("bioseq/subseq.jl")
+    include("bioseq/mutability.jl")
+    include("bioseq/print.jl")
+    include("bioseq/transformations.jl")
+    include("bioseq/mutability.jl")
+    include("bioseq/predicates.jl")
+    include("bioseq/find.jl")
+    include("bioseq/counting.jl")
+    include("bioseq/gc_content.jl")
+    include("bioseq/ambiguous.jl")
+    include("bioseq/shuffle.jl")
 end
 
 end
