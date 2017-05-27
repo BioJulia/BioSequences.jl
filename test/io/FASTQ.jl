@@ -180,3 +180,61 @@
         @test FASTQ.sequence(BioSequence{DNAAlphabet{2}}, first(FASTQ.Reader(input, fill_ambiguous=DNA_A))) == dna"ACGTAAACGTAA"
     end
 end
+
+@testset "Quality scores" begin
+    @testset "Decoding base quality scores" begin
+        function test_decode(encoding, values, expected)
+            result = Array{Int8}(length(expected))
+            FASTQ.decode_quality_string!(encoding, values, result, 1, length(result))
+            @test result == expected
+        end
+
+        test_decode(FASTQ.SANGER_QUAL_ENCODING,
+                    UInt8['!', '#', '$', '%', '&', 'I', '~'],
+                    Int8[0, 2, 3, 4, 5, 40, 93])
+
+        test_decode(FASTQ.SOLEXA_QUAL_ENCODING,
+                    UInt8[';', 'B', 'C', 'D', 'E', 'h', '~'],
+                    Int8[-5, 2, 3, 4, 5, 40, 62])
+
+        test_decode(FASTQ.ILLUMINA13_QUAL_ENCODING,
+                    UInt8['@', 'B', 'C', 'D', 'E', 'h', '~'],
+                    Int8[0, 2, 3, 4, 5, 40, 62])
+
+        test_decode(FASTQ.ILLUMINA15_QUAL_ENCODING,
+                    UInt8['C', 'D', 'E', 'h', '~'],
+                    Int8[3, 4, 5, 40, 62])
+
+        test_decode(FASTQ.ILLUMINA18_QUAL_ENCODING,
+                    UInt8['!', '#', '$', '%', '&', 'I', '~'],
+                    Int8[0, 2, 3, 4, 5, 40, 93])
+    end
+
+    @testset "Encoding base quality scores" begin
+        function test_encode(encoding, values, expected)
+            result = Array{UInt8}(length(expected))
+            FASTQ.encode_quality_string!(encoding, values, result, 1, length(result))
+            @test result == expected
+        end
+
+        test_encode(FASTQ.SANGER_QUAL_ENCODING,
+                    Int8[0, 2, 3, 4, 5, 40, 93],
+                    UInt8['!', '#', '$', '%', '&', 'I', '~'])
+
+        test_encode(FASTQ.SOLEXA_QUAL_ENCODING,
+                    Int8[-5, 2, 3, 4, 5, 40, 62],
+                    UInt8[';', 'B', 'C', 'D', 'E', 'h', '~'])
+
+        test_encode(FASTQ.ILLUMINA13_QUAL_ENCODING,
+                    Int8[0, 2, 3, 4, 5, 40, 62],
+                    UInt8['@', 'B', 'C', 'D', 'E', 'h', '~'])
+
+        test_encode(FASTQ.ILLUMINA15_QUAL_ENCODING,
+                    Int8[3, 4, 5, 40, 62],
+                    UInt8['C', 'D', 'E', 'h', '~'])
+
+        test_encode(FASTQ.ILLUMINA18_QUAL_ENCODING,
+                    Int8[0, 2, 3, 4, 5, 40, 93],
+                    UInt8['!', '#', '$', '%', '&', 'I', '~'])
+    end
+end

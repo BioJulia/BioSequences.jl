@@ -225,7 +225,4 @@ include("demultiplexer.jl")
     include("io/abif.jl")
 end
 
-include("quality.jl")
-
-
 end
