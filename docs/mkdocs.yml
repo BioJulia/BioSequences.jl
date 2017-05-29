@@ -1,0 +1,49 @@
+# Project information
+site_name:   BioSequences.jl
+site_description: Biological sequences for the julia language
+site_author: The BioJulia Organisation
+site_url: https://biojulia.github.io/BioSequences.jl/
+
+# Repository
+repo_url:  https://github.com/BioJulia/BioSequences.jl
+
+# Copyright
+copyright: Copyright (c) 2016 The BioJulia Organisation
+
+# Documentation and theme
+theme: material
+docs_dir: 'build'
+
+# Options
+extra:
+  author:
+    github: BioJulia
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
+
+# Extensions
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - codehilite
+  - def_list
+
+# Page tree
+pages:
+- Home: index.md
+- Biological Symbols: symbols.md
+- Sequence types:
+    - Overview: sequences/sequences.md
+    - BioSequence: sequences/bioseq.md
+    - Reference Sequences: sequences/refseq.md
+    - Nucleic acid k-mers: sequences/kmer.md
+- Searching: man/seq/search.md
+- IO:
+    - Sequence records: seqrecords.md
+- Demultiplexing: demultiplexer.md
