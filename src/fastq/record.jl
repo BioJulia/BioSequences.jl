@@ -147,6 +147,11 @@ function identifier(record::Record)::String
     return String(record.data[record.identifier])
 end
 
+"""
+    hasidentifier(record::Record)
+
+Checks whether or not the `record` has an identifier.
+"""
 function hasidentifier(record::Record)
     return isfilled(record)
 end
@@ -164,6 +169,11 @@ function description(record::Record)::String
     return String(record.data[record.description])
 end
 
+"""
+    hasdescription(record::Record)
+
+Checks whether or not the `record` has a description.
+"""
 function hasdescription(record)
     return isfilled(record) && record.description != 1:0
 end
@@ -203,6 +213,11 @@ function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))
     return sequence(BioSequences.DNASequence, record, part)
 end
 
+"""
+    hassequence(record::Record)
+
+Checks whether or not a sequence record contains a sequence.
+"""
 function hassequence(record::Record)
     # zero-length sequence may exist
     return isfilled(record)
@@ -248,6 +263,11 @@ function quality(record::Record, encoding_name::Symbol, part::UnitRange{Int}=1:e
     return quality
 end
 
+"""
+    hasquality(record::Record)
+
+Check whether the given FASTQ `record` has a quality string.
+"""
 function hasquality(record::Record)
     return isfilled(record)
 end
