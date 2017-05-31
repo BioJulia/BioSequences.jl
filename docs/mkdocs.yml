@@ -45,5 +45,6 @@ pages:
     - Nucleic acid k-mers: sequences/kmer.md
 - IO:
     - FASTA formatted files: io/fasta.md
+    - FASTQ formatted files: io/fastq.md
 - Searching: man/seq/search.md
 - Demultiplexing: demultiplexer.md
