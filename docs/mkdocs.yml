@@ -46,5 +46,6 @@ pages:
 - IO:
     - FASTA formatted files: io/fasta.md
     - FASTQ formatted files: io/fastq.md
-- Searching: man/seq/search.md
+    - 2bit formatted files: io/twobit.md
+- Searching: search.md
 - Demultiplexing: demultiplexer.md
