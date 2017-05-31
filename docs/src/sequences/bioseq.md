@@ -4,7 +4,7 @@ DocTestSetup = quote
     using BioSequences
 end
 ```
-## General-purpose sequences
+# General-purpose sequences
 
 `BioSequence{A}` is a generic sequence type parameterized by an alphabet type
 `A` that defines the domain (or set) of biological symbols, and each alphabet
@@ -34,9 +34,9 @@ defining few numbers of methods.
 This is described in [Defining a new alphabet](@ref) section.
 
 
-### Constructing sequences
+## Constructing sequences
 
-#### Using string literals
+### Using string literals
 
 Most immediately, sequence literals can be constructed using the string macros
 `dna`, `rna`, `aa`, and `char`:
@@ -199,7 +199,7 @@ the bodies of things like for loops. And if you use them and are unsure, use the
  's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
 
 
-#### Other constructors and conversion
+### Other constructors and conversion
 
 Sequences can also be constructed from strings or arrays of nucleotide or amino
 acid symbols using constructors or the `convert` function:
@@ -283,9 +283,9 @@ A translatable `RNASequence` can also be converted to an `AminoAcidSequence`
 using the [`translate`](@ref) function.
 
 
-### Indexing, modifying and transformations
+## Indexing, modifying and transformations
 
-#### Getindex
+### Getindex
 
 Sequences for the most part behave like other vector or string types. They can
 be indexed using integers or ranges:
@@ -342,7 +342,7 @@ subsequence, the job of managing and protecting the underlying data of sequences
 is handled for them.
 
 
-#### Setindex and modifying DNA sequences
+### Setindex and modifying DNA sequences
 
 The biological symbol at a given locus in a biological sequence can be set using
 setindex:
@@ -409,7 +409,7 @@ AAT
 
 ```
 
-#### Additional transformations
+### Additional transformations
 
 In addition to these basic modifying functions, other sequence transformations
 which are common in bioinformatics are also provided.
@@ -447,7 +447,7 @@ ACGTAT
 
 ```
 
-##### Translation
+#### Translation
 
 Translation is a slightly more complex transformation for RNA Sequences and so
 we describe it here in more detail.
@@ -488,12 +488,12 @@ Translation Tables:
 
 <http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes>
 
-### Site counting
+## Site counting
 
 BioSequences extends the `Base.count` method to provide some useful utilities for
 counting the number of sites in biological sequences.
 
-#### Site types
+### Site types
 
 Different types of site can be counted. Each of these types is a concrete
 subtype of the abstract type `Site`:
@@ -506,7 +506,7 @@ Match
 Mismatch
 ```
 
-#### `Base.count` methods
+### `Base.count` methods
 
 The count method can be used with two sequences and a concrete subtype of
 `Site`:
@@ -536,7 +536,7 @@ julia> count(Match, dna"ATCGATCG", dna"AAGGTTCG", 3, 1)
 (6,8) => 3
 ```
 
-#### The `pairwise_count` function
+### The `pairwise_count` function
 Counting can also be done on a set of sequences in a pairwise manner with the
 `count_pairwise` function:
 
@@ -549,7 +549,7 @@ julia> count_pairwise(Match, dna"ATCGCCA-", dna"ATCGCCTA", dna"ATCGCCT-", dna"GT
  5  7  6  0
 ```
 
-### Iteration
+## Iteration
 
 Sequences also work as iterators over symbols:
 
@@ -569,7 +569,7 @@ julia> n
 ```
 
 
-### Using a more compact sequence representation
+## Using a more compact sequence representation
 
 As we saw above, DNA and RNA sequences can store any ambiguous nucleotides like
 'N'.  If you are sure that nucleotide sequences store unambiguous nucleotides
@@ -594,7 +594,7 @@ consider to use the `ReferenceSequence` type described in the [Reference
 sequences](@ref) section.
 
 
-### Defining a new alphabet
+## Defining a new alphabet
 
 The alphabet type parameter `A` of `BioSequence{A}` enables a user to extend
 functionality of `BioSequence` with minimum effort. As an example, definition of
@@ -603,19 +603,19 @@ a new alphabet type representing a sequence of boolean values is shown below:
 ```jldoctest
 julia> immutable BoolAlphabet <: Alphabet end
 
-julia> Seq.bitsof(::Type{BoolAlphabet}) = 1
+julia> BioSequences.bitsof(::Type{BoolAlphabet}) = 1
 
-julia> Seq.eltype(::Type{BoolAlphabet}) = Bool
+julia> BioSequences.eltype(::Type{BoolAlphabet}) = Bool
 
-julia> Seq.alphabet(::Type{BoolAlphabet}) = false:true
+julia> BioSequences.alphabet(::Type{BoolAlphabet}) = false:true
 
-julia> function Seq.encode(::Type{BoolAlphabet}, x::Bool)
+julia> function BioSequences.encode(::Type{BoolAlphabet}, x::Bool)
            return UInt64(ifelse(x, 0x01, 0x00))
        end
 
-julia> function Seq.decode(::Type{BoolAlphabet}, x::UInt64)
+julia> function BioSequences.decode(::Type{BoolAlphabet}, x::UInt64)
            if x > 0x01
-               throw(Seq.DecodeError(BoolAlphabet, x))
+               throw(BioSequences.DecodeError(BoolAlphabet, x))
            end
            return ifelse(x == 0x00, false, true)
        end

@@ -11,6 +11,7 @@
 
 **Development builds:**
 [![Build Status](https://travis-ci.org/BioJulia/BioSequences.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioSequences.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/m4o4t50l3ih35jrt/branch/master?svg=true)](https://ci.appveyor.com/project/Ward9250/biosequences-jl/branch/master)
 
 ## Description
 

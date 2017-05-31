@@ -163,6 +163,11 @@ function identifier(record::Record)::String
     return String(record.data[record.identifier])
 end
 
+"""
+    hasidentifier(record::Record)
+
+Checks whether or not the `record` has an identifier.
+"""
 function hasidentifier(record)
     return isfilled(record) && !isempty(record.identifier)
 end
@@ -188,6 +193,11 @@ function description(record::Record)::String
     return String(record.data[record.description])
 end
 
+"""
+    hasdescription(record::Record)
+
+Checks whether or not the `record` has a description.
+"""
 function hasdescription(record)
     return isfilled(record) && !isempty(record.description)
 end
@@ -232,6 +242,11 @@ function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))
     return sequence(S, record, part)
 end
 
+"""
+    hassequence(record::Record)
+
+Checks whether or not a sequence record contains a sequence.
+"""
 function hassequence(record::Record)
     # zero-length sequence may exist
     return isfilled(record)

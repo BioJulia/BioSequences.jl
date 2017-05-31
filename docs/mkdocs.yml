@@ -43,7 +43,7 @@ pages:
     - BioSequence: sequences/bioseq.md
     - Reference Sequences: sequences/refseq.md
     - Nucleic acid k-mers: sequences/kmer.md
-- Searching: man/seq/search.md
 - IO:
-    - Sequence records: seqrecords.md
+    - FASTA formatted files: io/fasta.md
+- Searching: man/seq/search.md
 - Demultiplexing: demultiplexer.md
