@@ -1,0 +1,1289 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Biological sequences for the julia language">
+      
+      
+        <link rel="canonical" href="https://biojulia.github.io/BioSequences.jl/sequences/bioseq/">
+      
+      
+        <meta name="author" content="The BioJulia Organisation">
+      
+      
+        <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.6.4">
+    
+    
+      
+        <title>BioSequence - BioSequences.jl</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-1df76c4e58.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-e2807e330f.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../assets/Documenter.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body>
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="https://biojulia.github.io/BioSequences.jl/" title="BioSequences.jl" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  Sequence types
+                </span>
+              
+            
+            BioSequence
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/BioJulia/BioSequences.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    BioSequences.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/BioJulia/BioSequences.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../symbols/" title="Biological Symbols" class="md-nav__link">
+      Biological Symbols
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Sequence types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Sequence types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sequences/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        BioSequence
+      </label>
+    
+    <a href="./" title="BioSequence" class="md-nav__link md-nav__link--active">
+      BioSequence
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructing-sequences" title="Constructing sequences" class="md-nav__link">
+    Constructing sequences
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-string-literals" title="Using string literals" class="md-nav__link">
+    Using string literals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-constructors-and-conversion" title="Other constructors and conversion" class="md-nav__link">
+    Other constructors and conversion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#indexing-modifying-and-transformations" title="Indexing, modifying and transformations" class="md-nav__link">
+    Indexing, modifying and transformations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getindex" title="Getindex" class="md-nav__link">
+    Getindex
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setindex-and-modifying-dna-sequences" title="Setindex and modifying DNA sequences" class="md-nav__link">
+    Setindex and modifying DNA sequences
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-transformations" title="Additional transformations" class="md-nav__link">
+    Additional transformations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#translation" title="Translation" class="md-nav__link">
+    Translation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#site-counting" title="Site counting" class="md-nav__link">
+    Site counting
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#site-types" title="Site types" class="md-nav__link">
+    Site types
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basecount-methods" title="Base.count methods" class="md-nav__link">
+    Base.count methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pairwise_count-function" title="The pairwise_count function" class="md-nav__link">
+    The pairwise_count function
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#iteration" title="Iteration" class="md-nav__link">
+    Iteration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-more-compact-sequence-representation" title="Using a more compact sequence representation" class="md-nav__link">
+    Using a more compact sequence representation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-new-alphabet" title="Defining a new alphabet" class="md-nav__link">
+    Defining a new alphabet
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../refseq/" title="Reference Sequences" class="md-nav__link">
+      Reference Sequences
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kmer/" title="Nucleic acid k-mers" class="md-nav__link">
+      Nucleic acid k-mers
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      IO
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        IO
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../io/fasta/" title="FASTA formatted files" class="md-nav__link">
+      FASTA formatted files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../io/fastq/" title="FASTQ formatted files" class="md-nav__link">
+      FASTQ formatted files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../io/twobit/" title="2bit formatted files" class="md-nav__link">
+      2bit formatted files
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../search/" title="Searching" class="md-nav__link">
+      Searching
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../demultiplexer/" title="Demultiplexing" class="md-nav__link">
+      Demultiplexing
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructing-sequences" title="Constructing sequences" class="md-nav__link">
+    Constructing sequences
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-string-literals" title="Using string literals" class="md-nav__link">
+    Using string literals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-constructors-and-conversion" title="Other constructors and conversion" class="md-nav__link">
+    Other constructors and conversion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#indexing-modifying-and-transformations" title="Indexing, modifying and transformations" class="md-nav__link">
+    Indexing, modifying and transformations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getindex" title="Getindex" class="md-nav__link">
+    Getindex
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setindex-and-modifying-dna-sequences" title="Setindex and modifying DNA sequences" class="md-nav__link">
+    Setindex and modifying DNA sequences
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-transformations" title="Additional transformations" class="md-nav__link">
+    Additional transformations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#translation" title="Translation" class="md-nav__link">
+    Translation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#site-counting" title="Site counting" class="md-nav__link">
+    Site counting
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#site-types" title="Site types" class="md-nav__link">
+    Site types
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basecount-methods" title="Base.count methods" class="md-nav__link">
+    Base.count methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pairwise_count-function" title="The pairwise_count function" class="md-nav__link">
+    The pairwise_count function
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#iteration" title="Iteration" class="md-nav__link">
+    Iteration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-more-compact-sequence-representation" title="Using a more compact sequence representation" class="md-nav__link">
+    Using a more compact sequence representation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-new-alphabet" title="Defining a new alphabet" class="md-nav__link">
+    Defining a new alphabet
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/BioJulia/BioSequences.jl/edit/master/docs/sequences/bioseq.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <p><a id='General-purpose-sequences-1'></a></p>
+<h1 id="general-purpose-sequences">General-purpose sequences</h1>
+<p><code>BioSequence{A}</code> is a generic sequence type parameterized by an alphabet type <code>A</code> that defines the domain (or set) of biological symbols, and each alphabet has an associated symbol type. For example, <code>AminoAcidAlphabet</code> is associated with <code>AminoAcid</code> and hence an object of the <code>BioSequence{AminoAcidAlphabet}</code> type represents a sequence of amino acids.  Symbols from multiple alphabets can't be intermixed in one sequence type.</p>
+<p>The following table summarizes common sequence types that are defined in the <code>BioSequences</code> module:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Type</th>
+<th align="left">Symbol type</th>
+<th align="left">Type alias</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>BioSequence{DNAAlphabet{4}}</code></td>
+<td align="left"><code>DNA</code></td>
+<td align="left"><code>DNASequence</code></td>
+</tr>
+<tr>
+<td align="left"><code>BioSequence{RNAAlphabet{4}}</code></td>
+<td align="left"><code>RNA</code></td>
+<td align="left"><code>RNASequence</code></td>
+</tr>
+<tr>
+<td align="left"><code>BioSequence{AminoAcidAlphabet}</code></td>
+<td align="left"><code>AminoAcid</code></td>
+<td align="left"><code>AminoAcidSequence</code></td>
+</tr>
+<tr>
+<td align="left"><code>BioSequence{CharAlphabet}</code></td>
+<td align="left"><code>Char</code></td>
+<td align="left"><code>CharSequence</code></td>
+</tr>
+</tbody>
+</table>
+<p>Parameterized definition of the <code>BioSequence{A}</code> type is for the purpose of unifying the data structure and operations of any symbol type. In most cases, users don't have to care about it and can use <em>type aliases</em> listed above. However, the alphabet type fixes the internal memory encoding and plays an important role when optimizing performance of a program (see <a href="./#Using-a-more-compact-sequence-representation-1">Using a more compact sequence representation</a> section for low-memory encodings).  It also enables a user to define their own alphabet only by defining few numbers of methods. This is described in <a href="./#Defining-a-new-alphabet-1">Defining a new alphabet</a> section.</p>
+<p><a id='Constructing-sequences-1'></a></p>
+<h2 id="constructing-sequences">Constructing sequences</h2>
+<p><a id='Using-string-literals-1'></a></p>
+<h3 id="using-string-literals">Using string literals</h3>
+<p>Most immediately, sequence literals can be constructed using the string macros <code>dna</code>, <code>rna</code>, <code>aa</code>, and <code>char</code>:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dna&quot;TACGTANNATC&quot;
+11nt DNA Sequence:
+TACGTANNATC
+
+julia&gt; rna&quot;AUUUGNCCANU&quot;
+11nt RNA Sequence:
+AUUUGNCCANU
+
+julia&gt; aa&quot;ARNDCQEGHILKMFPSTWYVX&quot;
+21aa Amino Acid Sequence:
+ARNDCQEGHILKMFPSTWYVX
+
+julia&gt; char&quot;αβγδϵ&quot;
+5char Char Sequence:
+αβγδϵ
+</pre></div>
+
+
+<p>However it should be noted that by default these sequence literals allocate the <code>BioSequence</code> object before the code containing the sequence literal is run. This means there may be occasions where your program does not behave as you first expect. For example consider the following code:</p>
+<div class="codehilite"><pre><span></span>julia&gt; function foo()
+           s = dna&quot;CTT&quot;
+           push!(s, DNA_A)
+       end
+foo (generic function with 1 method)
+</pre></div>
+
+
+<p>You might expect that every time you call <code>foo</code>, that a DNA sequence <code>CTTA</code> would be returned. You might expect that this is because every time <code>foo</code> is called, a new DNA sequence variable <code>CTT</code> is created, and and <code>A</code> nucleotide is pushed to it, and the result, <code>CTTA</code> is returned. In other words you might expect the following output:</p>
+<div class="codehilite"><pre><span></span>julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+</pre></div>
+
+
+<p>However, this is not what happens, instead the following happens:</p>
+<div class="codehilite"><pre><span></span>julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+5nt DNA Sequence:
+CTTAA
+
+julia&gt; foo()
+6nt DNA Sequence:
+CTTAAA
+</pre></div>
+
+
+<p>The reason for this is because the sequence literal is allocated only once before the first time the function <code>foo</code> is called and run. Therefore, <code>s</code> in <code>foo</code> is always a reference to that one sequence that was allocated. So one sequence is created before <code>foo</code> is called, and then it is pushed to every time <code>foo</code> is called. Thus, that one allocated sequence grows with every call of <code>foo</code>.</p>
+<p>If you wanted <code>foo</code> to create a new sequence each time it is called, then you can add a flag to the end of the sequence literal to dictate behaviour: A flag of 's' means 'static': the sequence will be allocated before code is run, as is the default behaviour described above. However providing 'd' flag changes the behaviour: 'd' means 'dynamic': the sequence will be allocated at whilst the code is running, and not before. So to change <code>foo</code> so as it creates a new sequence each time it is called, simply add the 'd' flag to the sequence literal:</p>
+<div class="codehilite"><pre><span></span>julia&gt; function foo()
+           s = dna&quot;CTT&quot;d     # &#39;d&#39; flag appended to the string literal.
+           push!(s, DNA_A)
+       end
+foo (generic function with 1 method)
+</pre></div>
+
+
+<p>Now every time <code>foo</code> is called, a new sequence <code>CTT</code> is created, and an <code>A</code> nucleotide is pushed to it:</p>
+<div class="codehilite"><pre><span></span>julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+</pre></div>
+
+
+<p>So the take home message of sequence literals is this:</p>
+<p>Be careful when you are using sequence literals inside of functions, and inside the bodies of things like for loops. And if you use them and are unsure, use the  's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.</p>
+<p><a id='Other-constructors-and-conversion-1'></a></p>
+<h3 id="other-constructors-and-conversion">Other constructors and conversion</h3>
+<p>Sequences can also be constructed from strings or arrays of nucleotide or amino acid symbols using constructors or the <code>convert</code> function:</p>
+<div class="codehilite"><pre><span></span>julia&gt; DNASequence(&quot;TTANC&quot;)
+5nt DNA Sequence:
+TTANC
+
+julia&gt; DNASequence([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+5nt DNA Sequence:
+TTANC
+
+julia&gt; convert(DNASequence, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+5nt DNA Sequence:
+TTANC
+</pre></div>
+
+
+<p>Using <code>convert</code>, these operations are reversible: sequences can be converted to strings or arrays:</p>
+<div class="codehilite"><pre><span></span>julia&gt; convert(String, dna&quot;TTANGTA&quot;)
+&quot;TTANGTA&quot;
+
+julia&gt; convert(Vector{DNA}, dna&quot;TTANGTA&quot;)
+7-element Array{BioSymbols.DNA,1}:
+ DNA_T
+ DNA_T
+ DNA_A
+ DNA_N
+ DNA_G
+ DNA_T
+ DNA_A
+</pre></div>
+
+
+<p>Sequences can also be concatenated into longer sequences:</p>
+<div class="codehilite"><pre><span></span>julia&gt; DNASequence(dna&quot;ACGT&quot;, dna&quot;NNNN&quot;, dna&quot;TGCA&quot;)
+12nt DNA Sequence:
+ACGTNNNNTGCA
+
+julia&gt; dna&quot;ACGT&quot; * dna&quot;TGCA&quot;
+8nt DNA Sequence:
+ACGTTGCA
+
+julia&gt; repeat(dna&quot;TA&quot;, 10)
+20nt DNA Sequence:
+TATATATATATATATATATA
+
+julia&gt; dna&quot;TA&quot; ^ 10
+20nt DNA Sequence:
+TATATATATATATATATATA
+</pre></div>
+
+
+<p>Despite being separate types, <code>DNASequence</code> and <code>RNASequence</code> can freely be converted between efficiently without copying the underlying data:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dna = dna&quot;TTANGTAGACCG&quot;
+12nt DNA Sequence:
+TTANGTAGACCG
+
+julia&gt; rna = convert(RNASequence, dna)
+12nt RNA Sequence:
+UUANGUAGACCG
+
+julia&gt; dna.data === rna.data  # underlying data are same
+true
+</pre></div>
+
+
+<p>A random sequence can be obtained by the <code>randdnaseq</code>, <code>randrnaseq</code> and <code>randaaseq</code> functions, which generate <code>DNASequence</code>, <code>RNASequence</code> and <code>AminoAcidSequence</code>, respectively. Generated sequences are composed of the standard symbols without ambiguity and gap. For example, <code>randdnaseq(6)</code> may generate <code>dna"TCATAG"</code> but never generates <code>dna"TNANAG"</code> or <code>dna"T-ATAG"</code>.</p>
+<p>A translatable <code>RNASequence</code> can also be converted to an <code>AminoAcidSequence</code> using the <a href="./#BioSequences.translate"><code>translate</code></a> function.</p>
+<p><a id='Indexing,-modifying-and-transformations-1'></a></p>
+<h2 id="indexing-modifying-and-transformations">Indexing, modifying and transformations</h2>
+<p><a id='Getindex-1'></a></p>
+<h3 id="getindex">Getindex</h3>
+<p>Sequences for the most part behave like other vector or string types. They can be indexed using integers or ranges:</p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = dna&quot;ACGTTTANAGTNNAGTACC&quot;
+19nt DNA Sequence:
+ACGTTTANAGTNNAGTACC
+
+julia&gt; seq[5]
+DNA_T
+
+julia&gt; seq[6:end]
+14nt DNA Sequence:
+TANAGTNNAGTACC
+</pre></div>
+
+
+<p>Note that, indexing a biological sequence by range creates a subsequence of the original sequence. Unlike <code>Arrays</code> in the standard library, creating a subsequence is copy-free: a subsequence simply points to the original sequence data with its range. You may think that this is unsafe because modifying subsequences propagates to the original sequence, but this doesn't happen actually:</p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = dna&quot;AAAA&quot;    # create a sequence
+4nt DNA Sequence:
+AAAA
+
+julia&gt; subseq = seq[1:2]  # create a subsequence from `seq`
+2nt DNA Sequence:
+AA
+
+julia&gt; subseq[2] = DNA_T  # modify the second element of it
+DNA_T
+
+julia&gt; subseq             # the subsequence is modified
+2nt DNA Sequence:
+AT
+
+julia&gt; seq                # but the original sequence is not
+4nt DNA Sequence:
+AAAA
+</pre></div>
+
+
+<p>This is because modifying a sequence checks whether its underlying data are shared with other sequences under the hood. If and only if the data are shared, the subsequence creates a copy of itself. Any modifying operation does this check. This is called <em>copy-on-write</em> strategy and users don't need to care about it because it is transparent: If the user modifies a sequence with or subsequence, the job of managing and protecting the underlying data of sequences is handled for them.</p>
+<p><a id='Setindex-and-modifying-DNA-sequences-1'></a></p>
+<h3 id="setindex-and-modifying-dna-sequences">Setindex and modifying DNA sequences</h3>
+<p>The biological symbol at a given locus in a biological sequence can be set using setindex:</p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = dna&quot;ACGTTTANAGTNNAGTACC&quot;
+19nt DNA Sequence:
+ACGTTTANAGTNNAGTACC
+
+julia&gt; seq[5] = DNA_A
+DNA_A
+</pre></div>
+
+
+<p>In addition, many other modifying operations are possible for biological sequences such as <code>push!</code>, <code>pop!</code>, and <code>insert!</code>, which should be familiar to people used to editing arrays.</p>
+<div class="codehilite"><pre><span></span>push!
+pop!
+shift!
+unshift!
+insert!
+deleteat!(::BioSequences.BioSequence, ::Integer)
+append!
+copy!
+</pre></div>
+
+
+<p>Here are some examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = dna&quot;ACG&quot;
+3nt DNA Sequence:
+ACG
+
+julia&gt; push!(seq, DNA_T)
+4nt DNA Sequence:
+ACGT
+
+julia&gt; append!(seq, dna&quot;AT&quot;)
+6nt DNA Sequence:
+ACGTAT
+
+julia&gt; reverse!(seq)
+6nt DNA Sequence:
+TATGCA
+
+julia&gt; complement!(seq)
+6nt DNA Sequence:
+ATACGT
+
+julia&gt; reverse_complement!(seq)
+6nt DNA Sequence:
+ACGTAT
+
+julia&gt; deleteat!(seq, 2)
+5nt DNA Sequence:
+AGTAT
+
+julia&gt; deleteat!(seq, 2:3)
+3nt DNA Sequence:
+AAT
+</pre></div>
+
+
+<p><a id='Additional-transformations-1'></a></p>
+<h3 id="additional-transformations">Additional transformations</h3>
+<p>In addition to these basic modifying functions, other sequence transformations which are common in bioinformatics are also provided.</p>
+<p><a id='Base.reverse!' href='#Base.reverse!'>#</a>
+<strong><code>Base.reverse!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>reverse!(v [, start=1 [, stop=length(v) ]]) -&gt; v
+</pre></div>
+
+
+<p>In-place version of <a href="../:func:reverse"><code>reverse</code></a>.</p>
+<p><a target='_blank' href='https://github.com/JuliaLang/julia/tree/f4c6c9d4bbbd9587d84494e314f692c15ff1f9c0/base/docs/helpdb/Base.jl#L1966-L1970' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.complement!' href='#BioSequences.complement!'>#</a>
+<strong><code>BioSequences.complement!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>complement!(seq)
+</pre></div>
+
+
+<p>Make a complement sequence of <code>seq</code> in place.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/transformations.jl#L215-L219' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>complement!(seq)
+</pre></div>
+
+
+<p>Transform <code>seq</code> into it's complement.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/transformations.jl#L231-L235' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.reverse_complement!' href='#BioSequences.reverse_complement!'>#</a>
+<strong><code>BioSequences.reverse_complement!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>reverse_complement!(seq)
+</pre></div>
+
+
+<p>Make a reversed complement sequence of <code>seq</code> in place.</p>
+<p>Ambiguous nucleotides are left as-is.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/transformations.jl#L259-L265' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = dna&quot;ACG&quot;
+3nt DNA Sequence:
+ACG
+
+julia&gt; push!(seq, DNA_T)
+4nt DNA Sequence:
+ACGT
+
+julia&gt; append!(seq, dna&quot;AT&quot;)
+6nt DNA Sequence:
+ACGTAT
+
+julia&gt; reverse!(seq)
+6nt DNA Sequence:
+TATGCA
+
+julia&gt; complement!(seq)
+6nt DNA Sequence:
+ATACGT
+
+julia&gt; reverse_complement!(seq)
+6nt DNA Sequence:
+ACGTAT
+</pre></div>
+
+
+<p><a id='Translation-1'></a></p>
+<h4 id="translation">Translation</h4>
+<p>Translation is a slightly more complex transformation for RNA Sequences and so we describe it here in more detail.</p>
+<p>The <a href="./#BioSequences.translate"><code>translate</code></a> funtion translates a sequence of codons in a RNA sequence to a amino acid sequence besed on a genetic code mapping. The <code>BioSequences</code> module contains all NCBI defined genetic codes and they are registered in <a href="./#BioSequences.ncbi_trans_table"><code>ncbi_trans_table</code></a>.</p>
+<p><a id='BioSequences.translate' href='#BioSequences.translate'>#</a>
+<strong><code>BioSequences.translate</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>translate(rna_seq, code=standard_genetic_code, allow_ambiguous_codons=true)
+</pre></div>
+
+
+<p>Translate an <code>RNASequence</code> to an <code>AminoAcidSequence</code>.</p>
+<p>Translation uses genetic code <code>code</code> to map codons to amino acids. See <code>ncbi_trans_table</code> for available genetic codes. If codons in the given RNA sequence cannot determine a unique amino acid, they will be translated to <code>AA_X</code> if <code>allow_ambiguous_codons</code> is <code>true</code> and otherwise result in an error.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/geneticcode.jl#L311-L321' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.ncbi_trans_table' href='#BioSequences.ncbi_trans_table'>#</a>
+<strong><code>BioSequences.ncbi_trans_table</code></strong> &mdash; <em>Constant</em>.</p>
+<p>Genetic code list of NCBI.</p>
+<p>The standard genetic code is <code>ncbi_trans_table[1]</code> and others can be shown by <code>show(ncbi_trans_table)</code>. For more details, consult the next link: http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/geneticcode.jl#L90-L97' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>julia&gt; ncbi_trans_table
+Translation Tables:
+  1. The Standard Code (standard_genetic_code)
+  2. The Vertebrate Mitochondrial Code (vertebrate_mitochondrial_genetic_code)
+  3. The Yeast Mitochondrial Code (yeast_mitochondrial_genetic_code)
+  4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code (mold_mitochondrial_genetic_code)
+  5. The Invertebrate Mitochondrial Code (invertebrate_mitochondrial_genetic_code)
+  6. The Ciliate, Dasycladacean and Hexamita Nuclear Code (ciliate_nuclear_genetic_code)
+  9. The Echinoderm and Flatworm Mitochondrial Code (echinoderm_mitochondrial_genetic_code)
+ 10. The Euplotid Nuclear Code (euplotid_nuclear_genetic_code)
+ 11. The Bacterial, Archaeal and Plant Plastid Code (bacterial_plastid_genetic_code)
+ 12. The Alternative Yeast Nuclear Code (alternative_yeast_nuclear_genetic_code)
+ 13. The Ascidian Mitochondrial Code (ascidian_mitochondrial_genetic_code)
+ 14. The Alternative Flatworm Mitochondrial Code (alternative_flatworm_mitochondrial_genetic_code)
+ 16. Chlorophycean Mitochondrial Code (chlorophycean_mitochondrial_genetic_code)
+ 21. Trematode Mitochondrial Code (trematode_mitochondrial_genetic_code)
+ 22. Scenedesmus obliquus Mitochondrial Code (scenedesmus_obliquus_mitochondrial_genetic_code)
+ 23. Thraustochytrium Mitochondrial Code (thraustochytrium_mitochondrial_genetic_code)
+ 24. Pterobranchia Mitochondrial Code (pterobrachia_mitochondrial_genetic_code)
+ 25. Candidate Division SR1 and Gracilibacteria Code (candidate_division_sr1_genetic_code)
+</pre></div>
+
+
+<p><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes">http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes</a></p>
+<p><a id='Site-counting-1'></a></p>
+<h2 id="site-counting">Site counting</h2>
+<p>BioSequences extends the <code>Base.count</code> method to provide some useful utilities for counting the number of sites in biological sequences.</p>
+<p><a id='Site-types-1'></a></p>
+<h3 id="site-types">Site types</h3>
+<p>Different types of site can be counted. Each of these types is a concrete subtype of the abstract type <code>Site</code>:</p>
+<p><a id='BioSequences.Certain' href='#BioSequences.Certain'>#</a>
+<strong><code>BioSequences.Certain</code></strong> &mdash; <em>Type</em>.</p>
+<p>A <code>Certain</code> site describes a site where both of two aligned sites are not an ambiguity symbol or a gap.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/site_counting/site_counting.jl#L16-L19' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.Gap' href='#BioSequences.Gap'>#</a>
+<strong><code>BioSequences.Gap</code></strong> &mdash; <em>Type</em>.</p>
+<p>An <code>Gap</code> site describes a site where either of two aligned sites are a gap symbol '-'.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/site_counting/site_counting.jl#L22-L25' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.Ambiguous' href='#BioSequences.Ambiguous'>#</a>
+<strong><code>BioSequences.Ambiguous</code></strong> &mdash; <em>Type</em>.</p>
+<p>An <code>Ambiguous</code> site describes a site where either of two aligned sites are an ambiguity symbol.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/site_counting/site_counting.jl#L28-L31' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.Match' href='#BioSequences.Match'>#</a>
+<strong><code>BioSequences.Match</code></strong> &mdash; <em>Type</em>.</p>
+<p>A <code>Match</code> site describes a site where two aligned nucleotides are the same biological symbol.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/site_counting/site_counting.jl#L34-L37' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.Mismatch' href='#BioSequences.Mismatch'>#</a>
+<strong><code>BioSequences.Mismatch</code></strong> &mdash; <em>Type</em>.</p>
+<p>A <code>Mismatch</code> site describes a site where two aligned nucleotides are not the same biological symbol.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/1e3828cd42f316ac54bd74ae85fe1439df659e7b/src/bioseq/site_counting/site_counting.jl#L40-L43' class='documenter-source'>source</a><br></p>
+<p><a id='Base.count-methods-1'></a></p>
+<h3 id="basecount-methods"><code>Base.count</code> methods</h3>
+<p>The count method can be used with two sequences and a concrete subtype of <code>Site</code>:</p>
+<div class="codehilite"><pre><span></span>julia&gt; count(Match, dna&quot;ATCGATCG&quot;, dna&quot;AAGGTTCG&quot;)
+5
+</pre></div>
+
+
+<p>By providing a <code>window</code> and <code>step</code> size, counting can be done from within a sliding window:</p>
+<div class="codehilite"><pre><span></span>julia&gt; count(Match, dna&quot;ATCGATCG&quot;, dna&quot;AAGGTTCG&quot;, 3, 1)
+6-element Array{IntervalTrees.IntervalValue{Int64,Int64},1}:
+ IntervalTrees.IntervalValue{Int64,Int64}
+(1,3) =&gt; 1
+ IntervalTrees.IntervalValue{Int64,Int64}
+(2,4) =&gt; 1
+ IntervalTrees.IntervalValue{Int64,Int64}
+(3,5) =&gt; 1
+ IntervalTrees.IntervalValue{Int64,Int64}
+(4,6) =&gt; 2
+ IntervalTrees.IntervalValue{Int64,Int64}
+(5,7) =&gt; 2
+ IntervalTrees.IntervalValue{Int64,Int64}
+(6,8) =&gt; 3
+</pre></div>
+
+
+<p><a id='The-pairwise_count-function-1'></a></p>
+<h3 id="the-pairwise_count-function">The <code>pairwise_count</code> function</h3>
+<p>Counting can also be done on a set of sequences in a pairwise manner with the <code>count_pairwise</code> function:</p>
+<div class="codehilite"><pre><span></span>julia&gt; count_pairwise(Match, dna&quot;ATCGCCA-&quot;, dna&quot;ATCGCCTA&quot;, dna&quot;ATCGCCT-&quot;, dna&quot;GTCGCCTA&quot;)
+4×4 PairwiseListMatrices.PairwiseListMatrix{Int64,false}:
+ 0  6  7  5
+ 6  0  7  7
+ 7  7  0  6
+ 5  7  6  0
+</pre></div>
+
+
+<p><a id='Iteration-1'></a></p>
+<h2 id="iteration">Iteration</h2>
+<p>Sequences also work as iterators over symbols:</p>
+<div class="codehilite"><pre><span></span>julia&gt; n = 0
+0
+
+julia&gt; for nt in dna&quot;ATNGNNT&quot;
+           if nt == DNA_N
+               n += 1
+           end
+       end
+
+julia&gt; n
+3
+</pre></div>
+
+
+<p><a id='Using-a-more-compact-sequence-representation-1'></a></p>
+<h2 id="using-a-more-compact-sequence-representation">Using a more compact sequence representation</h2>
+<p>As we saw above, DNA and RNA sequences can store any ambiguous nucleotides like 'N'.  If you are sure that nucleotide sequences store unambiguous nucleotides only, you can save the memory space of sequences. <code>DNAAlphabet{2}</code> is an alphabet that uses two bits per base and limits to only unambiguous nucleotide symbols (ACGT in DNA and ACGU in RNA). To create a sequence of this alphabet, you need to explicitly pass <code>DNAAlphabet{2}</code> to <code>BioSequence</code> as its type parameter:</p>
+<div class="codehilite"><pre><span></span>julia&gt; seq = BioSequence{DNAAlphabet{2}}(&quot;ACGT&quot;)
+4nt DNA Sequence:
+ACGT
+</pre></div>
+
+
+<p>Recall that <code>DNASequence</code> is a type alias of <code>BioSequence{DNAAlphabet{4}}</code>, which uses four bits per base. That is, <code>BioSequence{DNAAlphabet{2}}</code> saves half of memory footprint compared to <code>BioSequence{DNAAlphabet{4}}</code>. If you need to handle reference genomes that are composed of five nucleotides, ACGTN, consider to use the <code>ReferenceSequence</code> type described in the <a href="../refseq/#Reference-sequences-1">Reference sequences</a> section.</p>
+<p><a id='Defining-a-new-alphabet-1'></a></p>
+<h2 id="defining-a-new-alphabet">Defining a new alphabet</h2>
+<p>The alphabet type parameter <code>A</code> of <code>BioSequence{A}</code> enables a user to extend functionality of <code>BioSequence</code> with minimum effort. As an example, definition of a new alphabet type representing a sequence of boolean values is shown below:</p>
+<div class="codehilite"><pre><span></span>julia&gt; immutable BoolAlphabet &lt;: Alphabet end
+
+julia&gt; BioSequences.bitsof(::Type{BoolAlphabet}) = 1
+
+julia&gt; BioSequences.eltype(::Type{BoolAlphabet}) = Bool
+
+julia&gt; BioSequences.alphabet(::Type{BoolAlphabet}) = false:true
+
+julia&gt; function BioSequences.encode(::Type{BoolAlphabet}, x::Bool)
+           return UInt64(ifelse(x, 0x01, 0x00))
+       end
+
+julia&gt; function BioSequences.decode(::Type{BoolAlphabet}, x::UInt64)
+           if x &gt; 0x01
+               throw(BioSequences.DecodeError(BoolAlphabet, x))
+           end
+           return ifelse(x == 0x00, false, true)
+       end
+</pre></div>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../sequences/" title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Overview
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../refseq/" title="Reference Sequences" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Reference Sequences
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright (c) 2016 The BioJulia Organisation
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-06a3e72efd.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../../assets/mathjaxhelper.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
