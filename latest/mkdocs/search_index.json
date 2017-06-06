@@ -249,6 +249,26 @@
             "location": "/demultiplexer/#sequence-demultiplexing", 
             "text": "Multiplex sequencing is a technology to sequence multiple samples at the same time on a high-throughput DNA sequencer. Samples are distinguished by the short prefix of a DNA sequence called DNA barcode. The  BioSequences  offers the  Demultiplexer  type and the  demultiplex  function to identify the DNA barcode of a longer DNA sequence allowing small errors.  In the following example, four kinds of DNA sequences of length 4 are used as DNA barcodes.  Demultiplexer  takes these barcodes as its first argument with a few options:  julia  barcodes = DNASequence[ ATGG ,  CAGA ,  GGAA ,  TACG ];\n\njulia  dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)\nBioSequences.Demultiplexer{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}:\n  distance: hamming\n  number of barcodes: 4\n  number of correctable errors: 1  n_max_errors  specifies the number of maximum correctable errors in a barcode. The type of correctable errors depends on the  distance  parameter. When  distance = :hamming  as shown above only substitutions are correctable. When  distance = :levenshtein  substitutions, deletions, and insertions are correctable. The user is responsible for keeping enough distances among barcodes;  Demultiplexer  will throw an exception if two barcodes are within  n_max_errors * 2 .  The  demultiplex  function takes a demultiplexer object and a DNA sequence, and returns a tuple of a barcode index and a distance between the original barcode sequence and the prefix sequence:  julia  demultiplex(dplxr, dna ATGGCGNT )  # 1st barcode with no errors\n(1,0)\n\njulia  demultiplex(dplxr, dna CAGGCGNT )  # 2nd barcode with one error\n(2,1)\n\njulia  demultiplex(dplxr, dna GGAACGNT )  # 3rd barcode with no errors\n(3,0)\n\njulia  demultiplex(dplxr, dna TGACCGNT )  # no matching barcode\n(0,-1)  The optional third argument controls the search strategy.  demultiplex  uses an index to search the closest barcode within  n_max_errors  in the barcode set and returns it if any by default. If the third argument is  true  it falls back to a linear search after the index search and returns one of the closest barcodes at random. The next example shows the difference of these two strategies:  julia  demultiplex(dplxr, dna TGACCGNT , false)  # linear search off (default)\n(0,-1)\n\njulia  demultiplex(dplxr, dna TGACCGNT , true)   # linear search on\n(3,2)", 
             "title": "Sequence demultiplexing"
+        }, 
+        {
+            "location": "/contributing/", 
+            "text": "Contributing\n\n\nWe appreciate contributions from users including reporting bugs, fixing issues, improving performance and adding new features.\n\n\nIf you have a question about contributing or using this package, you are encouraged to use the \nBio category of the Julia discourse site\n.\n\n\nDetailed guidance for contributing to all BioJulia packages is provided at the \nBioJulia Contribution Documentation\n.\n\n\nHere we list specific details about contributing and maintainership pertaining specifically to the BioSequences.jl package.\n\n\n\n\nNamed maintainers\n\n\nThe named maintainers of this package are Kenta Sato and Ben Ward. It is their responsibility to make final choices about pull requests and issues, although because of our community structure, you will find other maintainers assisting them.\n\n\n\n\nBranching model\n\n\nThe branching model used to develop and make releases of this package is the \nOneFlow\n model summarized in the \nBioJulia Contribution Documentation", 
+            "title": "Contributing"
+        }, 
+        {
+            "location": "/contributing/#contributing", 
+            "text": "We appreciate contributions from users including reporting bugs, fixing issues, improving performance and adding new features.  If you have a question about contributing or using this package, you are encouraged to use the  Bio category of the Julia discourse site .  Detailed guidance for contributing to all BioJulia packages is provided at the  BioJulia Contribution Documentation .  Here we list specific details about contributing and maintainership pertaining specifically to the BioSequences.jl package.", 
+            "title": "Contributing"
+        }, 
+        {
+            "location": "/contributing/#named-maintainers", 
+            "text": "The named maintainers of this package are Kenta Sato and Ben Ward. It is their responsibility to make final choices about pull requests and issues, although because of our community structure, you will find other maintainers assisting them.", 
+            "title": "Named maintainers"
+        }, 
+        {
+            "location": "/contributing/#branching-model", 
+            "text": "The branching model used to develop and make releases of this package is the  OneFlow  model summarized in the  BioJulia Contribution Documentation", 
+            "title": "Branching model"
         }
     ]
 }
