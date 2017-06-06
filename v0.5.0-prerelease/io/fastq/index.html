@@ -1,0 +1,731 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Biological sequences for the julia language">
+      
+      
+        <link rel="canonical" href="https://biojulia.github.io/BioSequences.jl/io/fastq/">
+      
+      
+        <meta name="author" content="The BioJulia Organisation">
+      
+      
+        <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.1">
+    
+    
+      
+        <title>FASTQ formatted files - BioSequences.jl</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-1df76c4e58.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-f98ca285f9.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../assets/Documenter.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body>
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="https://biojulia.github.io/BioSequences.jl/" title="BioSequences.jl" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  IO
+                </span>
+              
+            
+            FASTQ formatted files
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/BioJulia/BioSequences.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    BioSequences.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/BioJulia/BioSequences.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../symbols/" title="Biological Symbols" class="md-nav__link">
+      Biological Symbols
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Sequence types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Sequence types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sequences/sequences/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sequences/bioseq/" title="BioSequence" class="md-nav__link">
+      BioSequence
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sequences/refseq/" title="Reference Sequences" class="md-nav__link">
+      Reference Sequences
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sequences/kmer/" title="Nucleic acid k-mers" class="md-nav__link">
+      Nucleic acid k-mers
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
+    
+    <label class="md-nav__link" for="nav-4">
+      IO
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        IO
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../fasta/" title="FASTA formatted files" class="md-nav__link">
+      FASTA formatted files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        FASTQ formatted files
+      </label>
+    
+    <a href="./" title="FASTQ formatted files" class="md-nav__link md-nav__link--active">
+      FASTQ formatted files
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#readers-and-writers" title="Readers and Writers" class="md-nav__link">
+    Readers and Writers
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../twobit/" title="2bit formatted files" class="md-nav__link">
+      2bit formatted files
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../search/" title="Searching" class="md-nav__link">
+      Searching
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../demultiplexer/" title="Demultiplexing" class="md-nav__link">
+      Demultiplexing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../contributing/" title="Contributing" class="md-nav__link">
+      Contributing
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#readers-and-writers" title="Readers and Writers" class="md-nav__link">
+    Readers and Writers
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/BioJulia/BioSequences.jl/edit/master/docs/io/fastq.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <p><a id='IO-FASTQ-formatted-files-1'></a></p>
+<h1 id="io-fastq-formatted-files">IO - FASTQ formatted files</h1>
+<p>FASTQ is a text-based file format for representing DNA sequences along with qualities for each base. A FASTQ file stores a list of sequence records in the following format:</p>
+<div class="codehilite"><pre><span></span>@{name} {description}?
+{sequence}
++
+{qualities}
+</pre></div>
+
+
+<p>Here is an example of one record from a FASTQ file:</p>
+<div class="codehilite"><pre><span></span>@FSRRS4401BE7HA
+tcagTTAAGATGGGAT
++
+###EEEEEEEEE##E#
+</pre></div>
+
+
+<p><a id='Readers-and-Writers-1'></a></p>
+<h2 id="readers-and-writers">Readers and Writers</h2>
+<p>The reader and writer for FASTQ formatted files, are found within the <code>BioSequences.FASTQ</code> module.</p>
+<p><a id='BioSequences.FASTQ.Reader' href='#BioSequences.FASTQ.Reader'>#</a>
+<strong><code>BioSequences.FASTQ.Reader</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">FASTQ</span><span class="p">.</span><span class="nc">Reader</span><span class="o">(</span><span class="nt">input</span><span class="p">::</span><span class="nd">IO</span><span class="o">;</span> <span class="nt">fill_ambiguous</span><span class="o">=</span><span class="nt">nothing</span><span class="o">)</span>
+</pre></div>
+
+
+<p>Create a data reader of the FASTQ file format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>input</code>: data source</li>
+<li><code>fill_ambiguous=nothing</code>: fill ambiguous symbols with the given symbol</li>
+</ul>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/reader.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.Writer' href='#BioSequences.FASTQ.Writer'>#</a>
+<strong><code>BioSequences.FASTQ.Writer</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">FASTQ</span><span class="p">.</span><span class="nc">Writer</span><span class="o">(</span><span class="nt">output</span><span class="p">::</span><span class="nd">IO</span><span class="o">;</span> <span class="nt">quality_header</span><span class="o">=</span><span class="nt">false</span><span class="o">)</span>
+</pre></div>
+
+
+<p>Create a data writer of the FASTQ file format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>output</code>: data sink</li>
+<li><code>quality_header=false</code>: output the title line at the third line just after '+'</li>
+</ul>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/writer.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p>They can be created with IOStreams:</p>
+<div class="codehilite"><pre><span></span><span class="go">r = FASTQ.Reader(open(&quot;MyInput.fastq&quot;, &quot;r&quot;))</span>
+<span class="go">w = FASTQ.Writer(open(&quot;MyFile.fastq&quot;, &quot;w&quot;))</span>
+</pre></div>
+
+
+<p>Usually sequence records will be read sequentially from a file by iteration.</p>
+<div class="codehilite"><pre><span></span><span class="go">using BioSequences</span>
+<span class="go">reader = FASTQ.Reader(open(&quot;hg38.fastq&quot;, &quot;r&quot;))</span>
+<span class="go">for record in reader</span>
+<span class="go">    # Do something</span>
+<span class="go">end</span>
+<span class="go">close(reader)</span>
+</pre></div>
+
+
+<p>Reading in a record from a FASTQ formatted file will give you a variable of type <code>FASTQ.Record</code>.</p>
+<p><a id='BioSequences.FASTQ.Record' href='#BioSequences.FASTQ.Record'>#</a>
+<strong><code>BioSequences.FASTQ.Record</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>FASTQ.Record()
+</pre></div>
+
+
+<p>Create an unfilled FASTQ record.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L15-L19' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>FASTQ.Record(data::Vector{UInt8})
+</pre></div>
+
+
+<p>Create a FASTQ record object from <code>data</code>.</p>
+<p>This function verifies and indexes fields for accessors. Note that the ownership of <code>data</code> is transferred to a new record object.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L24-L31' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>FASTQ.Record(str::AbstractString)
+</pre></div>
+
+
+<p>Create a FASTQ record object from <code>str</code>.</p>
+<p>This function verifies and indexes fields for accessors.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L42-L48' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>FASTQ.Record(identifier, sequence, quality; offset=33)
+</pre></div>
+
+
+<p>Create a FASTQ record from <code>identifier</code>, <code>sequence</code> and <code>quality</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L53-L57' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>FASTQ.Record(identifier, description, sequence, quality; offset=33)
+</pre></div>
+
+
+<p>Create a FASTQ record from <code>identifier</code>, <code>description</code>, <code>sequence</code> and <code>quality</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
+<p>Various getters and setters are available for <code>FASTQ.Record</code>s:</p>
+<p><a id='BioSequences.FASTQ.hasidentifier' href='#BioSequences.FASTQ.hasidentifier'>#</a>
+<strong><code>BioSequences.FASTQ.hasidentifier</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>hasidentifier(record::Record)
+</pre></div>
+
+
+<p>Checks whether or not the <code>record</code> has an identifier.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L150-L154' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.identifier' href='#BioSequences.FASTQ.identifier'>#</a>
+<strong><code>BioSequences.FASTQ.identifier</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>identifier(record::Record)::String
+</pre></div>
+
+
+<p>Get the sequence identifier of <code>record</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L137-L141' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.hasdescription' href='#BioSequences.FASTQ.hasdescription'>#</a>
+<strong><code>BioSequences.FASTQ.hasdescription</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>hasdescription(record::Record)
+</pre></div>
+
+
+<p>Checks whether or not the <code>record</code> has a description.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L172-L176' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.description' href='#BioSequences.FASTQ.description'>#</a>
+<strong><code>BioSequences.FASTQ.description</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>description(record::Record)::String
+</pre></div>
+
+
+<p>Get the description of <code>record</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L159-L163' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.hassequence' href='#BioSequences.FASTQ.hassequence'>#</a>
+<strong><code>BioSequences.FASTQ.hassequence</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>hassequence(record::Record)
+</pre></div>
+
+
+<p>Checks whether or not a sequence record contains a sequence.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L216-L220' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.sequence-Tuple{BioSequences.FASTQ.Record,UnitRange{Int64}}' href='#BioSequences.FASTQ.sequence-Tuple{BioSequences.FASTQ.Record,UnitRange{Int64}}'>#</a>
+<strong><code>BioSequences.FASTQ.sequence</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>sequence(record::Record, [part::UnitRange{Int}])::BioSequences.DNASequence
+</pre></div>
+
+
+<p>Get the sequence of <code>record</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L206-L210' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.hasquality' href='#BioSequences.FASTQ.hasquality'>#</a>
+<strong><code>BioSequences.FASTQ.hasquality</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>hasquality(record::Record)
+</pre></div>
+
+
+<p>Check whether the given FASTQ <code>record</code> has a quality string.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L266-L270' class='documenter-source'>source</a><br></p>
+<p><a id='BioSequences.FASTQ.quality' href='#BioSequences.FASTQ.quality'>#</a>
+<strong><code>BioSequences.FASTQ.quality</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>quality(record::Record, [offset::Integer=33, [part::UnitRange]])::Vector{UInt8}
+</pre></div>
+
+
+<p>Get the base quality of <code>record</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L226-L230' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>quality(record::Record, encoding_name::Symbol, [part::UnitRange])::Vector{UInt8}
+</pre></div>
+
+
+<p>Get the base quality of <code>record</code> by decoding with <code>encoding_name</code>.</p>
+<p>The <code>encoding_name</code> can be either <code>:sanger</code>, <code>:solexa</code>, <code>:illumina13</code>, <code>:illumina15</code>, or <code>:illumina18</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L241-L247' class='documenter-source'>source</a><br></p>
+<p>To write a <code>BioSequence</code> to FASTQ file, you first have to create a <code>FASTQ.Record</code>:</p>
+<p><a id='BioSequences.FASTQ.Record-Tuple{AbstractString,Union{AbstractString,Void},Any,Array{T,1}}' href='#BioSequences.FASTQ.Record-Tuple{AbstractString,Union{AbstractString,Void},Any,Array{T,1}}'>#</a>
+<strong><code>BioSequences.FASTQ.Record</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>FASTQ.Record(identifier, description, sequence, quality; offset=33)
+</pre></div>
+
+
+<p>Create a FASTQ record from <code>identifier</code>, <code>description</code>, <code>sequence</code> and <code>quality</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
+<p>As always with julia IO types, remember to close your file readers and writer after you are finished.</p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../fasta/" title="FASTA formatted files" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                FASTA formatted files
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../twobit/" title="2bit formatted files" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                2bit formatted files
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright (c) 2016 The BioJulia Organisation
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-e3caa82af6.js"></script>
+      
+      
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../../assets/mathjaxhelper.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
