@@ -492,7 +492,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 <li><code>input</code>: data source</li>
 <li><code>index=nothing</code>: filepath to a random access index (currently <em>fai</em> is supported)</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/reader.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/reader.jl#L13-L21' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.Writer' href='#BioSequences.FASTA.Writer'>#</a>
 <strong><code>BioSequences.FASTA.Writer</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="nt">FASTA</span><span class="p">.</span><span class="nc">Writer</span><span class="o">(</span><span class="nt">output</span><span class="p">::</span><span class="nd">IO</span><span class="o">;</span> <span class="nt">width</span><span class="o">=</span><span class="nt">70</span><span class="o">)</span>
@@ -505,7 +505,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 <li><code>output</code>: data sink</li>
 <li><code>width=70</code>: wrapping width of sequence characters</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/writer.jl#L4-L12' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/writer.jl#L4-L12' class='documenter-source'>source</a><br></p>
 <p>They can be created with IOStreams:</p>
 <div class="codehilite"><pre><span></span><span class="go">r = FASTA.Reader(open(&quot;MyInput.fasta&quot;, &quot;r&quot;))</span>
 <span class="go">w = FASTA.Writer(open(&quot;MyFile.fasta&quot;, &quot;w&quot;))</span>
@@ -536,33 +536,33 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Create an unfilled FASTA record.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L14-L18' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L14-L18' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTA.Record(data::Vector{UInt8})
 </pre></div>
 
 
 <p>Create a FASTA record object from <code>data</code>.</p>
 <p>This function verifies and indexes fields for accessors. Note that the ownership of <code>data</code> is transferred to a new record object.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L23-L30' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L23-L30' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTA.Record(str::AbstractString)
 </pre></div>
 
 
 <p>Create a FASTA record object from <code>str</code>.</p>
 <p>This function verifies and indexes fields for accessors.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L41-L47' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L41-L47' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTA.Record(identifier, sequence)
 </pre></div>
 
 
 <p>Create a FASTA record object from <code>identifier</code> and <code>sequence</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L60-L64' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L60-L64' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTA.Record(identifier, description, sequence)
 </pre></div>
 
 
 <p>Create a FASTA record object from <code>identifier</code>, <code>description</code> and <code>sequence</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L69-L73' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L69-L73' class='documenter-source'>source</a><br></p>
 <p>Various getters and setters are available for <code>FASTA.Record</code>s:</p>
 <p><a id='BioSequences.FASTA.hasidentifier' href='#BioSequences.FASTA.hasidentifier'>#</a>
 <strong><code>BioSequences.FASTA.hasidentifier</code></strong> &mdash; <em>Function</em>.</p>
@@ -571,7 +571,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Checks whether or not the <code>record</code> has an identifier.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L166-L170' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L166-L170' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.identifier' href='#BioSequences.FASTA.identifier'>#</a>
 <strong><code>BioSequences.FASTA.identifier</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>identifier(record::Record)::String
@@ -579,7 +579,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Get the sequence identifier of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L153-L157' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L153-L157' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.hasdescription' href='#BioSequences.FASTA.hasdescription'>#</a>
 <strong><code>BioSequences.FASTA.hasdescription</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>hasdescription(record::Record)
@@ -587,7 +587,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Checks whether or not the <code>record</code> has a description.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L196-L200' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L196-L200' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.description' href='#BioSequences.FASTA.description'>#</a>
 <strong><code>BioSequences.FASTA.description</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>description(record::Record)::String
@@ -595,7 +595,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Get the description of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L183-L187' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L183-L187' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.hassequence' href='#BioSequences.FASTA.hassequence'>#</a>
 <strong><code>BioSequences.FASTA.hassequence</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>hassequence(record::Record)
@@ -603,7 +603,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 
 <p>Checks whether or not a sequence record contains a sequence.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L245-L249' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L245-L249' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTA.sequence-Tuple{BioSequences.FASTA.Record,UnitRange{Int64}}' href='#BioSequences.FASTA.sequence-Tuple{BioSequences.FASTA.Record,UnitRange{Int64}}'>#</a>
 <strong><code>BioSequences.FASTA.sequence</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>sequence(record::Record, [part::UnitRange{Int}])
@@ -612,7 +612,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTAACCCTG
 
 <p>Get the sequence of <code>record</code>.</p>
 <p>This function infers the sequence type from the data. When it is wrong or unreliable, use <code>sequence(::Type{S}, record::Record)</code>.  If <code>part</code> argument is given, it returns the specified part of the sequence.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b9196104fc119486b15b9c9ea865f84c0e144885/src/fasta/record.jl#L230-L238' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/8bcf4a068bb42417a279387ae7ad172db2c7aebe/src/fasta/record.jl#L230-L238' class='documenter-source'>source</a><br></p>
 <p>To write a <code>BioSequence</code> to FASTA file, you first have to create a <code>FASTA.Record</code>:</p>
 <div class="codehilite"><pre><span></span><span class="go">using BioSequences</span>
 <span class="go">x = dna&quot;aaaaatttttcccccggggg&quot;</span>
