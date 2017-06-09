@@ -71,11 +71,11 @@ const symbols = ObjectIdDict(
     BioSequences.AminoAcid     => charset("ARNDCQEGHILKMFPSTWYVOUBJZX"))
 
 macro check(ex, err)
-    quote
+    esc(quote
         if !$ex
             throw($err)
         end
-    end
+    end)
 end
 
 function parse{T}(::Type{T}, pat::AbstractString)
