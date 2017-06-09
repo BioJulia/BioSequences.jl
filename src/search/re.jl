@@ -374,14 +374,14 @@ function desugar{T}(::Type{T}, tree::SyntaxTree)
             # e{m} => eee...e
             #         |<-m->|
             head = :concat
-            args = replicate(pat, rng)
+            args = fill(pat, rng)
         elseif isa(rng, Tuple{Int})
             # e{m,} => eee...ee*   (greedy)
             #          |<-m->|
             # e{m,} => eee...ee*?  (lazy)
             #          |<-m->|
             head = :concat
-            args = replicate(pat, rng[1])
+            args = fill(pat, rng[1])
             if greedy
                 push!(args, expr(:*, [pat]))
             else
@@ -396,14 +396,14 @@ function desugar{T}(::Type{T}, tree::SyntaxTree)
             @assert m ≤ n
             if m == n
                 head = :concat
-                args = replicate(pat, m)
+                args = fill(pat, m)
             else
                 head = :|
-                f = (k, t) -> expr(:|, [expr(:concat, replicate(pat, k)), t])
+                f = (k, t) -> expr(:|, [expr(:concat, fill(pat, k)), t])
                 if greedy
-                    args = foldr(f, expr(:concat, replicate(pat, m)), n:-1:m+1).args
+                    args = foldr(f, expr(:concat, fill(pat, m)), n:-1:m+1).args
                 else
-                    args = foldr(f, expr(:concat, replicate(pat, n)), m:1:n-1).args
+                    args = foldr(f, expr(:concat, fill(pat, n)), m:1:n-1).args
                 end
             end
         else
@@ -419,10 +419,6 @@ end
 
 function desugar{T}(::Type{T}, atom)
     return atom
-end
-
-function replicate(x, n)
-    return collect(repeated(x, n))
 end
 
 

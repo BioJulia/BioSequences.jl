@@ -161,7 +161,7 @@ function Demultiplexer(barcodes::Vector{DNASequence};
                 circle = levenshtein_circle(barcode, m)
             end
             append!(mutated_barcodes, circle)
-            append!(ids, collect(repeated(i, length(circle))))
+            append!(ids, fill(i, length(circle)))
         end
         ord = sortperm(mutated_barcodes)
         push!(tries, BarcodeTrie(mutated_barcodes[ord], ids[ord]))
@@ -232,7 +232,7 @@ function hamming_circle(seq, m)
     end
     ret = DNASequence[]
     for ps in Combinatorics.combinations(1:endof(seq), m)
-        for rs in Iterators.product(repeated(1:4, m)...)
+        for rs in Iterators.product(fill(1:4, m)...)
             seq′ = copy(seq)
             for (p, r) in zip(ps, rs)
                 if findfirst(ACGT, seq[p]) ≤ r
