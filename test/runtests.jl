@@ -4,12 +4,9 @@ using Base.Test
 import BioSymbols
 using BioSequences
 using IntervalTrees.IntervalValue
-using PairwiseListMatrices
 using StatsBase
 using YAML
 import Compat: take!
-
-const PWM = PairwiseListMatrix
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",

@@ -188,7 +188,6 @@ import Compat: @compat, ⊻, take!
 import IndexableBitVectors
 import Iterators
 import IntervalTrees: IntervalValue
-import PairwiseListMatrices: PairwiseListMatrix
 import Twiddle: enumerate_nibbles,
     nibble_mask,
     count_zero_nibbles,
