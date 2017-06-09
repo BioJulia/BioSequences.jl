@@ -15,7 +15,7 @@ immutable ApproximateSearchQuery{S<:Sequence}
     bPcom::Vector   # compatibility vector for backward search
     H::Vector{Int}  # distance vector for alignback function
 
-    function ApproximateSearchQuery(seq::Sequence, direction::Symbol)
+    function (::Type{ApproximateSearchQuery{S}}){S}(seq::Sequence, direction::Symbol)
         if direction == :forward
             fPcom = approx_preprocess(seq, true)
             bPcom = []
@@ -29,7 +29,7 @@ immutable ApproximateSearchQuery{S<:Sequence}
             throw(ArgumentError("direction '$direction' is invalid"))
         end
         H = Vector{Int}(length(seq) + 1)
-        return new(seq, fPcom, bPcom, H)
+        return new{S}(seq, fPcom, bPcom, H)
     end
 end
 
