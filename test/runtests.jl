@@ -8,7 +8,7 @@ using PairwiseListMatrices
 using StatsBase
 using YAML
 
-typealias PWM PairwiseListMatrix
+const PWM = PairwiseListMatrix
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
