@@ -185,7 +185,7 @@ function search_approx_suffix{T}(Pcom::Vector{T}, pat, seq, k, start, stop, forw
     while (forward && j ≤ min(stop, n)) || (!forward && j ≥ max(stop, 1))
         Eq = Pcom[UInt8(seq[j])+1]
         Xv = Eq | Mv
-        Xh = (((Eq & Pv) + Pv) $ Pv) | Eq
+        Xh = (((Eq & Pv) + Pv) ⊻ Pv) | Eq
 
         Ph = Mv | ~(Xh | Pv)
         Mh = Pv & Xh

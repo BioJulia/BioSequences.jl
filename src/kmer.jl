@@ -172,7 +172,7 @@ reverse_complement(x::Kmer) = complement(reverse(x))
 Return the number of mismatches between `a` and `b`.
 """
 function mismatches{T,k}(a::Kmer{T,k}, b::Kmer{T,k})
-    return count_nonzero_bitpairs(UInt64(a) $ UInt64(b))
+    return count_nonzero_bitpairs(UInt64(a) ⊻ UInt64(b))
 end
 
 """
@@ -276,8 +276,8 @@ function swap{T,k}(kmer::Kmer{T,k}, i, j)
     i = 2k - 2i
     j = 2k - 2j
     b = convert(UInt64, kmer)
-    x = ((b >> i) $ (b >> j)) & UInt64(0x03)
-    return Kmer{T,k}(b $ ((x << i) | (x << j)))
+    x = ((b >> i) ⊻ (b >> j)) & UInt64(0x03)
+    return Kmer{T,k}(b ⊻ ((x << i) | (x << j)))
 end
 
 # String literal
