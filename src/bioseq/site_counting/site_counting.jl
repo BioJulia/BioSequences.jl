@@ -68,13 +68,13 @@ for A in (DNAAlphabet, RNAAlphabet)
         # Certain
         @inline function bp_chunk_count(::Type{Certain}, ::Type{$A{4}}, x::UInt64)
             x = enumerate_nibbles(x)
-            x $= 0x1111111111111111
+            x = x ⊻ 0x1111111111111111
             return count_zero_nibbles(x)
         end
 
         @inline function bp_chunk_count(::Type{Certain}, ::Type{$A{4}}, a::UInt64, b::UInt64)
-            x = enumerate_nibbles(a) $ 0x1111111111111111
-            y = enumerate_nibbles(b) $ 0x1111111111111111
+            x = enumerate_nibbles(a) ⊻ 0x1111111111111111
+            y = enumerate_nibbles(b) ⊻ 0x1111111111111111
             return count_zero_nibbles(x | y)
         end
 
@@ -89,20 +89,20 @@ for A in (DNAAlphabet, RNAAlphabet)
 
         # Match
         @inline function bp_chunk_count(::Type{Match}, ::Type{$A{4}}, a::UInt64, b::UInt64)
-            return count_zero_nibbles(a $ b)
+            return count_zero_nibbles(a ⊻ b)
         end
 
         @inline function bp_chunk_count(::Type{Match}, ::Type{$A{2}}, a::UInt64, b::UInt64)
-            return count_zero_bitpairs(a $ b)
+            return count_zero_bitpairs(a ⊻ b)
         end
 
         # Mismatch
         @inline function bp_chunk_count(::Type{Mismatch}, ::Type{$A{4}}, a::UInt64, b::UInt64)
-            return count_nonzero_nibbles(a $ b)
+            return count_nonzero_nibbles(a ⊻ b)
         end
 
         @inline function bp_chunk_count(::Type{Mismatch}, ::Type{$A{2}}, a::UInt64, b::UInt64)
-            return count_nonzero_bitpairs(a $ b)
+            return count_nonzero_bitpairs(a ⊻ b)
         end
     end
 end

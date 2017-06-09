@@ -19,11 +19,11 @@
 end
 
 @inline function fmix64(k::UInt64)
-    k $= k >> 33
+    k = k ⊻ k >> 33
     k *= 0xff51afd7ed558ccd
-    k $= k >> 33
+    k = k ⊻ k >> 33
     k *= 0xc4ceb9fe1a85ec53
-    k $= k >> 33
+    k = k ⊻ k >> 33
     return k
 end
 
@@ -32,7 +32,7 @@ macro murmur1()
         k1 *= c1
         k1 = rotl64(k1, 31)
         k1 *= c2
-        h1 $= k1
+        h1 = h1 ⊻ k1
     end)
 end
 
@@ -41,7 +41,7 @@ macro murmur2()
         k2 *= c2
         k2 = rotl64(k2, 33)
         k2 *= c1
-        h2 $= k2
+        h2 = h1 ⊻ k2
     end)
 end
 
@@ -126,8 +126,8 @@ function Base.hash(seq::BioSequence, seed::UInt64)
     end
 
     # finalization
-    h1 $= length(seq)
-    h2 $= length(seq)
+    h1 = h1 ⊻ length(seq)
+    h2 = h2 ⊻ length(seq)
     h1 += h2
     h2 += h1
     h1 = fmix64(h1)
