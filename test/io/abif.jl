@@ -16,7 +16,7 @@
     end
 
     get_bio_fmt_specimens()
-    path = Pkg.dir("BioSequences", "test", "BioFmtSpecimens", "ABI")
+    path = joinpath(dirname(dirname(@__FILE__)), "BioFmtSpecimens", "ABI")
     for specimen in YAML.load_file(joinpath(path, "index.yml"))
         valid = get(specimen, "valid", true)
         filepath = joinpath(path, specimen["filename"])
