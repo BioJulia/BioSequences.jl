@@ -123,5 +123,7 @@ reps = 10
         # Test string literals
         @test kmer"ACTG" == convert(Kmer, DNASequence("ACTG"))
         @test isa(kmer"ACGT", DNAKmer{4})
+        @test_throws ArgumentError eval(:(kmer"ACGN"))
+        @test_throws ArgumentError eval(:(kmer"ACG-"))
     end
 end
