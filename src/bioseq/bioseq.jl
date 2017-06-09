@@ -47,8 +47,8 @@ type BioSequence{A<:Alphabet} <: Sequence
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
     shared::Bool          # true if and only if `data` is shared between sequences
 
-    function BioSequence(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool)
-        return new(data, part, shared)
+    function (::Type{BioSequence{A}}){A}(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool)
+        return new{A}(data, part, shared)
     end
 end
 

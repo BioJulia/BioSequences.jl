@@ -16,10 +16,10 @@ immutable StationaryGenerator{T} <: SequenceGenerator{T}
     elems::Vector{T}
     probs::Vector{Float64}
 
-    function StationaryGenerator(elems, probs)
+    function (::Type{StationaryGenerator{T}}){T}(elems, probs)
         @assert sum(probs) ≤ 1
         @assert length(elems) == length(probs) + 1
-        return new(copy(elems), copy(probs))
+        return new{T}(copy(elems), copy(probs))
     end
 end
 
