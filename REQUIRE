@@ -1,11 +1,12 @@
+julia 0.5
 Automa
 BioCore
 BioSymbols
 BufferedStreams
 Combinatorics
+Compat
 IndexableBitVectors
 Iterators
 IntervalTrees
-julia 0.5
 PairwiseListMatrices
 Twiddle

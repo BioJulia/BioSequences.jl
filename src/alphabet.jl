@@ -15,7 +15,7 @@
 """
 Alphabet of biological characters.
 """
-abstract Alphabet
+@compat abstract type Alphabet end
 
 """
 DNA nucleotide alphabet.
@@ -42,7 +42,7 @@ Void alphabet (internal use only).
 """
 immutable VoidAlphabet <: Alphabet end
 
-typealias NucleicAcidAlphabets Union{DNAAlphabet,RNAAlphabet}
+const NucleicAcidAlphabets = Union{DNAAlphabet,RNAAlphabet}
 
 """
 The number of bits to represent the alphabet.
