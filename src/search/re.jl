@@ -571,7 +571,7 @@ immutable Regex{T}
     code::Vector{Op}  # compiled code
     nsaves::Int       # the number of `save` operations in `code`
 
-    function Regex(pat::AbstractString, syntax=:pcre)
+    function (::Type{Regex{T}}){T}(pat::AbstractString, syntax=:pcre)
         if syntax == :pcre
             ast = desugar(T, parse(T, pat))
         elseif syntax == :prosite
@@ -588,7 +588,7 @@ immutable Regex{T}
             nsaves += tag(op) == SaveTag
         end
         @assert iseven(nsaves)
-        return new(pat, code, nsaves)
+        return new{T}(pat, code, nsaves)
     end
 end
 
