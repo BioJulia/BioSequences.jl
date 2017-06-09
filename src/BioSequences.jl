@@ -184,7 +184,7 @@ import BioCore.StringFields: StringField
 importall BioSymbols
 import BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
-import Compat: @compat, ⊻
+import Compat: @compat, ⊻, take!
 import IndexableBitVectors
 import Iterators
 import IntervalTrees: IntervalValue

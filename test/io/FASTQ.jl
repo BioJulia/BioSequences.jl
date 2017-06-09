@@ -8,7 +8,7 @@
     write(writer, FASTQ.Record("1", dna"AN", UInt8[11, 25]))
     write(writer, FASTQ.Record("2", "high quality", dna"TGA", UInt8[40, 41, 45]))
     flush(writer)
-    @test takebuf_string(output) == """
+    @test String(take!(output)) == """
     @1
     AN
     +
@@ -24,7 +24,7 @@
     write(writer, FASTQ.Record("1", dna"AN", UInt8[11, 25]))
     write(writer, FASTQ.Record("2", "high quality", dna"TGA", UInt8[40, 41, 45]))
     flush(writer)
-    @test takebuf_string(output) == """
+    @test String(take!(output)) == """
     @1
     AN
     +1

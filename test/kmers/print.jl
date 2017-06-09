@@ -1,13 +1,13 @@
 @testset "Print" begin
     buf = IOBuffer()
     print(buf, DNAKmer(""))
-    @test takebuf_string(buf) == ""
+    @test String(take!(buf)) == ""
 
     buf = IOBuffer()
     print(buf, DNAKmer("ACGT"))
-    @test takebuf_string(buf) == "ACGT"
+    @test String(take!(buf)) == "ACGT"
 
     buf = IOBuffer()
     print(buf, RNAKmer("ACGU"))
-    @test takebuf_string(buf) == "ACGU"
+    @test String(take!(buf)) == "ACGU"
 end

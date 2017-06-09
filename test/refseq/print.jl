@@ -1,13 +1,13 @@
 @testset "Print" begin
     buf = IOBuffer()
     print(buf, ReferenceSequence(dna""))
-    @test takebuf_string(buf) == ""
+    @test String(take!(buf)) == ""
 
     buf = IOBuffer()
     print(buf, ReferenceSequence(dna"ACGTN"))
-    @test takebuf_string(buf) == "ACGTN"
+    @test String(take!(buf)) == "ACGTN"
 
     buf = IOBuffer()
     print(buf, ReferenceSequence(dna"A"^100))
-    @test takebuf_string(buf) == "A"^100
+    @test String(take!(buf)) == "A"^100
 end
