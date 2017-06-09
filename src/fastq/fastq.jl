@@ -7,6 +7,7 @@ import BioSymbols
 import BioSequences
 import BufferedStreams
 import BufferedStreams: BufferedInputStream
+import Compat: take!
 
 include("quality.jl")
 include("record.jl")

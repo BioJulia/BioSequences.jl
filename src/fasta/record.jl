@@ -79,7 +79,7 @@ function Record(identifier::AbstractString, description::Union{AbstractString,Vo
     end
     print(buf, '\n')
     print(buf, sequence, '\n')
-    return Record(takebuf_array(buf))
+    return Record(take!(buf))
 end
 
 function Base.:(==)(record1::Record, record2::Record)
