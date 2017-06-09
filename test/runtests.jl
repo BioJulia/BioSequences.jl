@@ -36,7 +36,7 @@ function random_translatable_rna(n)
     probs = fill(1.0 / length(codons), length(codons))
     cumprobs = cumsum(probs)
     r = rand()
-    x = Array(AbstractString, n)
+    x = Vector{String}(n)
     for i in 1:n
         x[i] = codons[searchsorted(cumprobs, rand()).start]
     end
@@ -55,7 +55,7 @@ end
 
 function random_array(n::Integer, elements, probs)
     cumprobs = cumsum(probs)
-    x = Array(eltype(elements), n)
+    x = Vector{eltype(elements)}(n)
     for i in 1:n
         x[i] = elements[searchsorted(cumprobs, rand()).start]
     end
@@ -65,7 +65,7 @@ end
 # Return a random DNA/RNA sequence of the given length.
 function random_seq(n::Integer, nts, probs)
     cumprobs = cumsum(probs)
-    x = Array(Char, n)
+    x = Vector{Char}(n)
     for i in 1:n
         x[i] = nts[searchsorted(cumprobs, rand()).start]
     end
@@ -122,7 +122,7 @@ function random_rna_kmer_nucleotides(len)
 end
 
 function dna_complement(seq::AbstractString)
-    seqc = Array(Char, length(seq))
+    seqc = Vector{Char}(length(seq))
     for (i, c) in enumerate(seq)
         if c     ==   'A'
             seqc[i] = 'T'
@@ -140,7 +140,7 @@ function dna_complement(seq::AbstractString)
 end
 
 function rna_complement(seq::AbstractString)
-    seqc = Array(Char, length(seq))
+    seqc = Vector{Char}(length(seq))
     for (i, c) in enumerate(seq)
         if c == 'A'
             seqc[i] = 'U'
