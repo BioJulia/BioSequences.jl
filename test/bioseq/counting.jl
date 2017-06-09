@@ -147,29 +147,29 @@
         @testset "4-bit encoded sequences" begin
             dnas = [dna"ATCGCCA-", dna"ATCGCCTA", dna"ATCGCCT-", dna"GTCGCCTA"]
             rnas = [rna"AUCGCCA-", rna"AUCGCCUA", rna"AUCGCCU-", rna"GUCGCCUA"]
-            answer_mismatch = PWM{Int, false}([0 2 1 3;
-                                               2 0 1 1;
-                                               1 1 0 2;
-                                               3 1 2 0])
-            answer_match = PWM{Int, false}([0 6 7 5;
-                                            6 0 7 7;
-                                            7 7 0 6;
-                                            5 7 6 0])
+            answer_mismatch = [0 2 1 3;
+                               2 0 1 1;
+                               1 1 0 2;
+                               3 1 2 0]
+            answer_match = [0 6 7 5;
+                            6 0 7 7;
+                            7 7 0 6;
+                            5 7 6 0]
             for i in (dnas, rnas)
                 @test count_pairwise(Mismatch, i...) == answer_mismatch
                 @test count_pairwise(Match, i...) == answer_match
-                @test count_pairwise(Certain, i...) == PWM{Int, false}([0 7 7 7;
-                                                                        7 0 7 8;
-                                                                        7 7 0 7;
-                                                                        7 8 7 0])
-                @test count_pairwise(Ambiguous, i...) == PWM{Int, false}([0 0 0 0;
-                                                                          0 0 0 0;
-                                                                          0 0 0 0;
-                                                                          0 0 0 0])
-                @test count_pairwise(Gap, i...) == PWM{Int, false}([0 1 1 1;
-                                                                    1 0 1 0;
-                                                                    1 1 0 1;
-                                                                    1 0 1 0])
+                @test count_pairwise(Certain, i...) == [0 7 7 7;
+                                                        7 0 7 8;
+                                                        7 7 0 7;
+                                                        7 8 7 0]
+                @test count_pairwise(Ambiguous, i...) == [0 0 0 0;
+                                                          0 0 0 0;
+                                                          0 0 0 0;
+                                                          0 0 0 0]
+                @test count_pairwise(Gap, i...) == [0 1 1 1;
+                                                    1 0 1 0;
+                                                    1 1 0 1;
+                                                    1 0 1 0]
             end
         end
         @testset "2-bit encoded sequences" begin
@@ -181,29 +181,29 @@
                     BioSequence{RNAAlphabet{2}}("AUCGCCUA"),
                     BioSequence{RNAAlphabet{2}}("AUCGCCUU"),
                     BioSequence{RNAAlphabet{2}}("GUCGCCUA")]
-            answer_mismatch = PWM{Int, false}([0 2 2 3;
-                                               2 0 1 1;
-                                               2 1 0 2;
-                                               3 1 2 0])
-            answer_match = PWM{Int, false}([0 6 6 5;
-                                            6 0 7 7;
-                                            6 7 0 6;
-                                            5 7 6 0])
+            answer_mismatch = [0 2 2 3;
+                               2 0 1 1;
+                               2 1 0 2;
+                               3 1 2 0]
+            answer_match = [0 6 6 5;
+                            6 0 7 7;
+                            6 7 0 6;
+                            5 7 6 0]
             for i in (dnas, rnas)
                 @test count_pairwise(Mismatch, i...) == answer_mismatch
                 @test count_pairwise(Match, i...) == answer_match
-                @test count_pairwise(Certain, i...) == PWM{Int, false}([0 8 8 8;
-                                                                        8 0 8 8;
-                                                                        8 8 0 8;
-                                                                        8 8 8 0])
-                @test count_pairwise(Ambiguous, i...) == PWM{Int, false}([0 0 0 0;
-                                                                          0 0 0 0;
-                                                                          0 0 0 0;
-                                                                          0 0 0 0])
-                @test count_pairwise(Gap, i...) == PWM{Int, false}([0 0 0 0;
-                                                                    0 0 0 0;
-                                                                    0 0 0 0;
-                                                                    0 0 0 0])
+                @test count_pairwise(Certain, i...) == [0 8 8 8;
+                                                        8 0 8 8;
+                                                        8 8 0 8;
+                                                        8 8 8 0]
+                @test count_pairwise(Ambiguous, i...) == [0 0 0 0;
+                                                          0 0 0 0;
+                                                          0 0 0 0;
+                                                          0 0 0 0]
+                @test count_pairwise(Gap, i...) == [0 0 0 0;
+                                                    0 0 0 0;
+                                                    0 0 0 0;
+                                                    0 0 0 0]
             end
         end
     end

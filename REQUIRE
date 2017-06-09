@@ -8,6 +8,5 @@ Compat
 IndexableBitVectors
 Iterators
 IntervalTrees
-PairwiseListMatrices
 Twiddle
 DataStructures

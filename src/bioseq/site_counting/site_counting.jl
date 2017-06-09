@@ -155,13 +155,14 @@ end
 
 function count_pairwise{P<:Position,A<:NucleicAcidAlphabets,N}(::Type{P}, seqs::Vararg{BioSequence{A},N})
     @assert N >= 2 "At least two sequences are required."
-    counts = Vector{bp_counter_type(P, A)}(Int((N * (N - 1)) / 2))
-    c = 1
-    @inbounds for i in 1:N, j in (i + 1):N
-        counts[c] = count(P, seqs[i], seqs[j])
-        c += 1
+    counts = Matrix{bp_counter_type(P, A)}(N, N)
+    for i in 1:N
+        counts[i,i] = zero(eltype(counts))
+        for j in (i+1):N
+            counts[i,j] = counts[j,i] = count(P, seqs[i], seqs[j])
+        end
     end
-    return PairwiseListMatrix(counts, false)
+    return counts
 end
 
 
@@ -196,7 +197,7 @@ end
 Count the number of sites of type `S`, between each possible pair of the sequences
 provided (`seqs`).
 
-This returns a PairwiseListMatrix object contining the output for each pairwise
+This returns a symmetric matrix contining the output for each pairwise
 operation.
 """
 function count_pairwise{S<:Site,N}(::Type{S}, seqs::Vararg{BioSequence,N})
