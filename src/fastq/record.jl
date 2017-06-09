@@ -78,7 +78,7 @@ function Record(identifier::AbstractString, description::Union{AbstractString,Vo
     print(buf, "+\n")
     ascii_quality = convert(Vector{UInt8}, quality + offset)
     write(buf, ascii_quality, '\n')
-    return Record(takebuf_array(buf))
+    return Record(take!(buf))
 end
 
 function Base.convert(::Type{Record}, str::AbstractString)
