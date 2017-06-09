@@ -711,9 +711,9 @@ immutable RegexMatchIterator{T,S}
     seq::S
     overlap::Bool
 
-    function RegexMatchIterator(re::Regex{T}, seq::S, overlap::Bool)
+    function (::Type{RegexMatchIterator{T,S}}){T,S}(re::Regex{T}, seq::S, overlap::Bool)
         checkeltype(re, seq)
-        return new(re, seq, overlap)
+        return new{T,S}(re, seq, overlap)
     end
 end
 
@@ -791,7 +791,9 @@ type Stack{T}
     top::Int
     data::Vector{T}
 
-    Stack(sz::Int=0) = new(0, Vector{T}(sz))
+    function (::Type{Stack{T}}){T}(sz::Int=0)
+        return new{T}(0, Vector{T}(sz))
+    end
 end
 
 function Base.isempty(stack::Stack)
