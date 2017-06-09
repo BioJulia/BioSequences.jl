@@ -36,7 +36,7 @@
     write(writer, FASTA.Record("seq1", dna"TTA"))
     write(writer, FASTA.Record("seq2", "some description", dna"ACGTNN"))
     flush(writer)
-    @test takebuf_string(output) == """
+    @test String(take!(output)) == """
     >seq1
     TTA
     >seq2 some description

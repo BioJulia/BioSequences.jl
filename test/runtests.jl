@@ -7,6 +7,7 @@ using IntervalTrees.IntervalValue
 using PairwiseListMatrices
 using StatsBase
 using YAML
+import Compat: take!
 
 const PWM = PairwiseListMatrix
 
