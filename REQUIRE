@@ -9,3 +9,4 @@ IntervalTrees
 julia 0.5
 PairwiseListMatrices
 Twiddle
+DataStructures
