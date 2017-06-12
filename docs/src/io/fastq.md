@@ -42,6 +42,7 @@ r = FASTQ.Reader(open("MyInput.fastq", "r"))
 w = FASTQ.Writer(open("MyFile.fastq", "w"))
 ```
 
+Note that `FASTQ.Reader` does not support line-wraps within sequence and quality.
 Usually sequence records will be read sequentially from a file by iteration.
 
 ```jlcon
