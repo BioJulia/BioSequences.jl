@@ -85,6 +85,8 @@ export
     complement!,
     reverse_complement,
     reverse_complement!,
+    ungap,
+    ungap!,
     mismatches,
     ispalindromic,
     hasambiguity,

@@ -206,6 +206,16 @@ function isrepetitive(seq::Sequence, n::Integer=length(seq))
 end
 
 
+# Transformations
+# ---------------
+
+"Create a copy of a sequence with gap characters removed."
+ungap(seq::Sequence)  =  filter(x -> x != gap(eltype(seq)), seq)
+
+"Remove gap characters from a sequence. Modifies the input sequence."
+ungap!(seq::Sequence) = filter!(x -> x != gap(eltype(seq)), seq)
+
+
 # Printers
 # --------
 
