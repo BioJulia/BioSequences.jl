@@ -418,6 +418,8 @@ which are common in bioinformatics are also provided.
 reverse!
 complement!
 reverse_complement!
+ungap
+ungap!
 ```
 
 ```jldoctest

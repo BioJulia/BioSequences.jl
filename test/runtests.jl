@@ -162,6 +162,16 @@ end
 
 include("symbols.jl")
 
+@testset "Sequences" begin
+    a = dna"A-CG-G"; b = rna"A-CG-G"; c = aa"AK-MV-";
+    @test ungap(a) == dna"ACGG"
+    @test ungap(b) == rna"ACGG"
+    @test ungap(c) == aa"AKMV"
+    @test ungap!(a) === a && a == dna"ACGG"
+    @test ungap!(b) === b && b == rna"ACGG"
+    @test ungap!(c) === c && c == aa"AKMV"
+end
+
 @testset "BioSequences" begin
     include("bioseq/conversion.jl")
     include("bioseq/basics.jl")
