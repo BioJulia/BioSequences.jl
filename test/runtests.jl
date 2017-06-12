@@ -167,9 +167,9 @@ include("symbols.jl")
     @test ungap(a) == dna"ACGG"
     @test ungap(b) == rna"ACGG"
     @test ungap(c) == aa"AKMV"
-    @test ungap!(a); a == dna"ACGG"
-    @test ungap!(b); b == dna"ACGG"
-    @test ungap!(c); c == aa"AKMV"
+    @test ungap!(a) === a && a == dna"ACGG"
+    @test ungap!(b) === b && b == rna"ACGG"
+    @test ungap!(c) === c && c == aa"AKMV"
 end
 
 @testset "BioSequences" begin
