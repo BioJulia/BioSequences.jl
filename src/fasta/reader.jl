@@ -48,7 +48,7 @@ function Base.getindex(reader::Reader, name::AbstractString)
     return read(reader)
 end
 
-info("Compiling FASTA parser...")
+isinteractive() && info("Compiling FASTA parser...")
 const record_machine, file_machine = (function ()
     cat = Automa.RegExp.cat
     rep = Automa.RegExp.rep

@@ -51,8 +51,7 @@ function generate_fill_ambiguous(symbol::BioSymbols.DNA)
 end
 
 # NOTE: This does not support line-wraps within sequence and quality.
-info("Compiling FASTQ parser...")
-info("NOTE: FASTQ parser does not support line-wraps within sequence and quality.")
+isinteractive() && info("Compiling FASTQ parser...")
 const record_machine, file_machine = (function ()
     cat = Automa.RegExp.cat
     rep = Automa.RegExp.rep
