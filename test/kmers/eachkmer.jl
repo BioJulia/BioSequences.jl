@@ -34,4 +34,7 @@
     @test isempty(collect(each(DNAKmer{1}, dna"NNNNNNNNNN")))
     @test_throws Exception each(DNAKmer{-1}, dna"ACGT")
     @test_throws Exception each(DNAKmer{33}, dna"ACGT")
+    @test collect(each(DNAKmer{3}, dna"AC-TGAG--TGC")) == [DNACodon(DNA_T, DNA_G, DNA_A),
+                                                           DNACodon(DNA_G, DNA_A, DNA_G),
+                                                           DNACodon(DNA_T, DNA_G, DNA_C)]
 end
