@@ -75,7 +75,7 @@ end
     k = kmersize(T)
     pos, kmer = state
     pos += it.step
-    uncertain = false
+    isok = true
 
     # faster path: return the next overlapping kmer if possible
     if it.step < k && pos + k - 1 ≤ endof(it.seq)
@@ -83,15 +83,15 @@ end
         if it.step == 1
             nt = inbounds_getindex(it.seq, pos+offset)
             kmer = kmer << 2 | trailing_zeros(nt)
-            uncertain |= !iscertain(nt)
+            isok &= iscertain(nt)
         else
             for i in 1:it.step
                 nt = inbounds_getindex(it.seq, pos+i-1+offset)
                 kmer = kmer << 2 | trailing_zeros(nt)
-                uncertain |= !iscertain(nt)
+                isok &= iscertain(nt)
             end
         end
-        if !uncertain
+        if isok
             return (state[1], convert(T, state[2])), (pos, kmer)
         end
     end
@@ -109,11 +109,11 @@ end
 
 function extract_kmer_impl(seq, from, k)
     kmer::UInt64 = 0
-    uncertain = false
+    isok = true
     for i in 1:k
         nt = inbounds_getindex(seq, from+i-1)
         kmer = kmer << 2 | trailing_zeros(nt)
-        uncertain |= !iscertain(nt)
+        isok &= iscertain(nt)
     end
-    return kmer, !uncertain
+    return kmer, isok
 end
