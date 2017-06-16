@@ -4,7 +4,7 @@
     
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,7 +12,7 @@
     
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//symbols/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -21,25 +21,25 @@
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//sequences/sequences/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//sequences/bioseq/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//sequences/refseq/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//sequences/kmer/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -49,19 +49,19 @@
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//io/fasta/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//io/fastq/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//io/twobit/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -70,7 +70,7 @@
     
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//search/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -78,7 +78,7 @@
     
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//demultiplexer/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -86,7 +86,7 @@
     
     <url>
      <loc>https://biojulia.github.io/BioSequences.jl//contributing/</loc>
-     <lastmod>2017-06-13</lastmod>
+     <lastmod>2017-06-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
