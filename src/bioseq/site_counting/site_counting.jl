@@ -140,7 +140,7 @@ function Base.count{P<:Position,A<:NucleicAcidAlphabets}(::Type{P}, a::BioSequen
     len = min(length(a), length(b))
     ritr = StepRange(width, step, len)
     width -= 1
-    results = Vector{IntervalValue{Int,Int}}(length(ritr))
+    results = Vector{IntervalValue{Int,bp_counter_type(P, A)}}(length(ritr))
     r = 1
     @inbounds for i in ritr
         idx = (i - width):i
