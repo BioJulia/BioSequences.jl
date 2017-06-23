@@ -153,11 +153,13 @@ end
 # Specific count_pairwise methods
 # -------------------------------
 
+@inline diag_val(::Type{Int}) = Int(0)
+
 function count_pairwise{P<:Position,A<:NucleicAcidAlphabets,N}(::Type{P}, seqs::Vararg{BioSequence{A},N})
     @assert N >= 2 "At least two sequences are required."
     counts = Matrix{bp_counter_type(P, A)}(N, N)
     for i in 1:N
-        counts[i,i] = zero(eltype(counts))
+        counts[i,i] = diag_val(eltype(counts))
         for j in (i+1):N
             counts[i,j] = counts[j,i] = count(P, seqs[i], seqs[j])
         end
