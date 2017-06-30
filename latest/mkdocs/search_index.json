@@ -2,12 +2,12 @@
     "docs": [
         {
             "location": "/", 
-            "text": "BioSequences.jl \nBiological sequences for julia\n\n\n \n \n \n \n \n \n \n\n\nDevelopment builds:\n \n \n \n\n\n\n\nDescription\n\n\nBioSequences.jl provides DNA, RNA and amino acid sequence data types for the julia language, with a comprehensive set of methods for common operations and IO of major sequence data formats.   \n\n\n\n\nInstallation\n\n\nInstall BioSequences from the Julia REPL:\n\n\njulia\n \nPkg\n.\nadd\n(\nBioSequences\n)\n\n\n\n\n\n\nIf you are interested in the cutting edge of the development, please check out the master branch to try new features before release.", 
+            "text": "BioSequences.jl \nBiological sequences for julia\n\n\nLatest release:\n\n\n \n \n \n \n \n \n\n\nDevelopment status:\n\n\n \n \n \n\n\n\n\nDescription\n\n\nBioSequences.jl provides DNA, RNA and amino acid sequence data types for the julia language, with a comprehensive set of methods for common operations and IO of major sequence data formats.   \n\n\n\n\nInstallation\n\n\nInstall BioSequences from the Julia REPL:\n\n\njulia\n \nPkg\n.\nadd\n(\nBioSequences\n)\n\n\n\n\n\n\nIf you are interested in the cutting edge of the development, please check out the master branch to try new features before release.", 
             "title": "Home"
         }, 
         {
             "location": "/#biosequencesjl-biological-sequences-for-julia", 
-            "text": "Development builds:", 
+            "text": "Latest release:               Development status:", 
             "title": "BioSequences.jl Biological sequences for julia"
         }, 
         {

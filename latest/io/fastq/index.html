@@ -495,7 +495,7 @@ tcagTTAAGATGGGAT
 <li><code>input</code>: data source</li>
 <li><code>fill_ambiguous=nothing</code>: fill ambiguous symbols with the given symbol</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/reader.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/reader.jl#L13-L21' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.Writer' href='#BioSequences.FASTQ.Writer'>#</a>
 <strong><code>BioSequences.FASTQ.Writer</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="nt">FASTQ</span><span class="p">.</span><span class="nc">Writer</span><span class="o">(</span><span class="nt">output</span><span class="p">::</span><span class="nd">IO</span><span class="o">;</span> <span class="nt">quality_header</span><span class="o">=</span><span class="nt">false</span><span class="o">)</span>
@@ -508,7 +508,7 @@ tcagTTAAGATGGGAT
 <li><code>output</code>: data sink</li>
 <li><code>quality_header=false</code>: output the title line at the third line just after '+'</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/writer.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/writer.jl#L13-L21' class='documenter-source'>source</a><br></p>
 <p>They can be created with IOStreams:</p>
 <div class="codehilite"><pre><span></span><span class="go">r = FASTQ.Reader(open(&quot;MyInput.fastq&quot;, &quot;r&quot;))</span>
 <span class="go">w = FASTQ.Writer(open(&quot;MyFile.fastq&quot;, &quot;w&quot;))</span>
@@ -533,33 +533,33 @@ tcagTTAAGATGGGAT
 
 
 <p>Create an unfilled FASTQ record.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L15-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L15-L19' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTQ.Record(data::Vector{UInt8})
 </pre></div>
 
 
 <p>Create a FASTQ record object from <code>data</code>.</p>
 <p>This function verifies and indexes fields for accessors. Note that the ownership of <code>data</code> is transferred to a new record object.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L24-L31' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L24-L31' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTQ.Record(str::AbstractString)
 </pre></div>
 
 
 <p>Create a FASTQ record object from <code>str</code>.</p>
 <p>This function verifies and indexes fields for accessors.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L42-L48' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L42-L48' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTQ.Record(identifier, sequence, quality; offset=33)
 </pre></div>
 
 
 <p>Create a FASTQ record from <code>identifier</code>, <code>sequence</code> and <code>quality</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L53-L57' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L53-L57' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>FASTQ.Record(identifier, description, sequence, quality; offset=33)
 </pre></div>
 
 
 <p>Create a FASTQ record from <code>identifier</code>, <code>description</code>, <code>sequence</code> and <code>quality</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
 <p>Various getters and setters are available for <code>FASTQ.Record</code>s:</p>
 <p><a id='BioSequences.FASTQ.hasidentifier' href='#BioSequences.FASTQ.hasidentifier'>#</a>
 <strong><code>BioSequences.FASTQ.hasidentifier</code></strong> &mdash; <em>Function</em>.</p>
@@ -568,7 +568,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Checks whether or not the <code>record</code> has an identifier.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L150-L154' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L150-L154' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.identifier' href='#BioSequences.FASTQ.identifier'>#</a>
 <strong><code>BioSequences.FASTQ.identifier</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>identifier(record::Record)::String
@@ -576,7 +576,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Get the sequence identifier of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L137-L141' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L137-L141' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.hasdescription' href='#BioSequences.FASTQ.hasdescription'>#</a>
 <strong><code>BioSequences.FASTQ.hasdescription</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>hasdescription(record::Record)
@@ -584,7 +584,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Checks whether or not the <code>record</code> has a description.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L172-L176' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L172-L176' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.description' href='#BioSequences.FASTQ.description'>#</a>
 <strong><code>BioSequences.FASTQ.description</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>description(record::Record)::String
@@ -592,7 +592,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Get the description of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L159-L163' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L159-L163' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.hassequence' href='#BioSequences.FASTQ.hassequence'>#</a>
 <strong><code>BioSequences.FASTQ.hassequence</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>hassequence(record::Record)
@@ -600,7 +600,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Checks whether or not a sequence record contains a sequence.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L216-L220' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L216-L220' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.sequence-Tuple{BioSequences.FASTQ.Record,UnitRange{Int64}}' href='#BioSequences.FASTQ.sequence-Tuple{BioSequences.FASTQ.Record,UnitRange{Int64}}'>#</a>
 <strong><code>BioSequences.FASTQ.sequence</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>sequence(record::Record, [part::UnitRange{Int}])::BioSequences.DNASequence
@@ -608,7 +608,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Get the sequence of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L206-L210' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L206-L210' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.hasquality' href='#BioSequences.FASTQ.hasquality'>#</a>
 <strong><code>BioSequences.FASTQ.hasquality</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>hasquality(record::Record)
@@ -616,7 +616,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Check whether the given FASTQ <code>record</code> has a quality string.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L266-L270' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L266-L270' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.FASTQ.quality' href='#BioSequences.FASTQ.quality'>#</a>
 <strong><code>BioSequences.FASTQ.quality</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>quality(record::Record, [offset::Integer=33, [part::UnitRange]])::Vector{UInt8}
@@ -624,14 +624,14 @@ tcagTTAAGATGGGAT
 
 
 <p>Get the base quality of <code>record</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L226-L230' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L226-L230' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>quality(record::Record, encoding_name::Symbol, [part::UnitRange])::Vector{UInt8}
 </pre></div>
 
 
 <p>Get the base quality of <code>record</code> by decoding with <code>encoding_name</code>.</p>
 <p>The <code>encoding_name</code> can be either <code>:sanger</code>, <code>:solexa</code>, <code>:illumina13</code>, <code>:illumina15</code>, or <code>:illumina18</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L241-L247' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L241-L247' class='documenter-source'>source</a><br></p>
 <p>To write a <code>BioSequence</code> to FASTQ file, you first have to create a <code>FASTQ.Record</code>:</p>
 <p><a id='BioSequences.FASTQ.Record-Tuple{AbstractString,Union{AbstractString,Void},Any,Array{T,1}}' href='#BioSequences.FASTQ.Record-Tuple{AbstractString,Union{AbstractString,Void},Any,Array{T,1}}'>#</a>
 <strong><code>BioSequences.FASTQ.Record</code></strong> &mdash; <em>Method</em>.</p>
@@ -640,7 +640,7 @@ tcagTTAAGATGGGAT
 
 
 <p>Create a FASTQ record from <code>identifier</code>, <code>description</code>, <code>sequence</code> and <code>quality</code>.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/3c02bfe7cf8999ce191adcc93f4a7aaf6beb88ce/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/37ee404877a53c7948f808624ea5dc9c113cbd74/src/fastq/record.jl#L62-L66' class='documenter-source'>source</a><br></p>
 <p>As always with julia IO types, remember to close your file readers and writer after you are finished.</p>
                 
                   
