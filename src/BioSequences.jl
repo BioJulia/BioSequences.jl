@@ -188,7 +188,7 @@ import BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStre
 import Combinatorics
 import Compat: @compat, ⊻, take!
 import IndexableBitVectors
-import Iterators
+import IterTools
 import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
