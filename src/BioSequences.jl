@@ -165,8 +165,6 @@ export
     seqmatrix,
     majorityvote,
     tryread!,
-    isfilled,
-    MissingFieldException,
     MinHashSketch,
     minhash,
     Site,
@@ -180,7 +178,6 @@ export
 import Automa
 import Automa.RegExp: @re_str
 importall BioCore
-import BioCore.Exceptions: MissingFieldException
 import BioCore.Ragel: Ragel, tryread!
 import BioCore.StringFields: StringField
 importall BioSymbols
