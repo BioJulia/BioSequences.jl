@@ -165,6 +165,7 @@ export
     seqmatrix,
     majorityvote,
     tryread!,
+    isfilled,
     MinHashSketch,
     minhash,
     Site,
