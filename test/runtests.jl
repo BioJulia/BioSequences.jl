@@ -219,6 +219,7 @@ end
     include("search/exact.jl")
     include("search/approximate.jl")
     include("search/regex.jl")
+    include("search/pwm.jl")
 end
 
 include("translation.jl")

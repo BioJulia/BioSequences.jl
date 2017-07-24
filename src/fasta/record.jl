@@ -124,7 +124,7 @@ end
 
 function truncate(s::String, len::Integer)
     if length(s) > len
-        return "$(String(collect(take(s, len - 1))))…"
+        return "$(String(collect(Iterators.take(s, len - 1))))…"
     else
         return s
     end
