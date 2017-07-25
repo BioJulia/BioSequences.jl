@@ -209,8 +209,6 @@ I can't see this existing much beyond the addition of masked sequences.
 Creates a sequence record suitable for writing to 2bit, in a similar way that
 FASTA and FASTQ records are created before being written to file. i.e. by calling
 a `Record` method on a name, some sequence, and some masks.
-
-B. Ward - 26 May, 2017.
 """
 type WriteRecord{S<:BioSequences.Sequence}
     name::String

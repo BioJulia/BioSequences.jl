@@ -7,7 +7,7 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # http://www.htslib.org/doc/faidx.html
-immutable Index
+struct Index
     names::Vector{String}
     lengths::Vector{Int}
     offsets::Vector{Int}

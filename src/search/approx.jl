@@ -9,7 +9,7 @@
 """
 Query type for approximate sequence search.
 """
-immutable ApproximateSearchQuery{S<:Sequence}
+struct ApproximateSearchQuery{S<:Sequence}
     seq::S          # query sequence
     fPcom::Vector   # compatibility vector for forward search
     bPcom::Vector   # compatibility vector for backward search
@@ -164,7 +164,7 @@ end
 # Myers, Gene. "A fast bit-vector algorithm for approximate string matching
 # based on dynamic programming." Journal of the ACM (JACM) 46.3 (1999): 395-415.
 # NOTE: `Pcom` corresponds to `Peq` in the paper.
-function search_approx_suffix{T}(Pcom::Vector{T}, pat, seq, k, start, stop, forward)
+function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward) where {T}
     if k < 0
         throw(ArgumentError("the number of errors must be non-negative"))
     end

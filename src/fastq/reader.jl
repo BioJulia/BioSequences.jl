@@ -1,7 +1,7 @@
 # FASTQ Reader
 # ============
 
-immutable Reader <: BioCore.IO.AbstractReader
+struct Reader <: BioCore.IO.AbstractReader
     state::BioCore.Ragel.State
     seq_transform::Nullable{Function}
 

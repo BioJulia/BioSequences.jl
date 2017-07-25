@@ -53,7 +53,7 @@ end
 """
 Query type for exact sequence search.
 """
-immutable ExactSearchQuery{S<:Sequence}
+struct ExactSearchQuery{S<:Sequence}
     seq::S         # query sequence
     cbits::UInt32  # compatibility bits
     fshift::Int    # shift length for forward search

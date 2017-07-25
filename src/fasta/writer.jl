@@ -10,7 +10,7 @@ Create a data writer of the FASTA file format.
 * `output`: data sink
 * `width=70`: wrapping width of sequence characters
 """
-type Writer <: BioCore.IO.AbstractWriter
+struct Writer <: BioCore.IO.AbstractWriter
     output::IO
     # maximum sequence width (no limit when width ≤ 0)
     width::Int
