@@ -4,7 +4,6 @@ BioCore
 BioSymbols
 BufferedStreams
 Combinatorics
-Compat 0.18
 IndexableBitVectors
 IterTools 0.1
 IntervalTrees
