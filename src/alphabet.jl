@@ -42,7 +42,9 @@ Void alphabet (internal use only).
 """
 struct VoidAlphabet <: Alphabet end
 
-const NucleicAcidAlphabets = Union{DNAAlphabet,RNAAlphabet}
+const NucAlphs = Union{DNAAlphabet,RNAAlphabet}
+const TwoBitNucs = Union{DNAAlphabet{2}, RNAAlphabet{2}}
+const FourBitNucs = Union{DNAAlphabet{4}, RNAAlphabet{4}}
 
 """
 The number of bits to represent the alphabet.

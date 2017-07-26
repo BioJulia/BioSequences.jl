@@ -149,7 +149,7 @@ export
     Alphabet,
     DNAAlphabet,
     RNAAlphabet,
-    NucleicAcidAlphabets,
+    NucAlphs,
     AminoAcidAlphabet,
     CharAlphabet,
 

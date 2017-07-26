@@ -48,7 +48,7 @@ struct BioSequence{A<:Alphabet} <: Sequence
     shared::Bool          # true if and only if `data` is shared between sequences
 
     function BioSequence{A}(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool)
-        return new{A}(data, part, shared)
+        return new(data, part, shared)
     end
 end
 

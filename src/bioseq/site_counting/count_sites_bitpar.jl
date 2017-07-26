@@ -6,13 +6,13 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-@inline bp_counter_type{S<:Site,A<:Alphabet}(::Type{S}, ::Type{A}) = Int
-@inline bp_start_counter{S<:Site,A<:Alphabet}(::Type{S}, ::Type{A}) = zero(bp_counter_type(S, A))
+@inline bp_counter_type(::Type{<:Site}, ::Type{<:Alphabet}) = Int
+@inline bp_start_counter(::Type{S}, ::Type{A}) where {S,A<:Alphabet} = zero(bp_counter_type(S, A))
 @inline bp_update_counter(acc::Int, up::Int) = acc + up
-@inline bp_correct_emptyspace{T<:Site,A<:Alphabet}(::Type{T}, ::Type{A}) = false
+@inline bp_correct_emptyspace(::Type{<:Site}, ::Type{<:Alphabet}) = false
 @inline bp_emptyspace_correction(nempty::Int, count::Int) = count - nempty
 
-@generated function bitpar_counter{S<:Site,A<:NucleicAcidAlphabets}(::Type{S}, a::BioSequence{A}, b::BioSequence{A})
+@generated function bitpar_counter(::Type{S}, a::BioSequence{A}, b::BioSequence{A}) where {S<:Site,A<:NucAlphs}
     n = bitsof(A)
     n_elems = div(64, n)
 

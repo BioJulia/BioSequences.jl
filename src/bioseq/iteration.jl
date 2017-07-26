@@ -9,7 +9,7 @@
 # Ambiguous nucleotides iterator
 # ------------------------------
 
-immutable AmbiguousNucleicAcidIterator{A<:Union{DNAAlphabet,RNAAlphabet}}
+struct AmbiguousNucleicAcidIterator{A<:NucAlphs}
     seq::BioSequence{A}
 end
 
@@ -23,14 +23,12 @@ end
 
 Base.iteratorsize(::AmbiguousNucleicAcidIterator) = Base.SizeUnknown()
 
-function find_next_ambiguous{A<:Union{DNAAlphabet{2},RNAAlphabet{2}}}(
-        seq::BioSequence{A}, i::Integer)
+function find_next_ambiguous(seq::BioSequence{A}, i::Integer) where {A<:TwoBitNucs}
     # no ambiguity
     return 0
 end
 
-function find_next_ambiguous{A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}(
-        seq::BioSequence{A}, from::Integer)
+function find_next_ambiguous(seq::BioSequence{A}, from::Integer) where {A<:FourBitNucs}
     for i in max(from, 1):endof(seq)
         nt = inbounds_getindex(seq, i)
         if isambiguous(nt)

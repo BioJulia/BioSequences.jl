@@ -69,7 +69,7 @@ julia> seqmatrix(seqs, :site)
   DNA_A  DNA_T  DNA_C  DNA_G
 ```
 """
-function seqmatrix{A<:Alphabet}(vseq::AbstractVector{BioSequence{A}}, major::Symbol)
+function seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -137,7 +137,7 @@ julia> seqmatrix(seqs, :seq, UInt8)
  0x01  0x08  0x02  0x04
 ```
 """
-function seqmatrix{T,A<:Alphabet}(::Type{T}, vseq::AbstractVector{BioSequence{A}}, major::Symbol)
+function seqmatrix(::Type{T}, vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {T,A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -165,7 +165,7 @@ end
 # ---------
 
 """
-    majorityvote{A<:NucleicAcidAlphabets}(seqs::AbstractVector{BioSequence{A}})
+    majorityvote{A<:NucAlphs}(seqs::AbstractVector{BioSequence{A}})
 
 Construct a sequence that is a consensus of a vector of sequences.
 
@@ -193,7 +193,7 @@ julia> majorityvote(seqs)
 MTCGAAARATCG
 ```
 """
-function majorityvote{A<:NucleicAcidAlphabets}(seqs::AbstractVector{BioSequence{A}})
+function majorityvote(seqs::AbstractVector{BioSequence{A}}) where {A<:NucAlphs}
     mat = seqmatrix(UInt8, seqs, :site)
     nsites = size(mat, 2)
     nseqs = size(mat, 1)
