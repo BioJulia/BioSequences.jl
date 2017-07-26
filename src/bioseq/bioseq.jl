@@ -42,12 +42,12 @@
 """
 Biological sequence data structure indexed by an alphabet type `A`.
 """
-type BioSequence{A<:Alphabet} <: Sequence
+struct BioSequence{A<:Alphabet} <: Sequence
     data::Vector{UInt64}  # encoded character sequence data
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
     shared::Bool          # true if and only if `data` is shared between sequences
 
-    function (::Type{BioSequence{A}}){A}(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool)
+    function BioSequence{A}(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool)
         return new{A}(data, part, shared)
     end
 end
@@ -58,19 +58,19 @@ const AminoAcidSequence = BioSequence{AminoAcidAlphabet}
 const CharSequence      = BioSequence{CharAlphabet}
 
 "Gets the alphabet encoding of a given BioSequence."
-alphabet{A}(::Type{BioSequence{A}}) = alphabet(A)
+alphabet(::Type{BioSequence{A}}) where {A} = alphabet(A)
 
 Base.length(seq::BioSequence) = length(seq.part)
-Base.eltype{A}(::Type{BioSequence{A}}) = eltype(A)
+Base.eltype(::Type{BioSequence{A}}) where {A} = eltype(A)
 
-function seq_data_len{A}(::Type{A}, len::Integer)
+function seq_data_len(::Type{A}, len::Integer) where {A}
     return cld(len, div(64, bitsof(A)))
 end
 
 # Replace a BioSequence's data with a copy, copying only what's needed.
 # The user should never need to call this, as it has no outward effect on the
 # sequence.
-function orphan!{A}(seq::BioSequence{A}, size::Integer=length(seq), force::Bool=false)
+function orphan!(seq::BioSequence{A}, size::Integer=length(seq), force::Bool=false) where {A}
     if !seq.shared && !force
         return seq
     end
@@ -101,15 +101,15 @@ function orphan!{A}(seq::BioSequence{A}, size::Integer=length(seq), force::Bool=
     return seq
 end
 
-function enc64{A}(::BioSequence{A}, x)
+function enc64(::BioSequence{A}, x) where {A}
     return UInt64(encode(A, convert(eltype(A), x)))
 end
 
 # Summaries
 # ---------
 
-Base.summary{A<:DNAAlphabet}(seq::BioSequence{A}) = string(length(seq), "nt ", "DNA Sequence")
-Base.summary{A<:RNAAlphabet}(seq::BioSequence{A}) = string(length(seq), "nt ", "RNA Sequence")
+Base.summary(seq::BioSequence{<:DNAAlphabet}) = string(length(seq), "nt ", "DNA Sequence")
+Base.summary(seq::BioSequence{<:RNAAlphabet}) = string(length(seq), "nt ", "RNA Sequence")
 Base.summary(seq::AminoAcidSequence) = string(length(seq), "aa ", "Amino Acid Sequence")
 Base.summary(seq::CharSequence) = string(length(seq), "char ", "Char Sequence")
 
