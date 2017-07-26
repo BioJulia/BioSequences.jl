@@ -42,13 +42,15 @@
 """
 Biological sequence data structure indexed by an alphabet type `A`.
 """
-struct BioSequence{A<:Alphabet} <: Sequence
+mutable struct BioSequence{A<:Alphabet} <: Sequence
     data::Vector{UInt64}  # encoded character sequence data
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
     shared::Bool          # true if and only if `data` is shared between sequences
 
-    function BioSequence{A}(data::Vector{UInt64}, part::UnitRange{Int}, shared::Bool) where {A}
-        return new{A}(data, part, shared)
+    function BioSequence{A}(data::Vector{UInt64},
+                            part::UnitRange{Int},
+                            shared::Bool) where A
+        return new(data, part, shared)
     end
 end
 

@@ -39,7 +39,7 @@ function BioSequence{A}(other::BioSequence{A}, part::UnitRange{<:Integer}) where
 end
 
 function BioSequence{A}(other::BioSequence{A}, part::UnitRange) where {A}
-    return BioSequence(other, part)
+    return BioSequence{A}(other, part)
 end
 
 # concatenate chunks
