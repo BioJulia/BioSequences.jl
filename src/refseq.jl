@@ -14,7 +14,7 @@ Reference sequence is a sequence of A/C/G/T/N. In the internals, it compresses
 reference sequences are immutable and hence no modifyting operators are
 provided.
 """
-immutable ReferenceSequence <: Sequence
+struct ReferenceSequence <: Sequence
     data::Vector{UInt64}  # 2-bit encoding of A/C/G/T nucloetides
     nmask::NMask          # positions of N
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
@@ -32,7 +32,7 @@ function ReferenceSequence()
     return ReferenceSequence(UInt64[], NMask(), 1:0)
 end
 
-function ReferenceSequence{T<:Integer}(seq::ReferenceSequence, part::UnitRange{T})
+function ReferenceSequence(seq::ReferenceSequence, part::UnitRange{<:Integer})
     ReferenceSequence(seq.data, seq.nmask, part)
 end
 
@@ -41,7 +41,7 @@ function ReferenceSequence(src::Vector{UInt8}, startpos::Integer=1,
     return encode(src, startpos, len)
 end
 
-function Base.convert{A<:DNAAlphabet}(::Type{ReferenceSequence}, seq::BioSequence{A})
+function Base.convert(::Type{ReferenceSequence}, seq::BioSequence{<:DNAAlphabet})
     data = Vector{UInt64}(cld(length(seq), 32))
     nmask = falses(length(seq))
     i = 1
@@ -86,7 +86,7 @@ function Base.convert(::Type{DNASequence}, seq::ReferenceSequence)
     return bioseq
 end
 
-function Base.convert{S<:AbstractString}(::Type{S}, seq::ReferenceSequence)
+function Base.convert(::Type{S}, seq::ReferenceSequence) where {S<:AbstractString}
     return S([Char(nt) for nt in seq])
 end
 
@@ -139,7 +139,7 @@ end
     end
 end
 
-function Base.getindex{T<:Integer}(seq::ReferenceSequence, part::UnitRange{T})
+function Base.getindex(seq::ReferenceSequence, part::UnitRange{<:Integer})
     checkbounds(seq, part)
     return ReferenceSequence(seq, part)
 end

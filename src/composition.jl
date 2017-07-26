@@ -6,11 +6,11 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-type Composition{T} <: Associative{T,Int}
+struct Composition{T} <: Associative{T,Int}
     counts::Vector{Int}
 end
 
-function Composition{A<:Union{DNAAlphabet,RNAAlphabet}}(seq::BioSequence{A})
+function Composition(seq::BioSequence{A}) where {A<:Union{DNAAlphabet,RNAAlphabet}}
     counts = zeros(Int, 16)
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
@@ -26,7 +26,7 @@ function Composition(seq::ReferenceSequence)
     return Composition{DNA}(counts)
 end
 
-function Composition{T,k}(kmer::Kmer{T,k})
+function Composition(kmer::Kmer{T,k}) where {T,k}
     counts = zeros(Int, 16)
     @inbounds begin
         counts[Int(DNA_A)+1] = count_a(kmer)
@@ -45,7 +45,7 @@ function Composition(seq::AminoAcidSequence)
     return Composition{AminoAcid}(counts)
 end
 
-function Composition{T<:Kmer}(iter::EachKmerIterator{T})
+function Composition(iter::EachKmerIterator{T}) where {T<:Kmer}
     counts = zeros(Int, 4^kmersize(T))
     for (_, x) in iter
         counts[convert(UInt64, x) + 1] += 1
@@ -84,7 +84,7 @@ function Base.next(comp::Composition, i)
     return (key => count), i + 1
 end
 
-function Base.getindex{T}(comp::Composition{T}, x)
+function Base.getindex(comp::Composition{T}, x) where {T}
     i = convert(UInt64, convert(T, x))
     if !(0 ≤ i < endof(comp.counts))
         throw(KeyError(x))
@@ -92,15 +92,15 @@ function Base.getindex{T}(comp::Composition{T}, x)
     return comp.counts[i+1]
 end
 
-function Base.copy{T}(comp::Composition{T})
+function Base.copy(comp::Composition{T}) where {T}
     return Composition{T}(copy(comp.counts))
 end
 
-function Base.merge{T}(comp::Composition{T}, other::Composition{T})
+function Base.merge(comp::Composition{T}, other::Composition{T}) where {T}
     return merge!(copy(comp), other)
 end
 
-function Base.merge!{T}(comp::Composition{T}, other::Composition{T})
+function Base.merge!(comp::Composition{T}, other::Composition{T}) where {T}
     @assert length(comp.counts) == length(other.counts)
     for i in 1:endof(comp.counts)
         comp.counts[i] += other.counts[i]
@@ -108,7 +108,7 @@ function Base.merge!{T}(comp::Composition{T}, other::Composition{T})
     return comp
 end
 
-function Base.summary{T}(::Composition{T})
+function Base.summary(::Composition{T}) where {T}
     if T == DNA
         return "DNA Composition"
     elseif T == RNA

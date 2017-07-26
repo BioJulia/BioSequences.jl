@@ -7,7 +7,7 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Trie-like data structure for DNA barcodes.
-immutable BarcodeTrie
+struct BarcodeTrie
     nodes::Vector{Int64}
 end
 
