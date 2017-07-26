@@ -10,8 +10,8 @@
 # Site types
 # ----------
 
-@compat abstract type Site end
-@compat abstract type Position <: Site end
+abstract type Site end
+abstract type Position <: Site end
 
 """
 A `Certain` site describes a site where both of two aligned sites are not an

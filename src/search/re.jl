@@ -35,7 +35,6 @@ end
 module RE
 
 import BioCore, BioSequences
-import Compat: @compat
 
 # Syntax tree
 # -----------
