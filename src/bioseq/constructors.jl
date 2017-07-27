@@ -29,7 +29,7 @@ function BioSequence{A}(
 end
 
 # create a subsequence
-function BioSequence{A}(other::BioSequence{A}, part::UnitRange{<:Integer}) where {A}
+function BioSequence(other::BioSequence{A}, part::UnitRange{<:Integer}) where {A}
     checkbounds(other, part)
     start = other.part.start + part.start - 1
     stop = start + length(part) - 1
