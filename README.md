@@ -3,7 +3,6 @@
 **Latest release:**
 
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
-[![BioSequences](http://pkg.julialang.org/badges/BioSequences_0.5.svg)](http://pkg.julialang.org/?pkg=BioSequences)
 [![BioSequences](http://pkg.julialang.org/badges/BioSequences_0.6.svg)](http://pkg.julialang.org/?pkg=BioSequences)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioSequences.jl/stable)
