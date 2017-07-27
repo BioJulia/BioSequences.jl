@@ -149,7 +149,7 @@ export
     Alphabet,
     DNAAlphabet,
     RNAAlphabet,
-    NucleicAcidAlphabets,
+    NucAlphs,
     AminoAcidAlphabet,
     CharAlphabet,
 
@@ -186,7 +186,6 @@ import BioCore.StringFields: StringField
 importall BioSymbols
 import BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
-import Compat: @compat, ⊻, take!
 import IndexableBitVectors
 import IterTools
 import IntervalTrees: IntervalValue

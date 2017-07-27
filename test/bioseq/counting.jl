@@ -5,7 +5,7 @@
 
     @testset "Specific count methods" begin
 
-        function generate_possibilities_tester{A<:NucleicAcidAlphabets}(::Type{A})
+        function generate_possibilities_tester{A<:NucAlphs}(::Type{A})
             symbols = alphabet(A)
             arra = Vector{eltype(A)}()
             arrb = Vector{eltype(A)}()

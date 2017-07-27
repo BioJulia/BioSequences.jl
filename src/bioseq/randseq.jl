@@ -9,30 +9,30 @@
 """
 Abstract sequence generator type.
 """
-@compat abstract type SequenceGenerator{T} end
+abstract type SequenceGenerator{T} end
 
 # Sequence generator of stationary distributions.
 immutable StationaryGenerator{T} <: SequenceGenerator{T}
     elems::Vector{T}
     probs::Vector{Float64}
 
-    function (::Type{StationaryGenerator{T}}){T}(elems, probs)
+    function StationaryGenerator{T}(elems, probs) where {T}
         @assert sum(probs) ≤ 1
         @assert length(elems) == length(probs) + 1
-        return new{T}(copy(elems), copy(probs))
+        return new(copy(elems), copy(probs))
     end
 end
 
-function StationaryGenerator{T,U<:AbstractFloat}(
-        elems::AbstractVector{T}, probs::AbstractVector{U})
+function StationaryGenerator(elems::AbstractVector{T},
+                             probs::AbstractVector{<:AbstractFloat}) where {T}
     return StationaryGenerator{T}(elems, probs)
 end
 
 alphatype(::Type{DNA}) = DNAAlphabet{4}
 alphatype(::Type{RNA}) = RNAAlphabet{4}
-alphatype(::Type{AminoAcid})     = AminoAcidAlphabet
+alphatype(::Type{AminoAcid}) = AminoAcidAlphabet
 
-function randseq{T}(generator::StationaryGenerator{T}, len::Integer)
+function randseq(generator::StationaryGenerator{T}, len::Integer) where {T}
     if len < 0
         throw(ArgumentError("length must be non-negative"))
     end

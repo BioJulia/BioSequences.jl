@@ -6,7 +6,7 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-immutable NMask
+struct NMask
     blockmask::IndexableBitVectors.SucVector
     blocks::Vector{UInt64}
     len::Int

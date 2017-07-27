@@ -6,7 +6,7 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-immutable QualityEncoding
+struct QualityEncoding
     # valid ASCII character range
     ascii::NTuple{2,UInt8}
 

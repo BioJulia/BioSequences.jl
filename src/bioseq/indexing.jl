@@ -49,14 +49,14 @@ end
 
 # creates a bit mask for given number of bits `n`
 mask(n::Integer) = (UInt64(1) << n) - 1
-mask{A<:Alphabet}(::Type{A}) = mask(bitsof(A))
+mask(::Type{A}) where {A<:Alphabet} = mask(bitsof(A))
 
 # assumes `i` is positive and `bitsof(A)` is a power of 2
-@inline function bitindex{A}(seq::BioSequence{A}, i::Integer)
+@inline function bitindex(seq::BioSequence{A}, i::Integer) where {A}
     return BitIndex((i + first(seq.part) - 2) << trailing_zeros(bitsof(A)))
 end
 
-@inline function inbounds_getindex{A}(seq::BioSequence{A}, i::Integer)
+@inline function inbounds_getindex(seq::BioSequence{A}, i::Integer) where {A}
     j = bitindex(seq, i)
     @inbounds return decode(A, (seq.data[index(j)] >> offset(j)) & mask(A))
 end
@@ -64,9 +64,9 @@ end
 Base.getindex(seq::BioSequence, part::UnitRange) = BioSequence(seq, part)
 Base.view(seq::BioSequence, part::UnitRange) = BioSequence(seq, part)
 
-function Base.setindex!{A,T<:Integer}(seq::BioSequence{A},
-                                      other::BioSequence{A},
-                                      locs::AbstractVector{T})
+function Base.setindex!(seq::BioSequence{A},
+                        other::BioSequence{A},
+                        locs::AbstractVector{<:Integer}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
     orphan!(seq)
@@ -76,17 +76,17 @@ function Base.setindex!{A,T<:Integer}(seq::BioSequence{A},
     return seq
 end
 
-function Base.setindex!{A,T<:Integer}(seq::BioSequence{A},
-                                      other::BioSequence{A},
-                                      locs::UnitRange{T})
+function Base.setindex!(seq::BioSequence{A},
+                        other::BioSequence{A},
+                        locs::UnitRange{<:Integer}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
     return copy!(seq, locs.start, other, 1)
 end
 
-function Base.setindex!{A}(seq::BioSequence{A},
-                           other::BioSequence{A},
-                           locs::AbstractVector{Bool})
+function Base.setindex!(seq::BioSequence{A},
+                        other::BioSequence{A},
+                        locs::AbstractVector{Bool}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
     orphan!(seq)
@@ -97,7 +97,7 @@ function Base.setindex!{A}(seq::BioSequence{A},
     return seq
 end
 
-function Base.setindex!{A}(seq::BioSequence{A}, other::BioSequence{A}, ::Colon)
+function Base.setindex!(seq::BioSequence{A}, other::BioSequence{A}, ::Colon) where {A}
     return setindex!(seq, other, 1:endof(seq))
 end
 
@@ -107,7 +107,7 @@ function Base.setindex!(seq::BioSequence, x, i::Integer)
     return unsafe_setindex!(seq, x, i)
 end
 
-function Base.setindex!{A,T<:Integer}(seq::BioSequence{A}, x, locs::AbstractVector{T})
+function Base.setindex!(seq::BioSequence{A}, x, locs::AbstractVector{<:Integer}) where {A}
     checkbounds(seq, locs)
     bin = enc64(seq, x)
     orphan!(seq)
@@ -117,7 +117,7 @@ function Base.setindex!{A,T<:Integer}(seq::BioSequence{A}, x, locs::AbstractVect
     return seq
 end
 
-function Base.setindex!{A}(seq::BioSequence{A}, x, locs::AbstractVector{Bool})
+function Base.setindex!(seq::BioSequence{A}, x, locs::AbstractVector{Bool}) where {A}
     checkbounds(seq, locs)
     bin = enc64(seq, x)
     orphan!(seq)
@@ -128,15 +128,15 @@ function Base.setindex!{A}(seq::BioSequence{A}, x, locs::AbstractVector{Bool})
     return seq
 end
 
-Base.setindex!{A}(seq::BioSequence{A}, x, ::Colon) = setindex!(seq, x, 1:endof(seq))
+Base.setindex!(seq::BioSequence{A}, x, ::Colon) where {A} = setindex!(seq, x, 1:endof(seq))
 
 # this is "unsafe" because of no bounds check and no orphan! call
-@inline function unsafe_setindex!{A}(seq::BioSequence{A}, x, i::Integer)
+@inline function unsafe_setindex!(seq::BioSequence{A}, x, i::Integer) where {A}
     bin = enc64(seq, x)
     return encoded_setindex!(seq, bin, i)
 end
 
-@inline function encoded_setindex!{A}(seq::BioSequence{A}, bin::UInt64, i::Integer)
+@inline function encoded_setindex!(seq::BioSequence{A}, bin::UInt64, i::Integer) where {A}
     j, r = bitindex(seq, i)
     @inbounds seq.data[j] = (bin << r) | (seq.data[j] & ~(mask(A) << r))
     return seq

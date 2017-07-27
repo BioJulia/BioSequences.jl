@@ -7,7 +7,7 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Iterate through every k-mer in a nucleotide sequence
-immutable EachKmerIterator{T<:Kmer,S<:Sequence}
+struct EachKmerIterator{T<:Kmer,S<:Sequence}
     seq::S
     step::Int
     start::Int
@@ -32,7 +32,7 @@ for (pos, codon) in each(DNAKmer{3}, dna"ATCCTANAGNTACT", 3)
 end
 ```
 """
-function each{T,K}(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1)
+function each(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1) where {T,K}
     if eltype(seq) ∉ (DNA, RNA)
         throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
     elseif !(0 ≤ K ≤ 32)
@@ -43,17 +43,17 @@ function each{T,K}(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1)
     return EachKmerIterator{Kmer{T,K},typeof(seq)}(seq, step, 1)
 end
 
-eachkmer{A<:DNAAlphabet}(seq::BioSequence{A}, K::Integer, step::Integer=1) = each(DNAKmer{Int(K)}, seq, step)
-eachkmer{A<:RNAAlphabet}(seq::BioSequence{A}, K::Integer, step::Integer=1) = each(RNAKmer{Int(K)}, seq, step)
+eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet} = each(DNAKmer{Int(K)}, seq, step)
+eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet} = each(RNAKmer{Int(K)}, seq, step)
 eachkmer(seq::ReferenceSequence, K::Integer, step::Integer=1) = each(DNAKmer{Int(K)}, seq, step)
 
-Base.eltype{T,S}(::Type{EachKmerIterator{T,S}}) = Tuple{Int,T}
+Base.eltype(::Type{EachKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 
-function Base.iteratorsize{T,S}(::Type{EachKmerIterator{T,S}})
+function Base.iteratorsize(::Type{EachKmerIterator{T,S}}) where {T,S}
     return Base.SizeUnknown()
 end
 
-function Base.start{T}(it::EachKmerIterator{T})
+function Base.start(it::EachKmerIterator{T}) where {T}
     k = kmersize(T)
     pos = it.start
     kmer::UInt64 = 0
@@ -67,11 +67,11 @@ function Base.start{T}(it::EachKmerIterator{T})
     return pos, kmer
 end
 
-@inline function Base.done{T}(it::EachKmerIterator{T}, state)
+@inline function Base.done(it::EachKmerIterator{T}, state) where {T}
     return state[1] + kmersize(T) - 1 > endof(it.seq)
 end
 
-@inline function Base.next{T}(it::EachKmerIterator{T}, state)
+@inline function Base.next(it::EachKmerIterator{T}, state) where {T}
     k = kmersize(T)
     pos, kmer = state
     pos += it.step

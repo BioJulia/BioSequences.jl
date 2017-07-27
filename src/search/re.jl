@@ -35,12 +35,11 @@ end
 module RE
 
 import BioCore, BioSequences
-import Compat: @compat
 
 # Syntax tree
 # -----------
 
-type SyntaxTree
+mutable struct SyntaxTree
     head::Symbol
     args::Vector{Any}
 
@@ -78,14 +77,14 @@ macro check(ex, err)
     end)
 end
 
-function parse{T}(::Type{T}, pat::AbstractString)
+function parse(::Type{T}, pat::AbstractString) where {T}
     parens = Char[]  # stack of parens
     ex, _ = parserec(T, pat, start(pat), parens)
     @check isempty(parens) ArgumentError("'(' is not closed")
     return ex
 end
 
-function parserec{T}(::Type{T}, pat, s, parens)
+function parserec(::Type{T}, pat, s, parens) where {T}
     args = []
     while !done(pat, s)
         c, s = next(pat, s)
@@ -202,7 +201,7 @@ function peek(pat, s)
     return next(pat, s)[1]
 end
 
-function parseset{T}(::Type{T}, pat, s)
+function parseset(::Type{T}, pat, s) where {T}
     if peek(pat, s) == '^'
         head = :compset
         _, s = next(pat, s)
@@ -315,7 +314,7 @@ function parseset_prosite(pat, s, close)
     end
 end
 
-function bits2sym{T}(::Type{T}, bits::UInt32)
+function bits2sym(::Type{T}, bits::UInt32) where {T}
     for x in BioSequences.alphabet(T)
         if BioSequences.compatbits(x) == bits
             return x
@@ -324,11 +323,11 @@ function bits2sym{T}(::Type{T}, bits::UInt32)
     error("bits are not found")
 end
 
-mask{T<:BioSequences.NucleicAcid}(::Type{T}) = (UInt32(1) << 4) - one(UInt32)
+mask(::Type{T}) where {T<:BioSequences.NucleicAcid} = (UInt32(1) << 4) - one(UInt32)
 @assert Int(BioSequences.AA_U) + 1 == 22  # check there are 22 unambiguous amino acids
 mask(::Type{BioSequences.AminoAcid}) = (UInt32(1) << 22) - one(UInt32)
 
-function desugar{T}(::Type{T}, tree::SyntaxTree)
+function desugar(::Type{T}, tree::SyntaxTree) where {T}
     head = tree.head
     args = tree.args
     if head == :+
@@ -417,7 +416,7 @@ function desugar{T}(::Type{T}, tree::SyntaxTree)
     return expr(head, args)
 end
 
-function desugar{T}(::Type{T}, atom)
+function desugar(::Type{T}, atom) where {T}
     return atom
 end
 
@@ -436,7 +435,7 @@ end
 # 0b110 | last      | matches the last of string
 # 0b111 | fork l    | push next and go to l
 
-@compat primitive type Op 32 end
+primitive type Op 32 end
 
 const MatchTag = UInt32(0b000) << 29
 const BitsTag  = UInt32(0b001) << 29
@@ -562,7 +561,7 @@ end
 """
 Regular expression for `DNA`, `RNA`, and `AminoAcid`.
 """
-immutable Regex{T}
+struct Regex{T}
     pat::String       # regular expression pattern (for printing)
     code::Vector{Op}  # compiled code
     nsaves::Int       # the number of `save` operations in `code`
@@ -588,7 +587,7 @@ immutable Regex{T}
     end
 end
 
-function Base.show{T}(io::IO, re::Regex{T})
+function Base.show(io::IO, re::Regex{T}) where {T}
     if T == BioSequences.DNA
         opt = "dna"
     elseif T == BioSequences.RNA
@@ -604,7 +603,7 @@ end
 """
 Result of matching by `Regex`.
 """
-immutable RegexMatch{S}
+struct RegexMatch{S}
     seq::S
     captured::Vector{Int}
 end
@@ -625,11 +624,11 @@ end
 
 Return a matched pattern.
 """
-function matched{S}(m::RegexMatch{S})
+function matched(m::RegexMatch{S}) where {S}
     return m.seq[m.captured[1]:m.captured[2]-1]
 end
 
-function matched{S}(m::Nullable{RegexMatch{S}})
+function matched(m::Nullable{RegexMatch{S}}) where {S}
     return matched(get(m))
 end
 
@@ -638,24 +637,24 @@ end
 
 Retrun a vector of captured patterns.
 """
-function captured{S}(m::RegexMatch{S})
+function captured(m::RegexMatch{S}) where {S}
     return [m.captured[2k-1] != 0 && m.captured[2k] != 0 ?
             Nullable{S}(m.seq[m.captured[2k-1]:m.captured[2k]-1]) :
             Nullable{S}()
             for k in 2:div(length(m.captured), 2)]
 end
 
-function captured{S}(m::Nullable{RegexMatch{S}})
+function captured(m::Nullable{RegexMatch{S}}) where {S}
     return captured(get(m))
 end
 
-function checkeltype{T}(re::Regex{T}, seq::BioSequences.BioSequence)
+function checkeltype(re::Regex{T}, seq::BioSequences.BioSequence) where {T}
     if eltype(seq) != T
         throw(ArgumentError("element type of sequence doesn't match with regex"))
     end
 end
 
-function Base.match{T}(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=1)
+function Base.match(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=1) where {T}
     checkeltype(re, seq)
 
     # use the first unambiguous symbol in the regular expression to find the
@@ -691,7 +690,7 @@ function Base.match{T}(re::Regex{T}, seq::BioSequences.BioSequence, start::Integ
     return Nullable{RegexMatch{typeof(seq)}}()
 end
 
-function Base.search{T}(seq::BioSequences.BioSequence, re::Regex{T}, start::Integer=1)
+function Base.search(seq::BioSequences.BioSequence, re::Regex{T}, start::Integer=1) where {T}
     checkeltype(re, seq)
     m = Base.match(re, seq, start)
     if isnull(m)
@@ -702,7 +701,7 @@ function Base.search{T}(seq::BioSequences.BioSequence, re::Regex{T}, start::Inte
     end
 end
 
-immutable RegexMatchIterator{T,S}
+struct RegexMatchIterator{T,S}
     re::Regex{T}
     seq::S
     overlap::Bool
@@ -713,11 +712,11 @@ immutable RegexMatchIterator{T,S}
     end
 end
 
-function Base.iteratorsize{T,S}(::Type{RegexMatchIterator{T,S}})
+function Base.iteratorsize(::Type{RegexMatchIterator{T,S}}) where {T,S}
     return Base.SizeUnknown()
 end
 
-function Base.eltype{T,S}(::Type{RegexMatchIterator{T,S}})
+function Base.eltype(::Type{RegexMatchIterator{T,S}}) where {T,S}
     return RegexMatch{S}
 end
 
@@ -763,12 +762,12 @@ function advance!(threads, captured, s, re, seq, overlap)
     return Nullable{typeof(seq)}(), threads, captured, s
 end
 
-function Base.eachmatch{T}(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true)
+function Base.eachmatch(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true) where {T}
     checkeltype(re, seq)
     return RegexMatchIterator{T,typeof(seq)}(re, seq, overlap)
 end
 
-function Base.matchall{T}(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true)
+function Base.matchall(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true) where {T}
     # this will work on v0.5
     #   return map(matched, eachmatch(re, seq))
     ret = Vector{typeof(seq)}()
@@ -778,12 +777,12 @@ function Base.matchall{T}(re::Regex{T}, seq::BioSequences.BioSequence, overlap::
     return ret
 end
 
-function Base.ismatch{T}(re::Regex{T}, seq::BioSequences.BioSequence)
+function Base.ismatch(re::Regex{T}, seq::BioSequences.BioSequence) where {T}
     return !isnull(Base.match(re, seq))
 end
 
 # simple stack
-type Stack{T}
+mutable struct Stack{T}
     top::Int
     data::Vector{T}
 
@@ -796,7 +795,7 @@ function Base.isempty(stack::Stack)
     return stack.top == 0
 end
 
-@inline function Base.push!{T}(stack::Stack{T}, x::T)
+@inline function Base.push!(stack::Stack{T}, x::T) where {T}
     if stack.top + 1 > length(stack.data)
         push!(stack.data, x)
     else

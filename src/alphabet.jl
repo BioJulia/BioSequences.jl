@@ -15,34 +15,36 @@
 """
 Alphabet of biological characters.
 """
-@compat abstract type Alphabet end
+abstract type Alphabet end
 
 """
 DNA nucleotide alphabet.
 """
-immutable DNAAlphabet{n} <: Alphabet end
+struct DNAAlphabet{n} <: Alphabet end
 
 """
 RNA nucleotide alphabet.
 """
-immutable RNAAlphabet{n} <: Alphabet end
+struct RNAAlphabet{n} <: Alphabet end
 
 """
 Amino acid alphabet.
 """
-immutable AminoAcidAlphabet <: Alphabet end
+struct AminoAcidAlphabet <: Alphabet end
 
 """
 General character alphabet.
 """
-immutable CharAlphabet <: Alphabet end
+struct CharAlphabet <: Alphabet end
 
 """
 Void alphabet (internal use only).
 """
-immutable VoidAlphabet <: Alphabet end
+struct VoidAlphabet <: Alphabet end
 
-const NucleicAcidAlphabets = Union{DNAAlphabet,RNAAlphabet}
+const NucAlphs = Union{DNAAlphabet,RNAAlphabet}
+const TwoBitNucs = Union{DNAAlphabet{2}, RNAAlphabet{2}}
+const FourBitNucs = Union{DNAAlphabet{4}, RNAAlphabet{4}}
 
 """
 The number of bits to represent the alphabet.
@@ -61,8 +63,8 @@ bitsof(::Type{VoidAlphabet}) = 0
 
 Base.eltype(::Type{DNAAlphabet}) = DNA
 Base.eltype(::Type{RNAAlphabet}) = RNA
-Base.eltype{n}(::Type{DNAAlphabet{n}}) = DNA
-Base.eltype{n}(::Type{RNAAlphabet{n}}) = RNA
+Base.eltype(::Type{DNAAlphabet{n}}) where {n} = DNA
+Base.eltype(::Type{RNAAlphabet{n}}) where {n} = RNA
 Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
 Base.eltype(::Type{CharAlphabet}) = Char
 Base.eltype(::Type{VoidAlphabet}) = Void
@@ -80,7 +82,7 @@ alphabet(::Type{VoidAlphabet}) = nothing
 # ----------------------
 
 for alph in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.promote_rule{A<:$alph,B<:$alph}(::Type{A}, ::Type{B})
+    @eval function Base.promote_rule(::Type{A}, ::Type{B}) where {A<:$alph,B<:$alph}
         return $alph{max(bitsof(A),bitsof(B))}
     end
 end
@@ -93,13 +95,13 @@ Encode biological characters to binary representation.
 """
 function encode end
 
-immutable EncodeError{A<:Alphabet,T} <: Exception
+struct EncodeError{A<:Alphabet,T} <: Exception
     val::T
 end
 
-EncodeError{A,T}(::Type{A}, val::T) = EncodeError{A,T}(val)
+EncodeError(::Type{A}, val::T) where {A,T} = EncodeError{A,T}(val)
 
-function Base.showerror{A}(io::IO, err::EncodeError{A})
+function Base.showerror(io::IO, err::EncodeError{A}) where {A}
     print(io, "cannot encode ", err.val, " in ", A)
 end
 
@@ -108,13 +110,13 @@ Decode biological characters from binary representation.
 """
 function decode end
 
-immutable DecodeError{A<:Alphabet,T} <: Exception
+struct DecodeError{A<:Alphabet,T} <: Exception
     val::T
 end
 
-DecodeError{A,T}(::Type{A}, val::T) = DecodeError{A,T}(val)
+DecodeError(::Type{A}, val::T) where {A,T} = DecodeError{A,T}(val)
 
-function Base.showerror{A}(io::IO, err::DecodeError{A})
+function Base.showerror(io::IO, err::DecodeError{A}) where {A}
     print(io, "cannot decode ", err.val, " in ", A)
 end
 

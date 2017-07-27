@@ -10,8 +10,8 @@
 # Site types
 # ----------
 
-@compat abstract type Site end
-@compat abstract type Position <: Site end
+abstract type Site end
+abstract type Position <: Site end
 
 """
 A `Certain` site describes a site where both of two aligned sites are not an
@@ -108,7 +108,7 @@ for A in (DNAAlphabet, RNAAlphabet)
 end
 
 for s in (Match, Gap)
-    @eval bp_correct_emptyspace{A<:NucleicAcidAlphabets}(::Type{$s}, ::Type{A}) = true
+    @eval bp_correct_emptyspace{A<:NucAlphs}(::Type{$s}, ::Type{A}) = true
 end
 
 
@@ -116,7 +116,7 @@ end
 # ---------------------------
 
 # In a general case, go to the bit-parallel counting method.
-@inline Base.count{P<:Position,A<:NucleicAcidAlphabets}(::Type{P}, a::BioSequence{A}, b::BioSequence{A}) = bitpar_counter(P, a, b)
+@inline Base.count{P<:Position,A<:NucAlphs}(::Type{P}, a::BioSequence{A}, b::BioSequence{A}) = bitpar_counter(P, a, b)
 
 # Some specific edge cases...
 for A in (DNAAlphabet, RNAAlphabet)
@@ -136,7 +136,7 @@ end
 # Specific Base.count sliding window methods
 # ------------------------------------------
 
-function Base.count{P<:Position,A<:NucleicAcidAlphabets}(::Type{P}, a::BioSequence{A}, b::BioSequence{A}, width::Int, step::Int)
+function Base.count{P<:Position,A<:NucAlphs}(::Type{P}, a::BioSequence{A}, b::BioSequence{A}, width::Int, step::Int)
     len = min(length(a), length(b))
     ritr = StepRange(width, step, len)
     width -= 1
@@ -155,7 +155,7 @@ end
 
 @inline diag_val(::Type{Int}) = Int(0)
 
-function count_pairwise{P<:Position,A<:NucleicAcidAlphabets,N}(::Type{P}, seqs::Vararg{BioSequence{A},N})
+function count_pairwise{P<:Position,A<:NucAlphs,N}(::Type{P}, seqs::Vararg{BioSequence{A},N})
     @assert N >= 2 "At least two sequences are required."
     counts = Matrix{bp_counter_type(P, A)}(N, N)
     for i in 1:N

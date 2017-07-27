@@ -31,7 +31,7 @@ function BioCore.IO.stream(reader::Reader)
     return reader.input
 end
 
-function Base.eltype{T}(::Type{Reader{T}})
+function Base.eltype(::Type{Reader{T}}) where {T}
     return Record
 end
 

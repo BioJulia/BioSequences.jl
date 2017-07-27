@@ -1,7 +1,7 @@
 # FASTQ Writer
 # ============
 
-immutable Writer <: BioCore.IO.AbstractWriter
+struct Writer <: BioCore.IO.AbstractWriter
     output::IO
     quality_header::Bool
 end

@@ -1,7 +1,7 @@
 # Transformations
 # ---------------
 
-function Base.push!{A}(seq::BioSequence{A}, x)
+function Base.push!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
     encoded_setindex!(seq, bin, endof(seq))
@@ -17,7 +17,7 @@ function Base.pop!(seq::BioSequence)
     return x
 end
 
-function Base.insert!{A}(seq::BioSequence{A}, i::Integer, x)
+function Base.insert!(seq::BioSequence{A}, i::Integer, x) where {A}
     checkbounds(seq, i)
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
@@ -26,7 +26,7 @@ function Base.insert!{A}(seq::BioSequence{A}, i::Integer, x)
     return seq
 end
 
-function Base.deleteat!{A,T<:Integer}(seq::BioSequence{A}, range::UnitRange{T})
+function Base.deleteat!(seq::BioSequence{A}, range::UnitRange{<:Integer}) where {A}
     checkbounds(seq, range)
     copy!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
     resize!(seq, length(seq) - length(range))
@@ -40,7 +40,7 @@ function Base.deleteat!(seq::BioSequence, i::Integer)
     return seq
 end
 
-function Base.append!{A}(seq::BioSequence{A}, other::BioSequence{A})
+function Base.append!(seq::BioSequence{A}, other::BioSequence{A}) where {A}
     resize!(seq, length(seq) + length(other))
     copy!(seq, endof(seq) - length(other) + 1, other, 1)
     return seq
@@ -55,7 +55,7 @@ function Base.shift!(seq::BioSequence)
     return x
 end
 
-function Base.unshift!{A}(seq::BioSequence{A}, x)
+function Base.unshift!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
     copy!(seq, 2, seq, 1, length(seq) - 1)
@@ -68,7 +68,7 @@ end
 
 Resize a biological sequence `seq`, to a given `size`.
 """
-function Base.resize!{A}(seq::BioSequence{A}, size::Integer)
+function Base.resize!(seq::BioSequence{A}, size::Integer) where {A}
     if size < 0
         throw(ArgumentError("size must be non-negative"))
     end
@@ -85,7 +85,7 @@ Completely empty a biological sequence `seq` of nucleotides.
 """
 Base.empty!(seq::BioSequence) = resize!(seq, 0)
 
-function Base.filter!{A}(f::Function, seq::BioSequence{A})
+function Base.filter!(f::Function, seq::BioSequence{A}) where {A}
     orphan!(seq)
 
     len = 0
@@ -151,7 +151,7 @@ Create a sequence which is the reverse of the bioloigcal sequence `seq`.
 """
 Base.reverse(seq::BioSequence) = reverse!(copy(seq))
 
-@generated function Base.reverse{A<:Union{DNAAlphabet,RNAAlphabet}}(seq::BioSequence{A})
+@generated function Base.reverse(seq::BioSequence{A}) where {A<:NucAlphs}
     n = bitsof(A)
     if n == 2
         nucrev = :nucrev2
@@ -217,7 +217,7 @@ end
 
 Make a complement sequence of `seq` in place.
 """
-function complement!{A<:Union{DNAAlphabet{2},RNAAlphabet{2}}}(seq::BioSequence{A})
+function complement!(seq::BioSequence{A}) where {A<:TwoBitNucs}
     orphan!(seq)
     next = bitindex(seq, 1)
     stop = bitindex(seq, endof(seq) + 1)
@@ -233,7 +233,7 @@ end
 
 Transform `seq` into it's complement.
 """
-function complement!{A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}(seq::BioSequence{A})
+function complement!(seq::BioSequence{A}) where {A<:FourBitNucs}
     orphan!(seq)
     next = bitindex(seq, 1)
     stop = bitindex(seq, endof(seq) + 1)
@@ -252,7 +252,7 @@ end
 
 Make a complement sequence of `seq`.
 """
-function complement{A<:Union{DNAAlphabet,RNAAlphabet}}(seq::BioSequence{A})
+function complement(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(copy(seq))
 end
 
@@ -263,7 +263,7 @@ Make a reversed complement sequence of `seq` in place.
 
 Ambiguous nucleotides are left as-is.
 """
-function reverse_complement!{A<:Union{DNAAlphabet,RNAAlphabet}}(seq::BioSequence{A})
+function reverse_complement!(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(reverse!(seq))
 end
 
@@ -274,7 +274,7 @@ Make a reversed complement sequence of `seq`.
 
 Ambiguous nucleotides are left as-is.
 """
-function reverse_complement{A<:Union{DNAAlphabet,RNAAlphabet}}(seq::BioSequence{A})
+function reverse_complement(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(reverse(seq))
 end
 

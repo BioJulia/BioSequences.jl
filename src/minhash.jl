@@ -16,7 +16,7 @@ hashes for kmers of a given length. The type contains two parameters:
 * .sketch: a sorted set of hashes
 * .kmersize: the length of kmers used to generate the sketch
 """
-immutable MinHashSketch
+struct MinHashSketch
     sketch::Vector{UInt64}
     kmersize::Int
 
@@ -38,7 +38,7 @@ function Base.:(==)(a::MinHashSketch, b::MinHashSketch)
 end
 
 
-function kmerminhash!{k}(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64})
+function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
     # generate first `s` kmers
     iter = each(DNAKmer{k}, seq)
     state = start(iter)
@@ -83,7 +83,7 @@ function minhash(seq::BioSequence, k::Integer, s::Integer)
     return MinHashSketch(kmerhashes, k)
 end
 
-function minhash{T<:BioSequence}(seqs::Vector{T}, k::Integer, s::Integer)
+function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
     kmerhashes = UInt64[]
     for seq in seqs
         kmerminhash!(DNAKmer{k}, seq, s, kmerhashes)

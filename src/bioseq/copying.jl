@@ -6,23 +6,23 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.copy!{A}(seq::BioSequence{A}, doff::Integer,
-                       src::Vector{UInt8},  soff::Integer, len::Integer)
+function Base.copy!(seq::BioSequence{A}, doff::Integer,
+                    src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
     datalen = seq_data_len(A, len)
     return seq
 end
 
-function Base.copy!{A}(dst::BioSequence{A}, src::BioSequence{A})
+function Base.copy!(dst::BioSequence{A}, src::BioSequence{A}) where {A}
     return copy!(dst, 1, src, 1)
 end
 
-function Base.copy!{A}(dst::BioSequence{A}, doff::Integer,
-                       src::BioSequence{A}, soff::Integer)
+function Base.copy!(dst::BioSequence{A}, doff::Integer,
+                    src::BioSequence{A}, soff::Integer) where {A}
     return copy!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function Base.copy!{A}(dst::BioSequence{A}, doff::Integer,
-                       src::BioSequence{A}, soff::Integer, len::Integer)
+function Base.copy!(dst::BioSequence{A}, doff::Integer,
+                    src::BioSequence{A}, soff::Integer, len::Integer) where {A}
     checkbounds(dst, doff:doff+len-1)
     checkbounds(src, soff:soff+len-1)
 
@@ -57,7 +57,7 @@ function Base.copy!{A}(dst::BioSequence{A}, doff::Integer,
 end
 
 # Actually, users don't need to create a copy of a sequence.
-function Base.copy{A}(seq::BioSequence{A})
+function Base.copy(seq::BioSequence{A}) where {A}
     newseq = BioSequence{A}(seq, 1:endof(seq))
     orphan!(newseq, length(seq), true)  # force orphan!
     @assert newseq.data !== seq.data
@@ -68,23 +68,23 @@ end
 # Encoded copying
 # ---------------
 
-function encode_copy!{A}(dst::BioSequence{A},
-                         src::Union{AbstractVector,AbstractString})
+function encode_copy!(dst::BioSequence{A},
+                      src::Union{AbstractVector,AbstractString}) where {A}
     return encode_copy!(dst, 1, src, 1)
 end
 
-function encode_copy!{A}(dst::BioSequence{A},
-                         doff::Integer,
-                         src::Union{AbstractVector,AbstractString},
-                         soff::Integer)
+function encode_copy!(dst::BioSequence{A},
+                      doff::Integer,
+                      src::Union{AbstractVector,AbstractString},
+                      soff::Integer) where {A}
     return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function encode_copy!{A}(dst::BioSequence{A},
-                         doff::Integer,
-                         src::Union{AbstractVector,AbstractString},
-                         soff::Integer,
-                         len::Integer)
+function encode_copy!(dst::BioSequence{A},
+                      doff::Integer,
+                      src::Union{AbstractVector,AbstractString},
+                      soff::Integer,
+                      len::Integer) where {A}
     if soff != 1 && isa(src, AbstractString) && !isascii(src)
         throw(ArgumentError("source offset ≠ 1 is not supported for non-ASCII string"))
     end
@@ -111,9 +111,8 @@ function encode_copy!{A}(dst::BioSequence{A},
     return dst
 end
 
-function encode_copy!{A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}(
-        dst::BioSequence{A}, doff::Integer,
-        src::AbstractVector{UInt8}, soff::Integer, len::Integer)
+function encode_copy!(dst::BioSequence{A}, doff::Integer,
+                      src::AbstractVector{UInt8}, soff::Integer, len::Integer) where {A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}
     checkbounds(dst, doff:doff+len-1)
     if length(src) < soff + len - 1
         throw(ArgumentError("source string does not contain $len elements from $soff"))
