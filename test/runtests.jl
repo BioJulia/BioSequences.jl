@@ -6,7 +6,6 @@ using BioSequences
 using IntervalTrees.IntervalValue
 using StatsBase
 using YAML
-import Compat: take!
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
