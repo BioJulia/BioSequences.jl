@@ -48,16 +48,16 @@ returns a tuple of a barcode index and a distance between the original barcode
 sequence and the prefix sequence:
 ```jldoctest
 julia> demultiplex(dplxr, dna"ATGGCGNT")  # 1st barcode with no errors
-(1,0)
+(1, 0)
 
 julia> demultiplex(dplxr, dna"CAGGCGNT")  # 2nd barcode with one error
-(2,1)
+(2, 1)
 
 julia> demultiplex(dplxr, dna"GGAACGNT")  # 3rd barcode with no errors
-(3,0)
+(3, 0)
 
 julia> demultiplex(dplxr, dna"TGACCGNT")  # no matching barcode
-(0,-1)
+(0, -1)
 
 ```
 
@@ -68,9 +68,9 @@ linear search after the index search and returns one of the closest barcodes at
 random. The next example shows the difference of these two strategies:
 ```jldoctest
 julia> demultiplex(dplxr, dna"TGACCGNT", false)  # linear search off (default)
-(0,-1)
+(0, -1)
 
 julia> demultiplex(dplxr, dna"TGACCGNT", true)   # linear search on
-(3,2)
+(3, 2)
 
 ```
