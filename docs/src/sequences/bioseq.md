@@ -544,7 +544,7 @@ Counting can also be done on a set of sequences in a pairwise manner with the
 
 ```jldoctest
 julia> count_pairwise(Match, dna"ATCGCCA-", dna"ATCGCCTA", dna"ATCGCCT-", dna"GTCGCCTA")
-4×4 PairwiseListMatrices.PairwiseListMatrix{Int64,false}:
+4×4 Array{Int64,2}:
  0  6  7  5
  6  0  7  7
  7  7  0  6
