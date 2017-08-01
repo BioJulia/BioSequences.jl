@@ -18,7 +18,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.4">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.5">
     
     
       
@@ -91,11 +91,11 @@
         
           <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
-<div class="md-search" data-md-component="search">
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
       <label class="md-icon md-search__icon" for="search"></label>
       <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
     </form>
@@ -874,11 +874,11 @@ true
 <h2 id="other-functions">Other functions</h2>
 <p><a id='BioSymbols.alphabet' href='#BioSymbols.alphabet'>#</a>
 <strong><code>BioSymbols.alphabet</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>alphabet(type)
+<div class="codehilite"><pre><span></span>alphabet(DNA)
 </pre></div>
 
 
-<p>Get all symbols of <code>type</code>.</p>
+<p>Get all symbols of <code>DNA</code> in sorted order.</p>
 <p><strong>Examples</strong></p>
 <div class="codehilite"><pre><span></span>julia&gt; alphabet(DNA)
 (DNA_Gap, DNA_A, DNA_C, DNA_M, DNA_G, DNA_R, DNA_S, DNA_V, DNA_T, DNA_W, DNA_Y, DNA_H, DNA_K, DNA_D, DNA_B, DNA_N)
@@ -888,29 +888,67 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/c614cffa8c20ac54584aa34822d771b3fa5ad3dc/src/nucleicacid.jl#L133-L149' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L148-L164' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>alphabet(RNA)
+</pre></div>
+
+
+<p>Get all symbols of <code>RNA</code> in sorted order.</p>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span>julia&gt; alphabet(RNA)
+(RNA_Gap, RNA_A, RNA_C, RNA_M, RNA_G, RNA_R, RNA_S, RNA_V, RNA_U, RNA_W, RNA_Y, RNA_H, RNA_K, RNA_D, RNA_B, RNA_N)
+
+julia&gt; issorted(alphabet(RNA))
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L232-L248' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>alphabet(AminoAcid)
+</pre></div>
+
+
+<p>Get all symbols of <code>AminoAcid</code> in sorted order.</p>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span>julia&gt; alphabet(AminoAcid)
+(AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
+
+julia&gt; issorted(alphabet(AminoAcid))
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L137-L153' class='documenter-source'>source</a><br></p>
+<p>Gets the alphabet encoding of a given BioSequence.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/c1eaf0fd27f2e142ee32d838f9a6d1fb9b113817/src/bioseq/bioseq.jl#L62' class='documenter-source'>source</a><br></p>
 <p><a id='BioSymbols.gap' href='#BioSymbols.gap'>#</a>
 <strong><code>BioSymbols.gap</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>gap(type)
+<div class="codehilite"><pre><span></span>gap(DNA)
 </pre></div>
 
 
-<p>Return the gap value of <code>type</code>.</p>
-<p><strong>Examples</strong></p>
-<div class="codehilite"><pre><span></span>julia&gt; gap(DNA)
-DNA_Gap
+<p>Return <code>DNA_Gap</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L319-L323' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>gap(RNA)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/c614cffa8c20ac54584aa34822d771b3fa5ad3dc/src/nucleicacid.jl#L289-L302' class='documenter-source'>source</a><br></p>
+<p>Return <code>RNA_Gap</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L328-L332' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>gap(AminoAcid)
+</pre></div>
+
+
+<p>Return <code>AA_Gap</code>.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L281-L285' class='documenter-source'>source</a><br></p>
 <p><a id='BioSymbols.iscompatible' href='#BioSymbols.iscompatible'>#</a>
 <strong><code>BioSymbols.iscompatible</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>iscompatible(x, y)
+<div class="codehilite"><pre><span></span>iscompatible(x::T, y::T) where T &lt;: NucleicAcid
 </pre></div>
 
 
 <p>Test if <code>x</code> and <code>y</code> are compatible with each other (i.e. <code>x</code> and <code>y</code> can be the same symbol).</p>
-<p><code>x</code> and <code>y</code> must be the same type (<code>DNA</code>, <code>RNA</code> or <code>AminoAcid</code>).</p>
+<p><code>x</code> and <code>y</code> must be the same type.</p>
 <p><strong>Examples</strong></p>
 <div class="codehilite"><pre><span></span>julia&gt; iscompatible(DNA_A, DNA_A)
 true
@@ -920,21 +958,39 @@ true
 
 julia&gt; iscompatible(DNA_C, DNA_R)  # DNA_R (A or G) cannot be DNA_C
 false
+</pre></div>
 
-julia&gt; iscompatible(AA_A, AA_X)    # AA_X can be AA_A
+
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L432-L453' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>iscompatible(x::AminoAcid, y::AminoAcid)
+</pre></div>
+
+
+<p>Test if <code>x</code> and <code>y</code> are compatible with each other.</p>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span>julia&gt; iscompatible(AA_A, AA_R)
+false
+
+julia&gt; iscompatible(AA_A, AA_X)
 true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/c614cffa8c20ac54584aa34822d771b3fa5ad3dc/src/nucleicacid.jl#L402-L426' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L316-L332' class='documenter-source'>source</a><br></p>
 <p><a id='BioSymbols.isambiguous' href='#BioSymbols.isambiguous'>#</a>
 <strong><code>BioSymbols.isambiguous</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>isambiguous(nt::NucleicAcid)
 </pre></div>
 
 
-<p>Test if <code>nt</code> is ambiguous nucleotide.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/c614cffa8c20ac54584aa34822d771b3fa5ad3dc/src/nucleicacid.jl#L337-L341' class='documenter-source'>source</a><br></p>
+<p>Test if <code>nt</code> is an ambiguous nucleotide.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L367-L371' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>isambiguous(aa::AminoAcid)
+</pre></div>
+
+
+<p>Test if <code>aa</code> is an ambiguous amino acid.</p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L265-L269' class='documenter-source'>source</a><br></p>
                 
                   
                 
@@ -1008,7 +1064,7 @@ true
       
     </div>
     
-      <script src="../assets/javascripts/application-c35428f87f.js"></script>
+      <script src="../assets/javascripts/application-07b0fbb49b.js"></script>
       
       
       <script>app.initialize({url:{base:".."}})</script>

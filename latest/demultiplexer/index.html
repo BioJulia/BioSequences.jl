@@ -18,7 +18,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.4">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.5">
     
     
       
@@ -91,11 +91,11 @@
         
           <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
-<div class="md-search" data-md-component="search">
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
       <label class="md-icon md-search__icon" for="search"></label>
       <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
     </form>
@@ -432,25 +432,25 @@ BioSequences.Demultiplexer{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}
 <p><code>n_max_errors</code> specifies the number of maximum correctable errors in a barcode. The type of correctable errors depends on the <code>distance</code> parameter. When <code>distance = :hamming</code> as shown above only substitutions are correctable. When <code>distance = :levenshtein</code> substitutions, deletions, and insertions are correctable. The user is responsible for keeping enough distances among barcodes; <code>Demultiplexer</code> will throw an exception if two barcodes are within <code>n_max_errors * 2</code>.</p>
 <p>The <code>demultiplex</code> function takes a demultiplexer object and a DNA sequence, and returns a tuple of a barcode index and a distance between the original barcode sequence and the prefix sequence:</p>
 <div class="codehilite"><pre><span></span>julia&gt; demultiplex(dplxr, dna&quot;ATGGCGNT&quot;)  # 1st barcode with no errors
-(1,0)
+(1, 0)
 
 julia&gt; demultiplex(dplxr, dna&quot;CAGGCGNT&quot;)  # 2nd barcode with one error
-(2,1)
+(2, 1)
 
 julia&gt; demultiplex(dplxr, dna&quot;GGAACGNT&quot;)  # 3rd barcode with no errors
-(3,0)
+(3, 0)
 
 julia&gt; demultiplex(dplxr, dna&quot;TGACCGNT&quot;)  # no matching barcode
-(0,-1)
+(0, -1)
 </pre></div>
 
 
 <p>The optional third argument controls the search strategy. <code>demultiplex</code> uses an index to search the closest barcode within <code>n_max_errors</code> in the barcode set and returns it if any by default. If the third argument is <code>true</code> it falls back to a linear search after the index search and returns one of the closest barcodes at random. The next example shows the difference of these two strategies:</p>
 <div class="codehilite"><pre><span></span>julia&gt; demultiplex(dplxr, dna&quot;TGACCGNT&quot;, false)  # linear search off (default)
-(0,-1)
+(0, -1)
 
 julia&gt; demultiplex(dplxr, dna&quot;TGACCGNT&quot;, true)   # linear search on
-(3,2)
+(3, 2)
 </pre></div>
                 
                   
@@ -525,7 +525,7 @@ julia&gt; demultiplex(dplxr, dna&quot;TGACCGNT&quot;, true)   # linear search on
       
     </div>
     
-      <script src="../assets/javascripts/application-c35428f87f.js"></script>
+      <script src="../assets/javascripts/application-07b0fbb49b.js"></script>
       
       
       <script>app.initialize({url:{base:".."}})</script>
