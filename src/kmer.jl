@@ -141,6 +141,22 @@ Base.:+(x::Integer, y::Kmer{T,K}) where {T,K} = y + x
 Base.:(==)(x::Kmer{T,k}, y::Kmer{T,k}) where {T,k} = UInt64(x) == UInt64(y)
 Base.isless(x::Kmer{T,K}, y::Kmer{T,K}) where {T,K} = isless(UInt64(x), UInt64(y))
 
+function Base.typemin(::Type{Kmer{T,K}}) where {T,K}
+    checkkmer(Kmer{T,K})
+    return reinterpret(Kmer{T,K}, UInt64(0))
+end
+
+function Base.typemax(::Type{Kmer{T,K}}) where {T,K}
+    checkkmer(Kmer{T,K})
+    return reinterpret(Kmer{T,K}, ~UInt64(0) >> (64 - 2K))
+end
+
+@inline function checkkmer(::Type{Kmer{T,K}}) where {T,K}
+    if !(0 ≤ K ≤ 32)
+        throw(ArgumentError("the length K must be within 0..32"))
+    end
+end
+
 
 # Other functions
 # ---------------
