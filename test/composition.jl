@@ -76,6 +76,14 @@
     @test composition(aa"MTTQAPMFTQPLQSVVV")[AA_P] === 2
     @test composition(aa"MTTQAPMFTQPLQSVVV")[AA_V] === 3
 
+    let comp = composition(ReferenceSequence(dna"AGTTATGN"))
+        @test comp[DNA_A] === 2
+        @test comp[DNA_C] === 0
+        @test comp[DNA_G] === 2
+        @test comp[DNA_T] === 3
+        @test comp[DNA_N] === 1
+    end
+
     for len in [1, 10, 32]
         @test all(Bool[check_kmer_nucleotide_count(DNA, random_dna_kmer(len)) for _ in 1:reps])
         @test all(Bool[check_kmer_nucleotide_count(RNA, random_rna_kmer(len)) for _ in 1:reps])
