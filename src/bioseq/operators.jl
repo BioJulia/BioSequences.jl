@@ -26,7 +26,7 @@ include("site_counting/site_counting.jl")
 # -------------------
 
 """
-    seqmatrix{A<:Alphabet}(vseq::Vector{BioSequence{A}}, major::Symbol)
+    seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A<:Alphabet}
 
 Construct a matrix of nucleotides or amino acids from a vector of `BioSequence`s.
 
@@ -94,7 +94,7 @@ function seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A
 end
 
 """
-    seqmatrix{A<:Alphabet,T}(::Type{T}, vseq::Vector{BioSequence{A}}, major::Symbol)
+    seqmatrix(::Type{T}, vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {T,A<:Alphabet}
 
 Construct a matrix of `T` from a vector of `BioSequence`s.
 
@@ -165,7 +165,7 @@ end
 # ---------
 
 """
-    majorityvote{A<:NucAlphs}(seqs::AbstractVector{BioSequence{A}})
+    majorityvote(seqs::AbstractVector{BioSequence{A}}) where {A<:NucAlphs}
 
 Construct a sequence that is a consensus of a vector of sequences.
 
@@ -217,4 +217,43 @@ function majorityvote(seqs::AbstractVector{BioSequence{A}}) where {A<:NucAlphs}
         result[site] = reinterpret(eltype(A), merged)
     end
     return result
+end
+
+"""
+    count_unique_sequences(seqs::Vararg{BioSequence{A},N}) where {A <: Alphabet, N}
+
+Count the number of unique sequences in a set of sequences.
+
+# Example
+
+```jlcon
+julia> a = dna"AAAAAAAATTTTTT"
+14nt DNA Sequence:
+AAAAAAAATTTTTT
+
+julia> b = dna"AAAAAAAATTTTTT"
+14nt DNA Sequence:
+AAAAAAAATTTTTT
+
+julia> c = a[5:10]
+6nt DNA Sequence:
+AAAATT
+
+julia> count_unique_sequences(a, b, c)
+Dict{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},Int64} with 2 entries:
+  AAAATT         => 1
+  AAAAAAAATTTTTT => 2
+```
+"""
+@inline function count_unique_sequences(seqs::Vararg{BioSequence{A},N}) where {A <: Alphabet, N}
+    counts = Dict{BioSequence{A}, Int}()
+    @inbounds for seq in seqs
+        current = get(counts, seq, 0)
+        counts[seq] = current + 1
+    end
+    return counts
+end
+
+@inline function count_unique_sequences(seqs::Vector{BioSequence{A}}) where {A <: Alphabet, N}
+    count_unique_sequences(seqs...)
 end
