@@ -7,8 +7,10 @@ import Automa
 import Automa.RegExp: @re_str
 import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
+import BioCore.ReaderHelper: @pos, @mark, @unmark
 import BioSequences
-import BufferedStreams
+import TranscodingStreams: TranscodingStreams, TranscodingStream
+import CodecZlib
 
 export description,
        identifier

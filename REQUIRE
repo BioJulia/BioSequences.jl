@@ -3,9 +3,11 @@ Automa
 BioCore
 BioSymbols
 BufferedStreams
+CodecZlib 0.3
 Combinatorics
 IndexableBitVectors
 IterTools 0.1
 IntervalTrees
+TranscodingStreams 0.3
 Twiddle
 DataStructures
