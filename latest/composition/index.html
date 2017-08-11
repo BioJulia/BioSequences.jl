@@ -10,26 +10,26 @@
         <meta name="description" content="Biological sequences for the julia language">
       
       
-        <link rel="canonical" href="https://biojulia.github.io/BioSequences.jl/sequences/kmer/">
+        <link rel="canonical" href="https://biojulia.github.io/BioSequences.jl/composition/">
       
       
         <meta name="author" content="The BioJulia Organisation">
       
       
-        <link rel="shortcut icon" href="../../assets/images/favicon.png">
+        <link rel="shortcut icon" href="../assets/images/favicon.png">
       
       <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.8.1">
     
     
       
-        <title>Nucleic acid k-mers - BioSequences.jl</title>
+        <title>Sequence Composition - BioSequences.jl</title>
       
     
     
-      <script src="../../assets/javascripts/modernizr-1df76c4e58.js"></script>
+      <script src="../assets/javascripts/modernizr-1df76c4e58.js"></script>
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/application-bfecc7305d.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-bfecc7305d.css">
       
     
     
@@ -43,7 +43,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="../../assets/Documenter.css">
+      <link rel="stylesheet" href="../assets/Documenter.css">
     
     
   </head>
@@ -82,12 +82,8 @@
           
             
               
-                <span class="md-header-nav__parent">
-                  Sequence types
-                </span>
-              
             
-            Nucleic acid k-mers
+            Sequence Composition
           
         </span>
       </div>
@@ -194,7 +190,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../.." title="Home" class="md-nav__link">
+    <a href=".." title="Home" class="md-nav__link">
       Home
     </a>
   </li>
@@ -206,7 +202,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../symbols/" title="Biological Symbols" class="md-nav__link">
+    <a href="../symbols/" title="Biological Symbols" class="md-nav__link">
       Biological Symbols
     </a>
   </li>
@@ -216,12 +212,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
     
     <label class="md-nav__link" for="nav-3">
       Sequence types
@@ -239,7 +233,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../sequences/" title="Overview" class="md-nav__link">
+    <a href="../sequences/sequences/" title="Overview" class="md-nav__link">
       Overview
     </a>
   </li>
@@ -251,7 +245,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../bioseq/" title="BioSequence" class="md-nav__link">
+    <a href="../sequences/bioseq/" title="BioSequence" class="md-nav__link">
       BioSequence
     </a>
   </li>
@@ -263,7 +257,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../refseq/" title="Reference Sequences" class="md-nav__link">
+    <a href="../sequences/refseq/" title="Reference Sequences" class="md-nav__link">
       Reference Sequences
     </a>
   </li>
@@ -273,43 +267,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Nucleic acid k-mers
-      </label>
-    
-    <a href="./" title="Nucleic acid k-mers" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../sequences/kmer/" title="Nucleic acid k-mers" class="md-nav__link">
       Nucleic acid k-mers
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#nucleic-acid-k-mers" title="Nucleic acid k-mers" class="md-nav__link">
-    Nucleic acid k-mers
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -343,7 +305,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../io/fasta/" title="FASTA formatted files" class="md-nav__link">
+    <a href="../io/fasta/" title="FASTA formatted files" class="md-nav__link">
       FASTA formatted files
     </a>
   </li>
@@ -355,7 +317,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../io/fastq/" title="FASTQ formatted files" class="md-nav__link">
+    <a href="../io/fastq/" title="FASTQ formatted files" class="md-nav__link">
       FASTQ formatted files
     </a>
   </li>
@@ -367,7 +329,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../io/twobit/" title="2bit formatted files" class="md-nav__link">
+    <a href="../io/twobit/" title="2bit formatted files" class="md-nav__link">
       2bit formatted files
     </a>
   </li>
@@ -384,7 +346,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../search/" title="Searching" class="md-nav__link">
+    <a href="../search/" title="Searching" class="md-nav__link">
       Searching
     </a>
   </li>
@@ -394,11 +356,20 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../composition/" title="Sequence Composition" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+    <a href="./" title="Sequence Composition" class="md-nav__link md-nav__link--active">
       Sequence Composition
     </a>
+    
   </li>
 
     
@@ -408,7 +379,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../demultiplexer/" title="Demultiplexing" class="md-nav__link">
+    <a href="../demultiplexer/" title="Demultiplexing" class="md-nav__link">
       Demultiplexing
     </a>
   </li>
@@ -420,7 +391,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../contributing/" title="Contributing" class="md-nav__link">
+    <a href="../contributing/" title="Contributing" class="md-nav__link">
       Contributing
     </a>
   </li>
@@ -440,20 +411,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
   
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#nucleic-acid-k-mers" title="Nucleic acid k-mers" class="md-nav__link">
-    Nucleic acid k-mers
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
   
 </nav>
                   </div>
@@ -465,71 +424,22 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/BioJulia/BioSequences.jl/edit/master/docs/sequences/kmer.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/BioJulia/BioSequences.jl/edit/master/docs/composition.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Nucleic acid k-mers</h1>
-                
-                <p><a id='Nucleic-acid-k-mers-1'></a></p>
-<h2 id="nucleic-acid-k-mers">Nucleic acid k-mers</h2>
-<p>A common strategy to simplify the analysis of sequence data is to operate or short k-mers, for size fixed size <code>k</code>. These can be packed into machine integers allowing extremely efficient code. The <code>BioSequences</code> module has built in support for representing short sequences in 64-bit integers. Besides being fixed length, <code>Kmer</code> types, unlike other sequence types cannot contain ambiguous symbols like 'N'.</p>
-<p>The <code>Kmer{T,k}</code> type parameterized on symbol type (<code>T</code>, either <code>DNA</code>, or <code>RNA</code>) and size <code>k</code>. For ease of writing code, two type aliases for each nucleotide type are defined and named as <code>DNAKmer{k}</code> and <code>RNAKmer{k}</code>:</p>
-<div class="codehilite"><pre><span></span>julia&gt; DNAKmer(&quot;ACGT&quot;)  # create a DNA 4-mer from a string
-DNA 4-mer:
-ACGT
-
-julia&gt; RNAKmer(&quot;ACGU&quot;)  # create an RNA 4-mer from a string
-RNA 4-mer:
-ACGU
-
-julia&gt; kmer&quot;ACGT&quot; # DNA k-mers may also be written as literals
-DNA 4-mer:
-ACGT
-
-julia&gt; typeof(DNAKmer(&quot;ACGT&quot;))
-BioSequences.Kmer{BioSymbols.DNA,4}
-</pre></div>
-
-
-<p><a id='BioSequences.each' href='#BioSequences.each'>#</a>
-<strong><code>BioSequences.each</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>each(::Type{Kmer{T,k}}, seq::Sequence[, step=1])
-</pre></div>
-
-
-<p>Initialize an iterator over all k-mers in a sequence <code>seq</code> skipping ambiguous nucleotides without changing the reading frame.</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><code>Kmer{T,k}</code>: k-mer type to enumerate.</li>
-<li><code>seq</code>: a nucleotide sequence.</li>
-<li><code>step=1</code>: the number of positions between iterated k-mers</li>
-</ul>
-<p><strong>Examples</strong></p>
-<div class="codehilite"><pre><span></span># iterate over DNA codons
-for (pos, codon) in each(DNAKmer{3}, dna&quot;ATCCTANAGNTACT&quot;, 3)
-    @show pos, codon
-end
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b8ec211bb048b62fffdad957830d12aac453db3d/src/eachkmer.jl#L16-L34' class='documenter-source'>source</a><br></p>
-<p><a id='BioSequences.canonical' href='#BioSequences.canonical'>#</a>
-<strong><code>BioSequences.canonical</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>canonical(kmer::Kmer)
-</pre></div>
-
-
-<p>Return the canonical k-mer of <code>x</code>.</p>
-<p>A canonical k-mer is the numerical lesser of a k-mer and its reverse complement. This is useful in hashing/counting k-mers in data that is not strand specific, and thus observing k-mer is equivalent to observing its reverse complement.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b8ec211bb048b62fffdad957830d12aac453db3d/src/kmer.jl#L194-L202' class='documenter-source'>source</a><br></p>
-<p><a id='BioSequences.neighbors' href='#BioSequences.neighbors'>#</a>
-<strong><code>BioSequences.neighbors</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>neighbors(kmer::Kmer)
-</pre></div>
-
-
-<p>Return an iterator through k-mers neighboring <code>kmer</code> on a de Bruijn graph.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b8ec211bb048b62fffdad957830d12aac453db3d/src/kmer.jl#L225-L229' class='documenter-source'>source</a><br></p>
+                <p><a id='Sequence-composition-1'></a></p>
+<h1 id="sequence-composition">Sequence composition</h1>
+<p>There are many instances in analyzing sequence data where you will want to know about the composition of your sequences.</p>
+<p>For example, for a given sequence, you may want to count how many of each possible Kmer, is present in the sequence. This would be important if - for instance - you wanted to analyze the Kmer spectra of your data. Alternatively you might have a collection of sequences, and may want to count how many of each unique sequence you have in your collection. This would be important if - for instance - your collection of sequences were from a population sample, and you wanted to compute the allele or genotype frequencies for the population.</p>
+<p>Whatever the application, BioSequences provides a method called <code>composition</code>, and a parametric struct called <code>Composition</code> to both compute, and handle the results of such sequence composition calculations.</p>
+<p><code>@doc
+Composition{T}
+composition</code></p>
+<p>Composition structs behave like an associative collection, such as a <code>Dict</code>. But there are a few differences:</p>
+<ol>
+<li>The <code>getindex</code> method for Composition structs is overloaded to return a default value of 0, if a key is used that is not present in the Composition.</li>
+<li>The <code>merge</code> method for two Composition structs adds counts together, unlike the <code>merge</code> method for other associative containers, which would overwrite the counts.</li>
+</ol>
                 
                   
                 
@@ -548,7 +458,7 @@ end
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../refseq/" title="Reference Sequences" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../search/" title="Searching" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -557,19 +467,19 @@ end
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Reference Sequences
+                Searching
               </span>
             </div>
           </a>
         
         
-          <a href="../../io/fasta/" title="FASTA formatted files" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../demultiplexer/" title="Demultiplexing" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                FASTA formatted files
+                Demultiplexing
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
@@ -603,14 +513,14 @@ end
       
     </div>
     
-      <script src="../../assets/javascripts/application-6940329b9f.js"></script>
+      <script src="../assets/javascripts/application-6940329b9f.js"></script>
       
       
-      <script>app.initialize({url:{base:"../.."}})</script>
+      <script>app.initialize({url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
       
-        <script src="../../assets/mathjaxhelper.js"></script>
+        <script src="../assets/mathjaxhelper.js"></script>
       
     
     
