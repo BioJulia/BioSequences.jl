@@ -123,7 +123,7 @@ Vector{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}} Composition:
 function composition(iter)
     counts = Dict{eltype(iter), Int}()
     @inbounds for item in iter
-        counts[item] += get(counts, item, 0) + 1
+        counts[item] = get(counts, item, 0) + 1
     end
     return Composition(counts)
 end
