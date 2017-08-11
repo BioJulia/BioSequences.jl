@@ -113,4 +113,10 @@
     @test comp[DNAKmer("GTA")] == 1
     @test comp[DNAKmer("TAC")] == 1
     @test comp[DNAKmer("AAA")] == 0
+
+    comp = composition(Vector{DNASequence}(dna"ATCG", dna"GCTA", dna"ATCGG",
+                                           dna"ATCG", dna"ATCG", dna"GCTA"))
+    @test comp[dna"ATCG"] == 3
+    @test comp[dna"GCTA"] == 2
+    @test comp[dna"ATCGG"] == 1
 end
