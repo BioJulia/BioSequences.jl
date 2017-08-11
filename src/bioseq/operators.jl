@@ -26,7 +26,7 @@ include("site_counting/site_counting.jl")
 # -------------------
 
 """
-    seqmatrix{A<:Alphabet}(vseq::Vector{BioSequence{A}}, major::Symbol)
+    seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A<:Alphabet}
 
 Construct a matrix of nucleotides or amino acids from a vector of `BioSequence`s.
 
@@ -94,7 +94,7 @@ function seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A
 end
 
 """
-    seqmatrix{A<:Alphabet,T}(::Type{T}, vseq::Vector{BioSequence{A}}, major::Symbol)
+    seqmatrix(::Type{T}, vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {T,A<:Alphabet}
 
 Construct a matrix of `T` from a vector of `BioSequence`s.
 
@@ -165,7 +165,7 @@ end
 # ---------
 
 """
-    majorityvote{A<:NucAlphs}(seqs::AbstractVector{BioSequence{A}})
+    majorityvote(seqs::AbstractVector{BioSequence{A}}) where {A<:NucAlphs}
 
 Construct a sequence that is a consensus of a vector of sequences.
 

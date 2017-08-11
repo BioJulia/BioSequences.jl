@@ -16,7 +16,7 @@ struct Composition{T} <: Associative{T,Int}
     counts::Dict{T,Int}
 end
 
-function Composition(seq::BioSequence{A}) where {A<:Union{DNAAlphabet,RNAAlphabet}}
+function Composition(seq::BioSequence{A}) where A <: NucAlphs
     counts = zeros(Int, 16)
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
@@ -90,7 +90,45 @@ function composition(iter::Union{Sequence,EachKmerIterator})
     return Composition(iter)
 end
 
-function Base.:(==){T}(x::Composition{T}, y::Composition{T})
+"""
+    composition(iter)
+
+A generalised composition algorithm, which computes the number of unique items
+produced by an iterable.
+
+# Example
+
+```jlcon
+
+# Example, counting unique sequences.
+
+julia> a = dna"AAAAAAAATTTTTT"
+14nt DNA Sequence:
+AAAAAAAATTTTTT
+
+julia> b = dna"AAAAAAAATTTTTT"
+14nt DNA Sequence:
+AAAAAAAATTTTTT
+
+julia> c = a[5:10]
+6nt DNA Sequence:
+AAAATT
+
+julia> composition([a, b, c])
+Vector{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}} Composition:
+  AAAATT         => 1
+  AAAAAAAATTTTTT => 2
+```
+"""
+function composition(iter)
+    counts = Dict{eltype(iter), Int}()
+    @inbounds for item in iter
+        counts[item] = get(counts, item, 0) + 1
+    end
+    return Composition(counts)
+end
+
+function Base.:(==)(x::Composition{T}, y::Composition{T}) where T
     return x.counts == y.counts
 end
 
@@ -118,7 +156,7 @@ function Base.copy(comp::Composition)
     return Composition(copy(comp.counts))
 end
 
-function Base.merge(comp::Composition{T}, other::Composition{T}) where {T}
+function Base.merge(comp::Composition{T}, other::Composition{T}) where T
     return merge!(copy(comp), other)
 end
 
@@ -129,7 +167,7 @@ function Base.merge!(comp::Composition{T}, other::Composition{T}) where {T}
     return comp
 end
 
-function Base.summary(::Composition{T}) where {T}
+function Base.summary(::Composition{T}) where T
     if T == DNA
         return "DNA Composition"
     elseif T == RNA
