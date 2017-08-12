@@ -2,11 +2,12 @@ module FASTQ
 
 import Automa
 import Automa.RegExp: @re_str
+import BioCore.ReaderHelper: @pos, @mark, @unmark
 import BioCore: BioCore, isfilled
-import BioSymbols
 import BioSequences
-import BufferedStreams
-import BufferedStreams: BufferedInputStream
+import BioSymbols
+import CodecZlib
+import TranscodingStreams: TranscodingStreams, TranscodingStream
 
 include("quality.jl")
 include("record.jl")

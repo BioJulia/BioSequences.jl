@@ -163,21 +163,18 @@
     end
 
     @testset "fill ambiguous nucleotides" begin
-        input = IOBuffer("""
+        record = FASTQ.Record("""
         @seq1
         ACGTNRacgtnr
         +
         BBBB##AAAA##
         """)
-        @test FASTQ.sequence(first(FASTQ.Reader(input, fill_ambiguous=nothing))) == dna"ACGTNRACGTNR"
-        seekstart(input)
-        @test FASTQ.sequence(first(FASTQ.Reader(input, fill_ambiguous=DNA_A)))   == dna"ACGTAAACGTAA"
-        seekstart(input)
-        @test FASTQ.sequence(first(FASTQ.Reader(input, fill_ambiguous=DNA_G)))   == dna"ACGTGGACGTGG"
-        seekstart(input)
-        @test FASTQ.sequence(first(FASTQ.Reader(input, fill_ambiguous=DNA_N)))   == dna"ACGTNNACGTNN"
-        seekstart(input)
-        @test FASTQ.sequence(BioSequence{DNAAlphabet{2}}, first(FASTQ.Reader(input, fill_ambiguous=DNA_A))) == dna"ACGTAAACGTAA"
+        @test FASTQ.sequence(record) == dna"ACGTNRACGTNR"
+        @test FASTQ.sequence(FASTQ.fill_ambiguous!(copy(record), DNA_A)) == dna"ACGTAAACGTAA"
+        @test FASTQ.sequence(FASTQ.fill_ambiguous!(copy(record), DNA_G)) == dna"ACGTGGACGTGG"
+        @test FASTQ.sequence(FASTQ.fill_ambiguous!(copy(record), DNA_N)) == dna"ACGTNNACGTNN"
+        FASTQ.fill_ambiguous!(record, DNA_A)
+        @test FASTQ.sequence(BioSequence{DNAAlphabet{2}}, record) == dna"ACGTAAACGTAA"
     end
 end
 

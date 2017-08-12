@@ -288,6 +288,24 @@ function BioCore.hassequence(record::Record)
     return hassequence(record)
 end
 
+"""
+    fill_ambiguous!(record::Record, symbol::Union{DNA,RNA})::Record
+
+Fill ambiguous DNA/RNAs in the sequence of `record` with `symbol`.
+"""
+function fill_ambiguous!(record::Record, symbol::Union{BioSymbols.DNA,BioSymbols.RNA})
+    checkfilled(record)
+    # ASCII byte
+    y = convert(UInt8, convert(Char, symbol))
+    for i in record.sequence
+        x = convert(typeof(symbol), convert(Char, record.data[i]))
+        if BioSymbols.isambiguous(x)
+            record.data[i] = y
+        end
+    end
+    return record
+end
+
 
 # Helper functions
 # ----------------
