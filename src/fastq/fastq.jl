@@ -7,7 +7,7 @@ import BioCore: BioCore, isfilled
 import BioSequences
 import BioSymbols
 import CodecZlib
-import TranscodingStreams: TranscodingStreams, TranscodingStream
+import TranscodingStreams: TranscodingStream, NoopStream
 
 include("quality.jl")
 include("record.jl")

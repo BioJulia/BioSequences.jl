@@ -86,10 +86,20 @@
         reader = open(FASTQ.Reader, filename)
         @test eltype(reader) == FASTQ.Record
         if valid
+            iter = eachrecord(FASTQ.Reader(filename))
+            @test eltype(iter) == FASTQ.Record
+            for _ in iter end
+            @test true
+
+            # old interfaces
             for record in reader end
             @test true  # no error
             @test close(reader) === nothing
         else
+            iter = eachrecord(FASTQ.Reader(filename))
+            @test_throws ArgumentError for _ in iter end
+
+            # old interfaces
             @test_throws Exception begin
                 for record in reader end
             end

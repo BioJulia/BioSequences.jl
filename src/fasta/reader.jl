@@ -6,7 +6,7 @@ struct Reader{T<:Union{String,IO}} <: BioCore.IO.AbstractReader
     index::Nullable{Index}
 
     # This field is for backward compatibility.
-    stream::TranscodingStreams.TranscodingStream
+    stream::TranscodingStream
 
     function Reader{T}(source::T, index) where T
         return new(source, index)
@@ -34,7 +34,7 @@ function Reader(input::IO; index=nothing)
     else
         throw(ArgumentError("invalid index argument"))
     end
-    return Reader{typeof(input)}(input, index, TranscodingStreams.NoopStream(input))
+    return Reader{typeof(input)}(input, index, NoopStream(input))
 end
 
 """
@@ -134,7 +134,7 @@ end
 
 struct Iterator
     # input stream
-    stream::TranscodingStreams.TranscodingStream
+    stream::TranscodingStream
 
     # return a copy?
     copy::Bool
@@ -145,14 +145,14 @@ struct Iterator
     # placeholder
     record::Record
 
-    function Iterator(stream::TranscodingStreams.TranscodingStream, copy::Bool, close::Bool)
+    function Iterator(stream::TranscodingStream, copy::Bool, close::Bool)
         return new(stream, copy, close, Record())
     end
 end
 
 function Iterator(stream::IO, copy::Bool, close::Bool)
     # Wrap an I/O stream with NoopStream.
-    return Iterator(TranscodingStreams.NoopStream(stream), copy, close)
+    return Iterator(NoopStream(stream), copy, close)
 end
 
 function Base.iteratorsize(::Type{Iterator})
@@ -201,7 +201,7 @@ function Base.next(iter::Iterator, state::IteratorState)
 end
 
 function index!(record::Record)
-    stream = TranscodingStreams.NoopStream(IOBuffer(record.data))
+    stream = NoopStream(IOBuffer(record.data))
     state = IteratorState(1, false, false)
     readrecord!(stream, record, state)
     if !state.read || !state.done
@@ -343,5 +343,5 @@ let
     # Generate readrecord! function.
     eval(
         BioCore.ReaderHelper.generate_readrecord_function(
-            Record, machine, actions, initcode, exitcode, loopunroll=0))
+            Record, machine, actions, initcode, exitcode, loopunroll=10))
 end

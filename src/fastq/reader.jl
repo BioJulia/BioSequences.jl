@@ -28,7 +28,7 @@ function Reader(input::IO; fill_ambiguous=nothing)
     if fill_ambiguous !== nothing
         warn("fill_ambiguous keyword argument is removed; use fill_ambiguous! instead")
     end
-    return Reader{typeof(input)}(input, TranscodingStreams.NoopStream(input))
+    return Reader{typeof(input)}(input, NoopStream(input))
 end
 
 function Reader(input::AbstractString; fill_ambiguous=nothing)
@@ -93,7 +93,7 @@ end
 # FIXME: Remove redundancy since these are almost identical to those of FASTA.
 struct Iterator
     # input stream
-    stream::TranscodingStreams.TranscodingStream
+    stream::TranscodingStream
 
     # return a copy?
     copy::Bool
@@ -104,13 +104,13 @@ struct Iterator
     # placeholder
     record::Record
 
-    function Iterator(stream::TranscodingStreams.TranscodingStream, copy::Bool, close::Bool)
+    function Iterator(stream::TranscodingStream, copy::Bool, close::Bool)
         return new(stream, copy, close, Record())
     end
 end
 
 function Iterator(stream::IO, copy::Bool, close::Bool)
-    return Iterator(TranscodingStreams.NoopStream(stream), copy, close)
+    return Iterator(NoopStream(stream), copy, close)
 end
 
 function Base.iteratorsize(::Type{Iterator})
@@ -159,7 +159,7 @@ function Base.next(iter::Iterator, state::IteratorState)
 end
 
 function index!(record::Record)
-    stream = TranscodingStreams.NoopStream(IOBuffer(record.data))
+    stream = NoopStream(IOBuffer(record.data))
     state = IteratorState(1, false, false)
     readrecord!(stream, record, state)
     if !state.read || !state.done
@@ -307,5 +307,5 @@ let
     # Generate readrecord! function.
     eval(
         BioCore.ReaderHelper.generate_readrecord_function(
-            Record, machine, actions, initcode, exitcode, loopunroll=0))
+            Record, machine, actions, initcode, exitcode, loopunroll=10))
 end

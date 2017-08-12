@@ -5,12 +5,12 @@ module FASTA
 
 import Automa
 import Automa.RegExp: @re_str
-import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
 import BioCore.ReaderHelper: @pos, @mark, @unmark
+import BioCore: BioCore, isfilled
 import BioSequences
-import TranscodingStreams: TranscodingStreams, TranscodingStream
 import CodecZlib
+import TranscodingStreams: TranscodingStream, NoopStream
 
 export description,
        identifier

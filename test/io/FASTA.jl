@@ -67,10 +67,20 @@
         stream = open(FASTA.Reader, filename)
         @test eltype(stream) == FASTA.Record
         if valid
+            iter = eachrecord(FASTA.Reader(filename))
+            @test eltype(iter) == FASTA.Record
+            for _ in iter end
+            @test true
+
+            # old interfaces
             for seqrec in stream end
             @test true  # no error
             @test close(stream) === nothing
         else
+            iter = eachrecord(FASTA.Reader(filename))
+            @test_throws ArgumentError for _ in iter end
+
+            # old interfaces
             @test_throws Exception begin
                 for seqrec in stream end
             end

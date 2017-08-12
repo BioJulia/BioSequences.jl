@@ -1,7 +1,7 @@
 # 2bit Reader
 # ===========
 
-type Reader{T<:IO} <: BioCore.IO.AbstractReader
+struct Reader{T<:Union{String,IO}} <: BioCore.IO.AbstractReader
     # input stream
     input::T
     # sequence names
@@ -10,6 +10,28 @@ type Reader{T<:IO} <: BioCore.IO.AbstractReader
     offsets::Vector{UInt32}
     # byte-swapped or not
     swap::Bool
+end
+
+"""
+    TwoBit.Reader(input::AbstractString)
+
+Create a data reader of the 2bit file format.
+
+# Arguments
+- `input`: input filepath
+"""
+function Reader(input::AbstractString)
+    open(input) do file
+        # load metadata
+        seqcount, swap = readheader!(file)
+        names, offsets = readindex!(file, seqcount, swap)
+        @assert seqcount == length(names) == length(offsets)
+        return Reader(convert(String, input), names, offsets, swap)
+    end
+end
+
+function Base.open(reader::Reader{String})
+    return Reader(open(reader.input), reader.names, reader.offsets, reader.swap)
 end
 
 """
@@ -27,11 +49,11 @@ function Reader(input::IO)
     return Reader(input, names, offsets, swap)
 end
 
-function BioCore.IO.stream(reader::Reader)
+function BioCore.IO.stream(reader::Reader{<:IO})
     return reader.input
 end
 
-function Base.eltype(::Type{Reader{T}}) where {T}
+function Base.eltype(::Type{<:Reader})
     return Record
 end
 
@@ -39,16 +61,27 @@ function Base.length(reader::Reader)
     return length(reader.names)
 end
 
-function Base.start(reader::Reader)
-    return 1
+function Base.start(reader::Reader{String})
+    iter = Iterator(reader, #=close=#true)
+    return iter, start(iter)
 end
 
-function Base.done(reader::Reader, i)
-    return i > endof(reader.names)
+function Base.start(reader::Reader{<:IO})
+    iter = Iterator(reader, #=close=#false)
+    return iter, start(iter)
 end
 
-function Base.next(reader::Reader, i)
-    return reader[i], i + 1
+function Base.done(::Reader, state)
+    return done(state[1], state[2])
+end
+
+function Base.next(::Reader, state)
+    item, s = next(state[1], state[2])
+    return item, (state[1], s)
+end
+
+function BioCore.IO.eachrecord(reader::Reader)
+    return Iterator(reader, #=close=#true)
 end
 
 """
@@ -60,6 +93,43 @@ Sequences are stored in this order.
 """
 function seqnames(reader::Reader)
     return copy(reader.names)
+end
+
+
+# Iterator
+# --------
+
+struct Iterator
+    reader::Reader{<:IO}
+    close::Bool
+end
+
+function Iterator(reader::Reader{String}, close::Bool)
+    return Iterator(open(reader), close)
+end
+
+function Base.eltype(::Type{Iterator})
+    return Record
+end
+
+function Base.length(iter::Iterator)
+    return length(iter.reader)
+end
+
+function Base.start(iter::Iterator)
+    return 1
+end
+
+function Base.done(iter::Iterator, i)
+    done = i > endof(iter.reader.names)
+    if done && iter.close
+        close(iter.reader)
+    end
+    return done
+end
+
+function Base.next(iter::Iterator, i)
+    return iter.reader[i], i + 1
 end
 
 

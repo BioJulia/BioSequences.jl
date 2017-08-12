@@ -16,6 +16,10 @@
     @test_throws BoundsError reader[3]
 
     function check_2bit_parse(filename)
+        iter = eachrecord(TwoBit.Reader(filename))
+        @test eltype(iter) == TwoBit.Record
+        for _ in iter end
+
         stream = open(TwoBit.Reader, filename)
         @test eltype(stream) === TwoBit.Record
         # read from a stream

@@ -140,6 +140,7 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
+    eachrecord,
     FASTA,
     FASTQ,
     TwoBit,
@@ -183,6 +184,7 @@ importall BioCore
 import BioCore.Exceptions: MissingFieldException
 import BioCore.Ragel: Ragel, tryread!
 import BioCore.StringFields: StringField
+import BioCore.IO: eachrecord
 importall BioSymbols
 import BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
