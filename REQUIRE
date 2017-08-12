@@ -2,7 +2,6 @@ julia 0.6
 Automa 0.3
 BioCore
 BioSymbols
-BufferedStreams
 CodecZlib 0.3
 Combinatorics
 IndexableBitVectors
