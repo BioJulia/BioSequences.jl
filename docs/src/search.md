@@ -293,22 +293,9 @@ Sequence composition can be easily calculated using the `composition` function:
 ```jldoctest
 julia> comp = composition(dna"ACGAG")
 DNA Composition:
-  DNA_Gap => 0
-  DNA_A   => 2
-  DNA_C   => 1
-  DNA_M   => 0
-  DNA_G   => 2
-  DNA_R   => 0
-  DNA_S   => 0
-  DNA_V   => 0
-  DNA_T   => 0
-  DNA_W   => 0
-  DNA_Y   => 0
-  DNA_H   => 0
-  DNA_K   => 0
-  DNA_D   => 0
-  DNA_B   => 0
-  DNA_N   => 0
+  DNA_A => 2
+  DNA_G => 2
+  DNA_C => 1
 
 julia> comp[DNA_A]
 2

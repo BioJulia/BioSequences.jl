@@ -93,7 +93,7 @@ function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
     return MinHashSketch(kmerhashes, k)
 end
 
-function minhash(seqs::FASTA.Reader, k::Integer, s::Integer)
+function minhash(seqs::BioCore.IO.AbstractReader, k::Integer, s::Integer)
     kmerhashes = UInt64[]
     for seq in seqs
         kmerminhash!(DNAKmer{k}, sequence(seq), s, kmerhashes)

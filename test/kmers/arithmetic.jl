@@ -14,4 +14,22 @@
         @test base + offset == DNAKmer(string(a, b, c))
         offset += 1
     end
+
+    @testset "typemin" begin
+        for k in 0:32
+            @test typemin(DNAKmer{k}) === DNAKmer("A"^k)
+            @test typemin(RNAKmer{k}) === RNAKmer("A"^k)
+        end
+        @test_throws ArgumentError typemin(DNAKmer{-1})
+        @test_throws ArgumentError typemin(DNAKmer{33})
+    end
+
+    @testset "typemax" begin
+        for k in 0:32
+            @test typemax(DNAKmer{k}) === DNAKmer("T"^k)
+            @test typemax(RNAKmer{k}) === RNAKmer("U"^k)
+        end
+        @test_throws ArgumentError typemax(DNAKmer{-1})
+        @test_throws ArgumentError typemax(DNAKmer{33})
+    end
 end
