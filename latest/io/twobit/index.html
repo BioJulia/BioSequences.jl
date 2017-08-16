@@ -491,7 +491,7 @@
 <ul>
 <li><code>input</code>: data source</li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/501fce82de6e368b3aff84f8d8a1a0fbbd0eeba4/src/twobit/reader.jl#L15-L22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b20b8f8f0874b17eb0a2bffcac6176b9da728623/src/twobit/reader.jl#L15-L22' class='documenter-source'>source</a><br></p>
 <p><a id='BioSequences.TwoBit.Writer' href='#BioSequences.TwoBit.Writer'>#</a>
 <strong><code>BioSequences.TwoBit.Writer</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>TwoBitWriter(output::IO, names::AbstractVector)
@@ -504,7 +504,7 @@
 <li><code>output</code>: data sink</li>
 <li><code>names</code>: a vector of sequence names written to <code>output</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/501fce82de6e368b3aff84f8d8a1a0fbbd0eeba4/src/twobit/writer.jl#L13-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b20b8f8f0874b17eb0a2bffcac6176b9da728623/src/twobit/writer.jl#L13-L21' class='documenter-source'>source</a><br></p>
 <p>The 2bit reader supports random access using an index included in the header section of a .2bit file:</p>
 <div class="codehilite"><pre><span></span><span class="go">reader = TwoBit.Reader(open(&quot;sacCer.2bit&quot;, &quot;r&quot;))</span>
 <span class="go">chrIV = reader[&quot;chrIV&quot;] # directly read chromosome 4</span>
@@ -524,14 +524,14 @@
 
 
 <p>Create an unfilled 2bit record.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/501fce82de6e368b3aff84f8d8a1a0fbbd0eeba4/src/twobit/record.jl#L17-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b20b8f8f0874b17eb0a2bffcac6176b9da728623/src/twobit/record.jl#L17-L21' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>Record()
 </pre></div>
 
 
 <p>Prepare a record for writing to a 2bit formatted file.</p>
 <p>Needs a <code>name</code>, a <code>sequence</code>, and (optionally) <code>masks</code>: a vector of ranges that delineate masked regions of sequence.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/501fce82de6e368b3aff84f8d8a1a0fbbd0eeba4/src/twobit/record.jl#L219-L226' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b20b8f8f0874b17eb0a2bffcac6176b9da728623/src/twobit/record.jl#L219-L226' class='documenter-source'>source</a><br></p>
 <p>To write a sequence to a TwoBit file, first a record must be created.</p>
 <p><a id='BioSequences.TwoBit.Record' href='#BioSequences.TwoBit.Record'>#</a>
 <strong><code>BioSequences.TwoBit.Record</code></strong> &mdash; <em>Type</em>.</p>
@@ -541,7 +541,7 @@
 
 <p>Prepare a record for writing to a 2bit formatted file.</p>
 <p>Needs a <code>name</code>, a <code>sequence</code>, and (optionally) <code>masks</code>: a vector of ranges that delineate masked regions of sequence.</p>
-<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/501fce82de6e368b3aff84f8d8a1a0fbbd0eeba4/src/twobit/record.jl#L219-L226' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/BioJulia/BioSequences.jl/tree/b20b8f8f0874b17eb0a2bffcac6176b9da728623/src/twobit/record.jl#L219-L226' class='documenter-source'>source</a><br></p>
                 
                   
                 
