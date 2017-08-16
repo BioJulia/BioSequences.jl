@@ -153,12 +153,18 @@ export
     AminoAcidAlphabet,
     CharAlphabet,
 
+    # search
     ExactSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
     approxsearchindex,
     approxrsearch,
     approxrsearchindex,
+    PFM,
+    PWM,
+    maxscore,
+    scoreat,
+
     ReferenceSequence,
     Demultiplexer,
     demultiplex,
@@ -221,6 +227,7 @@ include("abif/abif.jl")
 include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")
+include("search/pwm.jl")
 
 include("minhash.jl")
 

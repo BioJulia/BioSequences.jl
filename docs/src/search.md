@@ -215,6 +215,78 @@ Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.AminoA
 ```
 
 
+## Position weight matrix search
+
+A motif can also be specified using [position weight
+matrix](https://en.wikipedia.org/wiki/Position_weight_matrix) (PWM) in a
+probabilistic way. `search(seq, pwm, threshold)` method searches for the first
+position in the sequence where a score calculated using the PWM is greater than
+or equal to the threshold. More formally, denoting the sequence as ``S`` and the
+PWM value of symbol ``s`` at position ``j`` as ``M_{s,j}``, the score starting
+from a position ``p`` is defined as
+
+```math
+\operatorname{score}(S, p) = \sum_{i=1}^L M_{S[p+i-1],i}
+```
+
+and `search(S, M, t)` returns the smallest ``p`` that satisfies
+``\operatorname{score}(S, p) \ge t``.
+
+There are two kinds of matrices in this package: `PFM` and `PWM`. The `PFM` type
+is a position frequency matrix and stores symbol frequencies for each position.
+The `PWM` is a position weight matrix and stores symbol scores for each
+position. You can create a `PFM` from a set of sequences with the same length
+and then create a `PWM` from the `PFM` object.
+
+```jldoctest
+julia> kmers = DNAKmer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
+5-element Array{BioSequences.Kmer{BioSymbols.DNA,3},1}:
+ TTA
+ CTA
+ ACA
+ TCA
+ GTA
+
+julia> pfm = PFM(kmers)  # sequence set => PFM
+4×3 BioSequences.PFM{BioSymbols.DNA,Int64}:
+ A  1  0  5
+ C  1  2  0
+ G  1  0  0
+ T  2  3  0
+
+julia> pwm = PWM(pfm)  # PFM => PWM
+4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+ A -0.321928 -Inf       2.0
+ C -0.321928  0.678072 -Inf
+ G -0.321928 -Inf      -Inf
+ T  0.678072  1.26303  -Inf
+
+julia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
+4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+ A -0.319068 -6.97728   1.99139
+ C -0.319068  0.673772 -6.97728
+ G -0.319068 -6.97728  -6.97728
+ T  0.673772  1.25634  -6.97728
+
+julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
+4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+ A  0.00285965 -6.65535   2.31331
+ C -0.582103    0.410737 -7.24031
+ G -0.582103   -7.24031  -7.24031
+ T  0.9957      1.57827  -6.65535
+
+```
+
+The ``PWM_{s,j}`` matrix is computed from ``PFM_{s,j}`` and the prior
+probability ``p(s)`` as follows ([Wasserman2004]):
+```math
+\begin{align}
+    PWM_{s,j} &= \log_2 \frac{p(s,j)}{p(s)} \\
+    p(s,j)  &= \frac{PFM_{s,j}}{\sum_{s'} PFM_{s',j}}.
+\end{align}
+```
+
+
 ## Sequence composition
 
 Sequence composition can be easily calculated using the `composition` function:
@@ -259,3 +331,5 @@ julia> comp[DNAKmer("CGTA")]
 99
 
 ```
+
+[Wasserman2004]: https://doi.org/10.1038/nrg1315
