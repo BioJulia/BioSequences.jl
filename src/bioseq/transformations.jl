@@ -1,6 +1,11 @@
 # Transformations
 # ---------------
 
+"""
+    push!(seq::BioSequence{A}, x) where {A}
+
+Append a biological symbol `x` to a biological sequence `seq`.
+"""
 function Base.push!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
@@ -8,6 +13,12 @@ function Base.push!(seq::BioSequence{A}, x) where {A}
     return seq
 end
 
+"""
+    pop!(seq::BioSequence)
+
+Remove the symbol from the end of a biological sequence `seq` and return it.
+Returns a variable of `eltype(seq)`.
+"""
 function Base.pop!(seq::BioSequence)
     if isempty(seq)
         throw(ArgumentError("sequence must be non-empty"))
@@ -17,6 +28,12 @@ function Base.pop!(seq::BioSequence)
     return x
 end
 
+"""
+    insert!(seq, i, x)
+
+Insert a biological symbol `x` into a biological sequence `seq`, at the given
+index `i`.
+"""
 function Base.insert!(seq::BioSequence{A}, i::Integer, x) where {A}
     checkbounds(seq, i)
     bin = enc64(seq, x)
@@ -26,6 +43,13 @@ function Base.insert!(seq::BioSequence{A}, i::Integer, x) where {A}
     return seq
 end
 
+"""
+    deleteat!(seq::BioSequence, range::UnitRange{<:Integer})
+
+Deletes a defined `range` from a biological sequence `seq`.
+
+Modifies the input sequence.
+"""
 function Base.deleteat!(seq::BioSequence{A}, range::UnitRange{<:Integer}) where {A}
     checkbounds(seq, range)
     copy!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
@@ -33,6 +57,14 @@ function Base.deleteat!(seq::BioSequence{A}, range::UnitRange{<:Integer}) where 
     return seq
 end
 
+"""
+    deleteat!(seq::BioSequence, i::Integer)
+
+Delete a biological symbol at a single position `i` in a biological sequence
+`seq`.
+
+Modifies the input sequence.
+"""
 function Base.deleteat!(seq::BioSequence, i::Integer)
     checkbounds(seq, i)
     copy!(seq, i, seq, i + 1, length(seq) - i)
@@ -40,12 +72,24 @@ function Base.deleteat!(seq::BioSequence, i::Integer)
     return seq
 end
 
+"""
+    append!(seq, other)
+
+Add a biological sequence `other` onto the end of biological sequence `seq`.
+Modifies and returns `seq`.
+"""
 function Base.append!(seq::BioSequence{A}, other::BioSequence{A}) where {A}
     resize!(seq, length(seq) + length(other))
     copy!(seq, endof(seq) - length(other) + 1, other, 1)
     return seq
 end
 
+"""
+    shift!(seq)
+
+Remove the symbol from the beginning of a biological sequence `seq` and return
+it. Returns a variable of `eltype(seq)`.
+"""
 function Base.shift!(seq::BioSequence)
     if isempty(seq)
         throw(ArgumentError("sequence must be non-empty"))
@@ -55,6 +99,11 @@ function Base.shift!(seq::BioSequence)
     return x
 end
 
+"""
+    unshift!(seq, x)
+
+Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
+"""
 function Base.unshift!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
