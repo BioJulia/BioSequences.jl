@@ -9,11 +9,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#BioSequences.jl-smallBiological-sequences-for-julia/small-1",
+    "location": "index.html#BioSequences.jl-1",
     "page": "Home",
-    "title": "BioSequences.jl <small>Biological sequences for julia</small>",
+    "title": "BioSequences.jl",
     "category": "section",
-    "text": "Latest release:(Image: Latest Release) (Image: BioSequences) (Image: BioSequences) (Image: License) (Image: ) (Image: BioJulia maintainer: bicycle1885) (Image: BioJulia maintainer: Ward9250)Development status:(Image: Build Status) (Image: Build status) (Image: codecov) (Image: )"
+    "text": "_Biological sequences for julia_Latest release:(Image: Latest Release) (Image: BioSequences) (Image: BioSequences) (Image: License) (Image: ) (Image: BioJulia maintainer: bicycle1885) (Image: BioJulia maintainer: Ward9250)Development status:(Image: Build Status) (Image: Build status) (Image: codecov) (Image: )"
 },
 
 {
