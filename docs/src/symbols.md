@@ -6,7 +6,8 @@ end
 ```
 # Biological symbols
 
-The `BioSequences` module provides three biological symbol (character) types:
+The `BioSequences` module reexports the biological symbol (character) types
+that are provided by [BioSymbols.jl:](http://biojulia.net/BioSymbols.jl/)
 
 | Type            | Meaning        |
 | :-------------- | :------------- |
@@ -21,7 +22,8 @@ elements of strings. See sections beginning from
 
 ## DNA and RNA nucleotides
 
-Set of nucleotide symbols in BioSequences.jl covers IUPAC nucleotide base plus a gap symbol:
+Set of nucleotide symbols in BioSequences.jl covers IUPAC nucleotide base plus
+a gap symbol:
 
 | Symbol | Constant              | Meaning                    |
 | :----- | :-------------------- | :------------------------- |

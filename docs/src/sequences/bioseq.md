@@ -369,7 +369,7 @@ unshift!
 insert!
 deleteat!(::BioSequences.BioSequence, ::Integer)
 append!
-copy!
+resize!
 ```
 
 Here are some examples:
@@ -384,18 +384,6 @@ julia> push!(seq, DNA_T)
 ACGT
 
 julia> append!(seq, dna"AT")
-6nt DNA Sequence:
-ACGTAT
-
-julia> reverse!(seq)
-6nt DNA Sequence:
-TATGCA
-
-julia> complement!(seq)
-6nt DNA Sequence:
-ATACGT
-
-julia> reverse_complement!(seq)
 6nt DNA Sequence:
 ACGTAT
 
@@ -415,23 +403,17 @@ In addition to these basic modifying functions, other sequence transformations
 which are common in bioinformatics are also provided.
 
 ```@docs
-reverse!
+reverse!(::BioSequences.BioSequence)
 complement!
 reverse_complement!
-ungap
 ungap!
+empty!
 ```
 
+Some examples:
+
 ```jldoctest
-julia> seq = dna"ACG"
-3nt DNA Sequence:
-ACG
-
-julia> push!(seq, DNA_T)
-4nt DNA Sequence:
-ACGT
-
-julia> append!(seq, dna"AT")
+julia> seq = dna"ACGTAT"
 6nt DNA Sequence:
 ACGTAT
 
@@ -448,6 +430,11 @@ julia> reverse_complement!(seq)
 ACGTAT
 
 ```
+
+Many of these methods also have a version which makes a copy of the input
+sequence, so you get a modified copy, and don't alter the original sequence.
+Such methods are named the same, but without the exclamation mark.
+E.g. `reverse` instead of `reverse!`, and `ungap` instead of `ungap!`.  
 
 #### Translation
 

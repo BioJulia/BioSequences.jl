@@ -28,11 +28,55 @@ Composition{T}
 composition
 ```
 
+For example to get the nucleotide composition of a sequence:
+
+```jldoctest
+julia> comp = composition(dna"ACGAG")
+DNA Composition:
+  DNA_A => 2
+  DNA_G => 2
+  DNA_C => 1
+
+julia> comp[DNA_A]
+2
+
+julia> comp[DNA_T]
+0
+
+```
+
 Composition structs behave like an associative collection, such as a `Dict`.
 But there are a few differences:
 
 1. The `getindex` method for Composition structs is overloaded to return a default
    value of 0, if a key is used that is not present in the Composition.
-2. The `merge` method for two Composition structs adds counts together, unlike
-   the `merge` method for other associative containers, which would overwrite
+2. The `merge!` method for two Composition structs adds counts together, unlike
+   the `merge!` method for other associative containers, which would overwrite
    the counts.
+
+`merge!` is used to accumulate composition statistics of multiple sequences:
+
+```@repl
+# initiaize an empty composition counter
+comp = composition(dna"");
+
+# iterate over sequences and accumulate composition statistics into `comp`
+for seq in seqs
+    merge!(comp, composition(seq))
+end
+
+# or functional programming style in one line
+foldl((x, y) -> merge(x, composition(y)), composition(dna""), seqs)
+```
+
+`composition` is also applicable to a *k*-mer iterator:
+```jldoctest
+julia> comp = composition(each(DNAKmer{4}, dna"ACGT"^100));
+
+julia> comp[DNAKmer("ACGT")]
+100
+
+julia> comp[DNAKmer("CGTA")]
+99
+
+```

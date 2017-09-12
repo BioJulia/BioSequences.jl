@@ -1,4 +1,6 @@
-# BioSequences.jl <small>Biological sequences for julia</small>
+# BioSequences.jl
+
+_Biological sequences for julia_
 
 **Latest release:**
 
