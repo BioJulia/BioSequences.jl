@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Biological Symbols · BioSequences.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="BioSequences.jl logo"/></a><h1>BioSequences.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li class="current"><a class="toctext" href="symbols.html">Biological Symbols</a><ul class="internal"><li><a class="toctext" href="#DNA-and-RNA-nucleotides-1">DNA and RNA nucleotides</a></li><li><a class="toctext" href="#Amino-acids-1">Amino acids</a></li><li><a class="toctext" href="#Other-functions-1">Other functions</a></li></ul></li><li><span class="toctext">Sequence types</span><ul><li><a class="toctext" href="sequences/sequences.html">Overview</a></li><li><a class="toctext" href="sequences/bioseq.html">BioSequence</a></li><li><a class="toctext" href="sequences/refseq.html">Reference Sequences</a></li><li><a class="toctext" href="sequences/kmer.html">Nucleic acid k-mers</a></li></ul></li><li><span class="toctext">IO</span><ul><li><a class="toctext" href="io/fasta.html">FASTA formatted files</a></li><li><a class="toctext" href="io/fastq.html">FASTQ formatted files</a></li><li><a class="toctext" href="io/twobit.html">2bit formatted files</a></li></ul></li><li><a class="toctext" href="search.html">Searching</a></li><li><a class="toctext" href="composition.html">Sequence Composition</a></li><li><a class="toctext" href="demultiplexer.html">Demultiplexing</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="symbols.html">Biological Symbols</a></li></ul><a class="edit-page" href="https://github.com/BioJulia/BioSequences.jl/tree/2141f43ec68b6aefdbfc99e9d7d245be8b90cde0/docs/src/symbols.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Biological Symbols</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Biological-symbols-1" href="#Biological-symbols-1">Biological symbols</a></h1><p>The <code>BioSequences</code> module reexports the biological symbol (character) types that are provided by <a href="http://biojulia.net/BioSymbols.jl/">BioSymbols.jl:</a></p><table><tr><th>Type</th><th>Meaning</th></tr><tr><td><code>DNA</code></td><td>DNA nucleotide</td></tr><tr><td><code>RNA</code></td><td>RNA nucleotide</td></tr><tr><td><code>AminoAcid</code></td><td>Amino acid</td></tr></table><p>These symbols are elements of biological sequences, just as characters are elements of strings. See sections beginning from <a href="sequences/sequences.html#Introduction-to-the-sequence-data-types-1">Introduction to the sequence data-types</a> section for details.</p><h2><a class="nav-anchor" id="DNA-and-RNA-nucleotides-1" href="#DNA-and-RNA-nucleotides-1">DNA and RNA nucleotides</a></h2><p>Set of nucleotide symbols in BioSequences.jl covers IUPAC nucleotide base plus a gap symbol:</p><table><tr><th>Symbol</th><th>Constant</th><th>Meaning</th></tr><tr><td>&#39;A&#39;</td><td><code>DNA_A</code> / <code>RNA_A</code></td><td>A; Adenine</td></tr><tr><td>&#39;C&#39;</td><td><code>DNA_C</code> / <code>RNA_C</code></td><td>C; Cytosine</td></tr><tr><td>&#39;G&#39;</td><td><code>DNA_G</code> / <code>RNA_G</code></td><td>G; Guanine</td></tr><tr><td>&#39;T&#39;</td><td><code>DNA_T</code></td><td>T; Thymine (DNA only)</td></tr><tr><td>&#39;U&#39;</td><td><code>RNA_U</code></td><td>U; Uracil (RNA only)</td></tr><tr><td>&#39;M&#39;</td><td><code>DNA_M</code> / <code>RNA_M</code></td><td>A or C</td></tr><tr><td>&#39;R&#39;</td><td><code>DNA_R</code> / <code>RNA_R</code></td><td>A or G</td></tr><tr><td>&#39;W&#39;</td><td><code>DNA_W</code> / <code>RNA_W</code></td><td>A or T/U</td></tr><tr><td>&#39;S&#39;</td><td><code>DNA_S</code> / <code>RNA_S</code></td><td>C or G</td></tr><tr><td>&#39;Y&#39;</td><td><code>DNA_Y</code> / <code>RNA_Y</code></td><td>C or T/U</td></tr><tr><td>&#39;K&#39;</td><td><code>DNA_K</code> / <code>RNA_K</code></td><td>G or T/U</td></tr><tr><td>&#39;V&#39;</td><td><code>DNA_V</code> / <code>RNA_V</code></td><td>A or C or G; not T/U</td></tr><tr><td>&#39;H&#39;</td><td><code>DNA_H</code> / <code>RNA_H</code></td><td>A or C or T; not G</td></tr><tr><td>&#39;D&#39;</td><td><code>DNA_D</code> / <code>RNA_D</code></td><td>A or G or T/U; not C</td></tr><tr><td>&#39;B&#39;</td><td><code>DNA_B</code> / <code>RNA_B</code></td><td>C or G or T/U; not A</td></tr><tr><td>&#39;N&#39;</td><td><code>DNA_N</code> / <code>RNA_N</code></td><td>A or C or G or T/U</td></tr><tr><td>&#39;-&#39;</td><td><code>DNA_Gap</code> / <code>RNA_Gap</code></td><td>Gap (none of the above)</td></tr></table><p><a href="http://www.insdc.org/documents/feature_table.html#7.4.1">http://www.insdc.org/documents/feature_table.html#7.4.1</a></p><p>Symbols are accessible as constants with <code>DNA_</code> or <code>RNA_</code> prefix:</p><pre><code class="language-julia-repl">julia&gt; DNA_A
+DNA_A
+
+julia&gt; DNA_T
+DNA_T
+
+julia&gt; RNA_U
+RNA_U
+
+julia&gt; DNA_Gap
+DNA_Gap
+
+julia&gt; typeof(DNA_A)
+BioSymbols.DNA
+
+julia&gt; typeof(RNA_A)
+BioSymbols.RNA
+</code></pre><p>Symbols can be constructed by converting regular characters:</p><pre><code class="language-julia-repl">julia&gt; convert(DNA, &#39;C&#39;)
+DNA_C
+
+julia&gt; convert(DNA, &#39;C&#39;) === DNA_C
+true
+</code></pre><p>Every nucleotide is encoded using the lower 4 bits of a byte. An unambiguous nucleotide has only one set bit and the other bits are unset. The table below summarizes all unambiguous nucleotides and their corresponding bits. An ambiguous nucleotide is the bitwise OR of unambiguous nucleotides that the ambiguous nucleotide can take. For example, <code>DNA_R</code> (meaning the nucleotide is either <code>DNA_A</code> or <code>DNA_G</code>) is encoded as <code>0101</code> because <code>0101</code> is the bitwise OR of <code>0001</code> (<code>DNA_A</code>) and <code>0100</code> (<code>DNA_G</code>). The gap symbol is always <code>0000</code>.</p><table><tr><th>NucleicAcid</th><th>Bits</th></tr><tr><td><code>DNA_A</code>, <code>RNA_A</code></td><td><code>0001</code></td></tr><tr><td><code>DNA_C</code>, <code>RNA_C</code></td><td><code>0010</code></td></tr><tr><td><code>DNA_G</code>, <code>RNA_G</code></td><td><code>0100</code></td></tr><tr><td><code>DNA_T</code>, <code>RNA_U</code></td><td><code>1000</code></td></tr></table><p>The next examples demonstrate bit operations of DNA:</p><pre><code class="language-julia-repl">julia&gt; bits(reinterpret(UInt8, DNA_A))
+&quot;00000001&quot;
+
+julia&gt; bits(reinterpret(UInt8, DNA_G))
+&quot;00000100&quot;
+
+julia&gt; bits(reinterpret(UInt8, DNA_R))
+&quot;00000101&quot;
+
+julia&gt; bits(reinterpret(UInt8, DNA_B))
+&quot;00001110&quot;
+
+julia&gt; ~DNA_A
+DNA_B
+
+julia&gt; DNA_A | DNA_G
+DNA_R
+
+julia&gt; DNA_R &amp; DNA_B
+DNA_G
+</code></pre><h2><a class="nav-anchor" id="Amino-acids-1" href="#Amino-acids-1">Amino acids</a></h2><p>Set of amino acid symbols also covers IUPAC amino acid symbols plus a gap symbol:</p><table><tr><th>Symbol</th><th>Constant</th><th>Meaning</th></tr><tr><td>&#39;A&#39;</td><td><code>AA_A</code></td><td>Alanine</td></tr><tr><td>&#39;R&#39;</td><td><code>AA_R</code></td><td>Arginine</td></tr><tr><td>&#39;N&#39;</td><td><code>AA_N</code></td><td>Asparagine</td></tr><tr><td>&#39;D&#39;</td><td><code>AA_D</code></td><td>Aspartic acid (Aspartate)</td></tr><tr><td>&#39;C&#39;</td><td><code>AA_C</code></td><td>Cysteine</td></tr><tr><td>&#39;Q&#39;</td><td><code>AA_Q</code></td><td>Glutamine</td></tr><tr><td>&#39;E&#39;</td><td><code>AA_E</code></td><td>Glutamic acid (Glutamate)</td></tr><tr><td>&#39;G&#39;</td><td><code>AA_G</code></td><td>Glycine</td></tr><tr><td>&#39;H&#39;</td><td><code>AA_H</code></td><td>Histidine</td></tr><tr><td>&#39;I&#39;</td><td><code>AA_I</code></td><td>Isoleucine</td></tr><tr><td>&#39;L&#39;</td><td><code>AA_L</code></td><td>Leucine</td></tr><tr><td>&#39;K&#39;</td><td><code>AA_K</code></td><td>Lysine</td></tr><tr><td>&#39;M&#39;</td><td><code>AA_M</code></td><td>Methionine</td></tr><tr><td>&#39;F&#39;</td><td><code>AA_F</code></td><td>Phenylalanine</td></tr><tr><td>&#39;P&#39;</td><td><code>AA_P</code></td><td>Proline</td></tr><tr><td>&#39;S&#39;</td><td><code>AA_S</code></td><td>Serine</td></tr><tr><td>&#39;T&#39;</td><td><code>AA_T</code></td><td>Threonine</td></tr><tr><td>&#39;W&#39;</td><td><code>AA_W</code></td><td>Tryptophan</td></tr><tr><td>&#39;Y&#39;</td><td><code>AA_Y</code></td><td>Tyrosine</td></tr><tr><td>&#39;V&#39;</td><td><code>AA_V</code></td><td>Valine</td></tr><tr><td>&#39;O&#39;</td><td><code>AA_O</code></td><td>Pyrrolysine</td></tr><tr><td>&#39;U&#39;</td><td><code>AA_U</code></td><td>Selenocysteine</td></tr><tr><td>&#39;B&#39;</td><td><code>AA_B</code></td><td>Aspartic acid or Asparagine</td></tr><tr><td>&#39;J&#39;</td><td><code>AA_J</code></td><td>Leucine or Isoleucine</td></tr><tr><td>&#39;Z&#39;</td><td><code>AA_Z</code></td><td>Glutamine or Glutamic acid</td></tr><tr><td>&#39;X&#39;</td><td><code>AA_X</code></td><td>Any amino acid</td></tr><tr><td>&#39;*&#39;</td><td><code>AA_Term</code></td><td>Termination codon</td></tr><tr><td>&#39;-&#39;</td><td><code>AA_Gap</code></td><td>Gap (none of the above)</td></tr></table><p><a href="http://www.insdc.org/documents/feature_table.html#7.4.3">http://www.insdc.org/documents/feature_table.html#7.4.3</a></p><p>Symbols are accessible as constants with <code>AA_</code> prefix:</p><pre><code class="language-julia-repl">julia&gt; AA_A
+AA_A
+
+julia&gt; AA_Q
+AA_Q
+
+julia&gt; AA_Term
+AA_Term
+
+julia&gt; typeof(AA_A)
+BioSymbols.AminoAcid
+</code></pre><p>Symbols can be constructed by converting regular characters:</p><pre><code class="language-julia-repl">julia&gt; convert(AminoAcid, &#39;A&#39;)
+AA_A
+
+julia&gt; convert(AminoAcid, &#39;P&#39;) === AA_P
+true
+</code></pre><h2><a class="nav-anchor" id="Other-functions-1" href="#Other-functions-1">Other functions</a></h2><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="BioSymbols.alphabet" href="#BioSymbols.alphabet"><code>BioSymbols.alphabet</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">alphabet(DNA)</code></pre><p>Get all symbols of <code>DNA</code> in sorted order.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; alphabet(DNA)
+(DNA_Gap, DNA_A, DNA_C, DNA_M, DNA_G, DNA_R, DNA_S, DNA_V, DNA_T, DNA_W, DNA_Y, DNA_H, DNA_K, DNA_D, DNA_B, DNA_N)
+
+julia&gt; issorted(alphabet(DNA))
+true
+</code></pre></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L148-L164">source</a><br/><div><pre><code class="language-none">alphabet(RNA)</code></pre><p>Get all symbols of <code>RNA</code> in sorted order.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; alphabet(RNA)
+(RNA_Gap, RNA_A, RNA_C, RNA_M, RNA_G, RNA_R, RNA_S, RNA_V, RNA_U, RNA_W, RNA_Y, RNA_H, RNA_K, RNA_D, RNA_B, RNA_N)
+
+julia&gt; issorted(alphabet(RNA))
+true
+</code></pre></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L232-L248">source</a><br/><div><pre><code class="language-none">alphabet(AminoAcid)</code></pre><p>Get all symbols of <code>AminoAcid</code> in sorted order.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; alphabet(AminoAcid)
+(AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
+
+julia&gt; issorted(alphabet(AminoAcid))
+true
+</code></pre></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L137-L153">source</a><br/><div><p>Gets the alphabet encoding of a given BioSequence.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/tree/2141f43ec68b6aefdbfc99e9d7d245be8b90cde0/src/bioseq/bioseq.jl#L62">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="BioSymbols.gap" href="#BioSymbols.gap"><code>BioSymbols.gap</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">gap(DNA)</code></pre><p>Return <code>DNA_Gap</code>.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L319-L323">source</a><br/><div><pre><code class="language-none">gap(RNA)</code></pre><p>Return <code>RNA_Gap</code>.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L328-L332">source</a><br/><div><pre><code class="language-none">gap(AminoAcid)</code></pre><p>Return <code>AA_Gap</code>.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L281-L285">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="BioSymbols.iscompatible" href="#BioSymbols.iscompatible"><code>BioSymbols.iscompatible</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">iscompatible(x::T, y::T) where T &lt;: NucleicAcid</code></pre><p>Test if <code>x</code> and <code>y</code> are compatible with each other (i.e. <code>x</code> and <code>y</code> can be the same symbol).</p><p><code>x</code> and <code>y</code> must be the same type.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; iscompatible(DNA_A, DNA_A)
+true
+
+julia&gt; iscompatible(DNA_C, DNA_N)  # DNA_N can be DNA_C
+true
+
+julia&gt; iscompatible(DNA_C, DNA_R)  # DNA_R (A or G) cannot be DNA_C
+false
+</code></pre></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L432-L453">source</a><br/><div><pre><code class="language-none">iscompatible(x::AminoAcid, y::AminoAcid)</code></pre><p>Test if <code>x</code> and <code>y</code> are compatible with each other.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; iscompatible(AA_A, AA_R)
+false
+
+julia&gt; iscompatible(AA_A, AA_X)
+true
+</code></pre></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L316-L332">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="BioSymbols.isambiguous" href="#BioSymbols.isambiguous"><code>BioSymbols.isambiguous</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">isambiguous(nt::NucleicAcid)</code></pre><p>Test if <code>nt</code> is an ambiguous nucleotide.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/nucleicacid.jl#L367-L371">source</a><br/><div><pre><code class="language-none">isambiguous(aa::AminoAcid)</code></pre><p>Test if <code>aa</code> is an ambiguous amino acid.</p></div><a class="source-link" target="_blank" href="https://github.com/BioJulia/BioSymbols.jl/tree/9680751fabdb26ddc7a841c2115c149ec78e7617/src/aminoacid.jl#L265-L269">source</a><br/></section><footer><hr/><a class="previous" href="index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="sequences/sequences.html"><span class="direction">Next</span><span class="title">Overview</span></a></footer></article></body></html>
