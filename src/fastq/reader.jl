@@ -51,16 +51,16 @@ function BioCore.IO.eachrecord(reader::Reader{<:AbstractString}; copy::Bool=true
     else
         stream = NoopStream(file)
     end
-    return Iterator(stream, copy=copy, close=true)
+    return RecordIterator{Record}(stream, copy=copy, close=true)
 end
 
 function Base.start(reader::Reader{<:AbstractString})
-    iter = Iterator(open(reader.source), copy=true, close=true)
+    iter = RecordIterator{Record}(open(reader.source), copy=true, close=true)
     return iter, start(iter)
 end
 
 function Base.start(reader::Reader{<:IO})
-    iter = Iterator(reader.source, copy=true, close=false)
+    iter = RecordIterator{Record}(reader.source, copy=true, close=false)
     return iter, start(iter)
 end
 
@@ -78,7 +78,7 @@ function BioCore.IO.stream(reader::Reader{<:IO})
 end
 
 function Base.read!(reader::Reader{<:IO}, record::Record)
-    state = IteratorState()
+    state = RecordIteratorState()
     readrecord!(reader.stream, record, state)
     if !state.read
         #throw(ArgumentError("failed to read a FASTQ record"))
@@ -88,83 +88,12 @@ function Base.read!(reader::Reader{<:IO}, record::Record)
 end
 
 
-# Iterator
-# --------
-
-# FIXME: Remove redundancy since these are almost identical to those of FASTA.
-struct Iterator
-    # input stream
-    stream::TranscodingStream
-
-    # return a copy?
-    copy::Bool
-
-    # close stream at the end?
-    close::Bool
-
-    # placeholder
-    record::Record
-
-    function Iterator(stream::IO; copy::Bool=true, close::Bool=false)
-        if !(stream isa TranscodingStream)
-            stream = NoopStream(stream)
-        end
-        return new(stream, copy, close, Record())
-    end
-end
-
-function Base.iteratorsize(::Type{Iterator})
-    return Base.SizeUnknown()
-end
-
-function Base.eltype(::Type{Iterator})
-    return Record
-end
-
-mutable struct IteratorState
-    # the current line number
-    linenum::Int
-
-    # read a new record?
-    read::Bool
-
-    # consumed all input?
-    done::Bool
-
-    function IteratorState()
-        return new(1, false, false)
-    end
-end
-
-function Base.start(iter::Iterator)
-    return IteratorState()
-end
-
-function Base.done(iter::Iterator, state::IteratorState)
-    if state.done
-        return true
-    elseif !state.read
-        readrecord!(iter.stream, iter.record, state)
-        if iter.close && state.done
-            close(iter.stream)
-        end
-    end
-    return !state.read
-end
-
-function Base.next(iter::Iterator, state::IteratorState)
-    @assert state.read
-    record = iter.record
-    if iter.copy
-        record = copy(record)
-    end
-    state.read = false
-    return record, state
-end
+# Format
+# ------
 
 function index!(record::Record)
     stream = NoopStream(IOBuffer(record.data))
-    state = IteratorState()
+    state = RecordIteratorState()
     readrecord!(stream, record, state)
     if !state.read || !state.done
         throw(ArgumentError("invalid FASTQ record"))
