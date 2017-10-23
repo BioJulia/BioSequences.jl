@@ -1,8 +1,8 @@
 # FASTA Reader
 # ============
 
-# When T = AbstractString, the source is a filename.
-# When T = IO, the source is an input I/O stream.
+# When T = AbstractString, the source field is a filename.
+# When T = IO, the source field is an input I/O stream.
 struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
     source::T
     index::Nullable{Index}

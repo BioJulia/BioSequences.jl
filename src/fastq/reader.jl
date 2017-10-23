@@ -1,7 +1,9 @@
 # FASTQ Reader
 # ============
 
-struct Reader{T<:Union{String,IO}} <: BioCore.IO.AbstractReader
+# When T = AbstractString, the source field is a filename.
+# When T = IO, the source field is an input I/O stream.
+struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
     source::T
 
     # This field is for backward compatibility.
@@ -35,32 +37,31 @@ function Reader(input::AbstractString; fill_ambiguous=nothing)
     if fill_ambiguous !== nothing
         warn("fill_ambiguous keyword argument is removed; use fill_ambiguous! instead")
     end
-    return Reader{String}(convert(String, input))
+    return Reader{typeof(input)}(input)
 end
 
 function Base.eltype(::Type{<:Reader})
     return Record
 end
 
-function BioCore.IO.eachrecord(reader::Reader{String}; copy::Bool=true)
+function BioCore.IO.eachrecord(reader::Reader{<:AbstractString}; copy::Bool=true)
+    file = open(reader.source)
     if endswith(reader.source, ".gz")
-        stream = CodecZlib.GzipDecompressorStream(open(reader.source))
+        stream = CodecZlib.GzipDecompressorStream(file)
     else
-        stream = open(reader.source)
+        stream = NoopStream(file)
     end
-    return Iterator(stream, copy, true)
+    return Iterator(stream, copy=copy, close=true)
 end
 
-function Base.start(reader::Reader{String})
-    iter = Iterator(open(reader.source), #=copy=#true, #=close=#true)
-    state = start(iter)
-    return iter, state
+function Base.start(reader::Reader{<:AbstractString})
+    iter = Iterator(open(reader.source), copy=true, close=true)
+    return iter, start(iter)
 end
 
 function Base.start(reader::Reader{<:IO})
-    iter = Iterator(reader.source, #=copy=#true, #=close=#false)
-    state = start(iter)
-    return iter, state
+    iter = Iterator(reader.source, copy=true, close=false)
+    return iter, start(iter)
 end
 
 function Base.done(::Reader, state)
@@ -77,7 +78,7 @@ function BioCore.IO.stream(reader::Reader{<:IO})
 end
 
 function Base.read!(reader::Reader{<:IO}, record::Record)
-    state = IteratorState(1, false, false)
+    state = IteratorState()
     readrecord!(reader.stream, record, state)
     if !state.read
         #throw(ArgumentError("failed to read a FASTQ record"))
@@ -104,13 +105,12 @@ struct Iterator
     # placeholder
     record::Record
 
-    function Iterator(stream::TranscodingStream, copy::Bool, close::Bool)
+    function Iterator(stream::IO; copy::Bool=true, close::Bool=false)
+        if !(stream isa TranscodingStream)
+            stream = NoopStream(stream)
+        end
         return new(stream, copy, close, Record())
     end
-end
-
-function Iterator(stream::IO, copy::Bool, close::Bool)
-    return Iterator(NoopStream(stream), copy, close)
 end
 
 function Base.iteratorsize(::Type{Iterator})
@@ -130,10 +130,14 @@ mutable struct IteratorState
 
     # consumed all input?
     done::Bool
+
+    function IteratorState()
+        return new(1, false, false)
+    end
 end
 
 function Base.start(iter::Iterator)
-    return IteratorState(1, false, false)
+    return IteratorState()
 end
 
 function Base.done(iter::Iterator, state::IteratorState)
@@ -160,7 +164,7 @@ end
 
 function index!(record::Record)
     stream = NoopStream(IOBuffer(record.data))
-    state = IteratorState(1, false, false)
+    state = IteratorState()
     readrecord!(stream, record, state)
     if !state.read || !state.done
         throw(ArgumentError("invalid FASTQ record"))
