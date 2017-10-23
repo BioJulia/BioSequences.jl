@@ -1,7 +1,9 @@
 # FASTA Reader
 # ============
 
-struct Reader{T<:Union{String,IO}} <: BioCore.IO.AbstractReader
+# When T = AbstractString, the source is a filename.
+# When T = IO, the source is an input I/O stream.
+struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
     source::T
     index::Nullable{Index}
 
@@ -50,9 +52,8 @@ If `index=:fai` it tries to find the fai index file based on the input filepath
 - `index=:fai`: random access index
 """
 function Reader(input::AbstractString; index=:fai)
-    filepath = convert(String, input)
     if index == :fai
-        faipath = string(filepath, ".fai")
+        faipath = string(input, ".fai")
         index = isfile(faipath) ? faipath : nothing
     end
     if index isa Index || index isa Nullable{Index} || index == nothing
@@ -62,28 +63,29 @@ function Reader(input::AbstractString; index=:fai)
     else
         throw(ArgumentError("invalid index argument"))
     end
-    return Reader{String}(filepath, index)
+    return Reader{typeof(input)}(input, index)
 end
 
 function Base.eltype(::Type{<:Reader})
     return Record
 end
 
-function BioCore.IO.eachrecord(reader::Reader{String}; copy::Bool=true)
+function BioCore.IO.eachrecord(reader::Reader{<:AbstractString}; copy::Bool=true)
+    file = open(reader.source)
     if endswith(reader.source, ".gz")
-        stream = CodecZlib.GzipDecompressionStream(open(reader.source))
+        stream = CodecZlib.GzipDecompressorStream(file)
     else
-        stream = open(reader.source)
+        stream = NoopStream(file)
     end
-    return Iterator(stream, copy, true)
+    return Iterator(stream, copy=copy, close=true)
 end
 
 function BioCore.IO.eachrecord(reader::Reader{<:IO}; copy::Bool=true)
-    return Iterator(stream.source, copy, false)
+    return Iterator(stream.source, copy=copy, close=false)
 end
 
-function Base.getindex(reader::Reader{String}, name::AbstractString)
-    return Reader(open(reader), index=reader.index)[name]
+function Base.getindex(reader::Reader{<:AbstractString}, name::AbstractString)
+    return open(file -> Reader(file, index=reader.index)[name], reader)
 end
 
 function Base.getindex(reader::Reader{<:IO}, name::AbstractString)
@@ -94,16 +96,14 @@ function Base.getindex(reader::Reader{<:IO}, name::AbstractString)
     return first(reader)
 end
 
-function Base.start(reader::Reader{String})
-    iter = Iterator(open(reader.source), #=copy=#true, #=close=#true)
-    state = start(iter)
-    return iter, state
+function Base.start(reader::Reader{<:AbstractString})
+    iter = Iterator(open(reader.source), copy=true, close=true)
+    return iter, start(iter)
 end
 
 function Base.start(reader::Reader{<:IO})
-    iter = Iterator(reader.source, #=copy=#true, #=close=#false)
-    state = start(iter)
-    return iter, state
+    iter = Iterator(reader.source, copy=true, close=false)
+    return iter, start(iter)
 end
 
 function Base.done(::Reader, state)
@@ -120,7 +120,7 @@ function BioCore.IO.stream(reader::Reader{<:IO})
 end
 
 function Base.read!(reader::Reader{<:IO}, record::Record)
-    state = IteratorState(1, false, false)
+    state = IteratorState()
     readrecord!(reader.stream, record, state)
     if !state.read
         throw(ArgumentError("failed to read a FASTA record"))
@@ -145,14 +145,12 @@ struct Iterator
     # placeholder
     record::Record
 
-    function Iterator(stream::TranscodingStream, copy::Bool, close::Bool)
+    function Iterator(stream::IO; copy::Bool=true, close::Bool=false)
+        if !(stream isa TranscodingStream)
+            stream = NoopStream(stream)
+        end
         return new(stream, copy, close, Record())
     end
-end
-
-function Iterator(stream::IO, copy::Bool, close::Bool)
-    # Wrap an I/O stream with NoopStream.
-    return Iterator(NoopStream(stream), copy, close)
 end
 
 function Base.iteratorsize(::Type{Iterator})
@@ -172,10 +170,14 @@ mutable struct IteratorState
 
     # consumed all input?
     done::Bool
+
+    function IteratorState()
+        return new(1, false, false)
+    end
 end
 
 function Base.start(iter::Iterator)
-    return IteratorState(1, false, false)
+    return IteratorState()
 end
 
 function Base.done(iter::Iterator, state::IteratorState)
@@ -202,7 +204,7 @@ end
 
 function index!(record::Record)
     stream = NoopStream(IOBuffer(record.data))
-    state = IteratorState(1, false, false)
+    state = IteratorState()
     readrecord!(stream, record, state)
     if !state.read || !state.done
         throw(ArgumentError("invalid FASTA record"))

@@ -44,7 +44,7 @@ end
 
 function BioCore.IO.eachrecord(reader::Reader{String}; copy::Bool=true)
     if endswith(reader.source, ".gz")
-        stream = CodecZlib.GzipDecompressionStream(open(reader.source))
+        stream = CodecZlib.GzipDecompressorStream(open(reader.source))
     else
         stream = open(reader.source)
     end

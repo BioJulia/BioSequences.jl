@@ -2,7 +2,7 @@ julia 0.6
 Automa 0.3
 BioCore
 BioSymbols
-CodecZlib 0.3
+CodecZlib 0.4
 Combinatorics
 IndexableBitVectors
 IterTools 0.1
