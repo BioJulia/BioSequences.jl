@@ -40,6 +40,10 @@ function Reader(input::AbstractString; fill_ambiguous=nothing)
     return Reader{typeof(input)}(input)
 end
 
+function Base.show(io::IO, reader::Reader)
+    print(io, summary(reader), "(<source=$(reader.source))>)")
+end
+
 function Base.eltype(::Type{<:Reader})
     return Record
 end

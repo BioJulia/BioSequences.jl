@@ -66,6 +66,10 @@ function Reader(input::AbstractString; index=:fai)
     return Reader{typeof(input)}(input, index)
 end
 
+function Base.show(io::IO, reader::Reader)
+    print(io, summary(reader), "(<source=$(reader.source),index=$(get(reader.index, "null"))>)")
+end
+
 function Base.eltype(::Type{<:Reader})
     return Record
 end
