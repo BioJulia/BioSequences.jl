@@ -1,12 +1,21 @@
 # FASTA Reader
 # ============
 
-mutable struct Reader <: BioCore.IO.AbstractReader
-    state::BioCore.Ragel.State
+# When T = AbstractString, the source field is a filename.
+# When T = IO, the source field is an input I/O stream.
+struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
+    source::T
     index::Nullable{Index}
 
-    function Reader(input::BufferedStreams.BufferedInputStream, index)
-        return new(BioCore.Ragel.State(file_machine.start_state, input), index)
+    # This field is for backward compatibility.
+    stream::TranscodingStream
+
+    function Reader{T}(source::T, index) where T
+        return new(source, index)
+    end
+
+    function Reader{T}(source::T, index, stream) where T
+        return new(source, index, stream)
     end
 end
 
@@ -20,152 +29,255 @@ Create a data reader of the FASTA file format.
 * `index=nothing`: filepath to a random access index (currently *fai* is supported)
 """
 function Reader(input::IO; index=nothing)
-    if isa(index, AbstractString)
+    if index isa Index || index isa Nullable{Index} || index == nothing
+        # ok
+    elseif index isa AbstractString
         index = Index(index)
     else
-        if index != nothing
-            throw(ArgumentError("index must be a filepath or nothing"))
-        end
+        throw(ArgumentError("invalid index argument"))
     end
-    return Reader(BufferedStreams.BufferedInputStream(input), index)
+    return Reader{typeof(input)}(input, index, NoopStream(input))
 end
 
-function Base.eltype(::Type{Reader})
+"""
+    FASTA.Reader(input::AbstractString; index=:fai)
+
+Create a data reader of the FASTA file format.
+
+If `index=:fai` it tries to find the fai index file based on the input filepath
+(i.e. `string(filepath, ".fai")`).
+
+# Arguments
+- `input`: input filepath
+- `index=:fai`: random access index
+"""
+function Reader(input::AbstractString; index=:fai)
+    if index == :fai
+        faipath = string(input, ".fai")
+        index = isfile(faipath) ? faipath : nothing
+    end
+    if index isa Index || index isa Nullable{Index} || index == nothing
+        # ok
+    elseif index isa AbstractString
+        index = Index(index)
+    else
+        throw(ArgumentError("invalid index argument"))
+    end
+    return Reader{typeof(input)}(input, index)
+end
+
+function Base.show(io::IO, reader::Reader)
+    print(io, summary(reader), "(<source=$(reader.source),index=$(get(reader.index, "null"))>)")
+end
+
+function Base.eltype(::Type{<:Reader})
     return Record
 end
 
-function BioCore.IO.stream(reader::Reader)
-    return reader.state.stream
+function BioCore.IO.eachrecord(reader::Reader{<:AbstractString}; copy::Bool=true)
+    file = open(reader.source)
+    if endswith(reader.source, ".gz")
+        stream = CodecZlib.GzipDecompressorStream(file)
+    else
+        stream = NoopStream(file)
+    end
+    return RecordIterator{Record}(stream, copy=copy, close=true)
 end
 
-function Base.getindex(reader::Reader, name::AbstractString)
+function BioCore.IO.eachrecord(reader::Reader{<:IO}; copy::Bool=true)
+    return RecordIterator{Record}(stream.source, copy=copy, close=false)
+end
+
+function Base.getindex(reader::Reader{<:AbstractString}, name::AbstractString)
+    return open(file -> Reader(file, index=reader.index)[name], reader)
+end
+
+function Base.getindex(reader::Reader{<:IO}, name::AbstractString)
     if isnull(reader.index)
         throw(ArgumentError("no index attached"))
     end
-    seekrecord(reader.state.stream, get(reader.index), name)
-    reader.state.cs = file_machine.start_state
-    reader.state.finished = false
-    return read(reader)
+    seekrecord(reader.source, get(reader.index), name)
+    return first(reader)
 end
 
-isinteractive() && info("Compiling FASTA parser...")
-const record_machine, file_machine = (function ()
-    cat = Automa.RegExp.cat
-    rep = Automa.RegExp.rep
-    rep1 = Automa.RegExp.rep1
-    alt = Automa.RegExp.alt
-    opt = Automa.RegExp.opt
-    any = Automa.RegExp.any
-    space = Automa.RegExp.space
+function Base.start(reader::Reader{<:AbstractString})
+    iter = RecordIterator{Record}(open(reader.source), copy=true, close=true)
+    return iter, start(iter)
+end
 
-    newline = let
-        lf = re"\n"
-        lf.actions[:enter] = [:countline]
+function Base.start(reader::Reader{<:IO})
+    iter = RecordIterator{Record}(reader.source, copy=true, close=false)
+    return iter, start(iter)
+end
 
-        cat(opt('\r'), lf)
+function Base.done(::Reader, state)
+    return done(state[1], state[2])
+end
+
+function Base.next(::Reader, state)
+    item, _ = next(state[1], state[2])
+    return item, state
+end
+
+function BioCore.IO.stream(reader::Reader{<:IO})
+    return reader.stream
+end
+
+function Base.read!(reader::Reader{<:IO}, record::Record)
+    state = RecordIteratorState()
+    readrecord!(reader.stream, record, state)
+    if !state.read
+        throw(ArgumentError("failed to read a FASTA record"))
     end
+    return record
+end
 
-    hspace = re"[ \t\v]"
 
-    identifier = rep(any() \ space())
-    identifier.actions[:enter] = [:mark]
-    identifier.actions[:exit]  = [:identifier]
+# Format
+# ------
 
-    description = cat(any() \ hspace, re"[^\r\n]*")
-    description.actions[:enter] = [:mark]
-    description.actions[:exit]  = [:description]
+function index!(record::Record)
+    stream = NoopStream(IOBuffer(record.data))
+    state = RecordIteratorState()
+    readrecord!(stream, record, state)
+    if !state.read || !state.done
+        throw(ArgumentError("invalid FASTA record"))
+    end
+    return record
+end
 
-    header = cat('>', identifier, opt(cat(rep1(hspace), description)))
-    header.actions[:enter] = [:anchor]
-    header.actions[:exit]  = [:header]
+let
+    # Define FASTA record machine.
+    machine = (function ()
+        cat = Automa.RegExp.cat
+        rep = Automa.RegExp.rep
+        rep1 = Automa.RegExp.rep1
+        alt = Automa.RegExp.alt
+        opt = Automa.RegExp.opt
+        any = Automa.RegExp.any
+        space = Automa.RegExp.space
 
-    # '*': terminal, `-': gap
-    letters = re"[A-Za-z*\-]+"
-    letters.actions[:enter] = [:movable_anchor]
-    letters.actions[:exit]  = [:letters]
+        newline = let
+            lf = re"\n"
+            lf.actions[:enter] = [:countline]
 
-    sequence = opt(cat(letters, rep(cat(rep1(alt(hspace, newline)), letters))))
-    sequence.actions[:enter] = [:sequence_start]
-
-    record = cat(header, rep1(newline), sequence, rep1(newline))
-    record.actions[:exit] = [:record]
-
-    record_trailing = cat(header, rep1(newline), sequence)
-    record_trailing.actions[:exit] = [:record]
-
-    file = cat(rep(newline), rep(record), opt(record_trailing))
-
-    return map(Automa.compile, (record, file))
-end)()
-
-#=
-write("fasta.dot", Automa.machine2dot(file_machine))
-run(`dot -Tsvg -o fasta.svg fasta.dot`)
-=#
-
-const record_actions = Dict(
-    :identifier  => :(record.identifier  = (mark:p-1)),
-    :description => :(record.description = (mark:p-1)),
-    :header => quote
-        @assert record.data === data
-        copy!(record.data, 1, record.data, 1, p - 1)
-        filled += p - 1
-        if p ≤ endof(data)
-            data[p] = UInt8('\n')
-            filled += 1
+            cat(opt('\r'), lf)
         end
-    end,
-    :letters => quote
-        let len = p - mark
-            copy!(record.data, filled + 1, record.data, mark, p - mark)
-            filled += len
-            record.sequence = first(record.sequence):last(record.sequence)+len
-        end
-    end,
-    :sequence_start => :(record.sequence = filled+1:filled),
-    :record => :(record.filled = 1:filled),
-    :anchor => :(),
-    :movable_anchor => :(mark = p),
-    :mark => :(mark = p),
-    :countline => :(#= linenum += 1 =#))
-eval(
-    BioCore.ReaderHelper.generate_index_function(
-        Record,
-        record_machine,
-        :(filled = mark = 0),
-        record_actions))
-eval(
-    BioCore.ReaderHelper.generate_read_function(
-        Reader,
-        file_machine,
-        :(filled = mark = 0),
-        merge(record_actions, Dict(
-            :identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :description => :(record.description = (mark:p-1) - stream.anchor + 1),
-            :header => quote
-                range = BioCore.ReaderHelper.upanchor!(stream):p-1
-                BioCore.ReaderHelper.resize_and_copy!(record.data, filled + 1, data, range)
-                filled += length(range)
-                if filled + 1 ≤ endof(record.data)
-                    record.data[filled+1] = UInt8('\n')
+
+        hspace = re"[ \t\v]"
+
+        identifier = rep(any() \ space())
+        identifier.actions[:enter] = [:pos]
+        identifier.actions[:exit]  = [:identifier]
+
+        description = cat(any() \ hspace, re"[^\r\n]*")
+        description.actions[:enter] = [:pos]
+        description.actions[:exit]  = [:description]
+
+        header = cat('>', identifier, opt(cat(rep1(hspace), description)))
+        header.actions[:enter] = [:mark]
+        header.actions[:exit]  = [:copy]
+
+        # '*': terminal, `-': gap
+        letters = re"[A-Za-z*\-]+"
+        letters.actions[:enter] = [:mark]
+        letters.actions[:exit]  = [:copy]
+
+        sequence = opt(cat(letters, rep(cat(rep1(alt(hspace, newline)), letters))))
+        sequence.actions[:enter] = [:seqstart]
+
+        record = cat(header, rep1(newline), sequence, rep1(newline))
+        record.actions[:exit] = [:record]
+
+        # lookahead
+        record = cat(record, re">?")
+
+        return Automa.compile(record)
+    end)()
+
+    #= debug
+    write("fasta.dot", Automa.machine2dot(file_machine))
+    run(`dot -Tsvg -o fasta.svg fasta.dot`)
+    =#
+
+    # Define init, exit and action code.
+    initcode = quote
+        initialize!(record)
+        nfilled = pos = seqstart = 0
+    end
+    exitcode = quote
+        if cs < 0
+            if ismarked(stream)
+                unmark(stream)
+            end
+            throw(ArgumentError("unexpected data at line $(state.linenum)"))
+        else
+            state.done = cs == 0
+            if state.read || state.done
+                return
+            elseif p > p_eof ≥ 0
+                if cs == $(machine.start_state)
+                    # empty file
+                    return
+                elseif seqstart > 0
+                    # EOF without newline; this is a hacky workaround and should
+                    # be solved by supporting EOF in Automa.jl.
+                    let len = p - buffer.markpos
+                        if length(record.data) < nfilled + len
+                            resize!(record.data, nfilled + len)
+                        end
+                        copy!(record.data, nfilled + 1, buffer.data, buffer.markpos, len)
+                        nfilled += len
+                    end
+                    @unmark
+                    record.sequence = seqstart:nfilled
+                    record.filled = 1:nfilled
+                    state.read = state.done = true
+                    return
                 else
-                    push!(record.data, UInt8('\n'))
+                    throw(ArgumentError("unexpected EOF at line $(state.linenum)"))
                 end
-                filled += 1
-            end,
-            :sequence_start => :(record.sequence = filled+1:filled),
-            :letters => quote
-                let len = p - stream.anchor
-                    BioCore.ReaderHelper.append_from_anchor!(record.data, filled + 1, stream, p - 1)
-                    filled += len
-                    record.sequence = first(record.sequence):last(record.sequence)+len
+            end
+        end
+    end
+    actions = Dict(
+        :countline => :(state.linenum += 1),
+        :pos => :(pos = @pos),
+        :identifier => :(record.identifier = pos:(@pos)-1),
+        :description => :(record.description = pos:(@pos)-1),
+        :mark => :(@mark),
+        :copy => quote
+            let len = p - buffer.markpos
+                if length(record.data) < nfilled + len
+                    resize!(record.data, nfilled + len)
                 end
-            end,
-            :record => quote
-                record.filled = 1:filled
-                found_record = true
-                @escape
-            end,
-            :countline => :(linenum += 1),
-            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p)),
-            :movable_anchor => :(BioCore.ReaderHelper.anchor!(stream, p, false))))))
+                copy!(record.data, nfilled + 1, buffer.data, buffer.markpos, len)
+                nfilled += len
+            end
+            @unmark
+            if seqstart == 0
+                # Insert a newline byte after the header.
+                if length(record.data) == nfilled
+                    resize!(record.data, length(record.data) + 1)
+                end
+                record.data[nfilled+1] = UInt8('\n')
+                nfilled += 1
+            end
+        end,
+        :seqstart => :(seqstart = nfilled + 1),
+        :record => quote
+            record.sequence = seqstart:nfilled
+            record.filled = 1:nfilled
+            state.read = true
+            if p ≤ p_end && data[p] == UInt8('>')
+                # decrement the reading position to cancel the lookahead
+                p -= 1
+            end
+            @escape
+        end)
+
+    # Generate readrecord! function.
+    eval(
+        BioCore.ReaderHelper.generate_readrecord_function(
+            Record, machine, actions, initcode, exitcode, loopunroll=10))
+end

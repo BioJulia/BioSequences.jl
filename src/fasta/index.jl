@@ -19,6 +19,10 @@ function Index(filepath::AbstractString)
     return open(read_faidx, filepath)
 end
 
+function Base.show(io::IO, index::Index)
+    print(io, summary(index), "(<names=$(index.names)>)")
+end
+
 function read_faidx(input::IO)
     names = String[]
     lengths = Int[]

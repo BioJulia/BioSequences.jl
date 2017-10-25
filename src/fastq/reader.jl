@@ -1,173 +1,248 @@
 # FASTQ Reader
 # ============
 
-struct Reader <: BioCore.IO.AbstractReader
-    state::BioCore.Ragel.State
-    seq_transform::Nullable{Function}
+# When T = AbstractString, the source field is a filename.
+# When T = IO, the source field is an input I/O stream.
+struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
+    source::T
 
-    function Reader(input::BufferedInputStream, seq_transform)
-        return new(BioCore.Ragel.State(file_machine.start_state, input), seq_transform)
+    # This field is for backward compatibility.
+    stream::TranscodingStream
+
+    function Reader{T}(source::T) where T
+        return new(source)
+    end
+
+    function Reader{T}(source::T, stream) where T
+        return new(source, stream)
     end
 end
 
 """
-    FASTQ.Reader(input::IO; fill_ambiguous=nothing)
+    FASTQ.Reader(input::IO)
 
 Create a data reader of the FASTQ file format.
 
 # Arguments
 * `input`: data source
-* `fill_ambiguous=nothing`: fill ambiguous symbols with the given symbol
 """
 function Reader(input::IO; fill_ambiguous=nothing)
-    if fill_ambiguous === nothing
-        seq_transform = nothing
-    else
-        seq_transform = generate_fill_ambiguous(fill_ambiguous)
+    if fill_ambiguous !== nothing
+        warn("fill_ambiguous keyword argument is removed; use fill_ambiguous! instead")
     end
-    return Reader(BufferedInputStream(input), seq_transform)
+    return Reader{typeof(input)}(input, NoopStream(input))
 end
 
-function Base.eltype(::Type{Reader})
+function Reader(input::AbstractString; fill_ambiguous=nothing)
+    if fill_ambiguous !== nothing
+        warn("fill_ambiguous keyword argument is removed; use fill_ambiguous! instead")
+    end
+    return Reader{typeof(input)}(input)
+end
+
+function Base.show(io::IO, reader::Reader)
+    print(io, summary(reader), "(<source=$(reader.source))>)")
+end
+
+function Base.eltype(::Type{<:Reader})
     return Record
 end
 
-function BioCore.IO.stream(reader::Reader)
-    return reader.state.stream
+function BioCore.IO.eachrecord(reader::Reader{<:AbstractString}; copy::Bool=true)
+    file = open(reader.source)
+    if endswith(reader.source, ".gz")
+        stream = CodecZlib.GzipDecompressorStream(file)
+    else
+        stream = NoopStream(file)
+    end
+    return RecordIterator{Record}(stream, copy=copy, close=true)
 end
 
-function generate_fill_ambiguous(symbol::BioSymbols.DNA)
-    certain = map(UInt8, ('A', 'C', 'G', 'T', 'a', 'c', 'g', 't'))
-    # return transform function
-    return function (data, range)
-        fill = convert(UInt8, convert(Char, symbol))
-        for i in range
-            if data[i] ∉ certain
-                data[i] = fill
-            end
-        end
-        return data
-    end
+function Base.start(reader::Reader{<:AbstractString})
+    iter = RecordIterator{Record}(open(reader.source), copy=true, close=true)
+    return iter, start(iter)
 end
 
-# NOTE: This does not support line-wraps within sequence and quality.
-isinteractive() && info("Compiling FASTQ parser...")
-const record_machine, file_machine = (function ()
-    cat = Automa.RegExp.cat
-    rep = Automa.RegExp.rep
-    rep1 = Automa.RegExp.rep1
-    alt = Automa.RegExp.alt
-    opt = Automa.RegExp.opt
-    any = Automa.RegExp.any
-    space = Automa.RegExp.space
+function Base.start(reader::Reader{<:IO})
+    iter = RecordIterator{Record}(reader.source, copy=true, close=false)
+    return iter, start(iter)
+end
 
-    hspace = re"[ \t\v]"
+function Base.done(::Reader, state)
+    return done(state[1], state[2])
+end
 
-    header1 = let
-        identifier = rep(any() \ space())
-        identifier.actions[:enter] = [:mark]
-        identifier.actions[:exit]  = [:header1_identifier]
+function Base.next(::Reader, state)
+    item, _ = next(state[1], state[2])
+    return item, state
+end
 
-        description = cat(any() \ hspace, re"[^\r\n]*")
-        description.actions[:enter] = [:mark]
-        description.actions[:exit]  = [:header1_description]
+function BioCore.IO.stream(reader::Reader{<:IO})
+    return reader.stream
+end
 
-        cat('@', identifier, opt(cat(rep1(hspace), description)))
+function Base.read!(reader::Reader{<:IO}, record::Record)
+    state = RecordIteratorState()
+    readrecord!(reader.stream, record, state)
+    if !state.read
+        #throw(ArgumentError("failed to read a FASTQ record"))
+        throw(EOFError())
     end
+    return record
+end
 
-    sequence = re"[A-z]*"
-    sequence.actions[:enter] = [:mark]
-    sequence.actions[:exit]  = [:sequence]
 
-    header2 = let
-        identifier = rep1(any() \ space())
-        identifier.actions[:enter] = [:mark]
-        identifier.actions[:exit]  = [:header2_identifier]
+# Format
+# ------
 
-        description = cat(any() \ hspace, re"[^\r\n]*")
-        description.actions[:enter] = [:mark]
-        description.actions[:exit]  = [:header2_description]
-
-        cat('+', opt(cat(identifier, opt(cat(rep1(hspace), description)))))
+function index!(record::Record)
+    stream = NoopStream(IOBuffer(record.data))
+    state = RecordIteratorState()
+    readrecord!(stream, record, state)
+    if !state.read || !state.done
+        throw(ArgumentError("invalid FASTQ record"))
     end
-
-    quality = re"[!-~]*"
-    quality.actions[:enter] = [:mark]
-    quality.actions[:exit]  = [:quality]
-
-    newline = let
-        lf = re"\n"
-        lf.actions[:enter] = [:countline]
-
-        cat(opt('\r'), lf)
-    end
-
-    record′ = cat(header1, newline, sequence, newline, header2, newline, quality)
-    record′.actions[:enter] = [:anchor]
-    record′.actions[:exit]  = [:record]
-    record = cat(record′, newline)
-
-    file = rep(record)
-
-    return map(Automa.compile, (record, file))
-end)()
-
-#=
-write("fastq.dot", Automa.machine2dot(file_machine))
-run(`dot -Tsvg -o fastq.svg fastq.dot`)
-=#
+    return record
+end
 
 function check_identical(data1, range1, data2, range2)
-    if length(range1) != length(range2) ||
-       memcmp(pointer(data1, first(range1)), pointer(data2, first(range2)), length(range1)) != 0
-       error("sequence and quality have non-matching header")
+    len = length(range1)
+    if len != length(range2) ||
+            BioCore.Mem.cmp(pointer(data1, first(range1)), pointer(data2, first(range2)), len) != 0
+        throw(ArgumentError("header mismatch"))
     end
 end
 
-function memcmp(p1::Ptr, p2::Ptr, len::Integer)
-    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, len) % Int
-end
+let
+    # Define FASTQ record machine.
+    # NOTE: This does not support line-wraps within sequence and quality.
+    machine = (function ()
+        cat = Automa.RegExp.cat
+        rep = Automa.RegExp.rep
+        rep1 = Automa.RegExp.rep1
+        alt = Automa.RegExp.alt
+        opt = Automa.RegExp.opt
+        any = Automa.RegExp.any
+        space = Automa.RegExp.space
 
-const record_actions = Dict(
-    :header1_identifier  => :(record.identifier  = (mark:p-1)),
-    :header1_description => :(record.description = (mark:p-1)),
-    :header2_identifier  => :(check_identical(record.data, mark:p-1, record.data, record.identifier)),
-    :header2_description => :(check_identical(record.data, mark:p-1, record.data, record.description)),
-    :sequence => :(record.sequence = (mark:p-1)),
-    :quality  => :(record.quality  = (mark:p-1)),
-    :record   => :(record.filled   = 1:p-1),
-    :anchor => :(),
-    :mark   => :(mark = p),
-    :countline => :())
-eval(
-    BioCore.ReaderHelper.generate_index_function(
-        Record,
-        record_machine,
-        :(mark = 0),
-        record_actions))
-eval(
-    BioCore.ReaderHelper.generate_read_function(
-        Reader,
-        file_machine,
-        :(mark = offset = 0),
-        merge(record_actions, Dict(
-            :header1_identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :header1_description => :(record.description = (mark:p-1) - stream.anchor + 1),
-            :header2_identifier  => :(check_identical(data, mark:p-1, data, (record.identifier) + stream.anchor - 1)),
-            :header2_description => :(check_identical(data, mark:p-1, data, (record.description) + stream.anchor - 1)),
-            :sequence            => :(record.sequence    = (mark:p-1) - stream.anchor + 1),
-            :quality             => :(record.quality     = (mark:p-1) - stream.anchor + 1),
-            :record => quote
-                if length(record.sequence) != length(record.quality)
-                    error("the length of sequence does not match the length of quality")
-                end
-                BioCore.ReaderHelper.resize_and_copy!(record.data, data, BioCore.ReaderHelper.upanchor!(stream):p-1)
-                record.filled = (offset+1:p-1) - offset
-                if !isnull(reader.seq_transform)
-                    get(reader.seq_transform)(record.data, record.sequence)
-                end
-                found_record = true
-                @escape
-            end,
-            :countline => :(linenum += 1),
-            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p); offset = p - 1)))))
+        hspace = re"[ \t\v]"
+
+        header1 = let
+            identifier = rep(any() \ space())
+            identifier.actions[:enter] = [:pos]
+            identifier.actions[:exit]  = [:header1_identifier]
+
+            description = cat(any() \ hspace, re"[^\r\n]*")
+            description.actions[:enter] = [:pos]
+            description.actions[:exit]  = [:header1_description]
+
+            cat('@', identifier, opt(cat(rep1(hspace), description)))
+        end
+
+        sequence = re"[A-z]*"
+        sequence.actions[:enter] = [:pos]
+        sequence.actions[:exit]  = [:sequence]
+
+        header2 = let
+            identifier = rep1(any() \ space())
+            identifier.actions[:enter] = [:pos]
+            identifier.actions[:exit]  = [:header2_identifier]
+
+            description = cat(any() \ hspace, re"[^\r\n]*")
+            description.actions[:enter] = [:pos]
+            description.actions[:exit]  = [:header2_description]
+
+            cat('+', opt(cat(identifier, opt(cat(rep1(hspace), description)))))
+        end
+
+        quality = re"[!-~]*"
+        quality.actions[:enter] = [:pos]
+        quality.actions[:exit]  = [:quality]
+
+        newline = let
+            lf = re"\n"
+            lf.actions[:enter] = [:countline]
+
+            cat(opt('\r'), lf)
+        end
+
+        record = cat(
+            header1,  newline,
+            sequence, newline,
+            header2,  newline,
+            quality,  newline,
+        )
+        record.actions[:enter] = [:recstart]
+        record.actions[:exit]  = [:record]
+
+        # lookahead
+        record = cat(record, re"@?")
+
+        return Automa.compile(record)
+    end)()
+
+    #= debug
+    write("fastq.dot", Automa.machine2dot(machine))
+    run(`dot -Tsvg -o fastq.svg fastq.dot`)
+    =#
+
+    # Define init, exit and action code.
+    initcode = quote
+        initialize!(record)
+        pos = recstart = 0
+        header2_identifier = header2_description = 1:0
+    end
+    exitcode = quote
+        if cs < 0
+            if ismarked(stream)
+                unmark(stream)
+            end
+            throw(ArgumentError("unexpected data at line $(state.linenum)"))
+        else
+            state.done = cs == 0
+            if state.read || state.done
+                return
+            elseif cs == $(machine.start_state)
+                # empty file
+                return
+            elseif p > p_eof ≥ 0
+                throw(ArgumentError("unexpected EOF at line $(state.linenum)"))
+            end
+        end
+    end
+    actions = Dict(
+        :pos       => :(pos = @pos),
+        :countline => :(state.linenum += 1),
+        :header1_identifier  => :(record.identifier  = pos:(@pos)-1),
+        :header1_description => :(record.description = pos:(@pos)-1),
+        :header2_identifier  => :(header2_identifier  = pos:(@pos)-1),
+        :header2_description => :(header2_description = pos:(@pos)-1),
+        :sequence => :(record.sequence = pos:(@pos)-1),
+        :quality  => :(record.quality  = pos:(@pos)-1),
+        :recstart => :(@mark),
+        :record   => quote
+            if length(record.sequence) != length(record.quality)
+                throw(ArgumentError("the length of sequence does not match the length of quality"))
+            end
+            BioCore.ReaderHelper.resize_and_copy!(record.data, data, p-(@pos)+1:p-1)
+            if !isempty(header2_identifier)
+                check_identical(record.data, record.identifier, record.data, header2_identifier)
+            end
+            if !isempty(header2_description)
+                check_identical(record.data, record.description, record.data, header2_description)
+            end
+            record.filled = 1:(@pos)-1
+            state.read = true
+            @unmark
+            if p ≤ p_end && data[p] == UInt8('@')
+                # cancel lookahead
+                p -= 1
+            end
+            @escape
+        end)
+
+    # Generate readrecord! function.
+    eval(
+        BioCore.ReaderHelper.generate_readrecord_function(
+            Record, machine, actions, initcode, exitcode, loopunroll=10))
+end
