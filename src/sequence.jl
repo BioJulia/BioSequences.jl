@@ -107,6 +107,10 @@ end
 Base.findfirst(seq::Sequence, val) = findnext(seq, val, 1)
 Base.findlast(seq::Sequence, val) = findprev(seq, val, endof(seq))
 
+
+# GC content
+# ----------
+
 """
     gc_content(seq::Sequence)
 
@@ -116,19 +120,15 @@ function gc_content(seq::Sequence)
     if !(eltype(seq) <: NucleicAcid)
         error("elements must be nucleotides")
     end
-
-    gc = 0
-    for x in seq
-        if isGC(x)
-            gc += 1
-        end
-    end
-
     if isempty(seq)
         return 0.0
     else
-        return gc / length(seq)
+        return count_gc(seq) / length(seq)
     end
+end
+
+function count_gc(seq::Sequence)
+    return count(isGC, seq)
 end
 
 

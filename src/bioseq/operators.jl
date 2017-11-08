@@ -16,6 +16,40 @@ function Base.count(f::Function, seq::BioSequence)
     return n
 end
 
+function count_gc(seq::BioSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
+    function count(x)
+        # bit parallel counter of GC
+        a =  x & 0x1111111111111111
+        c = (x & 0x2222222222222222) >> 1
+        g = (x & 0x4444444444444444) >> 2
+        t = (x & 0x8888888888888888) >> 3
+        return count_ones((c | g) & ~(a | t))
+    end
+    n = 0
+    i = bitindex(seq, 1)
+    stop = bitindex(seq, endof(seq) + 1)
+    if offset(i) != 0 && i < stop
+        o = offset(i)
+        n += count(seq.data[index(i)] >> o)
+        i += 64 - o
+    end
+    while i < stop - 64
+        @inbounds n += count(seq.data[index(i)])
+        i += 64
+    end
+    if i < stop
+        o = offset(stop)
+        if o == 0
+            mask = 0xFFFFFFFFFFFFFFFF
+        else
+            mask = UInt64(1) << o - 1
+        end
+        n += count(seq.data[index(i)] & mask)
+    end
+    return n
+end
+
+
 # Site counting
 # -------------
 
