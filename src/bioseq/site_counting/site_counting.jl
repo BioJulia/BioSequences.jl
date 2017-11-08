@@ -17,31 +17,31 @@ abstract type Position <: Site end
 A `Certain` site describes a site where both of two aligned sites are not an
 ambiguity symbol or a gap.
 """
-immutable Certain <: Position end
+struct Certain <: Position end
 
 """
 An `Gap` site describes a site where either of two aligned sites are a
 gap symbol '-'.
 """
-immutable Gap <: Position end
+struct Gap <: Position end
 
 """
 An `Ambiguous` site describes a site where either of two aligned sites are an
 ambiguity symbol.
 """
-immutable Ambiguous <: Position end
+struct Ambiguous <: Position end
 
 """
 A `Match` site describes a site where two aligned nucleotides are the
 same biological symbol.
 """
-immutable Match <: Position end
+struct Match <: Position end
 
 """
 A `Mismatch` site describes a site where two aligned nucleotides are not the
 same biological symbol.
 """
-immutable Mismatch <: Position end
+struct Mismatch <: Position end
 
 
 # Bitparallel counting

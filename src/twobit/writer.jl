@@ -1,7 +1,7 @@
 # 2bit Writer
 # ===========
 
-type Writer{T<:IO} <: BioCore.IO.AbstractWriter
+mutable struct Writer{T<:IO} <: BioCore.IO.AbstractWriter
     # output stream
     output::T
     # sequence names
