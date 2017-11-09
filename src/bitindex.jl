@@ -6,7 +6,7 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-immutable BitIndex
+struct BitIndex
     val::Int64
 end
 

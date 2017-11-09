@@ -100,7 +100,7 @@ function findbarcode(trie::BarcodeTrie, seq)
     return trie.nodes[s] >> 1
 end
 
-type Demultiplexer{S}
+mutable struct Demultiplexer{S}
     # barcode tries with ≥ 0 errors in ascending order
     # (i.e. tries[1]: no errors, tries[2]: one error, ...)
     tries::Vector{BarcodeTrie}

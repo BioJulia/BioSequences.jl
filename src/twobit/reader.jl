@@ -1,7 +1,7 @@
 # 2bit Reader
 # ===========
 
-type Reader{T<:IO} <: BioCore.IO.AbstractReader
+mutable struct Reader{T<:IO} <: BioCore.IO.AbstractReader
     # input stream
     input::T
     # sequence names

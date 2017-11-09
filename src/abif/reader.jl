@@ -4,7 +4,7 @@
 
 export get_tags, tagelements
 
-immutable AbifDirEntry
+struct AbifDirEntry
     name::String
     number::Int32
     element_type::Int32
@@ -20,7 +20,7 @@ Create a data reader of the ABIF file format.
 # Arguments
 * `input`: data source
 """
-type AbifReader{T<:IO} <: BioCore.IO.AbstractReader
+mutable struct AbifReader{T<:IO} <: BioCore.IO.AbstractReader
     # input stream
     input::T
 

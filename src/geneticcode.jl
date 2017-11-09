@@ -64,7 +64,7 @@ Base.done(code::GeneticCode, x::UInt64) = x > UInt64(0b111111)
 # Default genetic codes
 # ---------------------
 
-immutable TransTables
+struct TransTables
     tables::Dict{Int,GeneticCode}
     bindings::Dict{Int,Symbol}
     function TransTables()

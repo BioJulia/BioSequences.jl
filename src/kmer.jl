@@ -218,7 +218,7 @@ end
 # --------------
 
 # neighbors on a de Bruijn graph
-immutable KmerNeighborIterator{T, K}
+struct KmerNeighborIterator{T, K}
     x::Kmer{T, K}
 end
 
