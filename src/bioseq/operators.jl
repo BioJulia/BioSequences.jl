@@ -27,22 +27,18 @@ function count_gc(seq::BioSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}})
     i = bitindex(seq, 1)
     stop = bitindex(seq, endof(seq) + 1)
     if offset(i) != 0 && i < stop
+        # align the bit index to the beginning of a block boundary
         o = offset(i)
-        n += count(seq.data[index(i)] >> o)
+        n += count((seq.data[index(i)] >> o) & bitmask(stop - i))
         i += 64 - o
+        @assert offset(i) == 0
     end
-    while i < stop - 64
+    while i ≤ stop - 64
         @inbounds n += count(seq.data[index(i)])
         i += 64
     end
     if i < stop
-        o = offset(stop)
-        if o == 0
-            mask = 0xFFFFFFFFFFFFFFFF
-        else
-            mask = UInt64(1) << o - 1
-        end
-        n += count(seq.data[index(i)] & mask)
+        n += count(seq.data[index(i)] & bitmask(offset(stop)))
     end
     return n
 end
@@ -60,22 +56,18 @@ function count_gc(seq::BioSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
     i = bitindex(seq, 1)
     stop = bitindex(seq, endof(seq) + 1)
     if offset(i) != 0 && i < stop
+        # align the bit index to the beginning of a block boundary
         o = offset(i)
-        n += count(seq.data[index(i)] >> o)
+        n += count((seq.data[index(i)] >> o) & bitmask(stop - i))
         i += 64 - o
+        @assert offset(i) == 0
     end
-    while i < stop - 64
+    while i ≤ stop - 64
         @inbounds n += count(seq.data[index(i)])
         i += 64
     end
     if i < stop
-        o = offset(stop)
-        if o == 0
-            mask = 0xFFFFFFFFFFFFFFFF
-        else
-            mask = UInt64(1) << o - 1
-        end
-        n += count(seq.data[index(i)] & mask)
+        n += count(seq.data[index(i)] & bitmask(offset(stop)))
     end
     return n
 end
