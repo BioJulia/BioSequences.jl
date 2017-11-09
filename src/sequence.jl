@@ -118,7 +118,7 @@ Calculate GC content of `seq`.
 """
 function gc_content(seq::Sequence)
     if !(eltype(seq) <: NucleicAcid)
-        error("elements must be nucleotides")
+        throw(ArgumentError("not a nucleic acid sequence"))
     end
     if isempty(seq)
         return 0.0
