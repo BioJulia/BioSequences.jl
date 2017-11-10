@@ -12,7 +12,7 @@ Abstract sequence generator type.
 abstract type SequenceGenerator{T} end
 
 # Sequence generator of stationary distributions.
-immutable StationaryGenerator{T} <: SequenceGenerator{T}
+struct StationaryGenerator{T} <: SequenceGenerator{T}
     elems::Vector{T}
     probs::Vector{Float64}
 

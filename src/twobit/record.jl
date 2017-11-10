@@ -1,7 +1,7 @@
 # 2bit Record
 # ===========
 
-type Record
+mutable struct Record
     filled::Bool
     dnasize::UInt32
     blockcount::UInt32
@@ -210,7 +210,7 @@ Creates a sequence record suitable for writing to 2bit, in a similar way that
 FASTA and FASTQ records are created before being written to file. i.e. by calling
 a `Record` method on a name, some sequence, and some masks.
 """
-type WriteRecord{S<:BioSequences.Sequence}
+mutable struct WriteRecord{S<:BioSequences.Sequence}
     name::String
     seq::S
     masks::Nullable{Vector{UnitRange{Int}}}
