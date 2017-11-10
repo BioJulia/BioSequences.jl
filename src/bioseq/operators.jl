@@ -16,58 +16,40 @@ function Base.count(f::Function, seq::BioSequence)
     return n
 end
 
-function count_gc(seq::BioSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}})
-    function count(x)
-        # bit parallel counter of GC
-        c =  x & 0x5555555555555555
-        g = (x & 0xAAAAAAAAAAAAAAAA) >> 1
-        return count_ones(c ⊻ g)
-    end
-    n = 0
-    i = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
-    if offset(i) != 0 && i < stop
-        # align the bit index to the beginning of a block boundary
-        o = offset(i)
-        n += count((seq.data[index(i)] >> o) & bitmask(stop - i))
-        i += 64 - o
-        @assert offset(i) == 0
-    end
-    while i ≤ stop - 64
-        @inbounds n += count(seq.data[index(i)])
-        i += 64
-    end
-    if i < stop
-        n += count(seq.data[index(i)] & bitmask(offset(stop)))
-    end
-    return n
+function gc_bitcount(x::UInt64, ::Type{A{2}}) where A <: NucAlphs
+    c = x & 0x5555555555555555
+    g = (x & 0xAAAAAAAAAAAAAAAA) >> 1
+    return count_ones(c ⊻ g)
 end
 
-function count_gc(seq::BioSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
-    function count(x)
-        # bit parallel counter of GC
-        a =  x & 0x1111111111111111
-        c = (x & 0x2222222222222222) >> 1
-        g = (x & 0x4444444444444444) >> 2
-        t = (x & 0x8888888888888888) >> 3
-        return count_ones((c | g) & ~(a | t))
-    end
+function gc_bitcount(x::UInt64, ::Type{A{4}}) where A <: NucAlphs
+    a =  x & 0x1111111111111111
+    c = (x & 0x2222222222222222) >> 1
+    g = (x & 0x4444444444444444) >> 2
+    t = (x & 0x8888888888888888) >> 3
+    return count_ones((c | g) & ~(a | t))
+end
+
+function count_gc(seq::BioSequence{A}) where A <: NucAlphs
     n = 0
     i = bitindex(seq, 1)
     stop = bitindex(seq, endof(seq) + 1)
-    if offset(i) != 0 && i < stop
-        # align the bit index to the beginning of a block boundary
-        o = offset(i)
-        n += count((seq.data[index(i)] >> o) & bitmask(stop - i))
-        i += 64 - o
-        @assert offset(i) == 0
-    end
-    while i ≤ stop - 64
-        @inbounds n += count(seq.data[index(i)])
-        i += 64
-    end
-    if i < stop
-        n += count(seq.data[index(i)] & bitmask(offset(stop)))
+    @inbounds begin
+        if offset(i) != 0 && i < stop
+            # align the bit index to the beginning of a block boundary
+            o = offset(i)
+            chunk = (seq.data[index(i)] >> o) & bitmask(stop - i)
+            n += gc_bitcount(chunk, A)
+            i += 64 - o
+            @assert offset(i) == 0
+        end
+        while i ≤ stop - 64
+            n += gc_bitcount(seq.data[index(i)], A)
+            i += 64
+        end
+        if i < stop
+            n += gc_bitcount(seq.data[index(i)] & bitmask(offset(stop)), A)
+        end
     end
     return n
 end
