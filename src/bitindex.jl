@@ -30,3 +30,8 @@ Base.start(i::BitIndex) = 1
 Base.done(i::BitIndex, s) = s > 2
 Base.next(i::BitIndex, s) = ifelse(s == 1, (index(i), 2), (offset(i), 3))
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
+
+# Create a bit mask that fills least significant `n` bits (`n` must be a
+# non-negative integer).
+bitmask(n::Integer) = bitmask(UInt64, n)
+bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
