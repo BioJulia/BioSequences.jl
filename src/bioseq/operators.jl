@@ -16,13 +16,13 @@ function Base.count(f::Function, seq::BioSequence)
     return n
 end
 
-function gc_bitcount(x::UInt64, ::Type{A{2}}) where A <: NucAlphs
+function gc_bitcount(x::UInt64, ::Type{A}) where A <: TwoBitNucs
     c = x & 0x5555555555555555
     g = (x & 0xAAAAAAAAAAAAAAAA) >> 1
     return count_ones(c ⊻ g)
 end
 
-function gc_bitcount(x::UInt64, ::Type{A{4}}) where A <: NucAlphs
+function gc_bitcount(x::UInt64, ::Type{A}) where A <: FourBitNucs
     a =  x & 0x1111111111111111
     c = (x & 0x2222222222222222) >> 1
     g = (x & 0x4444444444444444) >> 2
