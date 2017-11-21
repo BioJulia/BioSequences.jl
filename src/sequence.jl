@@ -219,7 +219,7 @@ ungap!(seq::Sequence) = filter!(x -> x != gap(eltype(seq)), seq)
 # Printers
 # --------
 
-function Base.print(io::IO, seq::Sequence; width::Integer=0)
+function Base.print(io::IO, seq::Sequence; width::Integer = 0)
     col = 1
     for x in seq
         if width > 0 && col > width
@@ -241,7 +241,7 @@ end
 function Base.showcompact(io::IO, seq::Sequence)
     # don't show more than this many characters
     # to avoid filling the screen with junk
-    if length(seq) == 0
+    if isempty(seq)
         print(io, "< EMPTY SEQUENCE >")
     else
         width = displaysize()[2]

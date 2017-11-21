@@ -13,7 +13,7 @@ end
 @testset "Show" begin
     buf = IOBuffer()
     show(buf, ReferenceSequence(dna""))
-    @test String(take!(buf)) == "0nt Reference Sequence:\n"
+    @test String(take!(buf)) == "0nt Reference Sequence:\n< EMPTY SEQUENCE >"
 
     show(buf, ReferenceSequence(dna"ACGTN"))
     @test String(take!(buf)) == "5nt Reference Sequence:\nACGTN"
