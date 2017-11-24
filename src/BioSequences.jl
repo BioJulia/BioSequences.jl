@@ -206,7 +206,7 @@ gap(::Type{Char}) = '-'
 
 include("alphabet.jl")
 include("bitindex.jl")
-include("sequence.jl")
+include("sequences/abstract_sequences/sequence.jl")
 include("bioseq/bioseq.jl")
 include("bioseq/hash.jl")
 include("bioseq/randseq.jl")
