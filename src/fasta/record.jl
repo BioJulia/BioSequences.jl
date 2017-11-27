@@ -207,7 +207,7 @@ end
 
 Get the sequence of `record`.
 
-`S` can be either a subtype of `BioSequences.Sequence` or `String`.
+`S` can be either a subtype of `BioSequences.BioSequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
 function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::S where S <: BioSequences.Sequence

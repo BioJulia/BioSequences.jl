@@ -29,7 +29,7 @@
     for _ in 1:200
         s = randdnaseq(rand(1:100))
         @test gc_content(s) === count(isGC, s) / length(s)
-        @test gc_content(BioSequence{DNAAlphabet{2}}(s)) === count(isGC, s) / length(s)
+        @test gc_content(MutableBioSequence{DNAAlphabet{2}}(s)) === count(isGC, s) / length(s)
         i = rand(1:lastindex(s))
         j = rand(i-1:lastindex(s))
         @test gc_content(s[i:j]) === (j < i ? 0.0 : count(isGC, s[i:j]) / (j - i + 1))

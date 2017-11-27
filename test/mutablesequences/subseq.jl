@@ -1,6 +1,6 @@
 @testset "Subsequence construction" begin
     function test_subseq(A, seq)
-        bioseq = BioSequence{A}(seq)
+        bioseq = MutableBioSequence{A}(seq)
         for _ in 1:100
             part = random_interval(1, lastindex(seq))
             @test convert(String, bioseq[part]) == seq[part]

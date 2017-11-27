@@ -14,14 +14,14 @@ Reference sequence is a sequence of A/C/G/T/N. In the internals, it compresses
 reference sequences are immutable and hence no modifyting operators are
 provided.
 """
-struct ReferenceSequence <: Sequence
+struct ReferenceSequence <: BioSequence
     data::Vector{UInt64}  # 2-bit encoding of A/C/G/T nucloetides
     nmask::NMask          # positions of N
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
 end
 
 Base.length(seq::ReferenceSequence) = length(seq.part)
-Base.eltype(::Type{ReferenceSequence}) = DNA
+alphabet_t(::Type{ReferenceSequence}) = DNAAlphabet{2}
 Base.summary(seq::ReferenceSequence) = string(length(seq), "nt Reference Sequence")
 
 function Base.copy(seq::ReferenceSequence)
@@ -41,7 +41,7 @@ function ReferenceSequence(src::Vector{UInt8}, startpos::Integer=1,
     return encode(src, startpos, len)
 end
 
-function ReferenceSequence(seq::BioSequence{<:DNAAlphabet})
+function ReferenceSequence(seq::MutableBioSequence{<:DNAAlphabet})
     data = Vector{UInt64}(undef, cld(length(seq), 32))
     nmask = falses(length(seq))
     i = 1
@@ -91,7 +91,7 @@ function Base.convert(::Type{S}, seq::ReferenceSequence) where {S<:AbstractStrin
 end
 Base.String(seq::ReferenceSequence) = convert(String, seq)
 
-function bitindex(seq::ReferenceSequence, i::Integer)
+function BitIndex(seq::ReferenceSequence, i::Integer)
     return BitIndex((i + first(seq.part) - 2) << 1)
 end
 
@@ -135,7 +135,7 @@ end
     if seq.nmask[i + first(seq.part) - 1]
         return DNA_N
     else
-        j = bitindex(seq, i)
+        j = BitIndex(seq, i)
         return DNA(0x01 << ((seq.data[index(j)] >> offset(j)) & 0b11))
     end
 end

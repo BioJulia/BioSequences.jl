@@ -9,8 +9,8 @@
 # Promotion
 # ---------
 for alph in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.promote_rule(::Type{BioSequence{A}}, ::Type{BioSequence{B}}) where {A<:$alph,B<:$alph}
-        return BioSequence{promote_rule(A, B)}
+    @eval function Base.promote_rule(::Type{MutableBioSequence{A}}, ::Type{MutableBioSequence{B}}) where {A<:$alph,B<:$alph}
+        return MutableBioSequence{promote_rule(A,B)}
     end
 end
 
@@ -31,28 +31,28 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
                        (RNAAlphabet{2}, DNAAlphabet{2}),
                        (RNAAlphabet{4}, DNAAlphabet{4})]
     
-    @eval function Base.convert(::Type{BioSequence{$alpha}}, seq::BioSequence{$alphb})
-        return BioSequence{$alpha}(seq)
+    @eval function Base.convert(::Type{MutableBioSequence{$alpha}}, seq::MutableBioSequence{$alphb})
+        return MutableBioSequence{$alpha}(seq)
     end
 end
 
-# Convert from a BioSequence to to a DNA or RNA vector
-function Base.convert(::Type{BioSequence{A}}, seq::Vector) where A<:Alphabet
-    return BioSequence{A}(seq)
+# Convert from a MutableBioSequence to to a DNA or RNA vector
+function Base.convert(::Type{MutableBioSequence{A}}, seq::Vector) where A<:Alphabet
+    return MutableBioSequence{A}(seq)
 end
-Base.convert(::Type{Vector}, seq::BioSequence) = collect(seq)
-function Base.convert(::Type{Vector{DNA}}, seq::BioSequence{<:DNAAlphabet})
+Base.convert(::Type{Vector}, seq::MutableBioSequence) = collect(seq)
+function Base.convert(::Type{Vector{DNA}}, seq::MutableBioSequence{<:DNAAlphabet})
     return collect(seq)
 end
-function Base.convert(::Type{Vector{RNA}}, seq::BioSequence{<:RNAAlphabet})
+function Base.convert(::Type{Vector{RNA}}, seq::MutableBioSequence{<:RNAAlphabet})
     return collect(seq)
 end
 Base.convert(::Type{Vector{AminoAcid}}, seq::AminoAcidSequence) = collect(seq)
 
 # Covert from a string to a BioSequence and _vice versa_.
-function Base.convert(::Type{S}, seq::BioSequence) where {S<:AbstractString}
+function Base.convert(::Type{S}, seq::MutableBioSequence) where {S<:AbstractString}
     return S([Char(x) for x in seq])
 end
-Base.String(seq::BioSequence) = convert(String, seq)
-Base.convert(::Type{BioSequence{A}}, seq::AbstractString) where A = BioSequence{A}(seq)
+Base.String(seq::MutableBioSequence) = convert(String, seq)
+Base.convert(::Type{MutableBioSequence{A}}, seq::AbstractString) where A = MutableBioSequence{A}(seq)
 

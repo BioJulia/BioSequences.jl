@@ -6,23 +6,23 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.copyto!(seq::BioSequence{A}, doff::Integer,
-                      src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
+function Base.copyto!(seq::MutableBioSequence{A}, doff::Integer,
+                    src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
     datalen = seq_data_len(A, len)
     return seq
 end
 
-function Base.copyto!(dst::BioSequence{A}, src::BioSequence{A}) where {A}
+function Base.copyto!(dst::MutableBioSequence{A}, src::MutableBioSequence{A}) where {A}
     return copyto!(dst, 1, src, 1)
 end
 
-function Base.copyto!(dst::BioSequence{A}, doff::Integer,
-                      src::BioSequence{A}, soff::Integer) where {A}
+function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
+                    src::MutableBioSequence{A}, soff::Integer) where {A}
     return copyto!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function Base.copyto!(dst::BioSequence{A}, doff::Integer,
-                      src::BioSequence{A}, soff::Integer, len::Integer) where {A}
+function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
+                    src::MutableBioSequence{A}, soff::Integer, len::Integer) where {A}
     checkbounds(dst, doff:doff+len-1)
     checkbounds(src, soff:soff+len-1)
 
@@ -30,8 +30,8 @@ function Base.copyto!(dst::BioSequence{A}, doff::Integer,
         orphan!(dst, length(dst), true)
     end
 
-    id = bitindex(dst, doff)
-    is = bitindex(src, soff)
+    id = BitIndex(dst, doff)
+    is = BitIndex(src, soff)
     rest = len * bitsof(A)
 
     while rest > 0
@@ -45,7 +45,7 @@ function Base.copyto!(dst::BioSequence{A}, doff::Integer,
             y <<= offset(id) - offset(is)
             k = min(64 - offset(id), rest)
         end
-        m = mask(k) << offset(id)
+        m = bitmask(k) << offset(id)
         dst.data[index(id)] = y & m | x & ~m
 
         id += k
@@ -57,8 +57,8 @@ function Base.copyto!(dst::BioSequence{A}, doff::Integer,
 end
 
 # Actually, users don't need to create a copy of a sequence.
-function Base.copy(seq::BioSequence{A}) where {A}
-    newseq = BioSequence{A}(seq, 1:lastindex(seq))
+function Base.copy(seq::MutableBioSequence{A}) where {A}
+    newseq = MutableBioSequence{A}(seq, 1:lastindex(seq))
     orphan!(newseq, length(seq), true)  # force orphan!
     @assert newseq.data !== seq.data
     return newseq
@@ -68,19 +68,19 @@ end
 # Encoded copying
 # ---------------
 
-function encode_copy!(dst::BioSequence{A},
+function encode_copy!(dst::MutableBioSequence{A},
                       src::Union{AbstractVector,AbstractString}) where {A}
     return encode_copy!(dst, 1, src, 1)
 end
 
-function encode_copy!(dst::BioSequence{A},
+function encode_copy!(dst::MutableBioSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer) where {A}
     return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function encode_copy!(dst::BioSequence{A},
+function encode_copy!(dst::MutableBioSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer,
@@ -95,8 +95,8 @@ function encode_copy!(dst::BioSequence{A},
     end
 
     orphan!(dst)
-    next = bitindex(dst, doff)
-    stop = bitindex(dst, doff + len)
+    next = BitIndex(dst, doff)
+    stop = BitIndex(dst, doff + len)
     i = soff
     while next < stop
         x = UInt64(0)
@@ -112,7 +112,7 @@ function encode_copy!(dst::BioSequence{A},
     return dst
 end
 
-function encode_copy!(dst::BioSequence{A}, doff::Integer,
+function encode_copy!(dst::MutableBioSequence{A}, doff::Integer,
                       src::AbstractVector{UInt8}, soff::Integer, len::Integer) where {A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}
     checkbounds(dst, doff:doff+len-1)
     if length(src) < soff + len - 1
@@ -122,8 +122,8 @@ function encode_copy!(dst::BioSequence{A}, doff::Integer,
     orphan!(dst)
     charmap = A <: DNAAlphabet ? BioSymbols.char_to_dna : BioSymbols.char_to_rna
     i = soff
-    next = bitindex(dst, doff)
-    stop = bitindex(dst, doff + len)
+    next = BitIndex(dst, doff)
+    stop = BitIndex(dst, doff + len)
 
     # head
     if offset(next) != 0

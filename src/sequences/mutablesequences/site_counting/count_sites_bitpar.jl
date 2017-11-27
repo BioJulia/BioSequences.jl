@@ -12,7 +12,7 @@
 @inline bp_correct_emptyspace(::Type{<:Site}, ::Type{<:Alphabet}) = false
 @inline bp_emptyspace_correction(nempty::Int, count::Int) = count - nempty
 
-@generated function bitpar_counter(::Type{S}, a::BioSequence{A}, b::BioSequence{A}) where {S<:Site,A<:NucAlphs}
+@generated function bitpar_counter(::Type{S}, a::MutableBioSequence{A}, b::MutableBioSequence{A}) where {S<:Site,A<:NucleicAcidAlphabet}
     n = bitsof(A)
     n_elems = div(64, n)
 
@@ -23,10 +23,10 @@
         end
         @assert length(a) ≤ length(b)
 
-        nexta = bitindex(a, 1)
-        stopa = bitindex(a, lastindex(a) + 1)
-        nextb = bitindex(b, 1)
-        stopb = bitindex(b, lastindex(b) + 1)
+        nexta = BitIndex(a, 1)
+        stopa = BitIndex(a, lastindex(a) + 1)
+        nextb = BitIndex(b, 1)
+        stopb = BitIndex(b, lastindex(b) + 1)
         counts = bp_start_counter(S, A)
 #=
         println(A)
@@ -99,7 +99,7 @@
 
             k = ifelse(64 - offset(nexta) > stopa - nexta, stopa - nexta, 64 - offset(nexta))
             #println("k: ", k)
-            m = mask(k)
+            m = bitmask(k)
             #=
             println("mask used: ", hex(m))
             println("masked x: ", hex(x & m))
@@ -149,7 +149,7 @@
 
                 offs = stopa - nexta
                 #println("offs: ", offs)
-                m = mask(offs)
+                m = bitmask(offs)
                 #println("mask: ", hex(m))
                 #println("masked x: ", hex(x & m))
                 #println("masked y: ", hex(y & m))
@@ -208,7 +208,7 @@
 
                 offs = stopa - nexta
                 #println("offs: ", offs)
-                m = mask(offs)
+                m = bitmask(offs)
                 #println("mask: ", hex(m))
                 #println("masked x: ", hex(x & m))
                 #println("masked y: ", hex(y & m))

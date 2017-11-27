@@ -13,7 +13,7 @@
                 push!(arra, symbols[i])
                 push!(arrb, symbols[j])
             end
-            return BioSequence{A}(arra), BioSequence{A}(arrb)
+            return MutableBioSequence{A}(arra), MutableBioSequence{A}(arrb)
         end
 
         for alphset in (dna_alphabets, rna_alphabets)
@@ -42,27 +42,27 @@
     @testset "Randomized tests" begin
 
         # A test counting function which is naive.
-        @inline function testcount(::Type{P}, a::BioSequence, b::BioSequence) where P<:BioSequences.Position
+        @inline function testcount(::Type{P}, a::MutableBioSequence, b::MutableBioSequence) where P<:BioSequences.Position
             k = 0
             @inbounds for idx in 1:min(lastindex(a), lastindex(b))
                 k += issite(P, a, b, idx)
             end
             return k
         end
-        issite(::Type{Ambiguous}, a::BioSequence, idx) = isambiguous(a[idx])
-        @inline function issite(::Type{Ambiguous}, a::BioSequence, b::BioSequence, idx)
+        issite(::Type{Ambiguous}, a::MutableBioSequence, idx) = isambiguous(a[idx])
+        @inline function issite(::Type{Ambiguous}, a::MutableBioSequence, b::MutableBioSequence, idx)
             return issite(Ambiguous, a, idx) | issite(Ambiguous, b, idx)
         end
-        issite(::Type{Certain}, a::BioSequence, idx) = iscertain(a[idx])
-        @inline function issite(::Type{Certain}, a::BioSequence, b::BioSequence, idx)
+        issite(::Type{Certain}, a::MutableBioSequence, idx) = iscertain(a[idx])
+        @inline function issite(::Type{Certain}, a::MutableBioSequence, b::MutableBioSequence, idx)
             return issite(Certain, a, idx) & issite(Certain, b, idx)
         end
-        issite(::Type{Gap}, a::BioSequence, idx) = isgap(a[idx])
-        @inline function issite(::Type{Gap}, a::BioSequence, b::BioSequence, idx)
+        issite(::Type{Gap}, a::MutableBioSequence, idx) = isgap(a[idx])
+        @inline function issite(::Type{Gap}, a::MutableBioSequence, b::MutableBioSequence, idx)
             return issite(Gap, a, idx) | issite(Gap, b, idx)
         end
-        issite(::Type{Match}, a::BioSequence, b::BioSequence, idx) = a[idx] == b[idx]
-        issite(::Type{Mismatch}, a::BioSequence, b::BioSequence, idx) = a[idx] != b[idx]
+        issite(::Type{Match}, a::MutableBioSequence, b::MutableBioSequence, idx) = a[idx] == b[idx]
+        issite(::Type{Mismatch}, a::MutableBioSequence, b::MutableBioSequence, idx) = a[idx] != b[idx]
 
         # Randomized tests get performed with a naive counting function
         # which is intuitive and works, but that is nowhere near as quick.
@@ -173,14 +173,14 @@
             end
         end
         @testset "2-bit encoded sequences" begin
-            dnas = [BioSequence{DNAAlphabet{2}}("ATCGCCAC"),
-                    BioSequence{DNAAlphabet{2}}("ATCGCCTA"),
-                    BioSequence{DNAAlphabet{2}}("ATCGCCTT"),
-                    BioSequence{DNAAlphabet{2}}("GTCGCCTA")]
-            rnas = [BioSequence{RNAAlphabet{2}}("AUCGCCAC"),
-                    BioSequence{RNAAlphabet{2}}("AUCGCCUA"),
-                    BioSequence{RNAAlphabet{2}}("AUCGCCUU"),
-                    BioSequence{RNAAlphabet{2}}("GUCGCCUA")]
+            dnas = [MutableBioSequence{DNAAlphabet{2}}("ATCGCCAC"),
+                    MutableBioSequence{DNAAlphabet{2}}("ATCGCCTA"),
+                    MutableBioSequence{DNAAlphabet{2}}("ATCGCCTT"),
+                    MutableBioSequence{DNAAlphabet{2}}("GTCGCCTA")]
+            rnas = [MutableBioSequence{RNAAlphabet{2}}("AUCGCCAC"),
+                    MutableBioSequence{RNAAlphabet{2}}("AUCGCCUA"),
+                    MutableBioSequence{RNAAlphabet{2}}("AUCGCCUU"),
+                    MutableBioSequence{RNAAlphabet{2}}("GUCGCCUA")]
             answer_mismatch = [0 2 2 3;
                                2 0 1 1;
                                2 1 0 2;
@@ -254,10 +254,10 @@
             end
         end
         @testset "2-bit encoded sequences" begin
-            dnaA = BioSequence{DNAAlphabet{2}}("ATCGCCATT")
-            dnaB = BioSequence{DNAAlphabet{2}}("ATCGCCTAA")
-            rnaA = BioSequence{RNAAlphabet{2}}("AUCGCCAUU")
-            rnaB = BioSequence{RNAAlphabet{2}}("AUCGCCUAA")
+            dnaA = MutableBioSequence{DNAAlphabet{2}}("ATCGCCATT")
+            dnaB = MutableBioSequence{DNAAlphabet{2}}("ATCGCCTAA")
+            rnaA = MutableBioSequence{RNAAlphabet{2}}("AUCGCCAUU")
+            rnaB = MutableBioSequence{RNAAlphabet{2}}("AUCGCCUAA")
 
             for seqs in ((dnaA, dnaB), (rnaA, rnaB))
                 @test count(Certain, seqs[1], seqs[2], 3, 1) == [IntervalValue(1, 3, 3),
@@ -299,9 +299,9 @@
         end
         @testset "Mixed encodings" begin
             dnaA = dna"ATCGCCA-M"
-            dnaB = BioSequence{DNAAlphabet{2}}("ATCGCCTAA")
+            dnaB = MutableBioSequence{DNAAlphabet{2}}("ATCGCCTAA")
             rnaA = rna"AUCGCCA-M"
-            rnaB = BioSequence{RNAAlphabet{2}}("AUCGCCUAA")
+            rnaB = MutableBioSequence{RNAAlphabet{2}}("AUCGCCUAA")
 
             for seqs in ((dnaA, dnaB), (rnaA, rnaB))
                 @test count(Certain, seqs[1], seqs[2], 3, 1) == [IntervalValue(1, 3, 3),

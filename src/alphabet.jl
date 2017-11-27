@@ -3,29 +3,49 @@
 #
 # Alphabet of biological symbols.
 #
-# Subtypes of `Alphabet` represent a domain of biological characters. For
-# example, `DNAAlphabet{2}` has a domain of unambiguous nucleotides (i.e. A, C,
-# G, and T). These types are used for parameterizing biological sequences and so
-# on. A pair of encoder and decoder is associated with an alphabet, which maps
-# values between binary and Julia-level representation.
 #
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
-Alphabet of biological characters.
+# Alphabets of biological characters.
+
+An `Alphabet` represents a domain of biological characters.
+
+For example, `DNAAlphabet{2}` has a domain of unambiguous nucleotides
+(i.e. A, C, G, and T).
+
+Alphabet types restrict and define the set of biological symbols,
+that can be encoded in a given biological sequence type.
+They ALSO define *HOW* that encoding is done.
+
+An `Alphabet` type defines the encoding of biological symbols with a pair
+of associated `encoder` and `decoder` methods. These paired methods map
+between biological symbol values and a binary representation of the symbol.
+
+Any type A <: Alphabet, is expected to implement the `Base.eltype` method
+for itself, in addition to a `BioSequences.bitsof` method, and a
+`BioSequences.bitsof_t` method. See the docs of `bitsof` and `bitsof_t` for
+more detail.
+
+## Required methods and interface
 """
 abstract type Alphabet end
 
 """
+Alphabet of nucleic acids.
+"""
+abstract type NucleicAcidAlphabet{n} <: Alphabet end
+
+"""
 DNA nucleotide alphabet.
 """
-struct DNAAlphabet{n} <: Alphabet end
+struct DNAAlphabet{n} <: NucleicAcidAlphabet{n} end
 
 """
 RNA nucleotide alphabet.
 """
-struct RNAAlphabet{n} <: Alphabet end
+struct RNAAlphabet{n} <: NucleicAcidAlphabet{n} end
 
 """
 Amino acid alphabet.
@@ -42,29 +62,32 @@ Void alphabet (internal use only).
 """
 struct VoidAlphabet <: Alphabet end
 
-const NucAlphs = Union{DNAAlphabet,RNAAlphabet}
-const TwoBitNucs = Union{DNAAlphabet{2}, RNAAlphabet{2}}
-const FourBitNucs = Union{DNAAlphabet{4}, RNAAlphabet{4}}
-
 """
-The number of bits to represent the alphabet.
+The number of bits required to represent a symbol of the alphabet, in a 
+biological sequence.
 """
 function bitsof end
 
-for n in (2, 4)
-    @eval begin
-        bitsof(::Type{DNAAlphabet{$n}}) = $n
-        bitsof(::Type{RNAAlphabet{$n}}) = $n
-    end
-end
+bitsof(::Type{A}) where A <: NucleicAcidAlphabet{2} = 2
+bitsof(::Type{A}) where A <: NucleicAcidAlphabet{4} = 4
 bitsof(::Type{AminoAcidAlphabet}) = 8
 bitsof(::Type{CharAlphabet}) = 32
 bitsof(::Type{VoidAlphabet}) = 0
 
-Base.eltype(::Type{DNAAlphabet}) = DNA
-Base.eltype(::Type{RNAAlphabet}) = RNA
-Base.eltype(::Type{DNAAlphabet{n}}) where {n} = DNA
-Base.eltype(::Type{RNAAlphabet{n}}) where {n} = RNA
+"""
+The number of bits required to represent a symbol of the alphabet, in a 
+biological sequence, as a value type.
+"""
+function bitsof_t end
+
+bitsof_t(::Type{A}) where A <: NucleicAcidAlphabet{2} = Val{2}
+bitsof_t(::Type{A}) where A <: NucleicAcidAlphabet{4} = Val{4}
+bitsof_t(::Type{AminoAcidAlphabet}) = Val{8}
+bitsof_t(::Type{CharAlphabet}) = Val{32}
+bitsof_t(::Type{VoidAlphabet}) = Val{0}
+
+Base.eltype(::Type{A}) where A <: DNAAlphabet = DNA
+Base.eltype(::Type{A}) where A <: RNAAlphabet = RNA
 Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
 Base.eltype(::Type{CharAlphabet}) = Char
 Base.eltype(::Type{VoidAlphabet}) = Nothing
@@ -125,22 +148,27 @@ end
 # ---------------------
 
 for A in (DNAAlphabet, RNAAlphabet)
+    
     T = eltype(A)
+    
     @eval begin
-        # 2-bit encoding
+
+	# 2-bit encoding
         @inline function encode(::Type{$(A){2}}, nt::$(T))
             if count_ones(nt) != 1 || !isvalid(nt)
                 throw(EncodeError($(A){2}, nt))
             end
             return convert(UInt8, trailing_zeros(nt))
         end
+
         @inline function decode(::Type{$(A){2}}, x::UInt8)
             if x > 0x03
                 throw(DecodeError($(A){2}, x))
             end
             return reinterpret($(T), 0x01 << x)
         end
-        @inline decode(::Type{$(A){2}}, x::Unsigned) = decode($(A){2}, UInt8(x))
+
+	@inline decode(::Type{$(A){2}}, x::Unsigned) = decode($(A){2}, UInt8(x))
 
         # 4-bit encoding
         @inline function encode(::Type{$(A){4}}, nt::$(T))
@@ -149,12 +177,14 @@ for A in (DNAAlphabet, RNAAlphabet)
             end
             return reinterpret(UInt8, nt)
         end
+
         @inline function decode(::Type{$(A){4}}, x::UInt8)
             if !isvalid($(T), x)
                 throw(DecodeError($(A){4}, x))
             end
             return reinterpret($(T), x)
         end
+
         @inline decode(::Type{$(A){4}}, x::Unsigned) = decode($(A){4}, UInt8(x))
     end
 end
@@ -203,3 +233,4 @@ end
 @inline function decode(::Type{CharAlphabet}, x::Unsigned)
     return decode(CharAlphabet, UInt32(x))
 end
+

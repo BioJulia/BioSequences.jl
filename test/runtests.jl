@@ -76,7 +76,7 @@ function random_seq(::Type{A}, n::Integer) where A<:Alphabet
     nts = BioSymbols.alphabet(A)
     probs = Vector{Float64}(undef, length(nts))
     fill!(probs, 1 / length(nts))
-    return BioSequence{A}(random_seq(n, nts, probs))
+    return MutableBioSequence{A}(random_seq(n, nts, probs))
 end
 
 function random_dna(n, probs=[0.24, 0.24, 0.24, 0.24, 0.04])
@@ -157,21 +157,21 @@ include("symbols.jl")
 end
 
 @testset "BioSequences" begin
-    include("bioseq/conversion.jl")
-    include("bioseq/basics.jl")
-    include("bioseq/hashing.jl")
-    include("bioseq/iteration.jl")
-    include("bioseq/subseq.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/print.jl")
-    include("bioseq/transformations.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/predicates.jl")
-    include("bioseq/find.jl")
-    include("bioseq/counting.jl")
-    include("bioseq/gc_content.jl")
-    include("bioseq/ambiguous.jl")
-    include("bioseq/shuffle.jl")
+    include("mutablesequences/conversion.jl")
+    include("mutablesequences/basics.jl")
+    include("mutablesequences/hashing.jl")
+    include("mutablesequences/iteration.jl")
+    include("mutablesequences/subseq.jl")
+    include("mutablesequences/mutability.jl")
+    include("mutablesequences/print.jl")
+    include("mutablesequences/transformations.jl")
+    include("mutablesequences/mutability.jl")
+    include("mutablesequences/predicates.jl")
+    include("mutablesequences/find.jl")
+    include("mutablesequences/counting.jl")
+    include("mutablesequences/gc_content.jl")
+    include("mutablesequences/ambiguous.jl")
+    include("mutablesequences/shuffle.jl")
 end
 
 @testset "ReferenceSequences" begin

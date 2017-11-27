@@ -1,26 +1,26 @@
 @testset "Transformations" begin
     function test_reverse(A, seq)
-        revseq = reverse(BioSequence{A}(seq))
+        revseq = reverse(MutableBioSequence{A}(seq))
         @test convert(String, revseq) == reverse(seq)
     end
 
     function test_dna_complement(A, seq)
-        comp = complement(BioSequence{A}(seq))
+        comp = complement(MutableBioSequence{A}(seq))
         @test convert(String, comp) == dna_complement(seq)
     end
 
     function test_rna_complement(A, seq)
-        comp = complement(BioSequence{A}(seq))
+        comp = complement(MutableBioSequence{A}(seq))
         @test convert(String, comp) == rna_complement(seq)
     end
 
     function test_dna_revcomp(A, seq)
-        revcomp = reverse_complement(BioSequence{A}(seq))
+        revcomp = reverse_complement(MutableBioSequence{A}(seq))
         @test convert(String, revcomp) == reverse(dna_complement(seq))
     end
 
     function test_rna_revcomp(A, seq)
-        revcomp = reverse_complement(BioSequence{A}(seq))
+        revcomp = reverse_complement(MutableBioSequence{A}(seq))
         @test convert(String, revcomp) == reverse(rna_complement(seq))
     end
 

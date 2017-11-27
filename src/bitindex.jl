@@ -41,5 +41,6 @@ Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
 # Create a bit mask that fills least significant `n` bits (`n` must be a
 # non-negative integer).
+bitmask(::Type{A}) where {A <: Alphabet} = bitmask(bitsof(A))
 bitmask(n::Integer) = bitmask(UInt64, n)
 bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)

@@ -4,7 +4,7 @@
 # Compact k-mer sequence type.
 #
 # A Kmer is a sequence ≤ 32nt, without any 'N's, packed in a single 64 bit
-# value.  While BioSequence is an efficient general-purpose sequence
+# value.  While `MutableBioSequence` is an efficient general-purpose sequence
 # representation, Kmer is useful for applications like assembly, k-mer counting,
 # k-mer based quantification in RNA-Seq, etc that rely on manipulating many
 # short sequences as efficiently (space and time) as possible.
@@ -29,12 +29,13 @@
 #   64-bit: 0b 00 00 … 00 11 00 01 10
 #    4-mer:                T  A  C  G
 
-primitive type Kmer{T<:NucleicAcid, K} <: Sequence 64 end
+primitive type Kmer{T <: NucleicAcid, K} <: BioSequence 64 end
 
 const DNAKmer{K} = Kmer{DNA, K}
 const RNAKmer{K} = Kmer{RNA, K}
 const DNACodon = DNAKmer{3}
 const RNACodon = RNAKmer{3}
+
 
 function Kmer(nts::T...) where {T<:NucleicAcid}
     return make_kmer(nts)
@@ -68,20 +69,20 @@ function Kmer{T,K}(seq::AbstractString) where {T,K}
     return make_kmer(Kmer{T,K}, seq)
 end
 
-function Kmer{T,K}(seq::BioSequence{A}) where {T,K,A<:DNAAlphabet}
+function Kmer{T,K}(seq::MutableBioSequence{A}) where {T,K,A<:DNAAlphabet}
     return make_kmer(Kmer{DNA,K}, seq)
 end
 
-function Kmer{T,K}(seq::BioSequence{A}) where {T,K,A<:RNAAlphabet}
+function Kmer{T,K}(seq::MutableBioSequence{A}) where {T,K,A<:RNAAlphabet}
     return make_kmer(Kmer{RNA,K}, seq)
 end
 
 Kmer{T,K}(x::Kmer{T,K}) where {T,K} = x
 Kmer{T}(seq::AbstractString) where {T} = Kmer{T,length(seq)}(seq)
-Kmer(seq::BioSequence{A}) where {A<:DNAAlphabet} = Kmer{DNA,length(seq)}(seq)
-Kmer(seq::BioSequence{A}) where {A<:RNAAlphabet} = Kmer{RNA,length(seq)}(seq)
-DNAKmer(seq::BioSequence{A}) where {A<:DNAAlphabet} = DNAKmer{length(seq)}(seq)
-RNAKmer(seq::BioSequence{A}) where {A<:RNAAlphabet} = RNAKmer{length(seq)}(seq)
+Kmer(seq::MutableBioSequence{A}) where {A<:DNAAlphabet} = Kmer{DNA,length(seq)}(seq)
+Kmer(seq::MutableBioSequence{A}) where {A<:RNAAlphabet} = Kmer{RNA,length(seq)}(seq)
+DNAKmer(seq::MutableBioSequence{A}) where {A<:DNAAlphabet} = DNAKmer{length(seq)}(seq)
+RNAKmer(seq::MutableBioSequence{A}) where {A<:RNAAlphabet} = RNAKmer{length(seq)}(seq)
 
 # create a kmer from a sequence whose elements are convertible to a nucleotide
 function make_kmer(::Type{Kmer{T,K}}, seq) where {T,K}
@@ -108,10 +109,10 @@ end
 
 make_kmer(seq::NTuple{K,T}) where {K,T} = make_kmer(Kmer{T,K}, seq)
 
-BioSequence(x::DNAKmer{K}) where {K} = DNASequence(x)
-BioSequence(x::RNAKmer{K}) where {K} = RNASequence(x)
-BioSequence{A}(x::DNAKmer{K}) where {A<:DNAAlphabet,K} = BioSequence{A}([nt for nt in x])
-BioSequence{A}(x::RNAKmer{K}) where {A<:RNAAlphabet,K} = BioSequence{A}([nt for nt in x])
+MutableBioSequence(x::DNAKmer{K}) where {K} = DNASequence(x)
+MutableBioSequence(x::RNAKmer{K}) where {K} = RNASequence(x)
+MutableBioSequence{A}(x::DNAKmer{K}) where {A<:DNAAlphabet,K} = MutableBioSequence{A}([nt for nt in x])
+MutableBioSequence{A}(x::RNAKmer{K}) where {A<:RNAAlphabet,K} = MutableBioSequence{A}([nt for nt in x])
 Base.convert(::Type{S}, seq::Kmer) where {S<:AbstractString} = S([Char(x) for x in seq])
 Base.String(seq::Kmer) = convert(String, seq)
 
@@ -121,6 +122,9 @@ Base.String(seq::Kmer) = convert(String, seq)
 
 BioSymbols.alphabet(::Type{DNAKmer{k}}) where {k} = (DNA_A, DNA_C, DNA_G, DNA_T)
 BioSymbols.alphabet(::Type{RNAKmer{k}}) where {k} = (RNA_A, RNA_C, RNA_G, RNA_U)
+alphabet_t(::Type{Kmer{T,N} where T<:NucleicAcid}) where N = Any
+alphabet_t(::Type{T}) where T <: DNAKmer = DNAAlphabet{2} 
+alphabet_t(::Type{T}) where T <: RNAKmer = RNAAlphabet{2}
 
 Base.hash(x::Kmer, h::UInt) = hash(UInt64(x), h)
 

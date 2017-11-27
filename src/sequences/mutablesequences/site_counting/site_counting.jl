@@ -108,7 +108,7 @@ for A in (DNAAlphabet, RNAAlphabet)
 end
 
 for s in (Match, Gap)
-    @eval bp_correct_emptyspace(::Type{$s}, ::Type{A}) where {A<:NucAlphs} = true
+    @eval bp_correct_emptyspace(::Type{$s}, ::Type{A}) where {A<:NucleicAcidAlphabet} = true
 end
 
 
@@ -116,14 +116,14 @@ end
 # ---------------------------
 
 # In a general case, go to the bit-parallel counting method.
-@inline Base.count(::Type{P}, a::BioSequence{A}, b::BioSequence{A}) where {P<:Position,A<:NucAlphs} = bitpar_counter(P, a, b)
+@inline Base.count(::Type{P}, a::MutableBioSequence{A}, b::MutableBioSequence{A}) where {P<:Position,A<:NucleicAcidAlphabet} = bitpar_counter(P, a, b)
 
 # Some specific edge cases...
 for A in (DNAAlphabet, RNAAlphabet)
 
     # Specific count methods for some edge cases regarding counting sites in
     # 2 bit encoded DNA and RNA sequences.
-    seqtype = BioSequence{A{2}}
+    seqtype = MutableBioSequence{A{2}}
     @eval begin
         @inline function Base.count(::Type{Certain}, a::$seqtype, b::$seqtype)
             return min(length(a), length(b))
@@ -136,7 +136,7 @@ end
 # Specific Base.count sliding window methods
 # ------------------------------------------
 
-function Base.count(::Type{P}, a::BioSequence{A}, b::BioSequence{A}, width::Int, step::Int) where {P<:Position,A<:NucAlphs}
+function Base.count(::Type{P}, a::MutableBioSequence{A}, b::MutableBioSequence{A}, width::Int, step::Int) where {P<:Position,A<:NucleicAcidAlphabet}
     len = min(length(a), length(b))
     ritr = StepRange(width, step, len)
     width -= 1
@@ -155,7 +155,7 @@ end
 
 @inline diag_val(::Type{Int}) = Int(0)
 
-function count_pairwise(::Type{P}, seqs::Vararg{BioSequence{A},N}) where {P<:Position,A<:NucAlphs,N}
+function count_pairwise(::Type{P}, seqs::Vararg{MutableBioSequence{A},N}) where {P<:Position,A<:NucleicAcidAlphabet,N}
     @assert N >= 2 "At least two sequences are required."
     counts = Matrix{bp_counter_type(P, A)}(undef, (N, N))
     for i in 1:N
@@ -176,7 +176,7 @@ end
 
 Count the number of sites of type `S`, between two sequences a and b.
 """
-@inline function Base.count(::Type{S}, a::BioSequence, b::BioSequence) where {S<:Site}
+@inline function Base.count(::Type{S}, a::MutableBioSequence, b::MutableBioSequence) where {S<:Site}
     seqs = promote(a, b)
     return count(S, seqs...)
 end
@@ -188,7 +188,7 @@ Count the number of sites of type `S`, between two sequences a and b, using a
 sliding window of a given `width`, and `step`.
 The `width` and `step` must be provided as number of base pairs.
 """
-function Base.count(::Type{S}, a::BioSequence, b::BioSequence, width::Int, step::Int) where {S<:Site}
+function Base.count(::Type{S}, a::MutableBioSequence, b::MutableBioSequence, width::Int, step::Int) where {S<:Site}
     seqs = promote(a, b)
     return count(S, seqs..., width, step)
 end
@@ -202,7 +202,7 @@ provided (`seqs`).
 This returns a symmetric matrix contining the output for each pairwise
 operation.
 """
-function count_pairwise(::Type{S}, seqs::Vararg{BioSequence,N}) where {S<:Site,N}
+function count_pairwise(::Type{S}, seqs::Vararg{MutableBioSequence,N}) where {S<:Site,N}
     seqs = promote(seqs...)
     return count_pairwise(S, seqs...)
 end
