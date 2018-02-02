@@ -202,7 +202,7 @@ Noteworthy differences from strings are:
 * Whitespaces are ignored (e.g. `biore"A C G"d` is equivalent to `biore"ACG"d`).
 
 The PROSITE notation is described in [ScanProsite - user
-manual](http://prosite.expasy.org/scanprosite/scanprosite_doc.html). The syntax
+manual](https://prosite.expasy.org/scanprosite/scanprosite_doc.html). The syntax
 supports almost all notations including the extended syntax. The PROSITE
 notation starts with `prosite` prefix and no symbol option is needed because it
 always describes patterns of amino acid sequences:

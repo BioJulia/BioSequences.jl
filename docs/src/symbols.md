@@ -7,7 +7,7 @@ end
 # Biological symbols
 
 The `BioSequences` module reexports the biological symbol (character) types
-that are provided by [BioSymbols.jl:](http://biojulia.net/BioSymbols.jl/)
+that are provided by [BioSymbols.jl:](https://biojulia.net/BioSymbols.jl/)
 
 | Type            | Meaning        |
 | :-------------- | :------------- |
@@ -45,7 +45,7 @@ a gap symbol:
 | 'N'    | `DNA_N` / `RNA_N`     | A or C or G or T/U         |
 | '-'    | `DNA_Gap` / `RNA_Gap` | Gap (none of the above)    |
 
-<http://www.insdc.org/documents/feature_table.html#7.4.1>
+<https://www.bioinformatics.org/sms/iupac.html>
 
 Symbols are accessible as constants with `DNA_` or `RNA_` prefix:
 ```jldoctest
@@ -154,7 +154,7 @@ Set of amino acid symbols also covers IUPAC amino acid symbols plus a gap symbol
 | '*'          | `AA_Term`       | Termination codon           |
 | '-'          | `AA_Gap`        | Gap (none of the above)     |
 
-<http://www.insdc.org/documents/feature_table.html#7.4.3>
+<https://www.bioinformatics.org/sms/iupac.html>
 
 Symbols are accessible as constants with `AA_` prefix:
 ```jldoctest

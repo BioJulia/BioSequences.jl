@@ -21,14 +21,14 @@ Any subtype `S <: BioSequence` should implement the following methods:
 * `Base.length(seq::S)`: return the length of `seq`.
 * `inbounds_getindex(seq::S, i::Integer)`: return the element at `i` of `seq`
   without checking bounds.
-* `find_next_ambiguous`: return the index of the next ambiguous symbol in the
+* `find_next_ambiguous(seq::S)`: return the index of the next ambiguous symbol in the
   sequence.
 
-## Provided, methods traits & interfaces 
-  
+## Provided, methods traits & interfaces
+
 As a result you can expect any variable of type S <: BioSequence to implement
 the above `Base` methods, as well as the following `Base` methods which are
-implemetned in BioSequences.jl for any S<:BioSequence which implements said 
+implemetned in BioSequences.jl for any S<:BioSequence which implements said
 required `Base` methods above.
 
 * `Base.eltype(::Type{S})`: return the element type of `S`.
@@ -51,7 +51,7 @@ required `Base` methods above.
   `val` in `seq`.
 * `Base.findlast(seq::S, val)`: Return the index of the final occurance of
   `val` in `seq`.
-* `Base.isempty(seq::S)`: Determine whether `seq` has no elements. 
+* `Base.isempty(seq::S)`: Determine whether `seq` has no elements.
 """
 
 abstract type BioSequence end
@@ -71,7 +71,7 @@ end
 # Indexing and iteration
 # ----------------------
 
-Base.eltype(::Type{T}) where T<:BioSequence = eltype(alphabet_t(T))
+Base.eltype(::Type{T}) where T <: BioSequence = eltype(alphabet_t(T))
 Base.eltype(seq::BioSequence) = eltype(alphabet_t(seq))
 Base.size(seq::BioSequence) = (length(seq),)
 Base.lastindex(seq::BioSequence) = length(seq)

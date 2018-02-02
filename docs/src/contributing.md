@@ -25,4 +25,4 @@ assisting them.
 
 The branching model used to develop and make releases of this package is the
 [OneFlow](http://endoflineblog.com/oneflow-a-git-branching-model-and-workflow)
-model summarized in the [BioJulia Contribution Documentation](http://biojulia.github.io/Contributing/latest/help/branching_guide/)
+model summarized in the [BioJulia Contribution Documentation](https://biojulia.net/Contributing/latest/help/branching_guide/)
