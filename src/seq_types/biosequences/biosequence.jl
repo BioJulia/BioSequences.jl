@@ -84,65 +84,73 @@ Base.eachindex(seq::BioSequence) = 1:lastindex(seq)
     throw(BoundsError(seq, i))
 end
 
-@inline function Base.checkbounds(seq::BioSequence, locs::AbstractVector{Bool})
-    if length(seq) == length(locs)
-        return true
-    end
-    throw(BoundsError(seq, locs))
+"""
+Return the `Alpahbet` type defining the possible biological symbols
+and their encoding for a given biological sequence.
+"""
+@inline function alphabet_t(::Type{S}) where S <: BioSequence
+    error(string("This sequence type trait has not been defined for BioSequence type: ", S))
 end
 
-@inline function Base.checkbounds(seq::BioSequence, locs::AbstractVector)
-    for i in locs
-        checkbounds(seq, i)
-    end
-    return true
+# This version of alphabet_t is automatically defined for any BioSequence type, is more for conveinience.
+@inline function alphabet_t(seq::BioSequence)
+    return alphabet_t(typeof(seq))
 end
 
-@inline function Base.checkbounds(seq::BioSequence, range::UnitRange)
-    if 1 ≤ range.start && range.stop ≤ endof(seq)
-        return true
-    end
-    throw(BoundsError(seq, range))
+@inline function bitindex_t(seq::BioSequence)
+    error(string("This sequence type trait has not been defined for BioSequence type: ", typeof(seq)))
 end
 
-function checkdimension(from::Integer, to::Integer)
-    if from == to
-        return true
-    end
-    throw(DimensionMismatch(string(
-        "attempt to assign ",
-        from, " elements to ",
-        to,   " elements")))
+"""
+Return the data member of `seq` that stores the encoded sequence data.
+"""
+@inline function encoded_data(seq::BioSequence)
+    error(
+        string(
+            "encoded_data has not been defined for BioSequence type: ",
+            typeof(seq),
+            ". It is required for any BioSequence subtype."
+        )
+    )
 end
 
-function checkdimension(seq::BioSequence, locs::AbstractVector)
-    return checkdimension(length(seq), length(locs))
+# Bit indexing
+# ------------
+
+# Bit indexing biosequence traits and trait-like methods...
+bits_per_symbol(::Type{S}) where {S <: BioSequence} = bits_per_symbol(alphabet_t(S))
+bits_per_symbol(seq::BioSequence) = bits_per_symbol(alphabet_t(seq))
+
+bits_per_symbol_t(seq::BioSequence) = bits_per_symbol_t(alphabet_t(seq))
+
+encoded_data_eltype(seq::BioSequence) = eltype(encoded_data(seq))
+
+@inline function symbols_per_data_element(seq::BioSequence)
+    return div(8 * sizeof(encoded_data_eltype(seq)), bits_per_symbol(seq))
 end
 
-function checkdimension(seq::BioSequence, locs::AbstractVector{Bool})
-    return checkdimension(length(seq), sum(locs))
-end
-
-# assumes `i` is positive and `bitsof(A)` is a power of 2
-@inline function BitIndex(seq::BioSequence, i::Integer)
-    return BitIndex(i, bitsof(alphabet_t(seq)))
+@inline function bitindex(seq::BioSequence, i::Integer)
+    return bitindex(bits_per_symbol_t(seq), encoded_data_eltype(seq), i)
 end
 
 @inline function bindata_mask(seq::BioSequence)
     return bitmask(alphabet_t(seq))
 end
 
-@inline function inbounds_getindex(seq::BioSequence, i::Integer)
-    j = BitIndex(seq, i)
-    @inbounds chunk = bindata(seq)[index(j)]
-    off = offset(j)
-    return decode(alphabet_t(seq), (chunk >> off) & bindata_mask(seq))
-end
 
-@inline function Base.getindex(seq::BioSequence, i::Integer)
-    @boundscheck checkbounds(seq, i)
-    return inbounds_getindex(seq, i)
-end
+
+
+
+
+
+
+# Base Methods
+# ============
+
+# Indexing and iteration
+# ----------------------
+
+include("indexing.jl")
 
 function Base.iterate(seq::BioSequence, i::Int = 1)
     if i > lastindex(seq)
@@ -264,5 +272,4 @@ end
 
 Base.parse(::Type{S}, str::AbstractString) where {S<:BioSequence} = convert(S, str)
 
-include("traits.jl")
 include("operations.jl")

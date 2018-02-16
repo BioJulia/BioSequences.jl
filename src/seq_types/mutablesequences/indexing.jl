@@ -7,9 +7,9 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # assumes `i` is positive and `bitsof(A)` is a power of 2
-@inline function BitIndex(seq::MutableBioSequence, i::Integer)
-    nbits = bitsof(alphabet_t(seq))
-    return BitIndex((i + first(seq.part) - 2) << trailing_zeros(nbits))
+
+@inline function bitindex(seq::MutableBioSequence, i::Integer)
+    return bitindex(bits_per_symbol_t(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
 end
 
 @inline function Base.getindex(seq::MutableBioSequence, part::UnitRange)
@@ -27,7 +27,7 @@ function Base.setindex!(seq::MutableBioSequence, x, i::Integer)
 end
 
 # Set multiple sequence positions to a single symbol value.
-function Base.setindex!(seq::MutableBioSequence{A}, x, 
+function Base.setindex!(seq::MutableBioSequence{A}, x,
 			locs::AbstractVector{<:Integer}) where {A}
 
     checkbounds(seq, locs)
@@ -55,7 +55,7 @@ end
 function Base.setindex!(seq::MutableBioSequence{A},
                         other::MutableBioSequence{A},
                         locs::AbstractVector{<:Integer}) where {A}
-    
+
     checkbounds(seq, locs)
     checkdimension(other, locs)
     orphan!(seq)
@@ -107,8 +107,8 @@ end
 
 @inline function encoded_setindex!(seq::MutableBioSequence{A},
 				   bin::UInt64, i::Integer) where {A}
-    j, r = BitIndex(seq, i)
-    data = bindata(seq)
+    j, r = bitindex(seq, i)
+    data = encoded_data(seq)
     @inbounds data[j] = (bin << r) | (data[j] & ~(bindata_mask(seq) << r))
     return seq
 end

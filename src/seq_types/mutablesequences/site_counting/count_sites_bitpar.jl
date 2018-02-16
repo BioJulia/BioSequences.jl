@@ -13,7 +13,7 @@
 @inline bp_emptyspace_correction(nempty::Int, count::Int) = count - nempty
 
 @generated function bitpar_counter(::Type{S}, a::MutableBioSequence{A}, b::MutableBioSequence{A}) where {S<:Site,A<:NucleicAcidAlphabet}
-    n = bitsof(A)
+    n = bits_per_symbol(A)
     n_elems = div(64, n)
 
     quote

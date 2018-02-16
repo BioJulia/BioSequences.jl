@@ -7,7 +7,7 @@ makedocs(
         "Home" => "index.md",
         "Biological Symbols" => "symbols.md",
         "Sequence types" => [
-            "Overview" => "sequences/sequences.md",
+            "Overview" => "sequences/biosequences.md",
             "BioSequence" => "sequences/bioseq.md",
             "Reference Sequences" => "sequences/refseq.md",
             "Nucleic acid k-mers" => "sequences/kmer.md"
@@ -22,7 +22,7 @@ makedocs(
         "Demultiplexing" => "demultiplexer.md",
         "Contributing" => "contributing.md"
     ],
-    authors = "D. C. Jones, Kenta Sato, Ben J. Ward, The BioJulia Organisation and other contributors."
+    authors = "Ben J. Ward, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors."
 )
 
 deploydocs(

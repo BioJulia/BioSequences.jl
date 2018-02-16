@@ -25,6 +25,8 @@ function MutableBioSequence{A}(
         stoppos::Integer=length(src)) where {A<:Alphabet}
     len = stoppos - startpos + 1
     seq = MutableBioSequence{A}(len)
+    #println("Made empty sequence ", seq)
+    #println("Making the encode_copy!")
     return encode_copy!(seq, 1, src, startpos, len)
 end
 

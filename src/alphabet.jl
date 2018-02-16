@@ -24,8 +24,8 @@ of associated `encoder` and `decoder` methods. These paired methods map
 between biological symbol values and a binary representation of the symbol.
 
 Any type A <: Alphabet, is expected to implement the `Base.eltype` method
-for itself, in addition to a `BioSequences.bitsof` method, and a
-`BioSequences.bitsof_t` method. See the docs of `bitsof` and `bitsof_t` for
+for itself, in addition to a `BioSequences.bits_per_symbol` method, and a
+`BioSequences.bits_per_symbol_t` method. See the docs of `bits_per_symbol` and `bits_per_symbol_t` for
 more detail.
 
 ## Required methods and interface
@@ -63,28 +63,28 @@ Void alphabet (internal use only).
 struct VoidAlphabet <: Alphabet end
 
 """
-The number of bits required to represent a symbol of the alphabet, in a 
+The number of bits required to represent a symbol of the alphabet, in a
 biological sequence.
 """
-function bitsof end
+function bits_per_symbol end
 
-bitsof(::Type{A}) where A <: NucleicAcidAlphabet{2} = 2
-bitsof(::Type{A}) where A <: NucleicAcidAlphabet{4} = 4
-bitsof(::Type{AminoAcidAlphabet}) = 8
-bitsof(::Type{CharAlphabet}) = 32
-bitsof(::Type{VoidAlphabet}) = 0
+bits_per_symbol(::Type{A}) where A <: NucleicAcidAlphabet{2} = 2
+bits_per_symbol(::Type{A}) where A <: NucleicAcidAlphabet{4} = 4
+bits_per_symbol(::Type{AminoAcidAlphabet}) = 8
+bits_per_symbol(::Type{CharAlphabet}) = 32
+bits_per_symbol(::Type{VoidAlphabet}) = 0
 
 """
-The number of bits required to represent a symbol of the alphabet, in a 
+The number of bits required to represent a symbol of the alphabet, in a
 biological sequence, as a value type.
 """
-function bitsof_t end
+function bits_per_symbol_t end
 
-bitsof_t(::Type{A}) where A <: NucleicAcidAlphabet{2} = Val{2}
-bitsof_t(::Type{A}) where A <: NucleicAcidAlphabet{4} = Val{4}
-bitsof_t(::Type{AminoAcidAlphabet}) = Val{8}
-bitsof_t(::Type{CharAlphabet}) = Val{32}
-bitsof_t(::Type{VoidAlphabet}) = Val{0}
+bits_per_symbol_t(::Type{A}) where A <: NucleicAcidAlphabet{2} = Val{2}()
+bits_per_symbol_t(::Type{A}) where A <: NucleicAcidAlphabet{4} = Val{4}()
+bits_per_symbol_t(::Type{AminoAcidAlphabet}) = Val{8}()
+bits_per_symbol_t(::Type{CharAlphabet}) = Val{32}()
+bits_per_symbol_t(::Type{VoidAlphabet}) = Val{0}()
 
 Base.eltype(::Type{A}) where A <: DNAAlphabet = DNA
 Base.eltype(::Type{A}) where A <: RNAAlphabet = RNA
@@ -106,7 +106,7 @@ BioSymbols.alphabet(::Type{VoidAlphabet}) = nothing
 
 for alph in (DNAAlphabet, RNAAlphabet)
     @eval function Base.promote_rule(::Type{A}, ::Type{B}) where {A<:$alph,B<:$alph}
-        return $alph{max(bitsof(A),bitsof(B))}
+        return $alph{max(bits_per_symbol(A),bits_per_symbol(B))}
     end
 end
 
@@ -148,9 +148,9 @@ end
 # ---------------------
 
 for A in (DNAAlphabet, RNAAlphabet)
-    
+
     T = eltype(A)
-    
+
     @eval begin
 
 	# 2-bit encoding
@@ -233,4 +233,3 @@ end
 @inline function decode(::Type{CharAlphabet}, x::Unsigned)
     return decode(CharAlphabet, UInt32(x))
 end
-

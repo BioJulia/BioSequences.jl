@@ -1,4 +1,4 @@
-# Hash
+encoded_data# Hash
 # ====
 #
 # MurmurHash3 function of BioSequence.
@@ -75,7 +75,7 @@ function Base.hash(seq::MutableBioSequence, seed::UInt64)
 
     # body
     r = offset(next)
-    data = bindata(seq)
+    data = encoded_data(seq)
     if last - next ≥ 128
         if r == 0
             @inbounds while last - next ≥ 128
