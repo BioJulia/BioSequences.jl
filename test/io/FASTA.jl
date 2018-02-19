@@ -86,21 +86,30 @@
 
         # Check round trip
         output = IOBuffer()
-        writer = FASTA.Writer(output, width=60)
+        writer = FASTA.Writer(output, width = 60)
+        outputB = IOBuffer()
+        writerB = FASTA.Writer(outputB, width = -1)
         expected_entries = Any[]
         for seqrec in open(FASTA.Reader, filename)
             write(writer, seqrec)
+            write(writerB, seqrec)
             push!(expected_entries, seqrec)
         end
         flush(writer)
+        flush(writerB)
 
         seekstart(output)
+        seekstart(outputB)
         read_entries = FASTA.Record[]
+        read_entriesB = FASTA.Record[]
         for seqrec in FASTA.Reader(output)
             push!(read_entries, seqrec)
         end
-
+        for seqrec in FASTA.Reader(outputB)
+            push!(read_entriesB, seqrec)
+        end
         @test expected_entries == read_entries
+        @test expected_entries == read_entriesB
     end
 
     get_bio_fmt_specimens()
