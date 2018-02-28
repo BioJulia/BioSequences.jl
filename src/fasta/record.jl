@@ -210,7 +210,7 @@ Get the sequence of `record`.
 `S` can be either a subtype of `BioSequences.Sequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence{S<:BioSequences.Sequence}(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S
+function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S where S <: BioSequences.Sequence
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -254,6 +254,10 @@ end
 
 function BioCore.sequence(record::Record)
     return sequence(record)
+end
+
+function BioCore.sequence(::Type{S}, record::Record) where S <: BioSequences.Sequence
+    return sequence(S, record)
 end
 
 function BioCore.hassequence(record::Record)

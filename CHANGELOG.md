@@ -1,7 +1,18 @@
 # Change Log
 
-## [0.8.2](https://github.com/BioJulia/BioSequences.jl/tree/0.8.2) (2018-02-19)
-[Full Changelog](https://github.com/BioJulia/BioSequences.jl/compare/v0.8.1...0.8.2)
+## [0.8.3](https://github.com/BioJulia/BioSequences.jl/tree/0.8.3) (2018-02-28)
+[Full Changelog](https://github.com/BioJulia/BioSequences.jl/compare/v0.8.2...0.8.3)
+
+**Fixed bugs:**
+
+- Added BioCore.sequence with ability to specify type [\#34](https://github.com/BioJulia/BioSequences.jl/pull/34) ([Ward9250](https://github.com/Ward9250))
+
+## [v0.8.2](https://github.com/BioJulia/BioSequences.jl/tree/v0.8.2) (2018-02-19)
+[Full Changelog](https://github.com/BioJulia/BioSequences.jl/compare/v0.8.1...v0.8.2)
+
+**Implemented enhancements:**
+
+- Message printed when sequence is empty. [\#31](https://github.com/BioJulia/BioSequences.jl/pull/31) ([Ward9250](https://github.com/Ward9250))
 
 **Fixed bugs:**
 
@@ -10,10 +21,6 @@
 **Closed issues:**
 
 - Add split function [\#23](https://github.com/BioJulia/BioSequences.jl/issues/23)
-
-**Merged pull requests:**
-
-- Message printed when sequence is empty. [\#31](https://github.com/BioJulia/BioSequences.jl/pull/31) ([Ward9250](https://github.com/Ward9250))
 
 ## [v0.8.1](https://github.com/BioJulia/BioSequences.jl/tree/v0.8.1) (2017-11-10)
 [Full Changelog](https://github.com/BioJulia/BioSequences.jl/compare/v0.8.0...v0.8.1)
