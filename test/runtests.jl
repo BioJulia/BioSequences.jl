@@ -1,6 +1,6 @@
 module TestBioSequences
 
-using Base.Test
+using Compat: Test
 import BioSymbols
 using BioSequences
 using IntervalTrees.IntervalValue
