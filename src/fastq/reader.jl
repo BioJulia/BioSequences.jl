@@ -1,13 +1,6 @@
-# FASTQ Reader
-# ============
-
-struct Reader <: BioCore.IO.AbstractReader
-    state::BioCore.Ragel.State
-    seq_transform::Nullable{Function}
-
-    function Reader(input::BufferedInputStream, seq_transform)
-        return new(BioCore.Ragel.State(file_machine.start_state, input), seq_transform)
-    end
+struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
+    source::T
+    seq_transform::Union{Function,Void}
 end
 
 """
@@ -19,21 +12,101 @@ Create a data reader of the FASTQ file format.
 * `input`: data source
 * `fill_ambiguous=nothing`: fill ambiguous symbols with the given symbol
 """
-function Reader(input::IO; fill_ambiguous=nothing)
+function Reader(input::Union{AbstractString,IO}; fill_ambiguous=nothing)
     if fill_ambiguous === nothing
         seq_transform = nothing
     else
         seq_transform = generate_fill_ambiguous(fill_ambiguous)
     end
-    return Reader(BufferedInputStream(input), seq_transform)
+    return Reader{typeof(input)}(input, seq_transform)
 end
 
-function Base.eltype(::Type{Reader})
+function Base.eltype(::Type{<:Reader})
     return Record
 end
 
 function BioCore.IO.stream(reader::Reader)
-    return reader.state.stream
+    return reader.source
+end
+
+function eachrecord(reader::Reader{<:IO})
+    return RecordIterator(reader.source, reader.seq_transform)
+end
+
+function eachrecord(reader::Reader{<:AbstractString})
+    return RecordIterator(open(reader.source), reader.seq_transform)
+end
+
+function Base.start(reader::Reader)
+    iter = eachrecord(reader)
+    return (iter, start(iter))
+end
+
+function Base.done(::Reader, state)
+    return done(state[1], state[2])
+end
+
+function Base.next(::Reader, state)
+    return next(state[1], state[2])[1], state
+end
+
+#function Base.read(reader::Reader{<:IO}, record::Record)
+#end
+
+function Base.close(reader::Reader)
+    if reader.source isa IO
+        close(reader.source)
+    end
+    return nothing
+end
+
+struct RecordIterator
+    stream::TranscodingStream
+    transform::Union{Function,Void}
+
+    function RecordIterator(stream::IO, transform)
+        if !(stream isa TranscodingStream)
+            stream = TranscodingStreams.NoopStream(stream)
+        end
+        return new(stream, transform)
+    end
+end
+
+mutable struct RecordIteratorState
+    # machine state
+    state::Int
+    # line number
+    linenum::Int
+    # is record filled?
+    filled::Bool
+    # placeholder
+    record::Record
+end
+
+function Base.eltype(::Type{RecordIterator})
+    return Record
+end
+
+function Base.start(iter::RecordIterator)
+    return RecordIteratorState(1, 1, false, Record())
+end
+
+function Base.done(iter::RecordIterator, state::RecordIteratorState)
+    if state.filled
+        return true
+    end
+    state.state, state.linenum, state.filled = readrecord!(iter.stream, state.record, (state.state, state.linenum), iter.transform)
+    if !state.filled && state.state != 0
+        throw(ArgumentError("malformed FASTQ file"))
+    end
+    return !state.filled
+end
+
+function Base.next(iter::RecordIterator, state::RecordIteratorState)
+    @assert state.filled
+    record = copy(state.record)
+    state.filled = false
+    return record, state
 end
 
 function generate_fill_ambiguous(symbol::BioSymbols.DNA)
@@ -50,124 +123,123 @@ function generate_fill_ambiguous(symbol::BioSymbols.DNA)
     end
 end
 
-# NOTE: This does not support line-wraps within sequence and quality.
-isinteractive() && info("Compiling FASTQ parser...")
-const record_machine, file_machine = (function ()
-    cat = Automa.RegExp.cat
-    rep = Automa.RegExp.rep
-    rep1 = Automa.RegExp.rep1
-    alt = Automa.RegExp.alt
-    opt = Automa.RegExp.opt
-    any = Automa.RegExp.any
-    space = Automa.RegExp.space
+machine = (function ()
+    re = Automa.RegExp
 
     hspace = re"[ \t\v]"
 
     header1 = let
-        identifier = rep(any() \ space())
-        identifier.actions[:enter] = [:mark]
+        identifier = re.rep(re.any() \ re.space())
+        identifier.actions[:enter] = [:pos]
         identifier.actions[:exit]  = [:header1_identifier]
 
-        description = cat(any() \ hspace, re"[^\r\n]*")
-        description.actions[:enter] = [:mark]
+        description = re.cat(re.any() \ hspace, re"[^\r\n]*")
+        description.actions[:enter] = [:pos]
         description.actions[:exit]  = [:header1_description]
 
-        cat('@', identifier, opt(cat(rep1(hspace), description)))
+        re.cat('@', identifier, re.opt(re.cat(re.rep1(hspace), description)))
     end
 
     sequence = re"[A-z]*"
-    sequence.actions[:enter] = [:mark]
+    sequence.actions[:enter] = [:pos]
     sequence.actions[:exit]  = [:sequence]
 
     header2 = let
-        identifier = rep1(any() \ space())
-        identifier.actions[:enter] = [:mark]
-        identifier.actions[:exit]  = [:header2_identifier]
+        identifier = re.rep1(re.any() \ re.space())
+        identifier.actions[:enter] = [:second_header]
 
-        description = cat(any() \ hspace, re"[^\r\n]*")
-        description.actions[:enter] = [:mark]
-        description.actions[:exit]  = [:header2_description]
+        description = re.cat(re.any() \ hspace, re"[^\r\n]*")
 
-        cat('+', opt(cat(identifier, opt(cat(rep1(hspace), description)))))
+        re.cat('+', re.opt(re.cat(identifier, re.opt(re.cat(re.rep1(hspace), description)))))
     end
 
     quality = re"[!-~]*"
-    quality.actions[:enter] = [:mark]
+    quality.actions[:enter] = [:pos]
     quality.actions[:exit]  = [:quality]
 
     newline = let
         lf = re"\n"
         lf.actions[:enter] = [:countline]
 
-        cat(opt('\r'), lf)
+        re.cat(re.opt('\r'), lf)
     end
 
-    record′ = cat(header1, newline, sequence, newline, header2, newline, quality)
-    record′.actions[:enter] = [:anchor]
-    record′.actions[:exit]  = [:record]
-    record = cat(record′, newline)
+    record = re.cat(header1, newline, sequence, newline, header2, newline, quality)
+    record.actions[:enter] = [:mark]
+    record.actions[:exit] = [:record]
 
-    file = rep(record)
+    fastq = re.rep(re.cat(record, newline))
 
-    return map(Automa.compile, (record, file))
+    Automa.compile(fastq)
 end)()
 
-#=
-write("fastq.dot", Automa.machine2dot(file_machine))
-run(`dot -Tsvg -o fastq.svg fastq.dot`)
-=#
+#write("fastq.dot", Automa.machine2dot(machine))
+#run(`dot -Tsvg -o fastq.svg fastq.dot`)
 
-function check_identical(data1, range1, data2, range2)
-    if length(range1) != length(range2) ||
-       memcmp(pointer(data1, first(range1)), pointer(data2, first(range2)), length(range1)) != 0
-       error("sequence and quality have non-matching header")
+function appendfrom!(dst, dpos, src, spos, n)
+    if length(dst) < dpos + n - 1
+        resize!(dst, dpos + n - 1)
     end
+    copy!(dst, dpos, src, spos, n)
+    return dst
 end
 
-function memcmp(p1::Ptr, p2::Ptr, len::Integer)
-    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, len) % Int
+actions = Dict(
+    :mark => :(@mark),
+    :pos => :(pos = @relpos(p)),
+    :countline => :(linenum += 1),
+    :header1_identifier => :(record.identifier = pos:@relpos(p-1)),
+    :header1_description => :(record.description = pos:@relpos(p-1)),
+    :sequence => :(record.sequence = pos:@relpos(p-1)),
+    :second_header => :(second_header_pos = @relpos(p)),
+    :quality => :(record.quality = pos:@relpos(p-1)),
+    :record => quote
+        appendfrom!(record.data, 1, data, @markpos, p-@markpos)
+        record.filled = 1:(p-@markpos)
+        found = true
+        @escape
+    end,
+)
+initcode = quote
+    pos = 0
+    second_header_pos = 0
+    found = false
+    initialize!(record)
+    cs, linenum = state
 end
+loopcode = quote
+    if cs < 0
+        throw(ArgumentError("malformed FASTQ file at line $(linenum)"))
+    elseif found && length(record.sequence) != length(record.quality)
+        throw(ArgumentError("mismatched sequence and quality length"))
+    elseif found && second_header_pos > 0
+        # TODO: check without copying
+        pos = first(record.identifier)
+        len = max(last(record.identifier), last(record.description)) - pos + 1
+        if record.data[pos:pos+len-1] != record.data[second_header_pos:second_header_pos+len-1]
+            throw(ArgumentError("mismatched headers"))
+        end
+    elseif found && transform != nothing
+        transform(record.data, record.sequence)
+    end
+    found && @goto __return__
+end
+returncode = :(return cs, linenum, found)
+context = Automa.CodeGenContext(generator=:goto)
+Automa.Stream.generate_reader(
+    :readrecord!,
+    machine,
+    arguments=(:(record::Record),:(state::Tuple{Int,Int}),:(transform)),
+    actions=actions,
+    context=context,
+    initcode=initcode,
+    loopcode=loopcode,
+    returncode=returncode,
+) |> eval
 
-const record_actions = Dict(
-    :header1_identifier  => :(record.identifier  = (mark:p-1)),
-    :header1_description => :(record.description = (mark:p-1)),
-    :header2_identifier  => :(check_identical(record.data, mark:p-1, record.data, record.identifier)),
-    :header2_description => :(check_identical(record.data, mark:p-1, record.data, record.description)),
-    :sequence => :(record.sequence = (mark:p-1)),
-    :quality  => :(record.quality  = (mark:p-1)),
-    :record   => :(record.filled   = 1:p-1),
-    :anchor => :(),
-    :mark   => :(mark = p),
-    :countline => :())
-eval(
-    BioCore.ReaderHelper.generate_index_function(
-        Record,
-        record_machine,
-        :(mark = 0),
-        record_actions))
-eval(
-    BioCore.ReaderHelper.generate_read_function(
-        Reader,
-        file_machine,
-        :(mark = offset = 0),
-        merge(record_actions, Dict(
-            :header1_identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :header1_description => :(record.description = (mark:p-1) - stream.anchor + 1),
-            :header2_identifier  => :(check_identical(data, mark:p-1, data, (record.identifier) + stream.anchor - 1)),
-            :header2_description => :(check_identical(data, mark:p-1, data, (record.description) + stream.anchor - 1)),
-            :sequence            => :(record.sequence    = (mark:p-1) - stream.anchor + 1),
-            :quality             => :(record.quality     = (mark:p-1) - stream.anchor + 1),
-            :record => quote
-                if length(record.sequence) != length(record.quality)
-                    error("the length of sequence does not match the length of quality")
-                end
-                BioCore.ReaderHelper.resize_and_copy!(record.data, data, BioCore.ReaderHelper.upanchor!(stream):p-1)
-                record.filled = (offset+1:p-1) - offset
-                if !isnull(reader.seq_transform)
-                    get(reader.seq_transform)(record.data, record.sequence)
-                end
-                found_record = true
-                @escape
-            end,
-            :countline => :(linenum += 1),
-            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p); offset = p - 1)))))
+function index!(record::Record)
+    stream = TranscodingStreams.NoopStream(IOBuffer(record.data))
+    cs, linenum, found = readrecord!(stream, record, (1, 1), nothing)
+    #@show cs, linenum, found
+    return record
+end
