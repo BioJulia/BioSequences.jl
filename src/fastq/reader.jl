@@ -146,12 +146,13 @@ machine = (function ()
 
     header2 = let
         identifier = re.rep1(re.any() \ re.space())
-        identifier.actions[:enter] = [:second_header]
 
         description = re.cat(re.any() \ hspace, re"[^\r\n]*")
 
         re.cat('+', re.opt(re.cat(identifier, re.opt(re.cat(re.rep1(hspace), description)))))
     end
+    header2.actions[:enter] = [:pos]
+    header2.actions[:exit]  = [:header2]
 
     quality = re"[!-~]*"
     quality.actions[:enter] = [:pos]
@@ -184,6 +185,12 @@ function appendfrom!(dst, dpos, src, spos, n)
     return dst
 end
 
+function is_same_mem(data, pos1, pos2, len)
+    checkbounds(data, 1:pos1+len-1)
+    checkbounds(data, 1:pos2+len-1)
+    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), pointer(data, pos1), pointer(data, pos2), len) == 0
+end
+
 actions = Dict(
     :mark => :(@mark),
     :pos => :(pos = @relpos(p)),
@@ -191,7 +198,7 @@ actions = Dict(
     :header1_identifier => :(record.identifier = pos:@relpos(p-1)),
     :header1_description => :(record.description = pos:@relpos(p-1)),
     :sequence => :(record.sequence = pos:@relpos(p-1)),
-    :second_header => :(second_header_pos = @relpos(p)),
+    :header2 => :(second_header_pos = pos+1; second_header_len = @relpos(p)-(pos+1)),
     :quality => :(record.quality = pos:@relpos(p-1)),
     :record => quote
         appendfrom!(record.data, 1, data, @markpos, p-@markpos)
@@ -203,6 +210,7 @@ actions = Dict(
 initcode = quote
     pos = 0
     second_header_pos = 0
+    second_header_len = 0
     found = false
     initialize!(record)
     cs, linenum = state
@@ -212,11 +220,10 @@ loopcode = quote
         throw(ArgumentError("malformed FASTQ file at line $(linenum)"))
     elseif found && length(record.sequence) != length(record.quality)
         throw(ArgumentError("mismatched sequence and quality length"))
-    elseif found && second_header_pos > 0
-        # TODO: check without copying
-        pos = first(record.identifier)
-        len = max(last(record.identifier), last(record.description)) - pos + 1
-        if record.data[pos:pos+len-1] != record.data[second_header_pos:second_header_pos+len-1]
+    elseif found && second_header_len > 0
+        first_header_pos = first(record.identifier)
+        first_header_len = max(last(record.identifier), last(record.description)) - first_header_pos + 1
+        if first_header_len != second_header_len || !is_same_mem(record.data, first_header_pos, second_header_pos, first_header_len)
             throw(ArgumentError("mismatched headers"))
         end
     elseif found && transform != nothing
