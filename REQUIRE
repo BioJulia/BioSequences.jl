@@ -2,10 +2,10 @@ julia 0.6
 Automa
 BioCore
 BioSymbols
-BufferedStreams
 Combinatorics
 IndexableBitVectors
 IterTools 0.1
 IntervalTrees
 Twiddle
 DataStructures
+TranscodingStreams 0.5

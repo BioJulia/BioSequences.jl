@@ -7,8 +7,6 @@ import BioCore: BioCore, isfilled
 import BioSymbols
 import BioSequences
 import TranscodingStreams: TranscodingStreams, TranscodingStream
-#import BufferedStreams
-#import BufferedStreams: BufferedInputStream
 
 include("quality.jl")
 include("record.jl")

@@ -10,7 +10,6 @@ import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
 import BioSequences
 import TranscodingStreams: TranscodingStreams, TranscodingStream
-#import BufferedStreams
 
 export description,
        identifier
