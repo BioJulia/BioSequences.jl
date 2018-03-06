@@ -44,23 +44,23 @@
     N
     """
 
-    reader = FASTA.Reader(IOBuffer(
-    """
-    >seqA some description
-    QIKDLLVSSSTDLDTTLKMK
-    ILELPFASGDLSM
-    >seqB
-    VLMALGMTDLFIPSANLTG*
-    """))
-    record = FASTA.Record()
-    @test read!(reader, record) === record
-    @test FASTA.identifier(record) == "seqA"
-    @test FASTA.description(record) == "some description"
-    @test FASTA.sequence(record) == aa"QIKDLLVSSSTDLDTTLKMKILELPFASGDLSM"
-    @test read!(reader, record) === record
-    @test FASTA.identifier(record) == "seqB"
-    @test !FASTA.hasdescription(record)
-    @test FASTA.sequence(record) == aa"VLMALGMTDLFIPSANLTG*"
+    #reader = FASTA.Reader(IOBuffer(
+    #"""
+    #>seqA some description
+    #QIKDLLVSSSTDLDTTLKMK
+    #ILELPFASGDLSM
+    #>seqB
+    #VLMALGMTDLFIPSANLTG*
+    #"""))
+    #record = FASTA.Record()
+    #@test read!(reader, record) === record
+    #@test FASTA.identifier(record) == "seqA"
+    #@test FASTA.description(record) == "some description"
+    #@test FASTA.sequence(record) == aa"QIKDLLVSSSTDLDTTLKMKILELPFASGDLSM"
+    #@test read!(reader, record) === record
+    #@test FASTA.identifier(record) == "seqB"
+    #@test !FASTA.hasdescription(record)
+    #@test FASTA.sequence(record) == aa"VLMALGMTDLFIPSANLTG*"
 
     function test_fasta_parse(filename, valid)
         # Reading from a stream
@@ -78,11 +78,11 @@
         end
 
         # in-place parsing
-        stream = open(FASTA.Reader, filename)
-        entry = eltype(stream)()
-        while !eof(stream)
-            read!(stream, entry)
-        end
+        #stream = open(FASTA.Reader, filename)
+        #entry = eltype(stream)()
+        #while !eof(stream)
+        #    read!(stream, entry)
+        #end
 
         # Check round trip
         output = IOBuffer()

@@ -89,6 +89,10 @@ mutable struct RecordIteratorState
     record::Record
 end
 
+function Base.iteratorsize(::Type{RecordIterator})
+    return Base.SizeUnknown()
+end
+
 function Base.eltype(::Type{RecordIterator})
     return Record
 end

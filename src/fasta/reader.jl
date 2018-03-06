@@ -1,13 +1,9 @@
 # FASTA Reader
 # ============
 
-mutable struct Reader <: BioCore.IO.AbstractReader
-    state::BioCore.Ragel.State
+struct Reader{T<:Union{IO,AbstractString}} <: BioCore.IO.AbstractReader
+    source::T
     index::Nullable{Index}
-
-    function Reader(input::BufferedStreams.BufferedInputStream, index)
-        return new(BioCore.Ragel.State(file_machine.start_state, input), index)
-    end
 end
 
 """
@@ -27,145 +23,221 @@ function Reader(input::IO; index=nothing)
             throw(ArgumentError("index must be a filepath or nothing"))
         end
     end
-    return Reader(BufferedStreams.BufferedInputStream(input), index)
+    return Reader{typeof(input)}(input, index)
 end
 
-function Base.eltype(::Type{Reader})
+function Base.eltype(::Type{<:Reader})
     return Record
 end
 
 function BioCore.IO.stream(reader::Reader)
-    return reader.state.stream
+    return reader.source
+end
+
+function eachrecord(reader::Reader{<:IO})
+    return RecordIterator(reader.source)
+end
+
+function eachrecord(reader::Reader{<:AbstractString})
+    return RecordIterator(open(reader.source))
+end
+
+function Base.start(reader::Reader)
+    iter = eachrecord(reader)
+    return (iter, start(iter))
+end
+
+function Base.done(::Reader, state)
+    return done(state[1], state[2])
+end
+
+function Base.next(::Reader, state)
+    return next(state[1], state[2])[1], state
+end
+
+function Base.close(reader::Reader)
+    if reader.source isa IO
+        close(reader.source)
+    end
+    return nothing
 end
 
 function Base.getindex(reader::Reader, name::AbstractString)
     if isnull(reader.index)
         throw(ArgumentError("no index attached"))
     end
-    seekrecord(reader.state.stream, get(reader.index), name)
-    reader.state.cs = file_machine.start_state
-    reader.state.finished = false
-    return read(reader)
+    seekrecord(reader.source, get(reader.index), name)
+    record = Record()
+    cs, linenum, found = readrecord!(TranscodingStreams.NoopStream(reader.source), record, (1, 1))
+    @assert cs ≥ 0 && found
+    return record
 end
 
-isinteractive() && info("Compiling FASTA parser...")
-const record_machine, file_machine = (function ()
-    cat = Automa.RegExp.cat
-    rep = Automa.RegExp.rep
-    rep1 = Automa.RegExp.rep1
-    alt = Automa.RegExp.alt
-    opt = Automa.RegExp.opt
-    any = Automa.RegExp.any
-    space = Automa.RegExp.space
+struct RecordIterator
+    stream::TranscodingStream
+
+    function RecordIterator(stream::IO)
+        if !(stream isa TranscodingStream)
+            stream = TranscodingStreams.NoopStream(stream)
+        end
+        return new(stream)
+    end
+end
+
+mutable struct RecordIteratorState
+    # machine state
+    state::Int
+    # line number
+    linenum::Int
+    # is record filled?
+    filled::Bool
+    # placeholder
+    record::Record
+end
+
+function Base.iteratorsize(::Type{RecordIterator})
+    return Base.SizeUnknown()
+end
+
+function Base.eltype(::Type{RecordIterator})
+    return Record
+end
+
+function Base.start(iter::RecordIterator)
+    return RecordIteratorState(1, 1, false, Record())
+end
+
+function Base.done(iter::RecordIterator, state::RecordIteratorState)
+    if state.filled
+        return true
+    end
+    state.state, state.linenum, state.filled = readrecord!(iter.stream, state.record, (state.state, state.linenum))
+    if !state.filled && state.state != 0
+        throw(ArgumentError("malformed FASTQ file"))
+    end
+    return !state.filled
+end
+
+function Base.next(iter::RecordIterator, state::RecordIteratorState)
+    @assert state.filled
+    record = copy(state.record)
+    state.filled = false
+    return record, state
+end
+
+machine = (function ()
+    re = Automa.RegExp
+
+    hspace = re"[ \t\v]"
+
+    identifier = re.rep(re.any() \ re.space())
+    identifier.actions[:enter] = [:pos]
+    identifier.actions[:exit]  = [:identifier]
+
+    description = re.cat(re.any() \ hspace, re"[^\r\n]*")
+    description.actions[:enter] = [:pos]
+    description.actions[:exit]  = [:description]
+
+    header = re.cat('>', identifier, re.opt(re.cat(re.rep1(hspace), description)))
+    header.actions[:enter] = [:mark]
+    header.actions[:exit]  = [:header]
+
+    # '*': terminal, `-': gap
+    letters = re"[A-Za-z*\-]+"
+    letters.actions[:enter] = [:pos]
+    letters.actions[:exit]  = [:letters]
 
     newline = let
         lf = re"\n"
         lf.actions[:enter] = [:countline]
 
-        cat(opt('\r'), lf)
+        re.cat(re.opt('\r'), lf)
     end
 
-    hspace = re"[ \t\v]"
+    sequence = re.opt(re.cat(letters, re.rep(re.cat(re.rep1(re.alt(hspace, newline)), letters))))
+    #sequence.actions[:enter] = [:sequence_start]
 
-    identifier = rep(any() \ space())
-    identifier.actions[:enter] = [:mark]
-    identifier.actions[:exit]  = [:identifier]
-
-    description = cat(any() \ hspace, re"[^\r\n]*")
-    description.actions[:enter] = [:mark]
-    description.actions[:exit]  = [:description]
-
-    header = cat('>', identifier, opt(cat(rep1(hspace), description)))
-    header.actions[:enter] = [:anchor]
-    header.actions[:exit]  = [:header]
-
-    # '*': terminal, `-': gap
-    letters = re"[A-Za-z*\-]+"
-    letters.actions[:enter] = [:movable_anchor]
-    letters.actions[:exit]  = [:letters]
-
-    sequence = opt(cat(letters, rep(cat(rep1(alt(hspace, newline)), letters))))
-    sequence.actions[:enter] = [:sequence_start]
-
-    record = cat(header, rep1(newline), sequence, rep1(newline))
+    record = re.cat(header, re.rep1(newline), sequence, re.rep1(newline))
     record.actions[:exit] = [:record]
 
-    record_trailing = cat(header, rep1(newline), sequence)
+    record_trailing = re.cat(header, re.rep1(newline), sequence)
     record_trailing.actions[:exit] = [:record]
 
-    file = cat(rep(newline), rep(record), opt(record_trailing))
+    fasta = re.cat(re.rep(newline), re.rep(record), re.opt(record_trailing))
 
-    return map(Automa.compile, (record, file))
+    Automa.compile(fasta)
 end)()
 
-#=
-write("fasta.dot", Automa.machine2dot(file_machine))
-run(`dot -Tsvg -o fasta.svg fasta.dot`)
-=#
+function appendfrom!(dst, dpos, src, spos, n)
+    if length(dst) < dpos + n - 1
+        resize!(dst, dpos + n - 1)
+    end
+    copy!(dst, dpos, src, spos, n)
+    return dst
+end
 
-const record_actions = Dict(
-    :identifier  => :(record.identifier  = (mark:p-1)),
-    :description => :(record.description = (mark:p-1)),
+actions = Dict(
+    :mark => :(@mark),
+    :pos => :(pos = @relpos(p)),
+    :countline => :(linenum += 1),
+    :identifier => :(record.identifier = pos:@relpos(p-1)),
+    :description => :(record.description = pos:@relpos(p-1)),
     :header => quote
-        @assert record.data === data
-        copy!(record.data, 1, record.data, 1, p - 1)
-        filled += p - 1
-        if p ≤ endof(data)
-            data[p] = UInt8('\n')
+        let n = p - @markpos
+            appendfrom!(record.data, 1, data, @markpos, n)
+            filled += n
+            appendfrom!(record.data, filled + 1, b"\n", 1, 1)
             filled += 1
         end
     end,
     :letters => quote
-        let len = p - mark
-            copy!(record.data, filled + 1, record.data, mark, p - mark)
-            filled += len
-            record.sequence = first(record.sequence):last(record.sequence)+len
+        let n = @relpos(p-1) - pos + 1
+            appendfrom!(record.data, filled + 1, data, @abspos(pos), n)
+            if isempty(record.sequence)
+                record.sequence = filled+1:filled+n
+            else
+                record.sequence = first(record.sequence):last(record.sequence)+n
+            end
+            filled += n
         end
     end,
-    :sequence_start => :(record.sequence = filled+1:filled),
-    :record => :(record.filled = 1:filled),
-    :anchor => :(),
-    :movable_anchor => :(mark = p),
-    :mark => :(mark = p),
-    :countline => :(#= linenum += 1 =#))
-eval(
-    BioCore.ReaderHelper.generate_index_function(
-        Record,
-        record_machine,
-        :(filled = mark = 0),
-        record_actions))
-eval(
-    BioCore.ReaderHelper.generate_read_function(
-        Reader,
-        file_machine,
-        :(filled = mark = 0),
-        merge(record_actions, Dict(
-            :identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :description => :(record.description = (mark:p-1) - stream.anchor + 1),
-            :header => quote
-                range = BioCore.ReaderHelper.upanchor!(stream):p-1
-                BioCore.ReaderHelper.resize_and_copy!(record.data, filled + 1, data, range)
-                filled += length(range)
-                if filled + 1 ≤ endof(record.data)
-                    record.data[filled+1] = UInt8('\n')
-                else
-                    push!(record.data, UInt8('\n'))
-                end
-                filled += 1
-            end,
-            :sequence_start => :(record.sequence = filled+1:filled),
-            :letters => quote
-                let len = p - stream.anchor
-                    BioCore.ReaderHelper.append_from_anchor!(record.data, filled + 1, stream, p - 1)
-                    filled += len
-                    record.sequence = first(record.sequence):last(record.sequence)+len
-                end
-            end,
-            :record => quote
-                record.filled = 1:filled
-                found_record = true
-                @escape
-            end,
-            :countline => :(linenum += 1),
-            :anchor => :(BioCore.ReaderHelper.anchor!(stream, p)),
-            :movable_anchor => :(BioCore.ReaderHelper.anchor!(stream, p, false))))))
+    :record => quote
+        record.filled = 1:filled
+        found = true
+        @escape
+    end,
+)
+initcode = quote
+    pos = 0
+    filled = 0
+    found = false
+    initialize!(record)
+    cs, linenum = state
+end
+loopcode = quote
+    if cs < 0
+        throw(ArgumentError("malformed FASTA file at line $(linenum)"))
+    end
+    found && @goto __return__
+end
+returncode = :(return cs, linenum, found)
+context = Automa.CodeGenContext(generator=:goto)
+Automa.Stream.generate_reader(
+    :readrecord!,
+    machine,
+    arguments=(:(record::Record), :(state::Tuple{Int,Int})),
+    actions=actions,
+    context=context,
+    initcode=initcode,
+    loopcode=loopcode,
+    returncode=returncode,
+) |> eval
+
+function index!(record::Record)
+    stream = TranscodingStreams.NoopStream(IOBuffer(record.data))
+    cs, linenum, found = readrecord!(stream, record, (1, 1))
+    if cs != 0
+        throw(ArgumentError("invalid FASTA record"))
+    end
+    return record
+end
