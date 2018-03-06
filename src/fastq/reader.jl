@@ -1,6 +1,12 @@
+# FASTQ Reader
+# ============
+
 struct Reader{T<:Union{AbstractString,IO}} <: BioCore.IO.AbstractReader
+    # data source
     source::T
-    seq_transform::Union{Function,Void}
+
+    # sequencee transformer
+    transform::Union{Function,Void}
 end
 
 """
@@ -14,11 +20,11 @@ Create a data reader of the FASTQ file format.
 """
 function Reader(input::Union{AbstractString,IO}; fill_ambiguous=nothing)
     if fill_ambiguous === nothing
-        seq_transform = nothing
+        transform = nothing
     else
-        seq_transform = generate_fill_ambiguous(fill_ambiguous)
+        transform = generate_fill_ambiguous(fill_ambiguous)
     end
-    return Reader{typeof(input)}(input, seq_transform)
+    return Reader{typeof(input)}(input, transform)
 end
 
 function Base.eltype(::Type{<:Reader})
@@ -30,11 +36,11 @@ function BioCore.IO.stream(reader::Reader)
 end
 
 function eachrecord(reader::Reader{<:IO})
-    return RecordIterator(reader.source, reader.seq_transform)
+    return RecordIterator(reader.source, reader.transform)
 end
 
 function eachrecord(reader::Reader{<:AbstractString})
-    return RecordIterator(open(reader.source), reader.seq_transform)
+    return RecordIterator(open(reader.source), reader.transform)
 end
 
 function Base.start(reader::Reader)
@@ -247,6 +253,17 @@ Automa.Stream.generate_reader(
 function index!(record::Record)
     stream = TranscodingStreams.NoopStream(IOBuffer(record.data))
     cs, linenum, found = readrecord!(stream, record, (1, 1), nothing)
-    #@show cs, linenum, found
+    if !found || !allspace(stream)
+        throw(ArgumentError("invalid FASTQ record"))
+    end
     return record
+end
+
+function allspace(stream)
+    while !eof(stream)
+        if !isspace(read(stream, Char))
+            return false
+        end
+    end
+    return true
 end
