@@ -35,16 +35,16 @@ function BioCore.IO.stream(reader::Reader)
     return reader.source
 end
 
-function eachrecord(reader::Reader{<:IO})
+function ReaderIterTools.eachrecord(reader::Reader{<:IO})
     return RecordIterator(reader.source, reader.transform)
 end
 
-function eachrecord(reader::Reader{<:AbstractString})
+function ReaderIterTools.eachrecord(reader::Reader{<:AbstractString})
     return RecordIterator(open(reader.source), reader.transform)
 end
 
 function Base.start(reader::Reader)
-    iter = eachrecord(reader)
+    iter = ReaderIterTools.eachrecord(reader)
     return (iter, start(iter))
 end
 
@@ -56,9 +56,6 @@ function Base.next(::Reader, state)
     return next(state[1], state[2])[1], state
 end
 
-#function Base.read(reader::Reader{<:IO}, record::Record)
-#end
-
 function Base.close(reader::Reader)
     if reader.source isa IO
         close(reader.source)
@@ -66,7 +63,7 @@ function Base.close(reader::Reader)
     return nothing
 end
 
-struct RecordIterator
+struct RecordIterator <: ReaderIterTools.AbstractRecordIterator{Record}
     stream::TranscodingStream
     transform::Union{Function,Void}
 
@@ -78,30 +75,7 @@ struct RecordIterator
     end
 end
 
-mutable struct RecordIteratorState
-    # machine state
-    state::Int
-    # line number
-    linenum::Int
-    # is record filled?
-    filled::Bool
-    # placeholder
-    record::Record
-end
-
-function Base.iteratorsize(::Type{RecordIterator})
-    return Base.SizeUnknown()
-end
-
-function Base.eltype(::Type{RecordIterator})
-    return Record
-end
-
-function Base.start(iter::RecordIterator)
-    return RecordIteratorState(1, 1, false, Record())
-end
-
-function Base.done(iter::RecordIterator, state::RecordIteratorState)
+function Base.done(iter::RecordIterator, state)
     if state.filled
         return true
     end
@@ -110,13 +84,6 @@ function Base.done(iter::RecordIterator, state::RecordIteratorState)
         throw(ArgumentError("malformed FASTQ file"))
     end
     return !state.filled
-end
-
-function Base.next(iter::RecordIterator, state::RecordIteratorState)
-    @assert state.filled
-    record = copy(state.record)
-    state.filled = false
-    return record, state
 end
 
 function generate_fill_ambiguous(symbol::BioSymbols.DNA)

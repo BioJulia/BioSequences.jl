@@ -34,16 +34,16 @@ function BioCore.IO.stream(reader::Reader)
     return reader.source
 end
 
-function eachrecord(reader::Reader{<:IO})
+function ReaderIterTools.eachrecord(reader::Reader{<:IO})
     return RecordIterator(reader.source)
 end
 
-function eachrecord(reader::Reader{<:AbstractString})
+function ReaderIterTools.eachrecord(reader::Reader{<:AbstractString})
     return RecordIterator(open(reader.source))
 end
 
 function Base.start(reader::Reader)
-    iter = eachrecord(reader)
+    iter = ReaderIterTools.eachrecord(reader)
     return (iter, start(iter))
 end
 
@@ -73,7 +73,7 @@ function Base.getindex(reader::Reader, name::AbstractString)
     return record
 end
 
-struct RecordIterator
+struct RecordIterator <: ReaderIterTools.AbstractRecordIterator{Record}
     stream::TranscodingStream
 
     function RecordIterator(stream::IO)
@@ -84,30 +84,7 @@ struct RecordIterator
     end
 end
 
-mutable struct RecordIteratorState
-    # machine state
-    state::Int
-    # line number
-    linenum::Int
-    # is record filled?
-    filled::Bool
-    # placeholder
-    record::Record
-end
-
-function Base.iteratorsize(::Type{RecordIterator})
-    return Base.SizeUnknown()
-end
-
-function Base.eltype(::Type{RecordIterator})
-    return Record
-end
-
-function Base.start(iter::RecordIterator)
-    return RecordIteratorState(1, 1, false, Record())
-end
-
-function Base.done(iter::RecordIterator, state::RecordIteratorState)
+function Base.done(iter::RecordIterator, state)
     if state.filled
         return true
     end
@@ -116,13 +93,6 @@ function Base.done(iter::RecordIterator, state::RecordIteratorState)
         throw(ArgumentError("malformed FASTQ file"))
     end
     return !state.filled
-end
-
-function Base.next(iter::RecordIterator, state::RecordIteratorState)
-    @assert state.filled
-    record = copy(state.record)
-    state.filled = false
-    return record, state
 end
 
 machine = (function ()

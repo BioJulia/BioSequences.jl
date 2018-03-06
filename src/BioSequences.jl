@@ -218,6 +218,7 @@ include("geneticcode.jl")
 include("demultiplexer.jl")
 
 # Parsing file types
+include("itertools.jl")
 include("fasta/fasta.jl")
 include("fastq/fastq.jl")
 include("twobit/twobit.jl")

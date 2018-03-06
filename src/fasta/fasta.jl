@@ -8,7 +8,7 @@ import Automa.RegExp: @re_str
 import Automa.Stream: @mark, @markpos, @relpos, @abspos
 import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
-import BioSequences
+import BioSequences: BioSequences, ReaderIterTools
 import TranscodingStreams: TranscodingStreams, TranscodingStream
 
 export description,
