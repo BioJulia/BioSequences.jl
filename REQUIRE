@@ -1,11 +1,11 @@
 julia 0.6
-Automa
+Automa 0.6
 BioCore
 BioSymbols
 Combinatorics
-IndexableBitVectors
-IterTools 0.1
-IntervalTrees
-Twiddle
 DataStructures
+IndexableBitVectors
+IntervalTrees
+IterTools 0.1
 TranscodingStreams 0.5
+Twiddle
