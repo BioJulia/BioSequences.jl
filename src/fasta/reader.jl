@@ -191,7 +191,10 @@ loopcode = quote
     found && @goto __return__
 end
 returncode = :(return cs, linenum, found)
-context = Automa.CodeGenContext(generator=:goto)
+context = Automa.CodeGenContext(
+    generator=:goto,
+    checkbounds=false,
+    loopunroll=8)
 Automa.Stream.generate_reader(
     :readrecord!,
     machine,
