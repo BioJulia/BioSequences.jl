@@ -114,7 +114,7 @@ machine = (function ()
 
     # '*': terminal, `-': gap
     letters = re"[A-Za-z*\-]+"
-    letters.actions[:enter] = [:pos]
+    letters.actions[:enter] = [:mark]
     letters.actions[:exit]  = [:letters]
 
     newline = let
@@ -161,8 +161,8 @@ actions = Dict(
         end
     end,
     :letters => quote
-        let n = @relpos(p-1) - pos + 1
-            appendfrom!(record.data, filled + 1, data, @abspos(pos), n)
+        let markpos = @markpos(), n = @relpos(p-1) - @relpos(markpos) + 1
+            appendfrom!(record.data, filled + 1, data, markpos, n)
             if isempty(record.sequence)
                 record.sequence = filled+1:filled+n
             else
