@@ -36,7 +36,7 @@ reps = 10
 
     # Check that kmers can be constructed from an array of nucleotides
     #   Vector{NucleicAcid} → Kmer → Vector{NucleicAcid}
-    function check_nucarray_kmer{T <: NucleicAcid}(seq::Vector{T})
+    function check_nucarray_kmer(seq::Vector{T}) where T <: NucleicAcid
         return convert(String, [convert(Char, c) for c in seq]) ==
                convert(String, Kmer(seq...))
     end

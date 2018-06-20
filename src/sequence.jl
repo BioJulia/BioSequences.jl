@@ -268,4 +268,4 @@ function string_compact(seq::Sequence)
     return String(take!(buf))
 end
 
-Base.parse{S<:Sequence}(::Type{S}, str::AbstractString) = convert(S, str)
+Base.parse(::Type{S}, str::AbstractString) where {S<:Sequence} = convert(S, str)
