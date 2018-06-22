@@ -5,7 +5,7 @@
 
     @testset "Specific count methods" begin
 
-        function generate_possibilities_tester{A<:NucAlphs}(::Type{A})
+        function generate_possibilities_tester(::Type{A}) where A<:NucAlphs
             symbols = alphabet(A)
             arra = Vector{eltype(A)}()
             arrb = Vector{eltype(A)}()
@@ -42,7 +42,7 @@
     @testset "Randomized tests" begin
 
         # A test counting function which is naive.
-        @inline function testcount{P<:BioSequences.Position}(::Type{P}, a::BioSequence, b::BioSequence)
+        @inline function testcount(::Type{P}, a::BioSequence, b::BioSequence) where P<:BioSequences.Position
             k = 0
             @inbounds for idx in 1:min(endof(a), endof(b))
                 k += issite(P, a, b, idx)
@@ -67,7 +67,7 @@
         # Randomized tests get performed with a naive counting function
         # which is intuitive and works, but that is nowhere near as quick.
 
-        function testcounting{S<:Site}(::Type{S}, a, b)
+        function testcounting(::Type{S}, a, b) where S<:Site
             @test count(S, a, b) == count(S, b, a) == testcount(S, a, b)
         end
 

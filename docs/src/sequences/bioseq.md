@@ -590,7 +590,7 @@ functionality of `BioSequence` with minimum effort. As an example, definition of
 a new alphabet type representing a sequence of boolean values is shown below:
 
 ```jldoctest
-julia> immutable BoolAlphabet <: Alphabet end
+julia> struct BoolAlphabet <: Alphabet end
 
 julia> BioSequences.bitsof(::Type{BoolAlphabet}) = 1
 

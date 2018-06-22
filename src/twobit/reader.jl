@@ -105,7 +105,7 @@ function Base.getindex(reader::Reader, name::AbstractString)
     return reader[i]
 end
 
-function Base.getindex{S<:AbstractString}(reader::Reader, names::AbstractVector{S})
+function Base.getindex(reader::Reader, names::AbstractVector{S}) where S<:AbstractString
     return [reader[name] for name in names]
 end
 

@@ -15,7 +15,7 @@ struct ApproximateSearchQuery{S<:Sequence}
     bPcom::Vector   # compatibility vector for backward search
     H::Vector{Int}  # distance vector for alignback function
 
-    function (::Type{ApproximateSearchQuery{S}}){S}(seq::Sequence, direction::Symbol)
+    function ApproximateSearchQuery{S}(seq::Sequence, direction::Symbol) where S
         if direction == :forward
             fPcom = approx_preprocess(seq, true)
             bPcom = []

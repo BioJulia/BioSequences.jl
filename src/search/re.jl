@@ -566,7 +566,7 @@ struct Regex{T}
     code::Vector{Op}  # compiled code
     nsaves::Int       # the number of `save` operations in `code`
 
-    function (::Type{Regex{T}}){T}(pat::AbstractString, syntax=:pcre)
+    function Regex{T}(pat::AbstractString, syntax=:pcre) where T
         if syntax == :pcre
             ast = desugar(T, parse(T, pat))
         elseif syntax == :prosite
@@ -706,7 +706,7 @@ struct RegexMatchIterator{T,S}
     seq::S
     overlap::Bool
 
-    function (::Type{RegexMatchIterator{T,S}}){T,S}(re::Regex{T}, seq::S, overlap::Bool)
+    function RegexMatchIterator{T,S}(re::Regex{T}, seq::S, overlap::Bool) where {T,S}
         checkeltype(re, seq)
         return new{T,S}(re, seq, overlap)
     end
@@ -786,7 +786,7 @@ mutable struct Stack{T}
     top::Int
     data::Vector{T}
 
-    function (::Type{Stack{T}}){T}(sz::Int=0)
+    function Stack{T}(sz::Int=0) where T
         return new{T}(0, Vector{T}(sz))
     end
 end
