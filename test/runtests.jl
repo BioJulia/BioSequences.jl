@@ -5,6 +5,7 @@ using BioSequences
 using IntervalTrees.IntervalValue
 using StatsBase
 using YAML
+using Base.Test
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
