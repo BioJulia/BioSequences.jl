@@ -8,7 +8,7 @@
 
 # A genetic code is a table mapping RNA 3-mers (i.e. RNAKmer{3}) to AminoAcids.
 "Type representing a Genetic Code"
-struct GeneticCode <: Associative{RNACodon, AminoAcid}
+struct GeneticCode <: AbstractDict{RNACodon, AminoAcid}
     name::String
     tbl::Vector{AminoAcid}
 end
@@ -28,20 +28,22 @@ end
 Base.copy(code::GeneticCode) = GeneticCode(copy(code.name), copy(code.tbl))
 Base.length(code::GeneticCode) = 64
 
-Base.showcompact(io::IO, code::GeneticCode) = print(io, code.name)
-
 function Base.show(io::IO, code::GeneticCode)
-    print(io, code.name)
-    rna = rna"ACGU"
-    for x in rna, y in rna
-        println(io)
-        print(io, "  ")
-        for z in rna
-            codon = Kmer(x, y, z)
-            aa = code[codon]
-            print(io, codon, ": ", aa)
-            if z != RNA_U
-                print(io, "    ")
+    if get(io, :compact, false)
+        print(io, code.name)
+    else
+        print(io, code.name)
+        rna = rna"ACGU"
+        for x in rna, y in rna
+            println(io)
+            print(io, "  ")
+            for z in rna
+                codon = Kmer(x, y, z)
+                aa = code[codon]
+                print(io, codon, ": ", aa)
+                if z != RNA_U
+                    print(io, "    ")
+                end
             end
         end
     end
@@ -51,14 +53,15 @@ end
 # Iterating through genetic code
 # ------------------------------
 
-Base.start(code::GeneticCode) = UInt64(0)
 
-function Base.next(code::GeneticCode, x::UInt64)
-    c = convert(RNACodon, x)
-    return (c, code[c]), x + 1
+function Base.iterate(code::GeneticCode, x=UInt64(0))
+    if x > UInt64(0b111111)
+        return nothing
+    else
+        c = RNACodon(x)
+        return (c, code[c]), x + 1
+    end
 end
-
-Base.done(code::GeneticCode, x::UInt64) = x > UInt64(0b111111)
 
 
 # Default genetic codes
@@ -109,7 +112,7 @@ end
 function parse_gencode(s)
     name, _, aas, _, base1, base2, base3 = split(chomp(s), '\n')
     name = split(name, ' ', limit=2)[2]  # drop number
-    codes = GeneticCode(name, Vector{AminoAcid}(4^3))
+    codes = GeneticCode(name, fill(AA_X, 4^3))
     @assert length(aas) == 73
     for i in 10:73
         aa = AminoAcid(aas[i])
@@ -321,7 +324,7 @@ result in an error.
 """
 function translate(seq::RNASequence;
                    code::GeneticCode=standard_genetic_code,
-                   allow_ambiguous_codons::Bool=true)
+                   allow_ambiguous_codons::Bool = true)
     return translate(seq, code, allow_ambiguous_codons)
 end
 
@@ -333,20 +336,20 @@ function translate(seq::RNASequence, code::GeneticCode, allow_ambiguous_codons::
 
     aaseq = AminoAcidSequence(aaseqlen)
     i = j = 1
-    while i ≤ endof(seq) - 2
+    while i ≤ lastindex(seq) - 2
         x = seq[i]
         y = seq[i+1]
         z = seq[i+2]
         if isambiguous(x) || isambiguous(y) || isambiguous(z)
             aa = try_translate_ambiguous_codon(code, x, y, z)
-            if isnull(aa)
+            if aa == nothing
                 if allow_ambiguous_codons
                     aaseq[j] = AA_X
                 else
                     error("codon ", x, y, z, " cannot be unambiguously translated")
                 end
             else
-                aaseq[j] = get(aa)
+                aaseq[j] = aa
             end
         else
             aaseq[j] = code[Kmer(x, y, z)]
@@ -368,19 +371,19 @@ function try_translate_ambiguous_codon(code::GeneticCode,
         aa_g = code[Kmer(x, y, RNA_G)]
         aa_u = code[Kmer(x, y, RNA_U)]
         if aa_a == aa_c == aa_g == aa_u
-            return Nullable{AminoAcid}(aa_a)
+            return aa_a
         end
     end
 
-    found = Nullable{AminoAcid}()
+    found::Union{AminoAcid, Nothing} = nothing
     for (codon, aa) in code
         if (iscompatible(x, codon[1]) &&
             iscompatible(y, codon[2]) &&
             iscompatible(z, codon[3]))
-            if isnull(found)
-                found = Nullable(aa)
-            elseif aa != get(found)
-                return Nullable{AminoAcid}()
+            if found == nothing
+                found = aa
+            elseif aa != found
+                return nothing
             end
         end
     end

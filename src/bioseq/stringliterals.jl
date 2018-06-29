@@ -1,7 +1,7 @@
 # String Decorators
 # -----------------
 
-remove_newlines(s) = replace(s, r"\r|\n", "")
+remove_newlines(s) = replace(s, r"\r|\n" => "")
 
 macro dna_str(seq, flag)
     if flag == "s"

@@ -1,10 +1,10 @@
-# BioSequences
+# <img src="./sticker.svg" width="30%" align="right" /> BioSequences
 
-[![Latest release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
-[![MIT license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE)
+[![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
+[![MIT license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE) 
 [![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/stable)
 [![Latest documentation](https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/latest/)
-![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg?style=flat-square)
+![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg?style=flat-square)
 [![Chat on Discord](https://img.shields.io/badge/discord-chat-blue.svg?style=flat-square&logo=discord&colorB=%237289DA)](https://discord.gg/z73YNFz)
 
 
@@ -39,7 +39,7 @@ Linux, OS X, and Windows.
 
 | **Latest release** | **Latest build status** |
 |:------------------:|:-----------------------:|
-|[![julia06](https://pkg.julialang.org/badges/BioSequences_0.6.svg)](https://pkg.julialang.org/?pkg=BioSequences) [![julia07](https://pkg.julialang.org/badges/BioSequences_0.7.svg)](https://pkg.julialang.org/?pkg=BioSequences) | [![travis](https://img.shields.io/travis/BioJulia/BioSequences.jl/master.svg?label=Linux+/+macOS)](https://travis-ci.org/BioJulia/BioSequences.jl) [![appveyor](https://img.shields.io/appveyor/ci/BioJulia/BioSequences.jl/master.svg?label=Windows)](https://ci.appveyor.com/project/Ward9250/biosequences-jl/branch/master) |
+|[![julia07](https://pkg.julialang.org/badges/BioSequences_0.7.svg)](https://pkg.julialang.org/?pkg=BioSequences) [![](http://pkg.julialang.org/badges/BioSequences_1.0.svg)](http://pkg.julialang.org/?pkg=BioSequences) | [![](https://travis-ci.org/BioJulia/BioSequences.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioSequences.jl) [![](https://ci.appveyor.com/api/projects/status/1vdxlfv7yk9c1kfb/branch/master?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequences-jl/branch/master) [![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)|
 
 
 ## Contributing

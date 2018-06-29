@@ -6,23 +6,23 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.copy!(seq::BioSequence{A}, doff::Integer,
-                    src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
+function Base.copyto!(seq::BioSequence{A}, doff::Integer,
+                      src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
     datalen = seq_data_len(A, len)
     return seq
 end
 
-function Base.copy!(dst::BioSequence{A}, src::BioSequence{A}) where {A}
-    return copy!(dst, 1, src, 1)
+function Base.copyto!(dst::BioSequence{A}, src::BioSequence{A}) where {A}
+    return copyto!(dst, 1, src, 1)
 end
 
-function Base.copy!(dst::BioSequence{A}, doff::Integer,
-                    src::BioSequence{A}, soff::Integer) where {A}
-    return copy!(dst, doff, src, soff, length(src) - soff + 1)
+function Base.copyto!(dst::BioSequence{A}, doff::Integer,
+                      src::BioSequence{A}, soff::Integer) where {A}
+    return copyto!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function Base.copy!(dst::BioSequence{A}, doff::Integer,
-                    src::BioSequence{A}, soff::Integer, len::Integer) where {A}
+function Base.copyto!(dst::BioSequence{A}, doff::Integer,
+                      src::BioSequence{A}, soff::Integer, len::Integer) where {A}
     checkbounds(dst, doff:doff+len-1)
     checkbounds(src, soff:soff+len-1)
 
@@ -58,7 +58,7 @@ end
 
 # Actually, users don't need to create a copy of a sequence.
 function Base.copy(seq::BioSequence{A}) where {A}
-    newseq = BioSequence{A}(seq, 1:endof(seq))
+    newseq = BioSequence{A}(seq, 1:lastindex(seq))
     orphan!(newseq, length(seq), true)  # force orphan!
     @assert newseq.data !== seq.data
     return newseq
@@ -102,7 +102,8 @@ function encode_copy!(dst::BioSequence{A},
         x = UInt64(0)
         j = index(next)
         while index(next) == j && next < stop
-            char, i = Base.next(src, i)
+            char = src[i]
+            i = nextind(src, i)
             x |= enc64(dst, convert(Char, char)) << offset(next)
             next += bitsof(A)
         end

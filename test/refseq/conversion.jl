@@ -10,5 +10,5 @@ end
     seq = DNASequence(random_dna(100))
     refseq = ReferenceSequence(seq)
     @test refseq == seq
-    @test convert(DNASequence, refseq) == seq
+    @test DNASequence(refseq) == seq
 end

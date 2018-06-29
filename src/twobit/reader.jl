@@ -39,17 +39,14 @@ function Base.length(reader::Reader)
     return length(reader.names)
 end
 
-function Base.start(reader::Reader)
-    return 1
+function Base.iterate(reader::Reader, i::Int=1)
+    if i > lastindex(reader.names)
+        return nothing
+    else
+        return reader[i], i + 1
+    end
 end
 
-function Base.done(reader::Reader, i)
-    return i > endof(reader.names)
-end
-
-function Base.next(reader::Reader, i)
-    return reader[i], i + 1
-end
 
 """
     seqnames(reader::Reader)::Vector{String}
@@ -67,20 +64,20 @@ end
 # -------------
 
 function Base.checkbounds(reader::Reader, i::Integer)
-    if 1 ≤ i ≤ endof(reader)
+    if 1 ≤ i ≤ lastindex(reader)
         return true
     end
     throw(BoundsError(reader, i))
 end
 
-function Base.checkbounds(reader::Reader, r::Range)
-    if isempty(r) || (1 ≤ first(r) && last(r) ≤ endof(reader))
+function Base.checkbounds(reader::Reader, r::AbstractRange)
+    if isempty(r) || (1 ≤ first(r) && last(r) ≤ lastindex(reader))
         return true
     end
     throw(BoundsError(reader, r))
 end
 
-function Base.endof(reader::Reader)
+function Base.lastindex(reader::Reader)
     return length(reader)
 end
 
@@ -92,14 +89,14 @@ function Base.getindex(reader::Reader, i::Integer)
     return record
 end
 
-function Base.getindex(reader::Reader, r::Range)
+function Base.getindex(reader::Reader, r::AbstractRange)
     checkbounds(reader, r)
     return [reader[i] for i in r]
 end
 
 function Base.getindex(reader::Reader, name::AbstractString)
-    i = findfirst(reader.names, name)
-    if i == 0
+    i = findfirst(isequal(name), reader.names)
+    if i === nothing
         throw(KeyError(name))
     end
     return reader[i]
@@ -136,7 +133,7 @@ function readindex!(input, seqcount, swap)
     offsets = UInt32[]
     for i in 1:seqcount
         namesize = read(input, UInt8)
-        name = read(input, UInt8, namesize)
+        name = read(input, namesize)
         offset = read32(input, swap)
         push!(names, String(name))
         push!(offsets, offset)

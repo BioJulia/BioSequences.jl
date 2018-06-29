@@ -9,7 +9,7 @@ Append a biological symbol `x` to a biological sequence `seq`.
 function Base.push!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
-    encoded_setindex!(seq, bin, endof(seq))
+    encoded_setindex!(seq, bin, lastindex(seq))
     return seq
 end
 
@@ -24,7 +24,7 @@ function Base.pop!(seq::BioSequence)
         throw(ArgumentError("sequence must be non-empty"))
     end
     x = seq[end]
-    deleteat!(seq, endof(seq))
+    deleteat!(seq, lastindex(seq))
     return x
 end
 
@@ -38,7 +38,7 @@ function Base.insert!(seq::BioSequence{A}, i::Integer, x) where {A}
     checkbounds(seq, i)
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
-    copy!(seq, i + 1, seq, i, endof(seq) - i)
+    copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
     encoded_setindex!(seq, bin, i)
     return seq
 end
@@ -52,7 +52,7 @@ Modifies the input sequence.
 """
 function Base.deleteat!(seq::BioSequence{A}, range::UnitRange{<:Integer}) where {A}
     checkbounds(seq, range)
-    copy!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
+    copyto!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
     resize!(seq, length(seq) - length(range))
     return seq
 end
@@ -67,7 +67,7 @@ Modifies the input sequence.
 """
 function Base.deleteat!(seq::BioSequence, i::Integer)
     checkbounds(seq, i)
-    copy!(seq, i, seq, i + 1, length(seq) - i)
+    copyto!(seq, i, seq, i + 1, length(seq) - i)
     resize!(seq, length(seq) - 1)
     return seq
 end
@@ -80,17 +80,17 @@ Modifies and returns `seq`.
 """
 function Base.append!(seq::BioSequence{A}, other::BioSequence{A}) where {A}
     resize!(seq, length(seq) + length(other))
-    copy!(seq, endof(seq) - length(other) + 1, other, 1)
+    copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
     return seq
 end
 
 """
-    shift!(seq)
+    popfirst!(seq)
 
 Remove the symbol from the beginning of a biological sequence `seq` and return
 it. Returns a variable of `eltype(seq)`.
 """
-function Base.shift!(seq::BioSequence)
+function Base.popfirst!(seq::BioSequence)
     if isempty(seq)
         throw(ArgumentError("sequence must be non-empty"))
     end
@@ -100,14 +100,14 @@ function Base.shift!(seq::BioSequence)
 end
 
 """
-    unshift!(seq, x)
+    pushfirst!(seq, x)
 
 Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
 """
-function Base.unshift!(seq::BioSequence{A}, x) where {A}
+function Base.pushfirst!(seq::BioSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
-    copy!(seq, 2, seq, 1, length(seq) - 1)
+    copyto!(seq, 2, seq, 1, length(seq) - 1)
     encoded_setindex!(seq, bin, 1)
     return seq
 end
@@ -141,7 +141,7 @@ function Base.filter!(f::Function, seq::BioSequence{A}) where {A}
     next = bitindex(seq, 1)
     j = index(next)
     datum::UInt64 = 0
-    for i in 1:endof(seq)
+    for i in 1:lastindex(seq)
         x = inbounds_getindex(seq, i)
         if f(x)
             datum |= enc64(seq, x) << offset(next)
@@ -168,7 +168,7 @@ end
 
 function Base.map!(f::Function, seq::BioSequence)
     orphan!(seq)
-    for i in 1:endof(seq)
+    for i in 1:lastindex(seq)
         unsafe_setindex!(seq, f(inbounds_getindex(seq, i)), i)
     end
     return seq
@@ -185,10 +185,10 @@ Reverse a biological sequence `seq` in place.
 """
 function Base.reverse!(seq::BioSequence)
     orphan!(seq)
-    for i in 1:div(endof(seq), 2)
+    for i in 1:div(lastindex(seq), 2)
         x = inbounds_getindex(seq, i)
-        unsafe_setindex!(seq, inbounds_getindex(seq, endof(seq) - i + 1), i)
-        unsafe_setindex!(seq, x, endof(seq) - i + 1)
+        unsafe_setindex!(seq, inbounds_getindex(seq, lastindex(seq) - i + 1), i)
+        unsafe_setindex!(seq, x, lastindex(seq) - i + 1)
     end
     return seq
 end
@@ -211,9 +211,9 @@ Base.reverse(seq::BioSequence) = reverse!(copy(seq))
     end
 
     quote
-        data = Vector{UInt64}(seq_data_len(A, length(seq)))
+        data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
         i = 1
-        next = bitindex(seq, endof(seq))
+        next = bitindex(seq, lastindex(seq))
         stop = bitindex(seq, 0)
         r = rem(offset(next) + $n, 64)
         if r == 0
@@ -269,7 +269,7 @@ Make a complement sequence of `seq` in place.
 function complement!(seq::BioSequence{A}) where {A<:TwoBitNucs}
     orphan!(seq)
     next = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
+    stop = bitindex(seq, lastindex(seq) + 1)
     @inbounds while next < stop
         seq.data[index(next)] = ~seq.data[index(next)]
         next += 64
@@ -285,7 +285,7 @@ Transform `seq` into it's complement.
 function complement!(seq::BioSequence{A}) where {A<:FourBitNucs}
     orphan!(seq)
     next = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
+    stop = bitindex(seq, lastindex(seq) + 1)
     @inbounds while next < stop
         x = seq.data[index(next)]
         seq.data[index(next)] = (
@@ -301,7 +301,7 @@ end
 
 Make a complement sequence of `seq`.
 """
-function complement(seq::BioSequence{A}) where {A<:NucAlphs}
+function BioSymbols.complement(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(copy(seq))
 end
 
@@ -330,15 +330,15 @@ end
 # Shuffle
 # -------
 
-function Base.shuffle(seq::BioSequence)
+function Random.shuffle(seq::BioSequence)
     return shuffle!(copy(seq))
 end
 
-function Base.shuffle!(seq::BioSequence)
+function Random.shuffle!(seq::BioSequence)
     orphan!(seq)
     # Fisher-Yates shuffle
-    for i in 1:endof(seq)-1
-        j = rand(i:endof(seq))
+    for i in 1:lastindex(seq)-1
+        j = rand(i:lastindex(seq))
         seq[i], seq[j] = seq[j], seq[i]
     end
     return seq

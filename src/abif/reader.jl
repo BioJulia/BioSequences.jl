@@ -15,12 +15,12 @@ struct AbifDirEntry
 end
 
 """
-    AbifReader(input::IO)
+    ABIF.Reader(input::IO)
 Create a data reader of the ABIF file format.
 # Arguments
 * `input`: data source
 """
-mutable struct AbifReader{T<:IO} <: BioCore.IO.AbstractReader
+mutable struct Reader{T<:IO} <: BioCore.IO.AbstractReader
     # input stream
     input::T
 
@@ -28,46 +28,42 @@ mutable struct AbifReader{T<:IO} <: BioCore.IO.AbstractReader
     dirs::Vector{AbifDirEntry}
 end
 
-function AbifReader(input::IO)
+function Reader(input::IO)
     header = read_abif_header(input)
     tags   = read_abif_tags(input, header)
 
-    return AbifReader(input, tags)
+    return Reader(input, tags)
 end
 
-function BioCore.IO.stream(reader::AbifReader)
+function BioCore.IO.stream(reader::Reader)
     return reader.input
 end
 
-function Base.start(p::AbifReader)
-    return 1
+function Base.iterate(p::Reader, k::Int=1)
+    if k > length(p)
+        return nothing
+    else
+        return getindex(p, p.dirs[k]), k + 1
+    end
 end
 
-function Base.done(p::AbifReader, k)
-    return k > length(p)
-end
-
-function Base.next(p::AbifReader, k)
-    return getindex(p, p.dirs[k]), k + 1
-end
-
-function Base.length(a::AbifReader)
+function Base.length(a::Reader)
     return length(a.dirs)
 end
 
-function Base.checkbounds(p::AbifReader, k::Integer)
+function Base.checkbounds(p::Reader, k::Integer)
     if 1 ≤ k ≤ length(p)
         return true
     end
     throw(BoundsError(p, k))
 end
 
-function Base.getindex(a::AbifReader, k::Integer)
+function Base.getindex(a::Reader, k::Integer)
     checkbounds(a, k)
     return Dict([parse_data_tag(a, a.dirs[k])])
 end
 
-function Base.getindex(a::AbifReader, t::AbstractString)
+function Base.getindex(a::Reader, t::AbstractString)
     tag = filter((x) -> x.name == t, a.dirs)
 
     if isempty(tag)
@@ -81,43 +77,43 @@ function Base.getindex(a::AbifReader, t::AbstractString)
     return Dict([parse_data_tag(a, first(tag))])
 end
 
-function Base.getindex(a::AbifReader, t::AbifDirEntry)
+function Base.getindex(a::Reader, t::AbifDirEntry)
     return Dict([parse_data_tag(a, t)])
 end
 
-function Base.getindex(a::AbifReader, t::Array{AbifDirEntry})
+function Base.getindex(a::Reader, t::Array{AbifDirEntry})
     return Dict([parse_data_tag(a, k) for k in t])
 end
 
 """
-    get_tags(input::AbifReader)
+    get_tags(input::Reader)
 Returns all existing tags
 # Arguments
-* `input`: AbifReader
+* `input`: Reader
 """
-function get_tags(a::AbifReader)
+function get_tags(a::Reader)
     return [tag for tag in a.dirs]
 end
 
 """
-    get_tags(input::AbifReader, tag_name::AbstractString)
+    get_tags(input::Reader, tag_name::AbstractString)
 Returns all existing tags by name
 # Arguments
-* `input`: AbifReader
+* `input`: Reader
 * `tag_name`: AbstractString
 """
-function get_tags(a::AbifReader, t::AbstractString)
+function get_tags(a::Reader, t::AbstractString)
     return [tag for tag in a.dirs if isequal(tag.name, t)]
 end
 
 """
-    tagelements(stream::AbifReader, tag_name::AbstractString)
+    tagelements(stream::Reader, tag_name::AbstractString)
 Returns the number of how many tags exists by the same name
 # Arguments
-* `stream`: AbifReader
+* `stream`: Reader
 * `tag_name`: AbstractString
 """
-function tagelements(a::AbifReader, t::AbstractString)
+function tagelements(a::Reader, t::AbstractString)
     return length(get_tags(a, t))
 end
 
@@ -127,7 +123,7 @@ function read_abif_header(input::IO)
     signature = read(input, 4)
 
     if is_abif_signature(signature)
-        version = ntoh(first(read(input, Int16, 1)))
+        version = ntoh(first(read(input, Int16)))
         return parse_directory(input, position(input))
     else
         error("Invalid File Signature")
@@ -166,7 +162,7 @@ function parse_directory(input::IO, pos::Int64)
 end
 
 # read bytes according to the element type, other values are unsupported or legacy.
-function parse_data_tag(a::AbifReader, tag::AbifDirEntry)
+function parse_data_tag(a::Reader, tag::AbifDirEntry)
     if tag.data_offset > 0
         seek(a.input, tag.data_offset)
 
@@ -176,15 +172,15 @@ function parse_data_tag(a::AbifReader, tag::AbifDirEntry)
             data = String(read(a.input, tag.data_size))
 
         elseif tag.element_type == 4
-            data = read(a.input, Int16, tag.num_elements)
+            data = [read(a.input, Int16) for _ in 1:tag.num_elements]
             data = convert_to_int(data)
 
         elseif tag.element_type == 5
-            data = read(a.input, Int32, tag.num_elements)
+            data = [read(a.input, Int32) for _ in 1:tag.num_elements]
             data = convert_to_int(data)
 
         elseif tag.element_type == 7
-            data = read(a.input, Float32, tag.num_elements)
+            data = [read(a.input, Float32) for _ in 1:tag.num_elements]
             data = convert_to_float(data)
 
         elseif tag.element_type == 10

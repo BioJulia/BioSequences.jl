@@ -1,5 +1,5 @@
 @testset "Shuffle" begin
-    @testset for _ in 1:10
+    @testset for i in 1:10
         @test shuffle(dna"") == dna""
         @test shuffle(dna"A") == dna"A"
         @test shuffle(dna"C") == dna"C"

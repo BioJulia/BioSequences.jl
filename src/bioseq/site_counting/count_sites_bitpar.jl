@@ -24,9 +24,9 @@
         @assert length(a) ≤ length(b)
 
         nexta = bitindex(a, 1)
-        stopa = bitindex(a, endof(a) + 1)
+        stopa = bitindex(a, lastindex(a) + 1)
         nextb = bitindex(b, 1)
-        stopb = bitindex(b, endof(b) + 1)
+        stopb = bitindex(b, lastindex(b) + 1)
         counts = bp_start_counter(S, A)
 #=
         println(A)

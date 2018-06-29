@@ -2,7 +2,7 @@
     @testset "Equality" begin
         function check_seq_kmer_equality(len)
             a = DNAKmer(random_dna_kmer(len))
-            b = convert(DNASequence, a)
+            b = DNASequence(a)
             return a == b && b == a
         end
 
@@ -29,13 +29,13 @@
 
     @testset "Inequality" begin
         for len in [1, 10, 32]
-            @test  isless(convert(DNAKmer{1}, UInt64(0)), convert(DNAKmer{1}, UInt64(1)))
-            @test !isless(convert(DNAKmer{1}, UInt64(0)), convert(DNAKmer{1}, UInt64(0)))
-            @test !isless(convert(DNAKmer{1}, UInt64(1)), convert(DNAKmer{1}, UInt64(0)))
+            @test  isless(DNAKmer{1}(UInt64(0)), DNAKmer{1}(UInt64(1)))
+            @test !isless(DNAKmer{1}(UInt64(0)), DNAKmer{1}(UInt64(0)))
+            @test !isless(DNAKmer{1}(UInt64(1)), DNAKmer{1}(UInt64(0)))
 
-            @test  isless(convert(RNAKmer{1}, UInt64(0)), convert(RNAKmer{1}, UInt64(1)))
-            @test !isless(convert(RNAKmer{1}, UInt64(0)), convert(RNAKmer{1}, UInt64(0)))
-            @test !isless(convert(RNAKmer{1}, UInt64(1)), convert(RNAKmer{1}, UInt64(0)))
+            @test  isless(RNAKmer{1}(UInt64(0)), RNAKmer{1}(UInt64(1)))
+            @test !isless(RNAKmer{1}(UInt64(0)), RNAKmer{1}(UInt64(0)))
+            @test !isless(RNAKmer{1}(UInt64(1)), RNAKmer{1}(UInt64(0)))
         end
     end
 

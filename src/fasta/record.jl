@@ -46,11 +46,11 @@ Create a FASTA record object from `str`.
 This function verifies and indexes fields for accessors.
 """
 function Record(str::AbstractString)
-    return convert(Record, str)
+    return Record(Vector{UInt8}(str))
 end
 
 function Base.convert(::Type{Record}, str::AbstractString)
-    return Record(convert(Vector{UInt8}, str))
+    return Record(Vector{UInt8}(str))
 end
 
 function Base.convert(::Type{String}, record::Record)
@@ -71,7 +71,7 @@ end
 
 Create a FASTA record object from `identifier`, `description` and `sequence`.
 """
-function Record(identifier::AbstractString, description::Union{AbstractString,Void}, sequence)
+function Record(identifier::AbstractString, description::Union{AbstractString,Nothing}, sequence)
     buf = IOBuffer()
     print(buf, '>', strip(identifier))
     if description != nothing
@@ -143,7 +143,7 @@ function BioCore.isfilled(record::Record)
 end
 
 function memcmp(p1::Ptr, p2::Ptr, n::Integer)
-    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, n)
+    return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), p1, p2, n)
 end
 
 
@@ -210,7 +210,7 @@ Get the sequence of `record`.
 `S` can be either a subtype of `BioSequences.Sequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S where S <: BioSequences.Sequence
+function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::S where S <: BioSequences.Sequence
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -219,7 +219,7 @@ function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record
     return S(record.data, first(seqpart), last(seqpart))
 end
 
-function sequence(::Type{String}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::String
+function sequence(::Type{String}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::String
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -236,7 +236,7 @@ This function infers the sequence type from the data. When it is wrong or
 unreliable, use `sequence(::Type{S}, record::Record)`.  If `part` argument is
 given, it returns the specified part of the sequence.
 """
-function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))
+function sequence(record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))
     checkfilled(record)
     S = predict_seqtype(record.data, record.sequence)
     return sequence(S, record, part)

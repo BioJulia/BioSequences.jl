@@ -43,7 +43,7 @@ end
 
 # Set the reading position of `input` to the starting position of the record `name`.
 function seekrecord(input::IO, index::Index, name::AbstractString)
-    i = findfirst(index.names, name)
+    i = findfirst(x -> x == name, index.names)
     if i == 0
         throw(ArgumentError("sequence \"$(name)\" is not in the index"))
     end
@@ -55,9 +55,9 @@ function seekrecord(input::IO, index::Index, name::AbstractString)
     while position(input) < offset
         push!(data, read(input, UInt8))
     end
-    for j in endof(data):-1:1
+    for j in lastindex(data):-1:1
         if data[j] == UInt8('>') && (offset ≤ n_back || (j ≥ 2 && data[j-1] == UInt8('\n')))
-            seek(input, offset - (endof(data) - j + 1))
+            seek(input, offset - (lastindex(data) - j + 1))
             return
         end
     end

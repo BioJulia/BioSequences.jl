@@ -13,7 +13,7 @@ struct QualityEncoding
     # valid base quality range
     qual::NTuple{2,Int8}
 
-    function QualityEncoding(ascii::Range{Char}, qual::Range{Int})
+    function QualityEncoding(ascii::AbstractRange{Char}, qual::AbstractRange{Int})
         if length(ascii) != length(qual)
             throw(ArgumentError("the ranges of ASCII and base quality don't match"))
         end
@@ -58,7 +58,7 @@ function decode_quality_string!(encoding, input, output, start, stop)
     resize!(output, stop - start + 1)
     offset = ascii_offset(encoding)
     for i in 1:(stop - start + 1)
-        @inbounds output[i] = input[start + i - 1] - offset
+        @inbounds output[i] = Int(input[start + i - 1]) - offset
     end
     return output
 end
@@ -68,7 +68,7 @@ function encode_quality_string!(encoding, input, output, start, stop)
     resize!(output, stop - start + 1)
     offset = ascii_offset(encoding)
     for i in 1:(stop - start + 1)
-        @inbounds output[i] = input[start + i - 1] + offset
+        @inbounds output[i] = Int(input[start + i - 1]) + offset
     end
     return output
 end

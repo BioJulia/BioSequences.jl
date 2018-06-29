@@ -9,7 +9,7 @@
 # Getting and setting elements in a biological sequence.
 
 function Base.checkbounds(seq::BioSequence, range::UnitRange)
-    if 1 ≤ range.start && range.stop ≤ endof(seq)
+    if 1 ≤ range.start && range.stop ≤ lastindex(seq)
         return true
     end
     throw(BoundsError(seq, range))
@@ -81,7 +81,7 @@ function Base.setindex!(seq::BioSequence{A},
                         locs::UnitRange{<:Integer}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
-    return copy!(seq, locs.start, other, 1)
+    return copyto!(seq, locs.start, other, 1)
 end
 
 function Base.setindex!(seq::BioSequence{A},
@@ -91,14 +91,18 @@ function Base.setindex!(seq::BioSequence{A},
     checkdimension(other, locs)
     orphan!(seq)
     i = j = 0
-    while (i = findnext(locs, i + 1)) > 0
+    while true
+        i = findnext(locs, i + 1)
+        if i === nothing
+            break
+        end
         unsafe_setindex!(seq, other[j+=1], i)
     end
     return seq
 end
 
 function Base.setindex!(seq::BioSequence{A}, other::BioSequence{A}, ::Colon) where {A}
-    return setindex!(seq, other, 1:endof(seq))
+    return setindex!(seq, other, 1:lastindex(seq))
 end
 
 function Base.setindex!(seq::BioSequence, x, i::Integer)
@@ -122,13 +126,17 @@ function Base.setindex!(seq::BioSequence{A}, x, locs::AbstractVector{Bool}) wher
     bin = enc64(seq, x)
     orphan!(seq)
     i = j = 0
-    while (i = findnext(locs, i + 1)) > 0
+    while true
+        i = findnext(locs, i + 1)
+        if i === nothing
+            break
+        end
         encoded_setindex!(seq, bin, i)
     end
     return seq
 end
 
-Base.setindex!(seq::BioSequence{A}, x, ::Colon) where {A} = setindex!(seq, x, 1:endof(seq))
+Base.setindex!(seq::BioSequence{A}, x, ::Colon) where {A} = setindex!(seq, x, 1:lastindex(seq))
 
 # this is "unsafe" because of no bounds check and no orphan! call
 @inline function unsafe_setindex!(seq::BioSequence{A}, x, i::Integer) where {A}

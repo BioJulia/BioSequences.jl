@@ -41,14 +41,14 @@ function ReferenceSequence(src::Vector{UInt8}, startpos::Integer=1,
     return encode(src, startpos, len)
 end
 
-function Base.convert(::Type{ReferenceSequence}, seq::BioSequence{<:DNAAlphabet})
-    data = Vector{UInt64}(cld(length(seq), 32))
+function ReferenceSequence(seq::BioSequence{<:DNAAlphabet})
+    data = Vector{UInt64}(undef, cld(length(seq), 32))
     nmask = falses(length(seq))
     i = 1
-    for j in 1:endof(data)
+    for j in 1:lastindex(data)
         x = UInt64(0)
         r = 0
-        while r < 64 && i ≤ endof(seq)
+        while r < 64 && i ≤ lastindex(seq)
             nt = seq[i]
             if nt == DNA_A
                 x |= convert(UInt64, 0) << r
@@ -71,16 +71,16 @@ function Base.convert(::Type{ReferenceSequence}, seq::BioSequence{<:DNAAlphabet}
     return ReferenceSequence(data, NMask(nmask), 1:length(seq))
 end
 
-function Base.convert(::Type{ReferenceSequence}, str::AbstractString)
+function ReferenceSequence(str::AbstractString)
     if !isascii(str)
         throw(ArgumentError("attempt to convert a non-ASCII string to ReferenceSequence"))
     end
     return encode([UInt8(char) for char in str], 1, length(str))
 end
 
-function Base.convert(::Type{DNASequence}, seq::ReferenceSequence)
+function DNASequence(seq::ReferenceSequence)
     bioseq = DNASequence(length(seq))
-    for i in 1:endof(seq)
+    for i in 1:lastindex(seq)
         bioseq[i] = seq[i]
     end
     return bioseq
@@ -89,6 +89,7 @@ end
 function Base.convert(::Type{S}, seq::ReferenceSequence) where {S<:AbstractString}
     return S([Char(nt) for nt in seq])
 end
+Base.String(seq::ReferenceSequence) = convert(String, seq)
 
 function bitindex(seq::ReferenceSequence, i::Integer)
     return BitIndex((i + first(seq.part) - 2) << 1)
@@ -120,11 +121,11 @@ function encode(src::Vector{UInt8}, from::Integer, len::Integer)
         end
         data[j] = x
     end
-    return ReferenceSequence(data, nmask, 1:len)
+    return ReferenceSequence(data, NMask(nmask), 1:len)
 end
 
 function Base.checkbounds(seq::ReferenceSequence, part::UnitRange)
-    if isempty(part) || (1 ≤ first(part) && last(part) ≤ endof(seq))
+    if isempty(part) || (1 ≤ first(part) && last(part) ≤ lastindex(seq))
         return true
     end
     throw(BoundsError(seq, part))

@@ -30,9 +30,10 @@ struct PFM{S,T<:Real} <: AbstractMatrix{T}
     end
 end
 
-function Base.convert(::Type{PFM{S}}, m::AbstractMatrix{T}) where {S, T}
+function PFM{S}(m::AbstractMatrix{T}) where {S, T}
     return PFM{S,T}(m)
 end
+Base.convert(::Type{PFM{S}}, m::AbstractMatrix{T}) where {S, T} = PFM{S}(m)
 
 function Base.convert(::Type{Matrix{T}}, m::PFM) where T
     return convert(Matrix{T}, m.data)
@@ -52,7 +53,7 @@ function PFM(set::Vector)
     end
     len = length(set[1])
     freq = zeros(Int, (4, len))
-    for i in 1:endof(set)
+    for i in 1:lastindex(set)
         seq = set[i]
         if eltype(seq) != S
             throw(ArgumentError("sequence element must be $(S)"))
@@ -66,7 +67,15 @@ function PFM(set::Vector)
             end
         end
     end
-    return convert(PFM{S}, freq)
+    return PFM{S}(freq)
+end
+
+# Broadcasting
+struct PFMBroadcastStyle{S} <: Broadcast.BroadcastStyle end
+Base.BroadcastStyle(::Type{PFM{S,T}}) where {S,T} = PFMBroadcastStyle{S}()
+Base.BroadcastStyle(s1::PFMBroadcastStyle, s2::Base.BroadcastStyle) where {S,T} = s1
+function Base.similar(bc::Broadcast.Broadcasted{PFMBroadcastStyle{S}}, elt::Type{T}) where {S, T}
+    return PFM{S, T}(similar(Array{T}, axes(bc)))
 end
 
 function Base.IndexStyle(::Type{<:PFM})
@@ -95,18 +104,6 @@ end
 
 function Base.setindex!(m::PFM, val, s::S, j::Integer) where S<:Union{DNA,RNA}
     return setindex!(m.data, val, index_nuc(s, j))
-end
-
-function Base.Broadcast._containertype(::Type{<:PFM})
-    return PFM
-end
-
-function Base.Broadcast.promote_containertype(::Type{PFM}, ::Type{Array})
-    return PFM
-end
-
-function Base.Broadcast.broadcast_c(f, ::Type{PFM}, A::PFM{S}, Bs...) where S
-    return PFM{S}(Base.Broadcast.broadcast_c(f, Array, A.data, Bs...))
 end
 
 function Base.show(io::IO, m::PFM{<:Union{DNA,RNA}})
@@ -153,7 +150,7 @@ function PWM(pfm::PFM{S}; prior=fill(1/4, 4)) where S <: Union{DNA,RNA}
     elseif sum(prior) ≉ 1
         throw(ArgumentError("prior must be sum to 1"))
     end
-    prob = pfm ./ sum(pfm, 1)
+    prob = pfm ./ sum(pfm, dims=1)
     return PWM{S,Float64}(log2.(prob ./ prior))
 end
 
@@ -231,7 +228,7 @@ end
 # Make an accumulated maximum score vector.
 function make_maxscore(pwm)
     len = size(pwm, 2)
-    maxscore = Vector{eltype(pwm)}(len)
+    maxscore = Vector{eltype(pwm)}(undef, len)
     for j in len:-1:1
         s = pwm[1,j]
         for i in 2:size(pwm, 1)
@@ -263,7 +260,7 @@ function scoreat(seq::Sequence, pwm::PWM, start::Integer)
     return score
 end
 
-function Base.search(seq::Sequence, pwm::PWM, threshold::Real, start=1, stop=endof(seq))
+function Base.findfirst(pwm::PWM, seq::Sequence, threshold::Real, start=1, stop=lastindex(seq))
     if eltype(seq) == DNA || eltype(seq) == RNA
         return search_nuc(seq, start:stop, pwm, convert(eltype(pwm), threshold))
     else
@@ -296,7 +293,7 @@ function search_nuc(seq::Sequence, range::UnitRange{Int}, pwm::PWM{<:Union{DNA,R
             return p
         end
     end
-    return 0
+    return nothing
 end
 
 function index_nuc(s::Union{DNA,RNA}, j::Integer)
@@ -307,9 +304,9 @@ function index_nuc(s::Union{DNA,RNA}, j::Integer)
 end
 
 function show_nuc_matrix(io::IO, m::Union{PFM{S},PWM{S}}) where S<:Union{DNA,RNA}
-    compact(x) = string(x ≥ 0 ? " " : "", sprint(showcompact, x))
+    compact(x) = string(x ≥ 0 ? " " : "", sprint(show, x, context=:compact=>true))
     cells = hcat(['A', 'C', 'G', S == DNA ? 'T' : 'U'], compact.(m.data))
-    width = maximum(length.(cells), 1)
+    width = maximum(length.(cells), dims=1)
     print(io, summary(m), ':')
     for i in 1:size(cells, 1)
         print(io, "\n ", rpad(cells[i,1], width[1]+1))

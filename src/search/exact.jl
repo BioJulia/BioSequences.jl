@@ -13,7 +13,7 @@
 # following reference implementation:
 #=
 # Return the index of the first occurrence of `pat` in `seq[start:stop]`.
-function searchindex(seq, pat, start=1, stop=endof(seq))
+function searchindex(seq, pat, start=1, stop=lastindex(seq))
     m = length(pat)
     n = length(seq)
     for s in max(start-1, 0):min(stop, n)-m
@@ -25,7 +25,7 @@ function searchindex(seq, pat, start=1, stop=endof(seq))
 end
 
 # Return the index of the last occurrence of `pat` in `seq[stop:start]`.
-function rsearchindex(seq, pat, start=endof(seq), stop=1)
+function rsearchindex(seq, pat, start=lastindex(seq), stop=1)
     n = length(seq)
     m = length(pat)
     for s in min(start, n)-m:-1:max(stop-1, 0)
@@ -37,7 +37,7 @@ function rsearchindex(seq, pat, start=endof(seq), stop=1)
 end
 
 function occurs_with_shift(pat, seq, shift)
-    for i in 1:endof(pat)
+    for i in 1:lastindex(pat)
         if !iscompatible(pat[i], seq[shift+i])
             return false
         end
@@ -74,14 +74,14 @@ function preprocess(query)
     last = query[end]
     cbits::UInt32 = 0
     fshift = bshift = m
-    for i in 1:endof(query)
+    for i in 1:lastindex(query)
         x = query[i]
         cbits |= compatbits(x)
         if iscompatible(x, last) && i < m
             fshift = m - i
         end
     end
-    for i in endof(query):-1:1
+    for i in lastindex(query):-1:1
         x = query[i]
         if iscompatible(x, first) && i > 1
             bshift = i - 1
@@ -100,64 +100,26 @@ end
 # Forward
 # -------
 
-
-# NOTE: the return value is a range while the counterpart for strings is an index
 """
-    search(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
-
-Return the range of the first occurrence of `pat` in `seq[start:stop]`; symbol
-comparison is done using `BioSequences.iscompatible`.
-"""
-function Base.search(seq::Sequence, val,
-                     start::Integer=1, stop::Integer=endof(seq))
-    s = searchindex(seq, val, start, stop)
-    if s == 0
-        return 0:-1
-    else
-        return s:s
-    end
-end
-
-function Base.search(seq::Sequence, pat::Sequence,
-                     start::Integer=1, stop::Integer=endof(seq))
-    return search(seq, ExactSearchQuery(pat), start, stop)
-end
-
-function Base.search(seq::Sequence, query::ExactSearchQuery,
-                     start::Integer=1, stop::Integer=endof(seq))
-    s = searchindex(seq, query, start, stop)
-    if s == 0
-        return 0:-1
-    end
-    return s:s+length(query.seq)-1
-end
-
-"""
-    searchindex(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
+    findfirst(pat, seq::Sequence, [, start=1[, stop=lastindex(seq)]])
 
 Return the index of the first occurrence of `pat` in `seq[start:stop]`; symbol
 comparison is done using `BioSequences.iscompatible`.
 """
-function Base.searchindex(seq::Sequence, val,
-                          start::Integer=1, stop::Integer=endof(seq))
-    x = convert(eltype(seq), val)
-    for i in max(start, 1):min(stop, endof(seq))
-        if iscompatible(seq[i], x)
-            return i  # found
-        end
-    end
-    return 0  # not found
+function Base.findfirst(pat::Sequence, seq::Sequence,
+                        start::Integer=1, stop::Integer=lastindex(seq))
+    return findfirst(ExactSearchQuery(pat), seq, start, stop)
 end
 
-function Base.searchindex(seq::Sequence, pat::Sequence,
-                          start::Integer=1, stop::Integer=endof(seq))
-    return searchindex(seq, ExactSearchQuery(pat), start, stop)
-end
-
-function Base.searchindex(seq::Sequence, query::ExactSearchQuery,
-                          start::Integer=1, stop::Integer=endof(seq))
+function Base.findfirst(query::ExactSearchQuery, seq::Sequence, 
+                        start::Integer=1, stop::Integer=lastindex(seq))
     checkeltype(seq, query.seq)
-    return quicksearch(query, seq, start, stop)
+    i = quicksearch(query, seq, start, stop)
+    if i == 0
+        return nothing
+    else
+        return i:i+length(query.seq)-1
+    end
 end
 
 # This algorithm is borrowed from base/strings/search.jl, which looks similar to
@@ -209,63 +171,26 @@ end
 # Backward
 # --------
 
-# NOTE: the return value is a range while the counterpart for strings is an index
 """
-    rsearch(seq::Sequence, pat[, start=endof(seq)[, stop=1]])
-
-Return the range of the last occurrence of `pat` in `seq[stop:start]`; symbol
-comparison is done using `BioSequences.iscompatible`.
-"""
-function Base.rsearch(seq::Sequence, val,
-                      start::Integer=endof(seq), stop::Integer=1)
-    s = rsearchindex(seq, val, start, stop)
-    if s == 0
-        return 0:-1
-    else
-        return s:s
-    end
-end
-
-function Base.rsearch(seq::Sequence, pat::Sequence,
-                      start::Integer=endof(seq), stop::Integer=1)
-    return rsearch(seq, ExactSearchQuery(pat), start, stop)
-end
-
-function Base.rsearch(seq::Sequence, query::ExactSearchQuery,
-                      start::Integer=endof(seq), stop::Integer=1)
-    s = rsearchindex(seq, query, start, stop)
-    if s == 0
-        return 0:-1
-    end
-    return s:s+length(query.seq)-1
-end
-
-"""
-    rsearchindex(seq::Sequence, pat[, start=1[, stop=endof(seq)]])
+    findlast(pat, seq::Sequence, [, start=1[, stop=lastindex(seq)]])
 
 Return the index of the last occurrence of `pat` in `seq[start:stop]`; symbol
 comparison is done using `BioSequences.iscompatible`.
 """
-function Base.rsearchindex(seq::Sequence, val,
-                           start::Integer=endof(seq), stop::Integer=1)
-    x = convert(eltype(seq), val)
-    for i in min(start, endof(seq)):-1:max(stop, 1)
-        if iscompatible(seq[i], x)
-            return i  # found
-        end
-    end
-    return 0  # not found
+function Base.findlast(pat::Sequence, seq::Sequence, 
+                       start::Integer=lastindex(seq), stop::Integer=1)
+    return findlast(ExactSearchQuery(pat), seq, start, stop)
 end
 
-function Base.rsearchindex(seq::Sequence, pat::Sequence,
-                           start::Integer=endof(seq), stop::Integer=1)
-    return rsearchindex(seq, ExactSearchQuery(pat), start, stop)
-end
-
-function Base.rsearchindex(seq::Sequence, query::ExactSearchQuery,
-                           start::Integer=endof(seq), stop::Integer=1)
+function Base.findlast(query::ExactSearchQuery, seq::Sequence,
+                       start::Integer=lastindex(seq), stop::Integer=1)
     checkeltype(seq, query.seq)
-    return quickrsearch(seq, query, start, stop)
+    i = quickrsearch(seq, query, start, stop)
+    if i == 0
+        return nothing
+    else
+        return i:i+length(query.seq)-1
+    end
 end
 
 function quickrsearch(seq, query, start, stop)

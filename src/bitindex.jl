@@ -26,9 +26,17 @@ Base.:-(i1::BitIndex, i2::BitIndex) = i1.val - i2.val
 Base.:(==)(i1::BitIndex, i2::BitIndex) = i1.val == i2.val
 Base.isless(i1::BitIndex, i2::BitIndex) = isless(i1.val, i2.val)
 Base.cmp(i1::BitIndex, i2::BitIndex) = cmp(i1.val, i2.val)
-Base.start(i::BitIndex) = 1
-Base.done(i::BitIndex, s) = s > 2
-Base.next(i::BitIndex, s) = ifelse(s == 1, (index(i), 2), (offset(i), 3))
+
+function Base.iterate(i::BitIndex, s=1)
+    if s == 1
+        return (index(i), 2)
+    elseif s == 2
+        return (offset(i), 3)
+    else
+        return nothing
+    end
+end
+
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
 # Create a bit mask that fills least significant `n` bits (`n` must be a

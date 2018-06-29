@@ -1,11 +1,14 @@
 module TestBioSequences
 
-using Compat: Test
+using Test
+using Random
+using LinearAlgebra: normalize
 import BioSymbols
 using BioSequences
-using IntervalTrees.IntervalValue
+using IntervalTrees: IntervalValue
 using StatsBase
 using YAML
+using BioCore
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
@@ -33,7 +36,7 @@ function random_translatable_rna(n)
     probs = fill(1.0 / length(codons), length(codons))
     cumprobs = cumsum(probs)
     r = rand()
-    x = Vector{String}(n)
+    x = Vector{String}(undef, n)
     for i in 1:n
         x[i] = codons[searchsorted(cumprobs, rand()).start]
     end
@@ -52,7 +55,7 @@ end
 
 function random_array(n::Integer, elements, probs)
     cumprobs = cumsum(probs)
-    x = Vector{eltype(elements)}(n)
+    x = Vector{eltype(elements)}(undef, n)
     for i in 1:n
         x[i] = elements[searchsorted(cumprobs, rand()).start]
     end
@@ -62,16 +65,16 @@ end
 # Return a random DNA/RNA sequence of the given length.
 function random_seq(n::Integer, nts, probs)
     cumprobs = cumsum(probs)
-    x = Vector{Char}(n)
+    x = Vector{Char}(undef, n)
     for i in 1:n
         x[i] = nts[searchsorted(cumprobs, rand()).start]
     end
-    return convert(String, x)
+    return String(x)
 end
 
 function random_seq(::Type{A}, n::Integer) where A<:Alphabet
-    nts = alphabet(A)
-    probs = Vector{Float64}(length(nts))
+    nts = BioSymbols.alphabet(A)
+    probs = Vector{Float64}(undef, length(nts))
     fill!(probs, 1 / length(nts))
     return BioSequence{A}(random_seq(n, nts, probs))
 end
@@ -119,7 +122,7 @@ function random_rna_kmer_nucleotides(len)
 end
 
 function dna_complement(seq::AbstractString)
-    seqc = Vector{Char}(length(seq))
+    seqc = Vector{Char}(undef, length(seq))
     for (i, c) in enumerate(seq)
         if c     ==   'A'
             seqc[i] = 'T'
@@ -133,11 +136,11 @@ function dna_complement(seq::AbstractString)
             seqc[i] = seq[i]
         end
     end
-    return convert(String, seqc)
+    return String(seqc)
 end
 
 function rna_complement(seq::AbstractString)
-    seqc = Vector{Char}(length(seq))
+    seqc = Vector{Char}(undef, length(seq))
     for (i, c) in enumerate(seq)
         if c == 'A'
             seqc[i] = 'U'
@@ -151,7 +154,7 @@ function rna_complement(seq::AbstractString)
             seqc[i] = seq[i]
         end
     end
-    return convert(String, seqc)
+    return String(seqc)
 end
 
 function random_interval(minstart, maxstop)
