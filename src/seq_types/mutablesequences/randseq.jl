@@ -36,7 +36,7 @@ function randseq(generator::StationaryGenerator{T}, len::Integer) where {T}
     if len < 0
         throw(ArgumentError("length must be non-negative"))
     end
-    seq = MutableBioSequence{alphatype(T)}(len)
+    seq = GeneralSequence{alphatype(T)}(len)
     probs = generator.probs
     for i in 1:len
         r = rand()

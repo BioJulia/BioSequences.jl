@@ -21,7 +21,7 @@ struct ReferenceSequence <: BioSequence
 end
 
 Base.length(seq::ReferenceSequence) = length(seq.part)
-alphabet_t(::Type{ReferenceSequence}) = DNAAlphabet{2}
+Alphabet(::Type{ReferenceSequence}) = DNAAlphabet{2}
 Base.summary(seq::ReferenceSequence) = string(length(seq), "nt Reference Sequence")
 
 function Base.copy(seq::ReferenceSequence)
@@ -41,7 +41,7 @@ function ReferenceSequence(src::Vector{UInt8}, startpos::Integer=1,
     return encode(src, startpos, len)
 end
 
-function ReferenceSequence(seq::MutableBioSequence{<:DNAAlphabet})
+function Base.convert(::Type{ReferenceSequence}, seq::GeneralSequence{<:DNAAlphabet})
     data = Vector{UInt64}(undef, cld(length(seq), 32))
     nmask = falses(length(seq))
     i = 1
@@ -92,7 +92,7 @@ end
 Base.String(seq::ReferenceSequence) = convert(String, seq)
 
 @inline function bitindex(seq::ReferenceSequence, i::Integer)
-    return bitindex(Val{2}(), UInt64, i + first(seq.part) - 1)
+    return bitindex(BitsPerSymbol{2}(), UInt64, i + first(seq.part) - 1)
 end
 
 # Create ReferenceSequence object from the ascii-encoded `data`
@@ -102,10 +102,10 @@ function encode(src::Vector{UInt8}, from::Integer, len::Integer)
     nmask = falses(len)
     #next = bitindex(1, 2)
     #next = BitIndex{2,UInt64}(1)
-    next = bitindex(Val{2}(), UInt64, 1)
+    next = bitindex(BitsPerSymbol{2}(), UInt64, 1)
     #stop = bitindex(len + 1, 2)
     #stop = BitIndex{2, UInt64}(len + 1)
-    stop = bitindex(Val{2}(), UInt64, len + 1)
+    stop = bitindex(BitsPerSymbol{2}(), UInt64, len + 1)
     #println("next: ", next)
     #println("stop: ", stop)
     i = from
@@ -123,7 +123,7 @@ function encode(src::Vector{UInt8}, from::Integer, len::Integer)
             #println("!isambiguous: ", !isambiguous(nt))
             if !isambiguous(nt)
                 #println("Encoded nt: ", hex(encode(DNAAlphabet{2}, nt) << offset(next)))
-                x |= UInt64(encode(DNAAlphabet{2}, nt)) << offset(next)
+                x |= UInt64(encode(DNAAlphabet{2}(), nt)) << offset(next)
             elseif nt == DNA_N
                 nmask[i] = true
             else

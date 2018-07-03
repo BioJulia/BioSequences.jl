@@ -1,6 +1,6 @@
 @testset "Copy" begin
     function test_copy(A, seq)
-        @test convert(String, copy(MutableBioSequence{A}(seq))) == seq
+        @test convert(String, copy(GeneralSequence{A}(seq))) == seq
     end
 
     for len in [1, 10, 16, 32, 1000, 10000]
@@ -27,7 +27,7 @@ end
             push!(parts, start:stop)
         end
         str = string([chunk[parts[i]] for (i, chunk) in enumerate(chunks)]...)
-        seq = *([MutableBioSequence{A}(chunk)[parts[i]] for (i, chunk) in enumerate(chunks)]...)
+        seq = *([GeneralSequence{A}(chunk)[parts[i]] for (i, chunk) in enumerate(chunks)]...)
         @test convert(String, seq) == uppercase(str)
     end
 
@@ -57,7 +57,7 @@ end
         stop = rand(start:length(chunk))
         n = rand(1:10)
         str = chunk[start:stop] ^ n
-        seq = MutableBioSequence{A}(chunk)[start:stop] ^ n
+        seq = GeneralSequence{A}(chunk)[start:stop] ^ n
         @test convert(String, seq) == uppercase(str)
     end
 

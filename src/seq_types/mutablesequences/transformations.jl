@@ -2,11 +2,11 @@
 # ---------------
 
 """
-    push!(seq::MutableBioSequence{A}, x) where {A}
+    push!(seq::GeneralSequence{A}, x) where {A}
 
 Append a biological symbol `x` to a biological sequence `seq`.
 """
-function Base.push!(seq::MutableBioSequence{A}, x) where {A}
+function Base.push!(seq::GeneralSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
     encoded_setindex!(seq, bin, lastindex(seq))
@@ -14,12 +14,12 @@ function Base.push!(seq::MutableBioSequence{A}, x) where {A}
 end
 
 """
-    pop!(seq::MutableBioSequence)
+    pop!(seq::GeneralSequence)
 
 Remove the symbol from the end of a biological sequence `seq` and return it.
 Returns a variable of `eltype(seq)`.
 """
-function Base.pop!(seq::MutableBioSequence)
+function Base.pop!(seq::GeneralSequence)
     if isempty(seq)
         throw(ArgumentError("sequence must be non-empty"))
     end
@@ -34,7 +34,7 @@ end
 Insert a biological symbol `x` into a biological sequence `seq`, at the given
 index `i`.
 """
-function Base.insert!(seq::MutableBioSequence{A}, i::Integer, x) where {A}
+function Base.insert!(seq::GeneralSequence{A}, i::Integer, x) where {A}
     checkbounds(seq, i)
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
@@ -44,13 +44,13 @@ function Base.insert!(seq::MutableBioSequence{A}, i::Integer, x) where {A}
 end
 
 """
-    deleteat!(seq::MutableBioSequence, range::UnitRange{<:Integer})
+    deleteat!(seq::GeneralSequence, range::UnitRange{<:Integer})
 
 Deletes a defined `range` from a biological sequence `seq`.
 
 Modifies the input sequence.
 """
-function Base.deleteat!(seq::MutableBioSequence{A}, range::UnitRange{<:Integer}) where {A}
+function Base.deleteat!(seq::GeneralSequence{A}, range::UnitRange{<:Integer}) where {A}
     checkbounds(seq, range)
     copyto!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
     resize!(seq, length(seq) - length(range))
@@ -58,14 +58,14 @@ function Base.deleteat!(seq::MutableBioSequence{A}, range::UnitRange{<:Integer})
 end
 
 """
-    deleteat!(seq::MutableBioSequence, i::Integer)
+    deleteat!(seq::GeneralSequence, i::Integer)
 
 Delete a biological symbol at a single position `i` in a biological sequence
 `seq`.
 
 Modifies the input sequence.
 """
-function Base.deleteat!(seq::MutableBioSequence, i::Integer)
+function Base.deleteat!(seq::GeneralSequence, i::Integer)
     checkbounds(seq, i)
     copyto!(seq, i, seq, i + 1, length(seq) - i)
     resize!(seq, length(seq) - 1)
@@ -78,8 +78,8 @@ end
 Add a biological sequence `other` onto the end of biological sequence `seq`.
 Modifies and returns `seq`.
 """
-function Base.append!(seq::MutableBioSequence{A},
-		      other::MutableBioSequence{A}) where {A}
+function Base.append!(seq::GeneralSequence{A},
+		      other::GeneralSequence{A}) where {A}
     resize!(seq, length(seq) + length(other))
     copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
     return seq
@@ -91,7 +91,7 @@ end
 Remove the symbol from the beginning of a biological sequence `seq` and return
 it. Returns a variable of `eltype(seq)`.
 """
-function Base.popfirst!(seq::MutableBioSequence)
+function Base.popfirst!(seq::GeneralSequence)
     if isempty(seq)
         throw(ArgumentError("sequence must be non-empty"))
     end
@@ -105,7 +105,7 @@ end
 
 Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
 """
-function Base.pushfirst!(seq::MutableBioSequence{A}, x) where {A}
+function Base.pushfirst!(seq::GeneralSequence{A}, x) where {A}
     bin = enc64(seq, x)
     resize!(seq, length(seq) + 1)
     copyto!(seq, 2, seq, 1, length(seq) - 1)
@@ -118,7 +118,7 @@ end
 
 Resize a biological sequence `seq`, to a given `size`.
 """
-function Base.resize!(seq::MutableBioSequence{A}, size::Integer) where {A}
+function Base.resize!(seq::GeneralSequence{A}, size::Integer) where {A}
     if size < 0
         throw(ArgumentError("size must be non-negative"))
     end
@@ -133,9 +133,9 @@ end
 
 Completely empty a biological sequence `seq` of nucleotides.
 """
-Base.empty!(seq::MutableBioSequence) = resize!(seq, 0)
+Base.empty!(seq::GeneralSequence) = resize!(seq, 0)
 
-function Base.filter!(f::Function, seq::MutableBioSequence{A}) where {A}
+function Base.filter!(f::Function, seq::GeneralSequence{A}) where {A}
     orphan!(seq)
 
     len = 0
@@ -147,7 +147,8 @@ function Base.filter!(f::Function, seq::MutableBioSequence{A}) where {A}
         if f(x)
             datum |= enc64(seq, x) << offset(next)
             len += 1
-            next += bits_per_symbol(A)
+            #TODO: Resolve use of bits_per_symbol.
+            next += bits_per_symbol(A())
             if index(next) != j
                 seq.data[j] = datum
                 datum = 0
@@ -163,11 +164,11 @@ function Base.filter!(f::Function, seq::MutableBioSequence{A}) where {A}
     return seq
 end
 
-function Base.filter(f::Function, seq::MutableBioSequence)
+function Base.filter(f::Function, seq::GeneralSequence)
     return filter!(f, copy(seq))
 end
 
-function Base.map!(f::Function, seq::MutableBioSequence)
+function Base.map!(f::Function, seq::GeneralSequence)
     orphan!(seq)
     for i in 1:lastindex(seq)
         unsafe_setindex!(seq, f(inbounds_getindex(seq, i)), i)
@@ -175,7 +176,7 @@ function Base.map!(f::Function, seq::MutableBioSequence)
     return seq
 end
 
-function Base.map(f::Function, seq::MutableBioSequence)
+function Base.map(f::Function, seq::GeneralSequence)
     return map!(f, copy(seq))
 end
 
@@ -184,7 +185,7 @@ end
 
 Reverse a biological sequence `seq` in place.
 """
-function Base.reverse!(seq::MutableBioSequence)
+function Base.reverse!(seq::GeneralSequence)
     orphan!(seq)
     @inbounds for i in 1:div(lastindex(seq), 2)
 	    x = seq[i]
@@ -200,10 +201,12 @@ end
 
 Create a sequence which is the reverse of the bioloigcal sequence `seq`.
 """
-Base.reverse(seq::MutableBioSequence) = reverse!(copy(seq))
+Base.reverse(seq::GeneralSequence) = reverse!(copy(seq))
 
-@generated function Base.reverse(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet}
-    n = bits_per_symbol(A)
+#TODO: See about making this a non-generated functon that uses dispatch and traits.
+@generated function Base.reverse(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
+    #TODO: Resolve use of bits per symbol.
+    n = bits_per_symbol(A())
     if n == 2
         nucrev = :nucrev2
     elseif n == 4
@@ -242,7 +245,7 @@ else
                 data[i] = $nucrev(x)
             end
         end
-        return MutableBioSequence{A}(data, 1:length(seq), false)
+        return GeneralSequence{A}(data, 1:length(seq), false)
     end
 end
 
@@ -268,15 +271,10 @@ end
 
 Make a complement sequence of `seq` in place.
 """
-function complement!(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet{2}}
+function complement!(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet{2}}
     orphan!(seq)
-<<<<<<< HEAD
     next = BitIndex(seq, 1)
     stop = BitIndex(seq, lastindex(seq) + 1)
-=======
-    next = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
->>>>>>> Parametric BitIndex (#4)
     @inbounds while next < stop
         seq.data[index(next)] = ~seq.data[index(next)]
         next += 64
@@ -289,15 +287,10 @@ end
 
 Transform `seq` into it's complement.
 """
-function complement!(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet{4}}
+function complement!(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet{4}}
     orphan!(seq)
-<<<<<<< HEAD
     next = BitIndex(seq, 1)
     stop = BitIndex(seq, lastindex(seq) + 1)
-=======
-    next = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
->>>>>>> Parametric BitIndex (#4)
     @inbounds while next < stop
         x = seq.data[index(next)]
         seq.data[index(next)] = (
@@ -313,7 +306,7 @@ end
 
 Make a complement sequence of `seq`.
 """
-function BioSymbols.complement(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet}
+function BioSymbols.complement(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
     return complement!(copy(seq))
 end
 
@@ -322,7 +315,7 @@ end
 
 Make a reversed complement sequence of `seq` in place.
 """
-function reverse_complement!(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet}
+function reverse_complement!(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
     return complement!(reverse!(seq))
 end
 
@@ -331,18 +324,18 @@ end
 
 Make a reversed complement sequence of `seq`.
 """
-function reverse_complement(seq::MutableBioSequence{A}) where {A<:NucleicAcidAlphabet}
+function reverse_complement(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
     return complement!(reverse(seq))
 end
 
 # Shuffle
 # -------
 
-function Random.shuffle(seq::MutableBioSequence)
+function Random.shuffle(seq::GeneralSequence)
     return shuffle!(copy(seq))
 end
 
-function Random.shuffle!(seq::MutableBioSequence)
+function Random.shuffle!(seq::GeneralSequence)
     orphan!(seq)
     # Fisher-Yates shuffle
     for i in 1:lastindex(seq)-1

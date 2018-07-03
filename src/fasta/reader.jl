@@ -11,7 +11,7 @@ mutable struct Reader <: BioCore.IO.AbstractReader
 end
 
 """
-    FASTA.Reader(input::IO; index=nothing)
+    FASTA.Reader(input::IO; index = nothing)
 
 Create a data reader of the FASTA file format.
 

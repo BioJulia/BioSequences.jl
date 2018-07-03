@@ -6,23 +6,23 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.copyto!(seq::MutableBioSequence{A}, doff::Integer,
+function Base.copyto!(seq::GeneralSequence{A}, doff::Integer,
                     src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
     datalen = seq_data_len(A, len)
     return seq
 end
 
-function Base.copyto!(dst::MutableBioSequence{A}, src::MutableBioSequence{A}) where {A}
+function Base.copyto!(dst::GeneralSequence{A}, src::GeneralSequence{A}) where {A}
     return copyto!(dst, 1, src, 1)
 end
 
-function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
-                    src::MutableBioSequence{A}, soff::Integer) where {A}
+function Base.copyto!(dst::GeneralSequence{A}, doff::Integer,
+                    src::GeneralSequence{A}, soff::Integer) where {A}
     return copyto!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
-                    src::MutableBioSequence{A}, soff::Integer, len::Integer) where {A}
+function Base.copyto!(dst::GeneralSequence{A}, doff::Integer,
+                    src::GeneralSequence{A}, soff::Integer, len::Integer) where {A}
     checkbounds(dst, doff:doff+len-1)
     checkbounds(src, soff:soff+len-1)
 
@@ -32,7 +32,8 @@ function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
 
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
-    rest = len * bits_per_symbol(A)
+    #TODO: Resolve this use of bits_per_symbol
+    rest = len * bits_per_symbol(A())
 
     while rest > 0
         # move `k` bits from `src` to `dst`
@@ -57,8 +58,8 @@ function Base.copyto!(dst::MutableBioSequence{A}, doff::Integer,
 end
 
 # Actually, users don't need to create a copy of a sequence.
-function Base.copy(seq::MutableBioSequence{A}) where {A}
-    newseq = MutableBioSequence{A}(seq, 1:lastindex(seq))
+function Base.copy(seq::GeneralSequence{A}) where {A}
+    newseq = GeneralSequence{A}(seq, 1:lastindex(seq))
     orphan!(newseq, length(seq), true)  # force orphan!
     @assert newseq.data !== seq.data
     return newseq
@@ -68,19 +69,19 @@ end
 # Encoded copying
 # ---------------
 
-function encode_copy!(dst::MutableBioSequence{A},
+function encode_copy!(dst::GeneralSequence{A},
                       src::Union{AbstractVector,AbstractString}) where {A}
     return encode_copy!(dst, 1, src, 1)
 end
 
-function encode_copy!(dst::MutableBioSequence{A},
+function encode_copy!(dst::GeneralSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer) where {A}
     return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function encode_copy!(dst::MutableBioSequence{A},
+function encode_copy!(dst::GeneralSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer,
@@ -107,14 +108,15 @@ function encode_copy!(dst::MutableBioSequence{A},
             char = src[i]
             i = nextind(src, i)
             x |= enc64(dst, convert(Char, char)) << offset(next)
-            next += bits_per_symbol(A)
+            #TODO: Resolve this use of bits_per_symbol...
+            next += bits_per_symbol(A())
         end
         dst.data[j] = x
     end
     return dst
 end
 
-function encode_copy!(dst::MutableBioSequence{A}, doff::Integer,
+function encode_copy!(dst::GeneralSequence{A}, doff::Integer,
                       src::AbstractVector{UInt8}, soff::Integer, len::Integer) where {A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}
     checkbounds(dst, doff:doff+len-1)
     if length(src) < soff + len - 1

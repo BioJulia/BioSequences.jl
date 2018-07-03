@@ -107,7 +107,7 @@ end
 
 function sequence(::Type{BioSequences.ReferenceSequence}, record::Record)
     checkfilled(record)
-    data = decode_sequence(record.packeddna, record.dnasize, Val{2}(), twobit2refseq_table)
+    data = decode_sequence(record.packeddna, record.dnasize, BioSequences.BitsPerSymbol{2}(), twobit2refseq_table)
     nmask = falses(record.dnasize)
     for i in 1:record.blockcount
         nmask[record.blockstarts[i] .+ (1:record.blocksizes[i])] .= true
@@ -117,7 +117,7 @@ end
 
 function sequence(::Type{BioSequences.DNASequence}, record::Record)
     checkfilled(record)
-    data = decode_sequence(record.packeddna, record.dnasize, Val{4}(), twobit2dnaseq_table)
+    data = decode_sequence(record.packeddna, record.dnasize, BioSequences.BitsPerSymbol{4}(), twobit2dnaseq_table)
     seq = BioSequences.DNASequence(data, 1:record.dnasize, false)
     for i in 1:record.blockcount
         for j in record.blockstarts[i] .+ (1:record.blocksizes[i])
@@ -149,7 +149,7 @@ function maskedblocks(record::Record)
     return blocks
 end
 
-function decode_sequence(packeddna::Vector{UInt8}, seqlen::UInt32, nbits::Val{n}, table::Vector{UInt64}) where {n}
+function decode_sequence(packeddna::Vector{UInt8}, seqlen::UInt32, nbits::BioSequences.BitsPerSymbol{n}, table::Vector{UInt64}) where {n}
     @assert n ∈ (2, 4)
     data = zeros(UInt64, cld(seqlen, div(64, n)))
     stop = BioSequences.bitindex(nbits, UInt64, seqlen)

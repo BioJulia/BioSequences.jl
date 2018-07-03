@@ -6,7 +6,7 @@
                 push!(expected, i)
             end
         end
-        bioseq = MutableBioSequence{A}(seq)
+        bioseq = GeneralSequence{A}(seq)
         @test collect(ambiguous_positions(bioseq)) == expected
     end
 

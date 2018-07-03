@@ -6,8 +6,8 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-Base.eltype(::Type{T}) where T <: BioSequence = eltype(alphabet_t(T))
-Base.eltype(seq::BioSequence) = eltype(alphabet_t(seq))
+Base.eltype(::Type{T}) where T <: BioSequence = eltype(Alphabet(T))
+Base.eltype(seq::BioSequence) = eltype(Alphabet(seq))
 Base.size(seq::BioSequence) = (length(seq),)
 Base.endof(seq::BioSequence) = length(seq)
 Base.eachindex(seq::BioSequence) = 1:endof(seq)
@@ -66,7 +66,7 @@ end
 @inline function inbounds_getindex(seq::BioSequence, i::Integer)
     bidx = bitindex(seq, i)
     encoded_symbol = extract_encoded_symbol(bidx, encoded_data(seq))
-    return decode(alphabet_t(seq), encoded_symbol)
+    return decode(Alphabet(seq), encoded_symbol)
 end
 
 @inline function Base.getindex(seq::BioSequence, i::Integer)

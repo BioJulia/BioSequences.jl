@@ -16,12 +16,13 @@ struct Composition{T} <: AbstractDict{T,Int}
     counts::Dict{T,Int}
 end
 
-function Composition(seq::MutableBioSequence{A}) where A <: NucleicAcidAlphabet
+function Composition(seq::GeneralSequence{A}) where A <: NucleicAcidAlphabet
     counts = zeros(Int, 16)
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
     end
-    return Composition{eltype(A)}(count_array2dict(counts, alphabet(A)))
+    # TODO: resolve use of symbols(A()).
+    return Composition{eltype(A)}(count_array2dict(counts, symbols(A())))
 end
 
 function Composition(seq::ReferenceSequence)
@@ -51,11 +52,12 @@ function Composition(kmer::RNAKmer)
 end
 
 function Composition(seq::AminoAcidSequence)
-    counts = zeros(Int, length(alphabet(AminoAcid)))
+    # TODO: Resolve use of symbols AminoAcid.
+    counts = zeros(Int, length(symbols(AminoAcidAlphabet())))
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
     end
-    return Composition{AminoAcid}(count_array2dict(counts, alphabet(AminoAcid)))
+    return Composition{AminoAcid}(count_array2dict(counts, symbols(AminoAcidAlphabet())))
 end
 
 function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}

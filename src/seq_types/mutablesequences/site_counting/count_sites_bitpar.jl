@@ -12,8 +12,10 @@
 @inline bp_correct_emptyspace(::Type{<:Site}, ::Type{<:Alphabet}) = false
 @inline bp_emptyspace_correction(nempty::Int, count::Int) = count - nempty
 
-@generated function bitpar_counter(::Type{S}, a::MutableBioSequence{A}, b::MutableBioSequence{A}) where {S<:Site,A<:NucleicAcidAlphabet}
-    n = bits_per_symbol(A)
+#TODO: Make this a simpler non-generated function that uses traits and dispatch.
+@generated function bitpar_counter(::Type{S}, a::GeneralSequence{A}, b::GeneralSequence{A}) where {S<:Site,A<:NucleicAcidAlphabet}
+    #TODO: Resolve this use of bits_per_symbol.
+    n = bits_per_symbol(A())
     n_elems = div(64, n)
 
     quote

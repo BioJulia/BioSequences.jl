@@ -186,7 +186,7 @@ Get the sequence of `record`.
 `S` can be either a subtype of `BioSequences.BioSequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::S where S <: BioSequences.Sequence
+function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::S where S <: BioSequences.BioSequence
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -284,7 +284,7 @@ function BioCore.sequence(record::Record)
     return sequence(record)
 end
 
-function BioCore.sequence(::Type{S}, record::Record) where S <: BioSequences.Sequence
+function BioCore.sequence(::Type{S}, record::Record) where S <: BioSequences.BioSequence
     return sequence(S, record)
 end
 

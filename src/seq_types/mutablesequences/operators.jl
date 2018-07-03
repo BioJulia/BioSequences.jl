@@ -1,7 +1,7 @@
 # Basic Operators
 # ---------------
 
-function count_gc(seq::MutableBioSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}})
+function count_gc(seq::GeneralSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}})
     function count(x)
         # bit parallel counter of GC
         c =  x & 0x5555555555555555
@@ -28,7 +28,7 @@ function count_gc(seq::MutableBioSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}
     return n
 end
 
-function count_gc(seq::MutableBioSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
+function count_gc(seq::GeneralSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
     function count(x)
         # bit parallel counter of GC
         a =  x & 0x1111111111111111
@@ -111,7 +111,7 @@ julia> seqmatrix(seqs, :site)
   DNA_A  DNA_T  DNA_C  DNA_G
 ```
 """
-function seqmatrix(vseq::AbstractVector{MutableBioSequence{A}}, major::Symbol) where {A<:Alphabet}
+function seqmatrix(vseq::AbstractVector{GeneralSequence{A}}, major::Symbol) where {A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -179,7 +179,7 @@ julia> seqmatrix(seqs, :seq, UInt8)
  0x01  0x08  0x02  0x04
 ```
 """
-function seqmatrix(::Type{T}, vseq::AbstractVector{MutableBioSequence{A}}, major::Symbol) where {T,A<:Alphabet}
+function seqmatrix(::Type{T}, vseq::AbstractVector{GeneralSequence{A}}, major::Symbol) where {T,A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -207,7 +207,7 @@ end
 # ---------
 
 """
-    majorityvote(seqs::AbstractVector{MutableBioSequence{A}}) where {A<:NucleicAcidAlphabet}
+    majorityvote(seqs::AbstractVector{GeneralSequence{A}}) where {A<:NucleicAcidAlphabet}
 
 Construct a sequence that is a consensus of a vector of sequences.
 
@@ -235,7 +235,7 @@ julia> majorityvote(seqs)
 MTCGAAARATCG
 ```
 """
-function majorityvote(seqs::AbstractVector{MutableBioSequence{A}}) where {A<:NucleicAcidAlphabet}
+function majorityvote(seqs::AbstractVector{GeneralSequence{A}}) where {A<:NucleicAcidAlphabet}
     mat = seqmatrix(UInt8, seqs, :site)
     nsites = size(mat, 2)
     nseqs = size(mat, 1)

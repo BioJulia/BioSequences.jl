@@ -1,5 +1,0 @@
-# Biological Alphabets
-
-docs@```
-Alphabet
-```

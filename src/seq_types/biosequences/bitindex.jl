@@ -21,7 +21,7 @@ _offset_mask(i::BitIndex{N, W}) where {N, W} = UInt8(8 * sizeof(W)) - 0x01
 #                          |<-offset(i)-|
 #                      |<--- 64 bits -->|
 
-@inline function bitindex(::Val{N}, ::Type{W}, index) where {N, W}
+@inline function bitindex(::BitsPerSymbol{N}, ::Type{W}, index) where {N, W}
     return BitIndex{N, W}((index - 1) << trailing_zeros(N))
 end
 
@@ -47,22 +47,25 @@ end
 
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
-# Create a bit mask that fills least significant `n` bits (`n` must be a
-# non-negative integer).
-bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
-bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
-bitmask(bidx::BitIndex{N, W}) where {N, W} = bitmask(W, N)
-
-#TODO: Possibly delete later, redunandt with BitIndex redesign.
-@inline function bitmask(::Type{A}, ::Type{U}) where {A <: Alphabet, U <: Unsigned}
-    ba = bits_per_symbol(A)
-    return bitmask(U, ba)
-end
-bitmask(::Type{A}) where {A <: Alphabet} = bitmask(bits_per_symbol(A))
-bitmask(n::Integer) = bitmask(UInt64, n)
-
 @inline function extract_encoded_symbol(bidx::BitIndex, data)
     @inbounds chunk = data[index(bidx)]
     offchunk = chunk >> offset(bidx)
     return offchunk & bitmask(bidx)
 end
+
+# Create a bit mask that fills least significant `n` bits (`n` must be a
+# non-negative integer).
+bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
+bitmask(n::Integer) = bitmask(UInt64, n)
+bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
+bitmask(bidx::BitIndex{N, W}) where {N, W} = bitmask(W, N)
+
+# TODO: Possibly delete later, redundant with BitIndex redesign.
+#@inline function bitmask(::Type{A}, ::Type{U}) where {A <: Alphabet, U <: Unsigned}
+#    ba = bits_per_symbol(A)
+#    return bitmask(U, ba)
+#end
+# TODO: Work out places this is used and see if it is really nessecery given the
+# bitmask methods above.
+# TODO: Resolve this use of bits_per_symbol and A().
+bitmask(::A) where {A <: Alphabet} = bitmask(bits_per_symbol(A()))

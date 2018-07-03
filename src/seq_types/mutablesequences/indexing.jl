@@ -8,26 +8,26 @@
 
 # assumes `i` is positive and `bitsof(A)` is a power of 2
 
-@inline function bitindex(seq::MutableBioSequence, i::Integer)
-    return bitindex(bits_per_symbol_t(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
+@inline function bitindex(seq::GeneralSequence, i::Integer)
+    return bitindex(BitsPerSymbol(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
 end
 
-@inline function Base.getindex(seq::MutableBioSequence, part::UnitRange)
-    return MutableBioSequence(seq, part)
+@inline function Base.getindex(seq::GeneralSequence, part::UnitRange)
+    return GeneralSequence(seq, part)
 end
-@inline function Base.view(seq::MutableBioSequence, part::UnitRange)
+@inline function Base.view(seq::GeneralSequence, part::UnitRange)
     return getindex(seq, part)
 end
 
 # Set a single sequence position to a single symbol value.
-function Base.setindex!(seq::MutableBioSequence, x, i::Integer)
+function Base.setindex!(seq::GeneralSequence, x, i::Integer)
     @boundscheck checkbounds(seq, i)
     orphan!(seq)
     return unsafe_setindex!(seq, x, i)
 end
 
 # Set multiple sequence positions to a single symbol value.
-function Base.setindex!(seq::MutableBioSequence{A}, x,
+function Base.setindex!(seq::GeneralSequence{A}, x,
 			locs::AbstractVector{<:Integer}) where {A}
 
     checkbounds(seq, locs)
@@ -39,7 +39,7 @@ function Base.setindex!(seq::MutableBioSequence{A}, x,
     return seq
 end
 
-function Base.setindex!(seq::MutableBioSequence{A}, x,
+function Base.setindex!(seq::GeneralSequence{A}, x,
 			locs::AbstractVector{Bool}) where {A}
 
     checkbounds(seq, locs)
@@ -52,8 +52,8 @@ function Base.setindex!(seq::MutableBioSequence{A}, x,
     return seq
 end
 
-function Base.setindex!(seq::MutableBioSequence{A},
-                        other::MutableBioSequence{A},
+function Base.setindex!(seq::GeneralSequence{A},
+                        other::GeneralSequence{A},
                         locs::AbstractVector{<:Integer}) where {A}
 
     checkbounds(seq, locs)
@@ -65,16 +65,16 @@ function Base.setindex!(seq::MutableBioSequence{A},
     return seq
 end
 
-function Base.setindex!(seq::MutableBioSequence{A},
-                        other::MutableBioSequence{A},
+function Base.setindex!(seq::GeneralSequence{A},
+                        other::GeneralSequence{A},
                         locs::UnitRange{<:Integer}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
     return copy!(seq, locs.start, other, 1)
 end
 
-function Base.setindex!(seq::MutableBioSequence{A},
-                        other::MutableBioSequence{A},
+function Base.setindex!(seq::GeneralSequence{A},
+                        other::GeneralSequence{A},
                         locs::AbstractVector{Bool}) where {A}
     checkbounds(seq, locs)
     checkdimension(other, locs)
@@ -86,26 +86,27 @@ function Base.setindex!(seq::MutableBioSequence{A},
     return seq
 end
 
-function Base.setindex!(seq::MutableBioSequence{A},
-			other::MutableBioSequence{A}, ::Colon) where {A}
+function Base.setindex!(seq::GeneralSequence{A},
+			other::GeneralSequence{A}, ::Colon) where {A}
     return setindex!(seq, other, 1:endof(seq))
 end
 
-function Base.setindex!(seq::MutableBioSequence{A}, x, ::Colon) where {A}
+function Base.setindex!(seq::GeneralSequence{A}, x, ::Colon) where {A}
     return setindex!(seq, x, 1:endof(seq))
 end
 
 # this is "unsafe" because of no bounds check and no orphan! call
-@inline function unsafe_setindex!(seq::MutableBioSequence{A}, x, i::Integer) where {A}
+@inline function unsafe_setindex!(seq::GeneralSequence{A}, x, i::Integer) where {A}
     bin = enc64(seq, x)
     return encoded_setindex!(seq, bin, i)
 end
 
-function enc64(::MutableBioSequence{A}, x) where {A}
-    return UInt64(encode(A, convert(eltype(A), x)))
+function enc64(::GeneralSequence{A}, x) where {A}
+    #TODO: Resolve these two use cases of A().
+    return UInt64(encode(A(), convert(eltype(A()), x)))
 end
 
-@inline function encoded_setindex!(seq::MutableBioSequence{A},
+@inline function encoded_setindex!(seq::GeneralSequence{A},
 				   bin::UInt64, i::Integer) where {A}
     j, r = bitindex(seq, i)
     data = encoded_data(seq)

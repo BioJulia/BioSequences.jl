@@ -56,7 +56,7 @@ export
     ispurine,
     ispyrimidine,
     BioSequence,
-    MutableBioSequence,
+    GeneralSequence,
     DNASequence,
     RNASequence,
     AminoAcidSequence,
@@ -77,7 +77,8 @@ export
     @kmer_str,
     matched,
     captured,
-    alphabet,
+    alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
+    symbols,
     gap,
     complement,
     complement!,
@@ -200,8 +201,7 @@ using Random
 
 BioSymbols.gap(::Type{Char}) = '-'
 
-include("alphabet.jl")
-include("bitindex.jl")
+include("trait_definitions/alphabet.jl")
 include("seq_types/biosequences/biosequence.jl")
 include("seq_types/mutablesequences/mutableseq.jl")
 include("seq_types/mutablesequences/hash.jl")
