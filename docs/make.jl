@@ -22,7 +22,7 @@ makedocs(
         "Demultiplexing" => "demultiplexer.md",
         "Contributing" => "contributing.md"
     ],
-    authors = "D.C.Jones, Kenta Sato, Ben J. Ward, The BioJulia Organisation and other contributors."
+    authors = "D. C. Jones, Kenta Sato, Ben J. Ward, The BioJulia Organisation and other contributors."
 )
 
 deploydocs(

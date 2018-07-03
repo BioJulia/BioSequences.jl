@@ -12,9 +12,11 @@
 
 ## Description
 
-BioSequences provides DNA, RNA and amino acid sequence data types for the
-BioJulia , with a comprehensive set of methods for common operations and
-IO of major sequence data formats.   
+BioSequences provides data types and methods for common operations with 
+biological sequences, including DNA, RNA, and amino acid sequences.
+It also provides I/O for common sequence file formats including FASTA, FASTQ,
+2bit and more. 
+
 
 
 ## Installation

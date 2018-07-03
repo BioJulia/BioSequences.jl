@@ -1,11 +1,11 @@
 module TestBioSequences
 
-using Base.Test
 import BioSymbols
 using BioSequences
 using IntervalTrees.IntervalValue
 using StatsBase
 using YAML
+using Base.Test
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",

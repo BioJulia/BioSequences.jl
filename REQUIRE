@@ -1,7 +1,7 @@
 julia 0.7
 Automa
 BioCore
-BioSymbols
+BioSymbols 2.0
 BufferedStreams
 Combinatorics
 IndexableBitVectors
