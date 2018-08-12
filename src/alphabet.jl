@@ -69,14 +69,14 @@ Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
 Base.eltype(::Type{CharAlphabet}) = Char
 Base.eltype(::Type{VoidAlphabet}) = Void
 
-alphabet(::Type{DNAAlphabet{2}}) = ACGT
-alphabet(::Type{RNAAlphabet{2}}) = ACGU
-alphabet(::Type{DNAAlphabet{4}}) = alphabet(DNA)
-alphabet(::Type{RNAAlphabet{4}}) = alphabet(RNA)
-alphabet(::Type{AminoAcidAlphabet}) = alphabet(AminoAcid)
+BioSymbols.alphabet(::Type{DNAAlphabet{2}}) = ACGT
+BioSymbols.alphabet(::Type{RNAAlphabet{2}}) = ACGU
+BioSymbols.alphabet(::Type{DNAAlphabet{4}}) = alphabet(DNA)
+BioSymbols.alphabet(::Type{RNAAlphabet{4}}) = alphabet(RNA)
+BioSymbols.alphabet(::Type{AminoAcidAlphabet}) = alphabet(AminoAcid)
 # TODO: this alphabet includes invalid Unicode scalar values
-alphabet(::Type{CharAlphabet}) = typemin(Char):typemax(Char)
-alphabet(::Type{VoidAlphabet}) = nothing
+BioSymbols.alphabet(::Type{CharAlphabet}) = typemin(Char):typemax(Char)
+BioSymbols.alphabet(::Type{VoidAlphabet}) = nothing
 
 # Promotion of Alphabets
 # ----------------------
@@ -193,10 +193,11 @@ end
 end
 
 @inline function decode(::Type{CharAlphabet}, x::UInt32)
-    if x > 0x10ffff
+    c = reinterpret(Char, x)
+    if !isvalid(c)
         throw(DecodeError(CharAlphabet, x))
     end
-    return reinterpret(Char, x)
+    return c
 end
 
 @inline function decode(::Type{CharAlphabet}, x::Unsigned)

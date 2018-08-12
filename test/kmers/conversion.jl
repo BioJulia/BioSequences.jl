@@ -7,48 +7,44 @@ reps = 10
     # Check that kmers in strings survive round trip conversion:
     #   UInt64 → Kmer → UInt64
     function check_uint64_convertion(T::Type, n::UInt64, len::Int)
-        return convert(UInt64, convert(Kmer{T, len}, n)) === n
+        return UInt64(Kmer{T, len}(n)) === n
     end
 
     # Check that kmers in strings survive round trip conversion:
     #   String → Kmer → String
     function check_string_construction(T::Type, seq::AbstractString)
-        return convert(String, convert(Kmer{T}, seq)) == uppercase(seq)
+        return String(Kmer{T}(seq)) == uppercase(seq)
     end
 
     # Check that dnakmers can be constructed from a DNASequence
     #   DNASequence → Kmer → DNASequence
     function check_dnasequence_construction(seq::DNASequence)
-        return convert(DNASequence, convert(DNAKmer, seq)) == seq
+        return DNASequence(DNAKmer(seq)) == seq
     end
 
     # Check that rnakmers can be constructed from a RNASequence
     #   RNASequence → Kmer → RNASequence
     function check_rnasequence_construction(seq::RNASequence)
-        return convert(RNASequence, convert(RNAKmer, seq)) == seq
+        return RNASequence(RNAKmer(seq)) == seq
     end
 
     # Check that kmers can be constructed from a BioSequence
     #   BioSequence → Kmer → BioSequence
     function check_biosequence_construction(seq::BioSequence)
-        return convert(BioSequence, convert(Kmer, seq)) == seq
+        return BioSequence(Kmer(seq)) == seq
     end
 
     # Check that kmers can be constructed from an array of nucleotides
     #   Vector{NucleicAcid} → Kmer → Vector{NucleicAcid}
     function check_nucarray_kmer(seq::Vector{T}) where T <: NucleicAcid
-        return convert(String, [convert(Char, c) for c in seq]) ==
-               convert(String, Kmer(seq...))
+        return String([convert(Char, c) for c in seq]) == String(Kmer(seq...))
     end
 
     # Check that kmers in strings survive round trip conversion:
     #   String → BioSequence → Kmer → BioSequence → String
     function check_roundabout_construction(A, seq::AbstractString)
         T = eltype(A)
-        return convert(String,
-                   convert(BioSequence{A},
-                       convert(Kmer,
-                           convert(BioSequence{A}, seq)))) == uppercase(seq)
+        return String(BioSequence{A}(Kmer(BioSequence{A}(seq)))) == uppercase(seq)
     end
 
     for len in [0, 1, 16, 32]
@@ -113,17 +109,17 @@ reps = 10
                       DNA_A, DNA_C, DNA_G, DNA_T)
 
     @testset "From strings" begin
-        @test DNAKmer("ACTG") == convert(Kmer, DNASequence("ACTG"))
-        @test RNAKmer("ACUG") == convert(Kmer, RNASequence("ACUG"))
+        @test DNAKmer("ACTG") == Kmer(DNASequence("ACTG"))
+        @test RNAKmer("ACUG") == Kmer(RNASequence("ACUG"))
 
         # N is not allowed in Kmers
         @test_throws Exception DNAKmer("ACGTNACGT")
         @test_throws Exception RNAKmer("ACGUNACGU")
 
         # Test string literals
-        @test kmer"ACTG" == convert(Kmer, DNASequence("ACTG"))
+        @test kmer"ACTG" == Kmer(DNASequence("ACTG"))
         @test isa(kmer"ACGT", DNAKmer{4})
-        @test_throws ArgumentError eval(:(kmer"ACGN"))
-        @test_throws ArgumentError eval(:(kmer"ACG-"))
+        @test_throws LoadError eval(:(kmer"ACGN"))
+        @test_throws LoadError eval(:(kmer"ACG-"))
     end
 end

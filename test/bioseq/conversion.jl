@@ -114,8 +114,8 @@ end
 
     @test typeof(promote(a, b)) == Tuple{BioSequence{DNAAlphabet{4}},BioSequence{DNAAlphabet{4}}}
     @test typeof(promote(c, d)) == Tuple{BioSequence{RNAAlphabet{4}},BioSequence{RNAAlphabet{4}}}
-    @test typeof(promote(a, d)) == Tuple{BioSequence{DNAAlphabet{2}},BioSequence{RNAAlphabet{4}}}
-    @test typeof(promote(a, b, d)) == Tuple{BioSequence{DNAAlphabet{2}},BioSequence{DNAAlphabet{4}},BioSequence{RNAAlphabet{4}}}
+    @test_throws ErrorException typeof(promote(a, d))
+    @test_throws ErrorException typeof(promote(a, b, d))
 end
 
 @testset "Conversion between RNA and DNA" begin
@@ -189,14 +189,14 @@ end
     @test seqmatrix(UInt8, dna, :seq) == seqmajnucint
     @test seqmatrix(UInt8, rna, :seq) == seqmajnucint
 
-    @test seqmatrix([dna"", dna"", dna""], :site) == Matrix{DNA}(3, 0)
-    @test seqmatrix([dna"", dna"", dna""], :seq) == Matrix{DNA}(0, 3)
-    @test seqmatrix([rna"", rna"", rna""], :site) == Matrix{RNA}(3, 0)
-    @test seqmatrix([rna"", rna"", rna""], :seq) == Matrix{RNA}(0, 3)
-    @test seqmatrix(UInt8, [dna"", dna"", dna""], :site) == Matrix{UInt8}(3, 0)
-    @test seqmatrix(UInt8, [dna"", dna"", dna""], :seq) == Matrix{UInt8}(0, 3)
-    @test seqmatrix(UInt8, [rna"", rna"", rna""], :site) == Matrix{UInt8}(3, 0)
-    @test seqmatrix(UInt8, [rna"", rna"", rna""], :seq) == Matrix{UInt8}(0, 3)
+    @test seqmatrix([dna"", dna"", dna""], :site) == Matrix{DNA}(undef, (3, 0))
+    @test seqmatrix([dna"", dna"", dna""], :seq) == Matrix{DNA}(undef, (0, 3))
+    @test seqmatrix([rna"", rna"", rna""], :site) == Matrix{RNA}(undef, (3, 0))
+    @test seqmatrix([rna"", rna"", rna""], :seq) == Matrix{RNA}(undef, (0, 3))
+    @test seqmatrix(UInt8, [dna"", dna"", dna""], :site) == Matrix{UInt8}(undef, (3, 0))
+    @test seqmatrix(UInt8, [dna"", dna"", dna""], :seq) == Matrix{UInt8}(undef, (0, 3))
+    @test seqmatrix(UInt8, [rna"", rna"", rna""], :site) == Matrix{UInt8}(undef, (3, 0))
+    @test seqmatrix(UInt8, [rna"", rna"", rna""], :seq) == Matrix{UInt8}(undef, (0, 3))
 
     @test_throws ArgumentError seqmatrix(dnathrow, :site)
     @test_throws ArgumentError seqmatrix(rnathrow, :seq)

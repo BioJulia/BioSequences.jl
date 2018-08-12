@@ -25,15 +25,15 @@
 
     function string_translate(seq::AbstractString)
         @assert length(seq) % 3 == 0
-        aaseq = Vector{Char}(div(length(seq), 3))
+        aaseq = Vector{Char}(undef, div(length(seq), 3))
         for i in 1:3:length(seq) - 3 + 1
             aaseq[div(i, 3) + 1] = standard_genetic_code_dict[seq[i:i+2]]
         end
-        return convert(String, aaseq)
+        return String(aaseq)
     end
 
     function check_translate(seq::AbstractString)
-        return string_translate(seq) == convert(String, translate(RNASequence(seq)))
+        return string_translate(seq) == String(translate(RNASequence(seq)))
     end
 
     reps = 10

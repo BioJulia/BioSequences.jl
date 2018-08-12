@@ -110,9 +110,9 @@ function sequence(::Type{BioSequences.ReferenceSequence}, record::Record)
     data = decode_sequence(record.packeddna, record.dnasize, 2, twobit2refseq_table)
     nmask = falses(record.dnasize)
     for i in 1:record.blockcount
-        nmask[record.blockstarts[i] + (1:record.blocksizes[i])] = true
+        nmask[record.blockstarts[i] .+ (1:record.blocksizes[i])] .= true
     end
-    return BioSequences.ReferenceSequence(data, nmask, 1:record.dnasize)
+    return BioSequences.ReferenceSequence(data, BioSequences.NMask(nmask), 1:record.dnasize)
 end
 
 function sequence(::Type{BioSequences.DNASequence}, record::Record)
@@ -120,7 +120,9 @@ function sequence(::Type{BioSequences.DNASequence}, record::Record)
     data = decode_sequence(record.packeddna, record.dnasize, 4, twobit2dnaseq_table)
     seq = BioSequences.DNASequence(data, 1:record.dnasize, false)
     for i in 1:record.blockcount
-        seq[record.blockstarts[i] + (1:record.blocksizes[i])] = BioSequences.DNA_N
+        for j in record.blockstarts[i] .+ (1:record.blocksizes[i])
+            seq[j] = BioSequences.DNA_N
+        end
     end
     return seq
 end
@@ -140,9 +142,9 @@ Get the masked blocks.
 """
 function maskedblocks(record::Record)
     checkfilled(record)
-    blocks = Vector{UnitRange{Int}}(record.maskedblockcount)
-    for i in 1:endof(blocks)
-        blocks[i] = record.maskedblockstarts[i] + (1:record.maskedblocksizes[i])
+    blocks = Vector{UnitRange{Int}}(undef, record.maskedblockcount)
+    for i in 1:lastindex(blocks)
+        blocks[i] = record.maskedblockstarts[i] .+ (1:record.maskedblocksizes[i])
     end
     return blocks
 end
@@ -177,10 +179,10 @@ end
 
 const twobit2dnaseq_table = let
     # T: 00, C: 01, A: 10, G: 11
-    f(x) = x == 0b00 ? UInt64(BioSequences.DNA_T) :
-           x == 0b01 ? UInt64(BioSequences.DNA_C) :
-           x == 0b10 ? UInt64(BioSequences.DNA_A) :
-           x == 0b11 ? UInt64(BioSequences.DNA_G) : error()
+    f(x) = x == 0b00 ? convert(UInt64, BioSequences.DNA_T) :
+           x == 0b01 ? convert(UInt64, BioSequences.DNA_C) :
+           x == 0b10 ? convert(UInt64, BioSequences.DNA_A) :
+           x == 0b11 ? convert(UInt64, BioSequences.DNA_G) : error()
     tcag = 0b00:0b11
     tbl = UInt64[]
     for x in tcag, y in tcag, z in tcag, w in tcag
@@ -196,7 +198,7 @@ function checkfilled(record)
 end
 
 function memcmp(p1::Ptr, p2::Ptr, n::Integer)
-    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, n)
+    return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), p1, p2, n)
 end
 
 """

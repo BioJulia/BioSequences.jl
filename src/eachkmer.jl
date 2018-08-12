@@ -49,36 +49,22 @@ eachkmer(seq::ReferenceSequence, K::Integer, step::Integer=1) = each(DNAKmer{Int
 
 Base.eltype(::Type{EachKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 
-function Base.iteratorsize(::Type{EachKmerIterator{T,S}}) where {T,S}
+function Base.IteratorSize(::Type{EachKmerIterator{T,S}}) where {T,S}
     return Base.SizeUnknown()
 end
 
-function Base.start(it::EachKmerIterator{T}) where {T}
-    k = kmersize(T)
-    pos = it.start
-    kmer::UInt64 = 0
-    while pos + k - 1 ≤ endof(it.seq)
-        kmer, ok = extract_kmer_impl(it.seq, pos, k)
-        if ok
-            break
-        end
-        pos += it.step
-    end
-    return pos, kmer
-end
+Base.iterate(it::EachKmerIterator) = iterate(it, (it.start, UInt64(0)))
 
-@inline function Base.done(it::EachKmerIterator{T}, state) where {T}
-    return state[1] + kmersize(T) - 1 > endof(it.seq)
-end
+function Base.iterate(
+        it::EachKmerIterator{T},
+        state::Tuple{Int, UInt64}) where {T}
 
-@inline function Base.next(it::EachKmerIterator{T}, state) where {T}
     k = kmersize(T)
     pos, kmer = state
-    pos += it.step
     isok = true
 
     # faster path: return the next overlapping kmer if possible
-    if it.step < k && pos + k - 1 ≤ endof(it.seq)
+    if it.step < k && pos + k - 1 ≤ lastindex(it.seq) && pos != it.start
         offset = k - it.step
         if it.step == 1
             nt = inbounds_getindex(it.seq, pos+offset)
@@ -92,19 +78,19 @@ end
             end
         end
         if isok
-            return (state[1], convert(T, state[2])), (pos, kmer)
+            return (pos, T(kmer)), (pos+it.step, kmer)
         end
     end
 
-    # fallback
-    while pos + k - 1 ≤ endof(it.seq)
+    while pos + k - 1 ≤ lastindex(it.seq)
         kmer, ok = extract_kmer_impl(it.seq, pos, k)
         if ok
-            break
+            return (pos, T(kmer)), (pos+it.step, kmer)
         end
         pos += it.step
     end
-    return (state[1], convert(T, state[2])), (pos, kmer)
+
+    return nothing
 end
 
 function extract_kmer_impl(seq, from, k)

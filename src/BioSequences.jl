@@ -143,7 +143,7 @@ export
     FASTA,
     FASTQ,
     TwoBit,
-    AbifReader,
+    ABIF,
 
     # Alphabets
     Alphabet,
@@ -185,15 +185,12 @@ export
 
 import Automa
 import Automa.RegExp: @re_str
-importall BioCore
-import BioCore.Exceptions: MissingFieldException
-import BioCore.Ragel: Ragel, tryread!
-import BioCore.StringFields: StringField
-importall BioSymbols
-import BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
+
+using BioCore
+using BioSymbols
+using BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
 import IndexableBitVectors
-import IterTools
 import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
@@ -201,8 +198,10 @@ import Twiddle: enumerate_nibbles,
     count_nonzero_nibbles,
     count_zero_bitpairs,
     count_nonzero_bitpairs
+using Nullables
+using Random
 
-gap(::Type{Char}) = '-'
+BioSymbols.gap(::Type{Char}) = '-'
 
 include("alphabet.jl")
 include("bitindex.jl")

@@ -16,13 +16,13 @@ function BarcodeTrie(barcodes, ids)
     if !issorted(barcodes)
         error("DNA barcodes must be sorted")
     end
-    for i in 1:endof(barcodes)-1
+    for i in 1:lastindex(barcodes)-1
         if barcodes[i] == barcodes[i+1]
             error("duplicated sequences")
         end
     end
     nodes = Int64[1]
-    build_trie!(nodes, 1, barcodes, ids, 1:endof(barcodes), 1)
+    build_trie!(nodes, 1, barcodes, ids, 1:lastindex(barcodes), 1)
     return BarcodeTrie(nodes)
 end
 
@@ -42,13 +42,13 @@ function build_trie!(nodes, root, barcodes, ids, range, j)
 
     # allocate six consecutive nodes {'#', 'A', 'C', 'G', 'T', 'N' (or others)}
     resize!(nodes, length(nodes) + 6)
-    for l in endof(nodes)-5:endof(nodes)
+    for l in lastindex(nodes)-5:lastindex(nodes)
         nodes[l] = 0
     end
-    base = endof(nodes) - 6
+    base = lastindex(nodes) - 6
 
     # calculate ranges for the next level
-    starts = Vector{Int}(6)
+    starts = Vector{Int}(undef, 6)
     i = first(range)
     starts[1] = i  # '#'
     while i ≤ last(range) && length(barcodes[i]) < j
@@ -56,7 +56,7 @@ function build_trie!(nodes, root, barcodes, ids, range, j)
     end
     for k in 1:4  # ACGT
         starts[k+1] = i
-        while i ≤ last(range) && findfirst(ACGT, barcodes[i][j]) == k
+        while i ≤ last(range) && findfirst(isequal(barcodes[i][j]), ACGT) == k
             i += 1
         end
     end
@@ -231,11 +231,11 @@ function hamming_circle(seq, m)
         return [seq]
     end
     ret = DNASequence[]
-    for ps in Combinatorics.combinations(1:endof(seq), m)
-        for rs in IterTools.product(fill(1:4, m)...)
+    for ps in Combinatorics.combinations(1:lastindex(seq), m)
+        for rs in Iterators.product(fill(1:4, m)...)
             seq′ = copy(seq)
             for (p, r) in zip(ps, rs)
-                if findfirst(ACGT, seq[p]) ≤ r
+                if findfirst(isequal(seq[p]), ACGT) ≤ r
                     r += 1
                 end
                 seq′[p] = ACGTN[r]
@@ -256,11 +256,11 @@ function levenshtein_circle(seq, m)
     # substitution
     append!(seqs, hamming_circle(seq, 1))
     # deletion
-    for i in 1:endof(seq)
+    for i in 1:lastindex(seq)
         push!(seqs, deleteat!(copy(seq), i))
     end
     # insertion
-    for i in 1:endof(seq), nt in ACGTN
+    for i in 1:lastindex(seq), nt in ACGTN
         if nt != seq[i]
             push!(seqs, insert!(copy(seq), i, nt))
         end
@@ -283,7 +283,7 @@ end
 function levenshtein_distance(seq1, seq2)
     m = length(seq1)
     n = length(seq2)
-    dist = Matrix{Int}(m + 1, n + 1)
+    dist = Matrix{Int}(undef, (m + 1, n + 1))
 
     dist[1,1] = 0
     for i in 1:m
@@ -309,7 +309,7 @@ end
 function sequencelevenshtein_distance(seq1, seq2)
     m = length(seq1)
     n = length(seq2)
-    dist = Matrix{Int}(m + 1, n + 1)
+    dist = Matrix{Int}(undef, (m + 1, n + 1))
 
     dist[1,1] = 0
     for i in 1:m

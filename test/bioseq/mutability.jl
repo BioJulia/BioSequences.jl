@@ -90,10 +90,10 @@
         @test seq == dna"AC"
     end
 
-    @testset "unshift!" begin
+    @testset "pushfirst!" begin
         seq = dna""
-        @test unshift!(seq, DNA_A) == dna"A"
-        @test unshift!(seq, DNA_C) == dna"CA"
+        @test pushfirst!(seq, DNA_A) == dna"A"
+        @test pushfirst!(seq, DNA_C) == dna"CA"
         @test seq == dna"CA"
     end
 
@@ -106,13 +106,13 @@
         @test_throws ArgumentError pop!(dna"")
     end
 
-    @testset "shift!" begin
+    @testset "popfirst!" begin
         seq = dna"ACGT"
-        @test shift!(seq) === DNA_A
+        @test popfirst!(seq) === DNA_A
         @test seq == dna"CGT"
-        @test shift!(seq) === DNA_C
+        @test popfirst!(seq) === DNA_C
         @test seq == dna"GT"
-        @test_throws ArgumentError shift!(dna"")
+        @test_throws ArgumentError popfirst!(dna"")
     end
 
     @testset "insert!" begin
@@ -139,21 +139,21 @@
         @test append!(seq, dna"ACG") == dna"AACG"
     end
 
-    @testset "copy!" begin
+    @testset "copyto!" begin
         seq = dna"GGG"
-        @test copy!(seq, dna"ACG") == dna"ACG"
-        @test copy!(seq, dna"TTA") == dna"TTA"
+        @test copyto!(seq, dna"ACG") == dna"ACG"
+        @test copyto!(seq, dna"TTA") == dna"TTA"
 
         seq = dna"TCCC"
-        @test copy!(seq, 2, dna"TT", 1) == dna"TTTC"
+        @test copyto!(seq, 2, dna"TT", 1) == dna"TTTC"
         seq = dna"TCCC"
-        @test copy!(seq, 2, dna"TT", 1, 1) == dna"TTCC"
+        @test copyto!(seq, 2, dna"TT", 1, 1) == dna"TTCC"
 
         seq = dna"ACGT"
-        @test copy!(seq, seq) == dna"ACGT"
-        @test copy!(seq, 1, seq, 3, 2) == dna"GTGT"
+        @test copyto!(seq, seq) == dna"ACGT"
+        @test copyto!(seq, 1, seq, 3, 2) == dna"GTGT"
         seq = dna"ACGT"
-        @test copy!(seq, 3, seq, 1, 2) == dna"ACAC"
+        @test copyto!(seq, 3, seq, 1, 2) == dna"ACAC"
     end
 
     @testset "orphan!" begin

@@ -21,7 +21,7 @@ end
 @testset "Concatenation" begin
     function test_concatenation(A, chunks)
         parts = UnitRange{Int}[]
-        for i in 1:endof(chunks)
+        for i in 1:lastindex(chunks)
             start = rand(1:length(chunks[i]))
             stop = rand(start:length(chunks[i]))
             push!(parts, start:stop)
@@ -83,13 +83,13 @@ end
 @testset "Length" begin
     for len in [0, 1, 2, 3, 10, 16, 32, 1000, 10000]
         seq = DNASequence(random_dna(len))
-        @test length(seq) === endof(seq) === len
+        @test length(seq) === lastindex(seq) === len
 
         seq = RNASequence(random_rna(len))
-        @test length(seq) === endof(seq) === len
+        @test length(seq) === lastindex(seq) === len
 
         seq = AminoAcidSequence(random_aa(len))
-        @test length(seq) === endof(seq) === len
+        @test length(seq) === lastindex(seq) === len
     end
 
     @test length(char"いろはabc") === 6

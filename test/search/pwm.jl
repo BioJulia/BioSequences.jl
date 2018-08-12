@@ -64,12 +64,12 @@
         ]
         pfm = PFM{DNA}(m)
         pwm = PWM(pfm)
-        raw = log2.((pfm ./ sum(pfm, 1)) ./ fill(1/4, 4))
+        raw = log2.((pfm ./ sum(pfm, dims=1)) ./ fill(1/4, 4))
         @test pwm isa PWM{DNA,Float64}
         @test pwm == raw
-        @test PWM(pfm, prior=[0.1, 0.4, 0.4, 0.1]) == log2.((pfm ./ sum(pfm, 1)) ./ [0.1, 0.4, 0.4, 0.1])
+        @test PWM(pfm, prior=[0.1, 0.4, 0.4, 0.1]) == log2.((pfm ./ sum(pfm, dims=1)) ./ [0.1, 0.4, 0.4, 0.1])
         @test PWM(pfm) == PWM{DNA}(raw)
-        @test maxscore(pwm) ≈ sum(maximum(raw, 1))
+        @test maxscore(pwm) ≈ sum(maximum(raw, dims=1))
         @test maxscore(PWM{DNA}(zeros(4, 0))) === 0.0
         @test PWM(pfm .+ 0.1) isa PWM{DNA,Float64}  # pseudo count
         @test_throws ArgumentError PWM{DNA}(hcat(m, [13, 14, 15]))
@@ -81,7 +81,7 @@
         @test startswith(sprint(show, pwm), string(summary(pwm), ":\n"))
     end
 
-    @testset "search" begin
+    @testset "findfirst" begin
         seq = dna"ACGATNATCGCGTANTG"
         data = [
             1.0 0.1 0.2
@@ -92,10 +92,10 @@
         pwm = PWM{DNA}(data)
         @test maxscore(pwm) == 1.8
         @test scoreat(seq, pwm, 1) === 1.2
-        @test search(seq, pwm, 1.0) === 1
-        @test search(seq, pwm, 1.4) === 4
-        @test search(seq, pwm, 1.8) === 7
-        @test search(seq, pwm, 2.0) === 0
-        @test_throws ArgumentError search(convert(RNASequence, seq), pwm, 1.0)
+        @test findfirst(pwm, seq, 1.0) === 1
+        @test findfirst(pwm, seq, 1.4) === 4
+        @test findfirst(pwm, seq, 1.8) === 7
+        @test findfirst(pwm, seq, 2.0) === nothing
+        @test_throws ArgumentError findfirst(pwm, RNASequence(seq), 1.0)
     end
 end

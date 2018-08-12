@@ -9,6 +9,7 @@ import BioCore: BioCore, isfilled
 import BioCore.Exceptions: missingerror
 import BioSequences
 import BufferedStreams
+using Nullables
 
 export description,
        identifier

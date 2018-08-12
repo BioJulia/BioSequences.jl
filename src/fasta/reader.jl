@@ -108,16 +108,16 @@ const record_actions = Dict(
     :description => :(record.description = (mark:p-1)),
     :header => quote
         @assert record.data === data
-        copy!(record.data, 1, record.data, 1, p - 1)
+        copyto!(record.data, 1, record.data, 1, p - 1)
         filled += p - 1
-        if p ≤ endof(data)
+        if p ≤ lastindex(data)
             data[p] = UInt8('\n')
             filled += 1
         end
     end,
     :letters => quote
         let len = p - mark
-            copy!(record.data, filled + 1, record.data, mark, p - mark)
+            copyto!(record.data, filled + 1, record.data, mark, p - mark)
             filled += len
             record.sequence = first(record.sequence):last(record.sequence)+len
         end
@@ -140,13 +140,13 @@ eval(
         file_machine,
         :(filled = mark = 0),
         merge(record_actions, Dict(
-            :identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :description => :(record.description = (mark:p-1) - stream.anchor + 1),
+            :identifier  => :(record.identifier  = (mark:p-1) .- stream.anchor .+ 1),
+            :description => :(record.description = (mark:p-1) .- stream.anchor .+ 1),
             :header => quote
                 range = BioCore.ReaderHelper.upanchor!(stream):p-1
                 BioCore.ReaderHelper.resize_and_copy!(record.data, filled + 1, data, range)
                 filled += length(range)
-                if filled + 1 ≤ endof(record.data)
+                if filled + 1 ≤ lastindex(record.data)
                     record.data[filled+1] = UInt8('\n')
                 else
                     push!(record.data, UInt8('\n'))

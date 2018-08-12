@@ -12,7 +12,7 @@ Sequence composition.
 This is a subtype of `Associative{T,Int}`, and the `getindex` method returns the
 number of occurrences of a symbol or a k-mer.
 """
-struct Composition{T} <: Associative{T,Int}
+struct Composition{T} <: AbstractDict{T,Int}
     counts::Dict{T,Int}
 end
 
@@ -66,7 +66,7 @@ function Composition(iter::EachKmerIterator{T}) where {T<:Kmer}
         for (_, x) in iter
             @inbounds counts′[reinterpret(Int, x)+1] += 1
         end
-        for x in 1:endof(counts′)
+        for x in 1:lastindex(counts′)
             @inbounds c = counts′[x]
             if c > 0
                 counts[reinterpret(T, x-1)] = c
@@ -136,17 +136,8 @@ function Base.length(comp::Composition)
     return length(comp.counts)
 end
 
-function Base.start(comp::Composition)
-    return start(comp.counts)
-end
-
-function Base.done(comp::Composition, s)
-    return done(comp.counts, s)
-end
-
-function Base.next(comp::Composition, s)
-    return next(comp.counts, s)
-end
+Base.iterate(comp::Composition) = iterate(comp.counts)
+Base.iterate(comp::Composition, state) = iterate(comp.counts, state)
 
 function Base.getindex(comp::Composition{T}, x) where {T}
     return get(comp.counts, convert(T, x), 0)
@@ -181,7 +172,7 @@ end
 
 function count_array2dict(counts, alphabet)
     counts′ = Dict{eltype(alphabet),Int}()
-    sizehint!(counts′, countnz(counts))
+    sizehint!(counts′, count(x -> !iszero(x), counts))
     for x in alphabet
         @inbounds c = counts[convert(Int64,x)+1]
         if c > 0

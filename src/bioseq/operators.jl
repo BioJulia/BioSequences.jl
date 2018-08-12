@@ -25,7 +25,7 @@ function count_gc(seq::BioSequence{<:Union{DNAAlphabet{2},RNAAlphabet{2}}})
     end
     n = 0
     i = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
+    stop = bitindex(seq, lastindex(seq) + 1)
     if offset(i) != 0 && i < stop
         # align the bit index to the beginning of a block boundary
         o = offset(i)
@@ -54,7 +54,7 @@ function count_gc(seq::BioSequence{<:Union{DNAAlphabet{4},RNAAlphabet{4}}})
     end
     n = 0
     i = bitindex(seq, 1)
-    stop = bitindex(seq, endof(seq) + 1)
+    stop = bitindex(seq, lastindex(seq) + 1)
     if offset(i) != 0 && i < stop
         # align the bit index to the beginning of a block boundary
         o = offset(i)
@@ -134,13 +134,13 @@ function seqmatrix(vseq::AbstractVector{BioSequence{A}}, major::Symbol) where {A
         length(vseq[i]) == nsites || throw(ArgumentError("Sequences in vseq must be of same length"))
     end
     if major == :site
-        mat = Matrix{eltype(A)}(nseqs, nsites)
+        mat = Matrix{eltype(A)}(undef, (nseqs, nsites))
         @inbounds for seq in 1:nseqs, site in 1:nsites
             mat[seq, site] = vseq[seq][site]
         end
         return mat
     elseif major == :seq
-        mat = Matrix{eltype(A)}(nsites, nseqs)
+        mat = Matrix{eltype(A)}(undef, (nsites, nseqs))
         @inbounds for seq in 1:nseqs, site in 1:nsites
             mat[site, seq] = vseq[seq][site]
         end
@@ -202,13 +202,13 @@ function seqmatrix(::Type{T}, vseq::AbstractVector{BioSequence{A}}, major::Symbo
         length(vseq[i]) == nsites || throw(ArgumentError("Sequences in vseq must be of same length."))
     end
     if major == :site
-        mat = Matrix{T}(nseqs, nsites)
+        mat = Matrix{T}(undef, (nseqs, nsites))
         @inbounds for seq in 1:nseqs, site in 1:nsites
             mat[seq, site] = convert(T, vseq[seq][site])
         end
         return mat
     elseif major == :seq
-        mat = Matrix{T}(nsites, nseqs)
+        mat = Matrix{T}(undef, (nsites, nseqs))
         @inbounds for seq in 1:nseqs, site in 1:nsites
             mat[site, seq] = convert(T, vseq[seq][site])
         end

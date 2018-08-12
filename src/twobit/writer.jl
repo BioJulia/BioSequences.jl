@@ -74,7 +74,7 @@ function update_offset(writer::Writer, seqname, seqoffset)
 end
 
 function Base.write(writer::Writer, record::WriteRecord)
-    i = findfirst(writer.names, record.name)
+    i = findfirst(isequal(record.name), writer.names)
     if i == 0
         error("sequence \"", record.name, "\" doesn't exist in the writing list")
     elseif writer.written[i]
@@ -99,12 +99,12 @@ function make_n_blocks(seq)
     starts = UInt32[]
     sizes = UInt32[]
     i = 1
-    while i ≤ endof(seq)
+    while i ≤ lastindex(seq)
         nt = seq[i]
         if nt == BioSequences.DNA_N
             start = i - 1  # 0-based index
             push!(starts, start)
-            while i ≤ endof(seq) && seq[i] == BioSequences.DNA_N
+            while i ≤ lastindex(seq) && seq[i] == BioSequences.DNA_N
                 i += 1
             end
             push!(sizes, (i - 1) - start)
@@ -147,7 +147,7 @@ end
 function write_twobit_sequence(output, seq)
     n = 0
     i = 4
-    while i ≤ endof(seq)
+    while i ≤ lastindex(seq)
         x::UInt8 = 0
         x |= nuc2twobit(seq[i-3]) << 6
         x |= nuc2twobit(seq[i-2]) << 4
@@ -159,8 +159,8 @@ function write_twobit_sequence(output, seq)
     r = length(seq) % 4
     if r > 0
         let x::UInt8 = 0
-            i = endof(seq) - r + 1
-            while i ≤ endof(seq)
+            i = lastindex(seq) - r + 1
+            while i ≤ lastindex(seq)
                 x = x << 2 | nuc2twobit(seq[i])
                 i += 1
             end

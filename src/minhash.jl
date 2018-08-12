@@ -29,9 +29,9 @@ end
 
 Base.getindex(s::MinHashSketch, part) = getindex(s.sketch, part)
 Base.length(s::MinHashSketch) = length(s.sketch)
-Base.start(s::MinHashSketch) = start(s.sketch)
-Base.next(s::MinHashSketch, state) = next(s.sketch, state)
-Base.done(s::MinHashSketch, state) = done(s.sketch, state)
+
+Base.iterate(s::MinHashSketch) = iterate(s.sketch)
+Base.iterate(s::MinHashSketch, state) = iterate(s.sketch, state)
 
 function Base.:(==)(a::MinHashSketch, b::MinHashSketch)
     return a.kmersize == b.kmersize && a.sketch == b.sketch
@@ -41,9 +41,10 @@ end
 function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
     # generate first `s` kmers
     iter = each(DNAKmer{k}, seq)
-    state = start(iter)
-    while length(kmerhashes) < s && !done(iter, state)
-        (_, kmer), state = next(iter, state)
+    iter_value = iterate(iter)
+    while length(kmerhashes) < s && iter_value !== nothing
+        (_, kmer), state = iter_value
+        iter_value = iterate(iter, state)
         h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h ∉ kmerhashes
             push!(kmerhashes, h)
@@ -53,14 +54,15 @@ function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhash
     sort!(kmerhashes)
 
     # scan `seq` to make a minhash
-    while !done(iter, state)
-        (_, kmer), state = next(iter, state)
+    while iter_value !== nothing
+        (_, kmer), state = iter_value
+        iter_value = iterate(iter, state)
         h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h < kmerhashes[end]
             i = searchsortedlast(kmerhashes, h)
             if i == 0 && h != kmerhashes[1]
                 pop!(kmerhashes)
-                unshift!(kmerhashes, h)
+                pushfirst!(kmerhashes, h)
             elseif h != kmerhashes[i]
                 pop!(kmerhashes)
                 insert!(kmerhashes, i+1, h)

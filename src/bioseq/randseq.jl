@@ -42,9 +42,9 @@ function randseq(generator::StationaryGenerator{T}, len::Integer) where {T}
         r = rand()
         j = 1
         cumprob = probs[j]
-        while cumprob < r && j ≤ endof(probs)
+        while cumprob < r && j ≤ lastindex(probs)
             j += 1
-            if j ≤ endof(probs)
+            if j ≤ lastindex(probs)
                 cumprob += probs[j]
             end
         end

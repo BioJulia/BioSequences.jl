@@ -5,7 +5,7 @@ BioSymbols 2.0
 BufferedStreams
 Combinatorics
 IndexableBitVectors
-IterTools 0.1
 IntervalTrees
 Twiddle
 DataStructures
+Nullables

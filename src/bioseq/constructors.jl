@@ -7,7 +7,7 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function BioSequence{A}(len::Integer) where {A<:Alphabet}
-    return BioSequence{A}(Vector{UInt64}(seq_data_len(A, len)), 1:len, false)
+    return BioSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:len, false)
 end
 
 BioSequence(::Type{DNA}) = DNASequence()
@@ -16,7 +16,7 @@ BioSequence(::Type{AminoAcid}) = AminoAcidSequence()
 BioSequence(::Type{Char}) = CharSequence()
 
 function BioSequence()
-    return BioSequence{VoidAlphabet}(Vector{UInt64}(0), 0:-1, false)
+    return BioSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
 end
 
 function BioSequence{A}(
@@ -51,7 +51,7 @@ function BioSequence{A}(chunks::BioSequence{A}...) where {A}
     seq = BioSequence{A}(len)
     offset = 1
     for chunk in chunks
-        copy!(seq, offset, chunk, 1)
+        copyto!(seq, offset, chunk, 1)
         offset += length(chunk)
     end
     return seq
@@ -61,7 +61,7 @@ function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A}
     seq = BioSequence{A}(length(chunk) * n)
     offset = 1
     for _ in 1:n
-        copy!(seq, offset, chunk, 1)
+        copyto!(seq, offset, chunk, 1)
         offset += length(chunk)
     end
     return seq
