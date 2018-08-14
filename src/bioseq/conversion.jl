@@ -9,10 +9,8 @@
 # Promotion
 # ---------
 
-for alph in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.promote_rule(::Type{BioSequence{A}}, ::Type{BioSequence{B}}) where {A<:$alph,B<:$alph}
-        return BioSequence{promote_rule(A,B)}
-    end
+function Base.promote_rule(::Type{BioSequence{A}}, ::Type{BioSequence{B}}) where {A<:Alphabet,B<:Alphabet}
+    return BioSequence{promote_rule(A, B)}
 end
 
 # Conversion
