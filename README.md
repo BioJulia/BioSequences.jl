@@ -1,6 +1,4 @@
-<p align="center"><img src="./sticker.svg" width="30%" alt="BioSequences" /></p>
-
------
+# <img src="./sticker.svg" width="30%" align="right" /> BioSequences
 
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE) 

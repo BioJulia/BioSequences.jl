@@ -129,13 +129,12 @@ end
 
 function write_masked_blocks(output, masks)
     n = 0
-    if !isnull(masks)
-        m = get(masks)
-        n += write(output, UInt32(length(m)))
-        for mblock in m
+    if masks != nothing
+        n += write(output, UInt32(length(masks)))
+        for mblock in masks
             n += write(output, UInt32(first(mblock) - 1))  # 0-based
         end
-        for mblock in m
+        for mblock in masks
             n += write(output, UInt32(length(mblock)))
         end
     else

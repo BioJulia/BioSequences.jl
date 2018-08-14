@@ -14,7 +14,6 @@ module TwoBit
 
 import BioCore
 import BioSequences
-using Nullables
 
 include("record.jl")
 include("reader.jl")

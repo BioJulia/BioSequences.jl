@@ -7,7 +7,6 @@ import BioSymbols
 import BioSequences
 import BufferedStreams
 import BufferedStreams: BufferedInputStream
-using Nullables
 
 include("quality.jl")
 include("record.jl")

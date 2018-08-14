@@ -3,7 +3,7 @@
 
 struct Reader <: BioCore.IO.AbstractReader
     state::BioCore.Ragel.State
-    seq_transform::Nullable{Function}
+    seq_transform::Union{Function, Nothing}
 
     function Reader(input::BufferedInputStream, seq_transform)
         return new(BioCore.Ragel.State(file_machine.start_state, input), seq_transform)
@@ -163,8 +163,8 @@ eval(
                 end
                 BioCore.ReaderHelper.resize_and_copy!(record.data, data, BioCore.ReaderHelper.upanchor!(stream):p-1)
                 record.filled = (offset+1:p-1) .- offset
-                if !isnull(reader.seq_transform)
-                    get(reader.seq_transform)(record.data, record.sequence)
+                if reader.seq_transform != nothing
+                    reader.seq_transform(record.data, record.sequence)
                 end
                 found_record = true
                 @escape

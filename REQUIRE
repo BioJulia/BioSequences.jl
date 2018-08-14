@@ -1,5 +1,5 @@
 julia 0.7
-Automa
+Automa 0.7
 BioCore 2.0.0
 BioSymbols 3.0.1
 BufferedStreams
@@ -8,4 +8,3 @@ IndexableBitVectors
 IntervalTrees
 Twiddle
 DataStructures
-Nullables

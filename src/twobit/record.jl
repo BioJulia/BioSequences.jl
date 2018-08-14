@@ -215,7 +215,7 @@ a `Record` method on a name, some sequence, and some masks.
 mutable struct WriteRecord{S<:BioSequences.Sequence}
     name::String
     seq::S
-    masks::Nullable{Vector{UnitRange{Int}}}
+    masks::Union{Vector{UnitRange{Int}}, Nothing}
 end
 
 """
@@ -228,12 +228,6 @@ ranges that delineate masked regions of sequence.
 """
 function Record(name::AbstractString,
                 seq::BioSequences.Sequence,
-                masks = Nullable{Vector{UnitRange{Int}}}())
+                masks = nothing)
     return WriteRecord(string(name), seq, masks)
-end
-
-function Record(name::AbstractString,
-                seq::BioSequences.Sequence,
-                masks::Vector{UnitRange{Int}})
-    return Record(name, seq, Nullable(masks))
 end

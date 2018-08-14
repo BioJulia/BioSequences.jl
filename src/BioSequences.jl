@@ -198,7 +198,6 @@ import Twiddle: enumerate_nibbles,
     count_nonzero_nibbles,
     count_zero_bitpairs,
     count_nonzero_bitpairs
-using Nullables
 using Random
 
 BioSymbols.gap(::Type{Char}) = '-'

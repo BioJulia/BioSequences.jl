@@ -3,7 +3,7 @@
 
 mutable struct Reader <: BioCore.IO.AbstractReader
     state::BioCore.Ragel.State
-    index::Nullable{Index}
+    index::Union{Index, Nothing}
 
     function Reader(input::BufferedStreams.BufferedInputStream, index)
         return new(BioCore.Ragel.State(file_machine.start_state, input), index)
@@ -19,7 +19,7 @@ Create a data reader of the FASTA file format.
 * `input`: data source
 * `index=nothing`: filepath to a random access index (currently *fai* is supported)
 """
-function Reader(input::IO; index=nothing)
+function Reader(input::IO; index = nothing)
     if isa(index, AbstractString)
         index = Index(index)
     else
@@ -39,7 +39,7 @@ function BioCore.IO.stream(reader::Reader)
 end
 
 function Base.getindex(reader::Reader, name::AbstractString)
-    if isnull(reader.index)
+    if reader.index == nothing
         throw(ArgumentError("no index attached"))
     end
     seekrecord(reader.state.stream, get(reader.index), name)

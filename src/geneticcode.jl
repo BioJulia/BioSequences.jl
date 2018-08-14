@@ -324,7 +324,7 @@ result in an error.
 """
 function translate(seq::RNASequence;
                    code::GeneticCode=standard_genetic_code,
-                   allow_ambiguous_codons::Bool=true)
+                   allow_ambiguous_codons::Bool = true)
     return translate(seq, code, allow_ambiguous_codons)
 end
 
@@ -342,14 +342,14 @@ function translate(seq::RNASequence, code::GeneticCode, allow_ambiguous_codons::
         z = seq[i+2]
         if isambiguous(x) || isambiguous(y) || isambiguous(z)
             aa = try_translate_ambiguous_codon(code, x, y, z)
-            if isnull(aa)
+            if aa == nothing
                 if allow_ambiguous_codons
                     aaseq[j] = AA_X
                 else
                     error("codon ", x, y, z, " cannot be unambiguously translated")
                 end
             else
-                aaseq[j] = get(aa)
+                aaseq[j] = aa
             end
         else
             aaseq[j] = code[Kmer(x, y, z)]
@@ -371,19 +371,19 @@ function try_translate_ambiguous_codon(code::GeneticCode,
         aa_g = code[Kmer(x, y, RNA_G)]
         aa_u = code[Kmer(x, y, RNA_U)]
         if aa_a == aa_c == aa_g == aa_u
-            return Nullable{AminoAcid}(aa_a)
+            return aa_a
         end
     end
 
-    found = Nullable{AminoAcid}()
+    found::Union{AminoAcid, Nothing} = nothing
     for (codon, aa) in code
         if (iscompatible(x, codon[1]) &&
             iscompatible(y, codon[2]) &&
             iscompatible(z, codon[3]))
-            if isnull(found)
-                found = Nullable(aa)
-            elseif aa != get(found)
-                return Nullable{AminoAcid}()
+            if found == nothing
+                found = aa
+            elseif aa != found
+                return nothing
             end
         end
     end
