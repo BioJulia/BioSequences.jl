@@ -27,12 +27,12 @@ function _generic_convert(::Type{T}, seq) where T <: Sequence
     return newseq
 end
 
-function convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
+function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
     return _generic_convert(DNAAlphabet{2}, seq)
 end
 BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}}) = convert(BioSequence{DNAAlphabet{2}}, seq)
 
-function convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
+function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
     return _generic_convert(DNAAlphabet{4}, seq)
 end
 BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}}) = convert(BioSequence{DNAAlphabet{4}}, seq)
