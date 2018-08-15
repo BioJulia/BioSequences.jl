@@ -28,14 +28,19 @@ function _generic_convert(::Type{T}, seq) where T<:Sequence
 end
 
 function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
-    return _generic_convert(DNAAlphabet{2}, seq)
+    return _generic_convert(BioSequence{DNAAlphabet{2}}, seq)
 end
-BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}}) = convert(BioSequence{DNAAlphabet{2}}, seq)
+
+#=
+function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
+    return convert(BioSequence{DNAAlphabet{2}}, seq)
+end
+=#
 
 function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
-    return _generic_convert(DNAAlphabet{4}, seq)
+    return _generic_convert(BioSequence{DNAAlphabet{4}}, seq)
 end
-BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}}) = convert(BioSequence{DNAAlphabet{4}}, seq)
+#BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}}) = convert(BioSequence{DNAAlphabet{4}}, seq)
 
 # Conversion between DNA and RNA sequences.
 function _same_bits_convert(::Type{T}, seq) where T <: Sequence
