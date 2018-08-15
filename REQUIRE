@@ -4,7 +4,7 @@ BioCore 2.0.0
 BioSymbols 3.0.1
 BufferedStreams
 Combinatorics
-IndexableBitVectors
+IndexableBitVectors 1.0.0
 IntervalTrees
 Twiddle 1.0.0
 DataStructures

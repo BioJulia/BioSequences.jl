@@ -18,7 +18,7 @@ end
 
 # Conversion between sequences of different alphabet size.
 
-function _generic_convert(::Type{T}, seq) where T <: Sequence
+function _generic_convert(::Type{T}, seq) where T<:Sequence
     # TODO: make it faster with bit-parallel algorithm
     newseq = T(length(seq))
     for (i, x) in enumerate(seq)
