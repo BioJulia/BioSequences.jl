@@ -18,7 +18,7 @@ end
 
 # Conversion between sequences of different alphabet size.
 
-function _generic_convert(::Type{T}, seq) where T<:Sequence
+function _generic_convert(::Type{T}, seq) where T <: Sequence
     # TODO: make it faster with bit-parallel algorithm
     newseq = T(length(seq))
     for (i, x) in enumerate(seq)
@@ -27,8 +27,13 @@ function _generic_convert(::Type{T}, seq) where T<:Sequence
     return newseq
 end
 
-function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
-    return _generic_convert(BioSequence{DNAAlphabet{2}}, seq)
+for A in (DNAAlphabet, RNAAlphabet)
+    @eval function Base.convert(::Type{BioSequence{$A{2}}}, seq::BioSequence{$A{4}})
+        return _generic_convert(BioSequence{$A{2}}, seq)
+    end
+    @eval function Base.convert(::Type{BioSequence{$A{4}}}, seq::BioSequence{$A{2}})
+        return _generic_convert(BioSequence{$A{4}}, seq)
+    end
 end
 
 #=
@@ -37,9 +42,7 @@ function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
 end
 =#
 
-function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
-    return _generic_convert(BioSequence{DNAAlphabet{4}}, seq)
-end
+
 #BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}}) = convert(BioSequence{DNAAlphabet{4}}, seq)
 
 # Conversion between DNA and RNA sequences.
@@ -63,17 +66,6 @@ end
 
 function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{4}})
     return _same_bits_convert(BioSequence{RNAAlphabet{4}}, seq)
-end
-
-# Convert from a DNA or RNA vector to a BioSequence.
-function BioSequence{A}(seq::AbstractVector{DNA}) where {A<:DNAAlphabet}
-    return BioSequence{A}(seq, 1, lastindex(seq))
-end
-function BioSequence{A}(seq::AbstractVector{RNA}) where {A<:RNAAlphabet}
-    return BioSequence{A}(seq, 1, lastindex(seq))
-end
-function AminoAcidSequence(seq::AbstractVector{AminoAcid})
-    return AminoAcidSequence(seq, 1, lastindex(seq))
 end
 
 # Convert from a BioSequence to to a DNA or RNA vector
