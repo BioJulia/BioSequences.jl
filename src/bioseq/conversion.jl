@@ -17,28 +17,26 @@ end
 # Conversion
 # ----------
 
-function _generic_convert(::Type{T}, seq) where T <: Sequence
-    # TODO: make it faster with bit-parallel algorithm
-    newseq = T(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
-    end
-    return newseq
-end
+# Conversion between sequences of different alphabet size.
+for A in [DNAAlphabet, RNAAlphabet]
 
-# Conversion between sequences of different alphabet sizes.
-for A in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.convert(::Type{BioSequence{$A{2}}}, seq::BioSequence{$A{4}})
-        return _generic_convert(BioSequence{$A{2}}, seq)
+    # Convert from a 4 bit encoding to a 2 bit encoding.
+    @eval function Base.convert(::Type{BioSequence{$(A{2})}}, seq::BioSequence{$(A{4})})
+        # TODO: make it faster with bit-parallel algorithm
+        newseq = BioSequence{$(A{2})}(length(seq))
+        for (i, x) in enumerate(seq)
+            unsafe_setindex!(newseq, x, i)
+        end
+        return newseq
     end
-    @eval function BioSequence{$A{2}}(seq::BioSequence{$A{4}})
-        return convert(BioSequence{$A{2}}, seq)
-    end
-    @eval function Base.convert(::Type{BioSequence{$A{4}}}, seq::BioSequence{$A{2}})
-        return _generic_convert(BioSequence{$A{4}}, seq)
-    end
-    @eval function BioSequence{$A{4}}(seq::BioSequence{$A{2}})
-        return convert(BioSequence{$A{4}}, seq)
+
+    # Convert from a 2 bit encoding to a 4 bit encoding.
+    @eval function Base.convert(::Type{BioSequence{$(A{4})}}, seq::BioSequence{$(A{2})})
+        newseq = BioSequence{$(A{4})}(length(seq))
+        for (i, x) in enumerate(seq)
+            unsafe_setindex!(newseq, x, i)
+        end
+        return newseq
     end
 end
 
