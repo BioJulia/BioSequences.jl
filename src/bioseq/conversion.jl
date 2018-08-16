@@ -17,8 +17,6 @@ end
 # Conversion
 # ----------
 
-# Conversion between sequences of different alphabet size.
-
 function _generic_convert(::Type{T}, seq) where T <: Sequence
     # TODO: make it faster with bit-parallel algorithm
     newseq = T(length(seq))
@@ -28,45 +26,29 @@ function _generic_convert(::Type{T}, seq) where T <: Sequence
     return newseq
 end
 
+# Conversion between sequences of different alphabet sizes.
 for A in (DNAAlphabet, RNAAlphabet)
     @eval function Base.convert(::Type{BioSequence{$A{2}}}, seq::BioSequence{$A{4}})
         return _generic_convert(BioSequence{$A{2}}, seq)
     end
+    @eval function BioSequence{$A{2}}(seq::BioSequence{$A{4}})
+        return convert(BioSequence{$A{2}}, seq)
+    end
     @eval function Base.convert(::Type{BioSequence{$A{4}}}, seq::BioSequence{$A{2}})
         return _generic_convert(BioSequence{$A{4}}, seq)
     end
+    @eval function BioSequence{$A{4}}(seq::BioSequence{$A{2}})
+        return convert(BioSequence{$A{4}}, seq)
+    end
 end
 
-#=
-function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
-    return convert(BioSequence{DNAAlphabet{2}}, seq)
-end
-=#
-
-
-#BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}}) = convert(BioSequence{DNAAlphabet{4}}, seq)
-
-# Conversion between DNA and RNA sequences.
-function _same_bits_convert(::Type{T}, seq) where T <: Sequence
-    newseq = T(seq.data, seq.part, true)
-    seq.shared = true
-    return newseq
-end
-
-function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{RNAAlphabet{2}})
-    return _same_bits_convert(BioSequence{DNAAlphabet{2}}, seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{2}})
-    return _same_bits_convert(BioSequence{RNAAlphabet{2}}, seq)
-end
-
-function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{RNAAlphabet{4}})
-    return _same_bits_convert(BioSequence{DNAAlphabet{4}}, seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{4}})
-    return _same_bits_convert(BioSequence{RNAAlphabet{4}}, seq)
+# Conversion between different alphabets of the same size
+for (A1, A2) in [(DNAAlphabet, RNAAlphabet), (RNAAlphabet, DNAAlphabet)], n in (2, 4)
+    @eval function Base.convert(::Type{BioSequence{$(A1{n})}}, seq::BioSequence{$(A2{n})})
+        newseq = BioSequence{$(A1{n})}(seq.data, seq.part, true)
+        seq.shared = true
+        return newseq
+    end
 end
 
 # Convert from a BioSequence to to a DNA or RNA vector
