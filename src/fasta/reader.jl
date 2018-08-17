@@ -42,7 +42,7 @@ function Base.getindex(reader::Reader, name::AbstractString)
     if reader.index == nothing
         throw(ArgumentError("no index attached"))
     end
-    seekrecord(reader.state.stream, get(reader.index), name)
+    seekrecord(reader.state.stream, reader.index, name)
     reader.state.cs = file_machine.start_state
     reader.state.finished = false
     return read(reader)
