@@ -78,7 +78,7 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
                        (RNAAlphabet{4}, RNAAlphabet{2}),
                        (RNAAlphabet{2}, RNAAlphabet{4})]
     
-    @eval function BioSequence{$(alpha)}(seq::BioSequence{$(alphb)})
+    @eval BioSequences function BioSequence{$(alpha)}(seq::BioSequence{$(alphb)})
         newseq = BioSequence{$(alpha)}(length(seq))
         for (i, x) in enumerate(seq)
             unsafe_setindex!(newseq, x, i)
@@ -87,19 +87,7 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
     end
 end
 
-#=
-macro bitsize_convert(alpha, alphb)
-    return esc(quote
-        function BioSequence{$alpha}(seq::BioSequence{$alphb})
-            newseq = BioSequence{$alpha}(length(seq))
-            for (i, x) in enumerate(seq)
-                unsafe_setindex!(newseq, x, i)
-            end
-            return newseq
-        end
-    end)
-end
-=#
+
 
 function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
     seq = BioSequence{A}(length(chunk) * n)
