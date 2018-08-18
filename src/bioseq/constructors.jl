@@ -91,6 +91,27 @@ function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
     return newseq
 end
 
+function BioSequence{DNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{2}})
+    newseq = BioSequence{DNAAlphabet{2}}(seq.data, seq.part, true)
+    seq.shared = true
+    return newseq
+end
+function BioSequence{RNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{2}})
+    newseq = BioSequence{RNAAlphabet{2}}(seq.data, seq.part, true)
+    seq.shared = true
+    return newseq
+end
+function BioSequence{DNAAlphabet{4}}(seq::BioSequence{RNAAlphabet{4}})
+    newseq = BioSequence{DNAAlphabet{4}}(seq.data, seq.part, true)
+    seq.shared = true
+    return newseq
+end
+function BioSequence{RNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{4}})
+    newseq = BioSequence{RNAAlphabet{4}}(seq.data, seq.part, true)
+    seq.shared = true
+    return newseq
+end
+
 function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
     seq = BioSequence{A}(length(chunk) * n)
     offset = 1

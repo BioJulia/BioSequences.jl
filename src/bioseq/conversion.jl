@@ -33,16 +33,22 @@ function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{RNAA
     return BioSequence{RNAAlphabet{2}}(seq)
 end
 
-#=
-# Conversion between different alphabets of the same size
-for (A1, A2) in [(DNAAlphabet, RNAAlphabet), (RNAAlphabet, DNAAlphabet)], n in (2, 4)
-    @eval function Base.convert(::Type{BioSequence{$(A1{n})}}, seq::BioSequence{$(A2{n})})
-        newseq = BioSequence{$(A1{n})}(seq.data, seq.part, true)
-        seq.shared = true
-        return newseq
-    end
+function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{RNAAlphabet{2}})
+    return BioSequence{DNAAlphabet{2}}(seq)
 end
-=#
+
+function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{2}})
+    return BioSequence{RNAAlphabet{2}}(seq)
+end
+
+function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{RNAAlphabet{4}})
+    return BioSequence{DNAAlphabet{4}}(seq)
+end
+
+function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{4}})
+    return BioSequence{RNAAlphabet{4}}(seq)
+end
+
 
 # Convert from a BioSequence to to a DNA or RNA vector
 Base.convert(::Type{Vector}, seq::BioSequence) = collect(seq)
