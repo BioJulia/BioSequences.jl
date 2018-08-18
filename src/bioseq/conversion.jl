@@ -31,7 +31,9 @@ for A in [DNAAlphabet, RNAAlphabet]
     end
     
     # Constructor that simply calls above conversion method.
-    @eval BioSequence{$(A{2})}(seq::BioSequence{$(A{4})}) = convert(BioSequence{$(A{2})}, seq)
+    @eval function BioSequence{$(A{2})}(seq::BioSequence{$(A{4})})
+        return convert(BioSequence{$(A{2})}, seq)
+    end
 
     # Convert from a 2 bit encoding to a 4 bit encoding.
     @eval function Base.convert(::Type{BioSequence{$(A{4})}}, seq::BioSequence{$(A{2})})
