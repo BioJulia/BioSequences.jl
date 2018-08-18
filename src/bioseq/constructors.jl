@@ -61,17 +61,6 @@ function BioSequence{A}(chunks::BioSequence{A}...) where {A<:Alphabet}
     return seq
 end
 
-
-macro generic_convert_body(alph)
-    return quote
-        newseq = BioSequence{$alph}(length(seq))
-        for (i, x) in enumerate(seq)
-            unsafe_setindex!(newseq, x, i)
-        end
-        return newseq
-    end
-end
-
 # Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
 function BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}})
     newseq = BioSequence{DNAAlphabet{4}}(length(seq))
@@ -80,6 +69,7 @@ function BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}})
     end
     return newseq
 end
+#=
 function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
     newseq = BioSequence{DNAAlphabet{2}}(length(seq))
     for (i, x) in enumerate(seq)
@@ -101,7 +91,7 @@ function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
     end
     return newseq
 end
-
+=#
 
 function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
     seq = BioSequence{A}(length(chunk) * n)
