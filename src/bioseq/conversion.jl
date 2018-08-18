@@ -17,6 +17,21 @@ end
 # Conversion
 # ----------
 
+function Base.convert(::Type{BioSequences{DNAAlphabet{4}}}, seq::BioSequences{DNAAlphabet{2}})
+    return BioSequences{DNAAlphabet{4}}(seq)
+end
+
+function Base.convert(::Type{BioSequences{DNAAlphabet{2}}}, seq::BioSequences{DNAAlphabet{4}})
+    return BioSequences{DNAAlphabet{2}}(seq)
+end
+
+function Base.convert(::Type{BioSequences{RNAAlphabet{4}}}, seq::BioSequences{RNAAlphabet{2}})
+    return BioSequences{RNAAlphabet{4}}(seq)
+end
+
+function Base.convert(::Type{BioSequences{RNAAlphabet{2}}}, seq::BioSequences{RNAAlphabet{4}})
+    return BioSequences{RNAAlphabet{2}}(seq)
+end
 
 #=
 # Conversion between different alphabets of the same size

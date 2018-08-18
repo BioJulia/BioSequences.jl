@@ -69,7 +69,6 @@ function BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}})
     end
     return newseq
 end
-#=
 function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
     newseq = BioSequence{DNAAlphabet{2}}(length(seq))
     for (i, x) in enumerate(seq)
@@ -91,7 +90,6 @@ function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
     end
     return newseq
 end
-=#
 
 function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
     seq = BioSequence{A}(length(chunk) * n)
