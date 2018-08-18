@@ -17,20 +17,20 @@ end
 # Conversion
 # ----------
 
-function Base.convert(::Type{BioSequences{DNAAlphabet{4}}}, seq::BioSequences{DNAAlphabet{2}})
-    return BioSequences{DNAAlphabet{4}}(seq)
+function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
+    return BioSequence{DNAAlphabet{4}}(seq)
 end
 
-function Base.convert(::Type{BioSequences{DNAAlphabet{2}}}, seq::BioSequences{DNAAlphabet{4}})
-    return BioSequences{DNAAlphabet{2}}(seq)
+function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
+    return BioSequence{DNAAlphabet{2}}(seq)
 end
 
-function Base.convert(::Type{BioSequences{RNAAlphabet{4}}}, seq::BioSequences{RNAAlphabet{2}})
-    return BioSequences{RNAAlphabet{4}}(seq)
+function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{RNAAlphabet{2}})
+    return BioSequence{RNAAlphabet{4}}(seq)
 end
 
-function Base.convert(::Type{BioSequences{RNAAlphabet{2}}}, seq::BioSequences{RNAAlphabet{4}})
-    return BioSequences{RNAAlphabet{2}}(seq)
+function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{RNAAlphabet{4}})
+    return BioSequence{RNAAlphabet{2}}(seq)
 end
 
 #=
