@@ -78,8 +78,8 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
                        (RNAAlphabet{4}, RNAAlphabet{2}),
                        (RNAAlphabet{2}, RNAAlphabet{4})]
     
-    @eval function BioSequence{$alpha}(seq::BioSequence{$alphb})
-        newseq = BioSequence{$alpha}(length(seq))
+    @eval function BioSequence{$(alpha)}(seq::BioSequence{$(alphb)})
+        newseq = BioSequence{$(alpha)}(length(seq))
         for (i, x) in enumerate(seq)
             unsafe_setindex!(newseq, x, i)
         end
