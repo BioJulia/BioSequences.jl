@@ -80,6 +80,27 @@ function BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}})
     end
     return newseq
 end
+function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
+    newseq = BioSequence{DNAAlphabet{2}}(length(seq))
+    for (i, x) in enumerate(seq)
+        unsafe_setindex!(newseq, x, i)
+    end
+    return newseq
+end
+function BioSequence{RNAAlphabet{4}}(seq::BioSequence{RNAAlphabet{2}})
+    newseq = BioSequence{RNAAlphabet{4}}(length(seq))
+    for (i, x) in enumerate(seq)
+        unsafe_setindex!(newseq, x, i)
+    end
+    return newseq
+end
+function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
+    newseq = BioSequence{RNAAlphabet{2}}(length(seq))
+    for (i, x) in enumerate(seq)
+        unsafe_setindex!(newseq, x, i)
+    end
+    return newseq
+end
 
 
 function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
