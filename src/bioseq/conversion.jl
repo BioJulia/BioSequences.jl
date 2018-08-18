@@ -18,19 +18,6 @@ end
 # ----------
 
 
-# Catchall conversion method between DNA and RNA sequences.
-function Base.convert(::Type{BioSequence{A}}, seq::BioSequence{B}) where {A <: NucAlphs, B <: NucAlphs}
-    newseq = BioSequence{A}(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
-    end
-    return newseq
-end
-
-function BioSequence{A}(seq::BioSequence{B}) where {A <: NucAlphs, B <: NucAlphs}
-    return convert(BioSequence{A}, seq)
-end
-
 #=
 # Conversion between different alphabets of the same size
 for (A1, A2) in [(DNAAlphabet, RNAAlphabet), (RNAAlphabet, DNAAlphabet)], n in (2, 4)
@@ -57,5 +44,5 @@ function Base.convert(::Type{S}, seq::BioSequence) where {S<:AbstractString}
     return S([Char(x) for x in seq])
 end
 Base.String(seq::BioSequence) = convert(String, seq)
-Base.convert(::Type{BioSequence{A}}, seq::S) where {S<:AbstractString,A} = BioSequence{A}(seq)
+Base.convert(::Type{BioSequence{A}}, seq::AbstractString) where A = BioSequence{A}(seq)
 

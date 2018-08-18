@@ -21,8 +21,9 @@ BioSequence(::Type{RNA}) = RNASequence()
 BioSequence(::Type{AminoAcid}) = AminoAcidSequence()
 BioSequence(::Type{Char}) = CharSequence()
 
+# Create a sequence from a string or a vector.
 function BioSequence{A}(
-        src::Union{AbstractString,AbstractVector},
+        src::Union{AbstractString, AbstractVector},
         startpos::Integer = 1,
         stoppos::Integer = length(src)) where {A<:Alphabet}
     len = stoppos - startpos + 1
@@ -30,8 +31,10 @@ function BioSequence{A}(
     return encode_copy!(seq, 1, src, startpos, len)
 end
 
-# create a subsequence
-function BioSequence(other::BioSequence{A}, part::UnitRange{<:Integer}) where {A}
+# Create a sequence that is a subsequence of another sequence. 
+function BioSequence{A}(
+        other::BioSequence{A},
+        part::UnitRange{<:Integer}) where {A<:Alphabet}
     checkbounds(other, part)
     start = other.part.start + part.start - 1
     stop = start + length(part) - 1
@@ -39,13 +42,12 @@ function BioSequence(other::BioSequence{A}, part::UnitRange{<:Integer}) where {A
     other.shared = true
     return subseq
 end
-
-function BioSequence{A}(other::BioSequence{A}, part::UnitRange) where {A}
-    return BioSequence(other, part)
+function BioSequence(other::BioSequence{A}, part::UnitRange) where {A<:Alphabet}
+    return BioSequence{A}(other, part)
 end
 
-# concatenate chunks
-function BioSequence{A}(chunks::BioSequence{A}...) where {A}
+# Concatenate multiple sequences.
+function BioSequence{A}(chunks::BioSequence{A}...) where {A<:Alphabet}
     len = 0
     for chunk in chunks
         len += length(chunk)
@@ -59,7 +61,47 @@ function BioSequence{A}(chunks::BioSequence{A}...) where {A}
     return seq
 end
 
-function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A}
+
+macro generic_convert_body(alph)
+    return quote
+        newseq = BioSequence{$alph}(length(seq))
+        for (i, x) in enumerate(seq)
+            unsafe_setindex!(newseq, x, i)
+        end
+        return newseq
+    end
+end
+
+# Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
+for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
+                       (DNAAlphabet{2}, DNAAlphabet{4}),
+                       (RNAAlphabet{4}, RNAAlphabet{2}),
+                       (RNAAlphabet{2}, RNAAlphabet{4})]
+    
+    @eval function BioSequence{$alpha}(seq::BioSequence{$alphb})
+        newseq = BioSequence{$alpha}(length(seq))
+        for (i, x) in enumerate(seq)
+            unsafe_setindex!(newseq, x, i)
+        end
+        return newseq
+    end
+end
+
+#=
+macro bitsize_convert(alpha, alphb)
+    return esc(quote
+        function BioSequence{$alpha}(seq::BioSequence{$alphb})
+            newseq = BioSequence{$alpha}(length(seq))
+            for (i, x) in enumerate(seq)
+                unsafe_setindex!(newseq, x, i)
+            end
+            return newseq
+        end
+    end)
+end
+=#
+
+function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A<:Alphabet}
     seq = BioSequence{A}(length(chunk) * n)
     offset = 1
     for _ in 1:n
@@ -69,11 +111,13 @@ function Base.repeat(chunk::BioSequence{A}, n::Integer) where {A}
     return seq
 end
 
-# operators for concat and repeat
+# Concatenation and Base.repeat operators. 
 Base.:*(chunk::BioSequence{A}, chunks::BioSequence{A}...) where {A} =
     BioSequence{A}(chunk, chunks...)
 Base.:^(chunk::BioSequence, n::Integer) = repeat(chunk, n)
 
-function Base.similar(seq::BioSequence{A}, len::Integer = length(seq)) where {A}
+function Base.similar(seq::BioSequence{A}, len::Integer = length(seq)) where {A<:Alphabet}
     return BioSequence{A}(len)
 end
+
+
