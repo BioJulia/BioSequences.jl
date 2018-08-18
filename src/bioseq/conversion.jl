@@ -17,34 +17,21 @@ end
 # Conversion
 # ----------
 
-# Conversion between sequences of different alphabet size.
-for A in [DNAAlphabet, RNAAlphabet]
 
-    # Convert from a 4 bit encoding to a 2 bit encoding.
-    @eval function Base.convert(::Type{BioSequence{$(A{2})}}, seq::BioSequence{$(A{4})})
-        # TODO: make it faster with bit-parallel algorithm
-        newseq = BioSequence{$(A{2})}(length(seq))
-        for (i, x) in enumerate(seq)
-            unsafe_setindex!(newseq, x, i)
-        end
-        return newseq
+# Catchall conversion method between DNA and RNA sequences.
+function Base.convert(::Type{BioSequence{A}}, seq::BioSequence{B}) where {A <: NucAlphs, B <: NucAlphs}
+    newseq = BioSequence{A}(length(seq))
+    for (i, x) in enumerate(seq)
+        unsafe_setindex!(newseq, x, i)
     end
-    
-    # Constructor that simply calls above conversion method.
-    @eval function BioSequence{$(A{2})}(seq::BioSequence{$(A{4})})
-        return convert(BioSequence{$(A{2})}, seq)
-    end
-
-    # Convert from a 2 bit encoding to a 4 bit encoding.
-    @eval function Base.convert(::Type{BioSequence{$(A{4})}}, seq::BioSequence{$(A{2})})
-        newseq = BioSequence{$(A{4})}(length(seq))
-        for (i, x) in enumerate(seq)
-            unsafe_setindex!(newseq, x, i)
-        end
-        return newseq
-    end
+    return newseq
 end
 
+function BioSequence{A}(seq::BioSequence{B}) where {A <: NucAlphs, B <: NucAlphs}
+    return convert(BioSequence{A}, seq)
+end
+
+#=
 # Conversion between different alphabets of the same size
 for (A1, A2) in [(DNAAlphabet, RNAAlphabet), (RNAAlphabet, DNAAlphabet)], n in (2, 4)
     @eval function Base.convert(::Type{BioSequence{$(A1{n})}}, seq::BioSequence{$(A2{n})})
@@ -53,6 +40,7 @@ for (A1, A2) in [(DNAAlphabet, RNAAlphabet), (RNAAlphabet, DNAAlphabet)], n in (
         return newseq
     end
 end
+=#
 
 # Convert from a BioSequence to to a DNA or RNA vector
 Base.convert(::Type{Vector}, seq::BioSequence) = collect(seq)
