@@ -17,36 +17,19 @@ end
 # Conversion
 # ----------
 
-function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{2}})
-    return BioSequence{DNAAlphabet{4}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{4}})
-    return BioSequence{DNAAlphabet{2}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{RNAAlphabet{2}})
-    return BioSequence{RNAAlphabet{4}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{RNAAlphabet{4}})
-    return BioSequence{RNAAlphabet{2}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{DNAAlphabet{2}}}, seq::BioSequence{RNAAlphabet{2}})
-    return BioSequence{DNAAlphabet{2}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{2}}}, seq::BioSequence{DNAAlphabet{2}})
-    return BioSequence{RNAAlphabet{2}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{DNAAlphabet{4}}}, seq::BioSequence{RNAAlphabet{4}})
-    return BioSequence{DNAAlphabet{4}}(seq)
-end
-
-function Base.convert(::Type{BioSequence{RNAAlphabet{4}}}, seq::BioSequence{DNAAlphabet{4}})
-    return BioSequence{RNAAlphabet{4}}(seq)
+# Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
+for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
+                       (DNAAlphabet{2}, DNAAlphabet{4}),
+                       (RNAAlphabet{4}, RNAAlphabet{2}),
+                       (RNAAlphabet{2}, RNAAlphabet{4}),
+                       (DNAAlphabet{4}, RNAAlphabet{4}),
+                       (DNAAlphabet{2}, RNAAlphabet{2}),
+                       (RNAAlphabet{4}, DNAAlphabet{4}),
+                       (RNAAlphabet{2}, DNAAlphabet{2})]
+    
+    @eval function Base.convert(::Type{BioSequence{$alpha}}, seq::BioSequence{$alphb})
+        return BioSequence{$alpha}(seq)
+    end
 end
 
 

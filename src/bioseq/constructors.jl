@@ -62,33 +62,18 @@ function BioSequence{A}(chunks::BioSequence{A}...) where {A<:Alphabet}
 end
 
 # Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
-function (::Type{BioSequence{DNAAlphabet{4}}})(seq::BioSequence{DNAAlphabet{2}})
-    newseq = BioSequence{DNAAlphabet{4}}(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
+for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
+                       (DNAAlphabet{2}, DNAAlphabet{4}),
+                       (RNAAlphabet{4}, RNAAlphabet{2}),
+                       (RNAAlphabet{2}, RNAAlphabet{4})]
+    
+    @eval function (::Type{BioSequence{$alpha}})(seq::BioSequence{$alphb})
+        newseq = BioSequence{$alpha}(length(seq))
+        for (i, x) in enumerate(seq)
+            unsafe_setindex!(newseq, x, i)
+        end
+        return newseq
     end
-    return newseq
-end
-function (::Type{BioSequence{DNAAlphabet{2}}})(seq::BioSequence{DNAAlphabet{4}})
-    newseq = BioSequence{DNAAlphabet{2}}(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
-    end
-    return newseq
-end
-function (::Type{BioSequence{RNAAlphabet{4}}})(seq::BioSequence{RNAAlphabet{2}})
-    newseq = BioSequence{RNAAlphabet{4}}(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
-    end
-    return newseq
-end
-function (::Type{BioSequence{RNAAlphabet{2}}})(seq::BioSequence{RNAAlphabet{4}})
-    newseq = BioSequence{RNAAlphabet{2}}(length(seq))
-    for (i, x) in enumerate(seq)
-        unsafe_setindex!(newseq, x, i)
-    end
-    return newseq
 end
 
 function (::Type{BioSequence{DNAAlphabet{2}}})(seq::BioSequence{RNAAlphabet{2}})
