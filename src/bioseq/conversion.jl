@@ -18,20 +18,23 @@ end
 # ----------
 
 # Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
-for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}),
+for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
                        (DNAAlphabet{2}, DNAAlphabet{4}),
-                       (RNAAlphabet{4}, RNAAlphabet{2}),
+                       (RNAAlphabet{4}, RNAAlphabet{2}), # RNA to RNA
                        (RNAAlphabet{2}, RNAAlphabet{4}),
-                       (DNAAlphabet{4}, RNAAlphabet{4}),
+                       (DNAAlphabet{2}, RNAAlphabet{4}), # DNA to RNA
+                       (DNAAlphabet{4}, RNAAlphabet{2}),
                        (DNAAlphabet{2}, RNAAlphabet{2}),
-                       (RNAAlphabet{4}, DNAAlphabet{4}),
-                       (RNAAlphabet{2}, DNAAlphabet{2})]
+                       (DNAAlphabet{4}, RNAAlphabet{4}),
+                       (RNAAlphabet{4}, DNAAlphabet{2}), # RNA to DNA
+                       (RNAAlphabet{2}, DNAAlphabet{4}),
+                       (RNAAlphabet{2}, DNAAlphabet{2}),
+                       (RNAAlphabet{4}, DNAAlphabet{4})]
     
     @eval function Base.convert(::Type{BioSequence{$alpha}}, seq::BioSequence{$alphb})
         return BioSequence{$alpha}(seq)
     end
 end
-
 
 # Convert from a BioSequence to to a DNA or RNA vector
 Base.convert(::Type{Vector}, seq::BioSequence) = collect(seq)

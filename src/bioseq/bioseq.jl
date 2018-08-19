@@ -107,6 +107,10 @@ function enc64(::BioSequence{A}, x) where {A}
     return UInt64(encode(A, convert(eltype(A), x)))
 end
 
+# TODO: This should go in BioSymbols for the next release.
+Base.convert(::Type{DNA}, x::RNA) = DNA(UInt8(x))
+Base.convert(::Type{RNA}, x::DNA) = RNA(UInt8(x))
+
 # Summaries
 # ---------
 
