@@ -62,28 +62,28 @@ function BioSequence{A}(chunks::BioSequence{A}...) where {A<:Alphabet}
 end
 
 # Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
-function BioSequence{DNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{2}})
+function (::Type{BioSequence{DNAAlphabet{4}}})(seq::BioSequence{DNAAlphabet{2}})
     newseq = BioSequence{DNAAlphabet{4}}(length(seq))
     for (i, x) in enumerate(seq)
         unsafe_setindex!(newseq, x, i)
     end
     return newseq
 end
-function BioSequence{DNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{4}})
+function (::Type{BioSequence{DNAAlphabet{2}}})(seq::BioSequence{DNAAlphabet{4}})
     newseq = BioSequence{DNAAlphabet{2}}(length(seq))
     for (i, x) in enumerate(seq)
         unsafe_setindex!(newseq, x, i)
     end
     return newseq
 end
-function BioSequence{RNAAlphabet{4}}(seq::BioSequence{RNAAlphabet{2}})
+function (::Type{BioSequence{RNAAlphabet{4}}})(seq::BioSequence{RNAAlphabet{2}})
     newseq = BioSequence{RNAAlphabet{4}}(length(seq))
     for (i, x) in enumerate(seq)
         unsafe_setindex!(newseq, x, i)
     end
     return newseq
 end
-function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
+function (::Type{BioSequence{RNAAlphabet{2}}})(seq::BioSequence{RNAAlphabet{4}})
     newseq = BioSequence{RNAAlphabet{2}}(length(seq))
     for (i, x) in enumerate(seq)
         unsafe_setindex!(newseq, x, i)
@@ -91,22 +91,22 @@ function BioSequence{RNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{4}})
     return newseq
 end
 
-function BioSequence{DNAAlphabet{2}}(seq::BioSequence{RNAAlphabet{2}})
+function (::Type{BioSequence{DNAAlphabet{2}}})(seq::BioSequence{RNAAlphabet{2}})
     newseq = BioSequence{DNAAlphabet{2}}(seq.data, seq.part, true)
     seq.shared = true
     return newseq
 end
-function BioSequence{RNAAlphabet{2}}(seq::BioSequence{DNAAlphabet{2}})
+function (::Type{BioSequence{RNAAlphabet{2}}})(seq::BioSequence{DNAAlphabet{2}})
     newseq = BioSequence{RNAAlphabet{2}}(seq.data, seq.part, true)
     seq.shared = true
     return newseq
 end
-function BioSequence{DNAAlphabet{4}}(seq::BioSequence{RNAAlphabet{4}})
+function (::Type{BioSequence{DNAAlphabet{4}}})(seq::BioSequence{RNAAlphabet{4}})
     newseq = BioSequence{DNAAlphabet{4}}(seq.data, seq.part, true)
     seq.shared = true
     return newseq
 end
-function BioSequence{RNAAlphabet{4}}(seq::BioSequence{DNAAlphabet{4}})
+function (::Type{BioSequence{RNAAlphabet{4}}})(seq::BioSequence{DNAAlphabet{4}})
     newseq = BioSequence{RNAAlphabet{4}}(seq.data, seq.part, true)
     seq.shared = true
     return newseq
