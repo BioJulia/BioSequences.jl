@@ -65,7 +65,7 @@
                string_counts[RNA_N] == kmer_counts[RNA_N]
     end
 
-    reps = 10
+    global reps = 10
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_nucleotide_count(DNA, random_dna(len)) for _ in 1:reps])
         @test all(Bool[check_nucleotide_count(RNA, random_rna(len)) for _ in 1:reps])

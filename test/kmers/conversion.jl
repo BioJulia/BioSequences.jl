@@ -1,4 +1,4 @@
-reps = 10
+global reps = 10
 
 @testset "Construction and Conversions" begin
     @test DNACodon(DNA_A, DNA_G, DNA_T) === DNAKmer("AGT")

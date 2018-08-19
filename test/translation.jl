@@ -36,7 +36,7 @@
         return string_translate(seq) == String(translate(RNASequence(seq)))
     end
 
-    reps = 10
+    global reps = 10
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_translate(random_translatable_rna(len)) for _ in 1:reps])
     end

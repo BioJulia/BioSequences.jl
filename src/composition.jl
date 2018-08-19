@@ -151,7 +151,7 @@ function Base.merge(comp::Composition{T}, other::Composition{T}) where T
     return merge!(copy(comp), other)
 end
 
-function Base.merge!(comp::Composition{T}, other::Composition{T}) where {T}
+function Base.merge!(comp::Composition{T}, other::Composition{T}) where T
     for (x, c) in other
         comp.counts[x] = comp[x] + c
     end
