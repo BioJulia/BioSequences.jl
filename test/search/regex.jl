@@ -73,13 +73,13 @@
         @test matched(m) == matches[i]
     end
     matches = [dna"CG", dna"GC", dna"GC"]
-    for (i, m) in enumerate(collect(eachmatch(biore"GC|CG"d, dna"ACGTTATGCATGGCG", false)))
+    for (i, m) in enumerate(collect(eachmatch(biore"GC|CG"d, dna"ACGTTATGCATGGCG", overlap=false)))
         @test matched(m) == matches[i]
     end
 
     # matchall
     matchall(pat, seq, overlap=true) =
-        collect(map(matched, eachmatch(pat, seq, overlap)))
+        collect(map(matched, eachmatch(pat, seq, overlap=overlap)))
 
     @test matchall(biore"A*"d, dna"") == [dna""]
     @test matchall(biore"A*"d, dna"AAA") == [
@@ -88,9 +88,9 @@
         dna"A",   dna""]
     @test matchall(biore"AC*G*T"d, dna"ACCGGGT") == [dna"ACCGGGT"]
 
-    @test matchall(biore"A*"d, dna"", false) == [dna""]
-    @test matchall(biore"A*"d, dna"AAA", false) == [dna"AAA"]
-    @test matchall(biore"AC*G*T"d, dna"ACCGGGT", false) == [dna"ACCGGGT"]
+    @test matchall(biore"A*"d, dna"", overlap=false) == [dna""]
+    @test matchall(biore"A*"d, dna"AAA", overlap=false) == [dna"AAA"]
+    @test matchall(biore"AC*G*T"d, dna"ACCGGGT", overlap=false) == [dna"ACCGGGT"]
 
     # RNA and Amino acid
     @test  occursin(biore"U(A[AG]|GA)$"r, rna"AUUGUAUGA")
