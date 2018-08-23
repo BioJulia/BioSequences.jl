@@ -47,7 +47,7 @@ Create a FASTQ record object from `str`.
 This function verifies and indexes fields for accessors.
 """
 function Record(str::AbstractString)
-    return convert(Record, convert(Vector{UInt8}, str))
+    return Record(Vector{UInt8}(str))
 end
 
 """
@@ -64,7 +64,7 @@ end
 
 Create a FASTQ record from `identifier`, `description`, `sequence` and `quality`.
 """
-function Record(identifier::AbstractString, description::Union{AbstractString,Void}, sequence, quality::Vector; offset=33)
+function Record(identifier::AbstractString, description::Union{AbstractString,Nothing}, sequence, quality::Vector; offset=33)
     if length(sequence) != length(quality)
         throw(ArgumentError("the length of sequence doesn't match the length of quality"))
     end
@@ -76,7 +76,7 @@ function Record(identifier::AbstractString, description::Union{AbstractString,Vo
     print(buf, '\n')
     print(buf, sequence, '\n')
     print(buf, "+\n")
-    ascii_quality = convert(Vector{UInt8}, quality + offset)
+    ascii_quality = convert(Vector{UInt8}, quality .+ offset)
     write(buf, ascii_quality, '\n')
     return Record(take!(buf))
 end
@@ -186,7 +186,7 @@ Get the sequence of `record`.
 `S` can be either a subtype of `BioSequences.Sequence` or `String`.
 If `part` argument is given, it returns the specified part of the sequence.
 """
-function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::S where S <: BioSequences.Sequence
+function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::S where S <: BioSequences.Sequence
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -195,7 +195,7 @@ function sequence(::Type{S}, record::Record, part::UnitRange{Int}=1:endof(record
     return S(record.data, first(seqpart), last(seqpart))
 end
 
-function sequence(::Type{String}, record::Record, part::UnitRange{Int}=1:endof(record.sequence))::String
+function sequence(::Type{String}, record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::String
     checkfilled(record)
     if !hassequence(record)
         missingerror(:sequence)
@@ -208,7 +208,7 @@ end
 
 Get the sequence of `record`.
 """
-function sequence(record::Record, part::UnitRange{Int}=1:endof(record.sequence))::BioSequences.DNASequence
+function sequence(record::Record, part::UnitRange{Int}=1:lastindex(record.sequence))::BioSequences.DNASequence
     checkfilled(record)
     return sequence(BioSequences.DNASequence, record, part)
 end
@@ -228,10 +228,10 @@ end
 
 Get the base quality of `record`.
 """
-function quality(record::Record, offset::Integer=33, part::UnitRange{Int}=1:endof(record.quality))::Vector{UInt8}
+function quality(record::Record, offset::Integer=33, part::UnitRange{Int}=1:lastindex(record.quality))::Vector{UInt8}
     checkfilled(record)
     quality = record.data[record.quality[part]]
-    for i in 1:endof(part)
+    for i in 1:lastindex(part)
         # TODO: Checked arithmetic?
         @inbounds quality[i] -= offset
     end
@@ -245,7 +245,7 @@ Get the base quality of `record` by decoding with `encoding_name`.
 
 The `encoding_name` can be either `:sanger`, `:solexa`, `:illumina13`, `:illumina15`, or `:illumina18`.
 """
-function quality(record::Record, encoding_name::Symbol, part::UnitRange{Int}=1:endof(record.quality))::Vector{UInt8}
+function quality(record::Record, encoding_name::Symbol, part::UnitRange{Int}=1:lastindex(record.quality))::Vector{UInt8}
     checkfilled(record)
     encoding = (
         encoding_name == :sanger     ?     SANGER_QUAL_ENCODING :
@@ -254,7 +254,7 @@ function quality(record::Record, encoding_name::Symbol, part::UnitRange{Int}=1:e
         encoding_name == :illumina15 ? ILLUMINA15_QUAL_ENCODING :
         encoding_name == :illumina18 ? ILLUMINA18_QUAL_ENCODING :
         throw(ArgumentError("quality encoding ':$(encoding_name)' is not supported")))
-    quality = Vector{UInt8}(length(part))
+    quality = Vector{UInt8}(undef, length(part))
     if !isempty(part)
         qpart = record.quality[part]
         check_quality_string(encoding, record.data, first(qpart), last(qpart))

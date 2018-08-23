@@ -1,6 +1,6 @@
 @testset "Basic Operations" begin
     seq = ReferenceSequence(dna"")
-    @test length(seq) === endof(seq) === 0
+    @test length(seq) === lastindex(seq) === 0
     @test isempty(seq)
     @test ReferenceSequence(dna"") == seq
     @test_throws BoundsError seq[0]
@@ -9,7 +9,7 @@
     @test collect(seq) == DNA[]
 
     seq = ReferenceSequence(dna"ACGTN")
-    @test length(seq) === endof(seq) === 5
+    @test length(seq) === lastindex(seq) === 5
     @test !isempty(seq)
     @test seq[1] === DNA_A
     @test seq[2] === DNA_C

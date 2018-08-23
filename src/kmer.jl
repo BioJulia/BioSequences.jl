@@ -52,36 +52,40 @@ end
 # Conversion
 # ----------
 
-function Base.convert(::Type{DNAKmer{K}}, x::UInt64) where {K}
+function DNAKmer{K}(x::UInt64) where {K}
     mask = ~UInt64(0) >> (64 - 2K)
     return reinterpret(DNAKmer{K}, x & mask)
 end
-function Base.convert(::Type{RNAKmer{K}}, x::UInt64) where {K}
+
+function RNAKmer{K}(x::UInt64) where {K}
     mask = ~UInt64(0) >> (64 - 2K)
     return reinterpret(RNAKmer{K}, x & mask)
 end
-Base.convert(::Type{UInt64}, x::DNAKmer{K}) where {K} = reinterpret(UInt64, x)
-Base.convert(::Type{UInt64}, x::RNAKmer{K}) where {K} = reinterpret(UInt64, x)
-Base.convert(::Type{DNAKmer{K}}, x::RNAKmer{K}) where {K} = reinterpret(DNAKmer{K}, x)
-Base.convert(::Type{RNAKmer{K}}, x::DNAKmer{K}) where {K} = reinterpret(RNAKmer{K}, x)
 
-function Base.convert(::Type{Kmer{T,K}}, seq::AbstractString) where {T,K}
+UInt64(x::Kmer) = reinterpret(UInt64, x)
+Base.convert(::Type{UInt64}, x::Kmer) = reinterpret(UInt64, x)
+
+DNAKmer{K}(x::RNAKmer{K}) where {K} = reinterpret(DNAKmer{K}, x)
+RNAKmer{K}(x::DNAKmer{K}) where {K} = reinterpret(RNAKmer{K}, x)
+
+function Kmer{T,K}(seq::AbstractString) where {T,K}
     return make_kmer(Kmer{T,K}, seq)
 end
 
-function Base.convert(::Type{Kmer{T,K}}, seq::BioSequence{A}) where {T,K,A<:DNAAlphabet}
+function Kmer{T,K}(seq::BioSequence{A}) where {T,K,A<:DNAAlphabet}
     return make_kmer(Kmer{DNA,K}, seq)
 end
 
-function Base.convert(::Type{Kmer{T,K}}, seq::BioSequence{A}) where {T,K,A<:RNAAlphabet}
+function Kmer{T,K}(seq::BioSequence{A}) where {T,K,A<:RNAAlphabet}
     return make_kmer(Kmer{RNA,K}, seq)
 end
 
-Base.convert(::Type{Kmer{T}}, seq::AbstractString) where {T} = convert(Kmer{T,length(seq)}, seq)
-Base.convert(::Type{Kmer}, seq::BioSequence{A}) where {A<:DNAAlphabet} = convert(Kmer{DNA,length(seq)}, seq)
-Base.convert(::Type{Kmer}, seq::BioSequence{A}) where {A<:RNAAlphabet} = convert(Kmer{RNA,length(seq)}, seq)
-Base.convert(::Type{DNAKmer}, seq::BioSequence{A}) where {A<:DNAAlphabet} = convert(DNAKmer{length(seq)}, seq)
-Base.convert(::Type{RNAKmer}, seq::BioSequence{A}) where {A<:RNAAlphabet} = convert(RNAKmer{length(seq)}, seq)
+Kmer{T,K}(x::Kmer{T,K}) where {T,K} = x
+Kmer{T}(seq::AbstractString) where {T} = Kmer{T,length(seq)}(seq)
+Kmer(seq::BioSequence{A}) where {A<:DNAAlphabet} = Kmer{DNA,length(seq)}(seq)
+Kmer(seq::BioSequence{A}) where {A<:RNAAlphabet} = Kmer{RNA,length(seq)}(seq)
+DNAKmer(seq::BioSequence{A}) where {A<:DNAAlphabet} = DNAKmer{length(seq)}(seq)
+RNAKmer(seq::BioSequence{A}) where {A<:RNAAlphabet} = RNAKmer{length(seq)}(seq)
 
 # create a kmer from a sequence whose elements are convertible to a nucleotide
 function make_kmer(::Type{Kmer{T,K}}, seq) where {T,K}
@@ -108,18 +112,19 @@ end
 
 make_kmer(seq::NTuple{K,T}) where {K,T} = make_kmer(Kmer{T,K}, seq)
 
-Base.convert(::Type{BioSequence}, x::DNAKmer{K}) where {K} = DNASequence(x)
-Base.convert(::Type{BioSequence}, x::RNAKmer{K}) where {K} = RNASequence(x)
-Base.convert(::Type{BioSequence{A}}, x::DNAKmer{K}) where {A<:DNAAlphabet,K} = BioSequence{A}([nt for nt in x])
-Base.convert(::Type{BioSequence{A}}, x::RNAKmer{K}) where {A<:RNAAlphabet,K} = BioSequence{A}([nt for nt in x])
-Base.convert(::Type{S}, seq::Kmer) where {S<:AbstractString} = convert(S, [Char(x) for x in seq])
+BioSequence(x::DNAKmer{K}) where {K} = DNASequence(x)
+BioSequence(x::RNAKmer{K}) where {K} = RNASequence(x)
+BioSequence{A}(x::DNAKmer{K}) where {A<:DNAAlphabet,K} = BioSequence{A}([nt for nt in x])
+BioSequence{A}(x::RNAKmer{K}) where {A<:RNAAlphabet,K} = BioSequence{A}([nt for nt in x])
+Base.convert(::Type{S}, seq::Kmer) where {S<:AbstractString} = S([Char(x) for x in seq])
+Base.String(seq::Kmer) = convert(String, seq)
 
 
 # Basic Functions
 # ---------------
 
-alphabet(::Type{DNAKmer{k}}) where {k} = (DNA_A, DNA_C, DNA_G, DNA_T)
-alphabet(::Type{RNAKmer{k}}) where {k} = (RNA_A, RNA_C, RNA_G, RNA_U)
+BioSymbols.alphabet(::Type{DNAKmer{k}}) where {k} = (DNA_A, DNA_C, DNA_G, DNA_T)
+BioSymbols.alphabet(::Type{RNAKmer{k}}) where {k} = (RNA_A, RNA_C, RNA_G, RNA_U)
 
 Base.hash(x::Kmer, h::UInt) = hash(UInt64(x), h)
 
@@ -166,7 +171,7 @@ end
 
 Return the complement of `kmer`.
 """
-complement(x::Kmer{T,k}) where {T,k} = Kmer{T,k}(~UInt64(x))
+BioSymbols.complement(x::Kmer{T,k}) where {T,k} = Kmer{T,k}(~UInt64(x))
 
 """
     reverse(kmer::Kmer)
@@ -206,7 +211,7 @@ function canonical(x::Kmer)
 end
 
 function Base.rand(::Type{Kmer{T,k}}) where {T,k}
-    return convert(Kmer{T,k}, rand(UInt64))
+    return Kmer{T,k}(rand(UInt64))
 end
 
 function Base.rand(::Type{Kmer{T,k}}, size::Integer) where {T,k}
@@ -227,14 +232,17 @@ end
 
 Return an iterator through k-mers neighboring `kmer` on a de Bruijn graph.
 """
-neighbors(x::Kmer) = KmerNeighborIterator(x)
+neighbors(x::Kmer{T,K}) where {T,K} = KmerNeighborIterator{T,K}(x)
 
 Base.length(::KmerNeighborIterator) = 4
 Base.eltype(::Type{KmerNeighborIterator{T,k}}) where {T,k} = Kmer{T,k}
-Base.start(it::KmerNeighborIterator) = UInt64(0)
-Base.done(it::KmerNeighborIterator, i) = i == 4
-function Base.next(it::KmerNeighborIterator{T,K}, i) where {T,K}
-    return Kmer{T,K}((UInt64(it.x) << 2) | i), i + 1
+
+function Base.iterate(it::KmerNeighborIterator{T, K}, i::UInt64=UInt64(0)) where {T,K}
+    if i == 4
+        return nothing
+    else
+        return Kmer{T,K}((UInt64(it.x) << 2) | i), i + 1
+    end
 end
 
 
@@ -278,7 +286,7 @@ count_t(x::UInt64) = count_ones((x    & (x >>> 1)) & 0x5555555555555555)
 # Shuffle
 # -------
 
-function Base.shuffle(kmer::Kmer{T,k}) where {T,k}
+function Random.shuffle(kmer::Kmer{T,k}) where {T,k}
     # Fisher-Yates shuffle
     for i in 1:k-1
         j = rand(i:k)

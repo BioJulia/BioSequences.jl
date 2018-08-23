@@ -1,27 +1,27 @@
 @testset "Transformations" begin
     function test_reverse(T, seq)
         revseq = reverse(Kmer{T,length(seq)}(seq))
-        @test convert(String, revseq) == reverse(seq)
+        @test String(revseq) == reverse(seq)
     end
 
     function test_dna_complement(seq)
         comp = complement(DNAKmer{length(seq)}(seq))
-        @test convert(String, comp) == dna_complement(seq)
+        @test String(comp) == dna_complement(seq)
     end
 
     function test_rna_complement(seq)
         comp = complement(RNAKmer{length(seq)}(seq))
-        @test convert(String, comp) == rna_complement(seq)
+        @test String(comp) == rna_complement(seq)
     end
 
     function test_dna_revcomp(seq)
         revcomp = reverse_complement(DNAKmer{length(seq)}(seq))
-        @test convert(String, revcomp) == reverse(dna_complement(seq))
+        @test String(revcomp) == reverse(dna_complement(seq))
     end
 
     function test_rna_revcomp(seq)
         revcomp = reverse_complement(RNAKmer{length(seq)}(seq))
-        @test convert(String, revcomp) == reverse(rna_complement(seq))
+        @test String(revcomp) == reverse(rna_complement(seq))
     end
 
     @testset "Reverse" begin

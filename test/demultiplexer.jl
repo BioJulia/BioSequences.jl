@@ -7,7 +7,7 @@
         seq = copy(seq)
         nucs = DNA['A', 'C', 'G', 'T', 'N']
         i = 1
-        while i ≤ endof(seq)
+        while i ≤ lastindex(seq)
             if rand() < p
                 r = rand()
                 if r < 0.1
@@ -30,7 +30,7 @@
         barcodes = DNASequence["ATGG", "CAGA", "GGAA", "TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)
 
-        for i in 1:endof(barcodes)
+        for i in 1:lastindex(barcodes)
             @test dplxr[i] == barcodes[i]
         end
 
@@ -42,7 +42,7 @@
         # every 1bp substitution is recoverable
         for (i, barcode) in enumerate(barcodes)
             # substitution
-            for j in 1:endof(barcode)
+            for j in 1:lastindex(barcode)
                 barcode′ = copy(barcode)
                 for nt in [DNA_A, DNA_C, DNA_G, DNA_T, DNA_N]
                     barcode′[j] = nt
@@ -54,7 +54,7 @@
         n_ok = 0
         n_ok_with_fallback = 0
         for _ in 1:10_000
-            i = rand(1:endof(barcodes))
+            i = rand(1:lastindex(barcodes))
             seq = make_errors(barcodes[i] * randdna(10))
             n_ok += demultiplex(dplxr, seq)[1] == i
             n_ok_with_fallback += demultiplex(dplxr, seq, true)[1] == i
@@ -69,7 +69,7 @@
         barcodes = DNASequence["ATGG", "CAGA", "GGAA", "TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:levenshtein)
 
-        for i in 1:endof(barcodes)
+        for i in 1:lastindex(barcodes)
             @test dplxr[i] == barcodes[i]
         end
 
@@ -81,7 +81,7 @@
         # every 1bp substitution/insertion/deletion is recoverable
         for (i, barcode) in enumerate(barcodes)
             # substitution
-            for j in 1:endof(barcode)
+            for j in 1:lastindex(barcode)
                 barcode′ = copy(barcode)
                 for nt in [DNA_A, DNA_C, DNA_G, DNA_T, DNA_N]
                     barcode′[j] = nt
@@ -90,14 +90,14 @@
                 end
             end
             # insertion
-            for j in 1:endof(barcode)
+            for j in 1:lastindex(barcode)
                 barcode′ = copy(barcode)
                 insert!(barcode′, j, rand([DNA_A, DNA_C, DNA_G, DNA_T, DNA_N]))
                 i′, d = demultiplex(dplxr, barcode′)
                 @test i′ == i && 0 ≤ d ≤ 1
             end
             # deletion
-            for j in 1:endof(barcode)
+            for j in 1:lastindex(barcode)
                 barcode′ = copy(barcode)
                 deleteat!(barcode′, j)
                 i′, d = demultiplex(dplxr, barcode′)
@@ -108,7 +108,7 @@
         n_ok = 0
         n_ok_with_fallback = 0
         for _ in 1:10_000
-            i = rand(1:endof(barcodes))
+            i = rand(1:lastindex(barcodes))
             seq = make_errors(barcodes[i] * randdna(10))
             n_ok += demultiplex(dplxr, seq)[1] == i
             n_ok_with_fallback += demultiplex(dplxr, seq, true)[1] == i

@@ -30,9 +30,9 @@
     end
 
     @testset "Misc. functions" begin
-        @test length(alphabet(DNA)) == 16
-        @test gap(DNA) === DNA_Gap
-        @test complement(DNA_A) === DNA_T
+        @test length(BioSymbols.alphabet(DNA)) == 16
+        @test BioSymbols.gap(DNA) === DNA_Gap
+        @test BioSymbols.complement(DNA_A) === DNA_T
     end
 
     @testset "Encoder" begin
@@ -50,7 +50,7 @@
             @test_throws EncodeError encode(DNAAlphabet{2}, DNA_Gap)
 
             # 4 bits
-            for nt in alphabet(DNA)
+            for nt in BioSymbols.alphabet(DNA)
                 @test encode(DNAAlphabet{4}, nt) === reinterpret(UInt8, nt)
             end
             @test_throws EncodeError encode(DNAAlphabet{4}, reinterpret(DNA, 0b10000))
@@ -67,7 +67,7 @@
             @test_throws EncodeError encode(RNAAlphabet{2}, RNA_Gap)
 
             # 4 bits
-            for nt in alphabet(RNA)
+            for nt in BioSymbols.alphabet(RNA)
                 @test encode(RNAAlphabet{4}, nt) === reinterpret(UInt8, nt)
             end
             @test_throws EncodeError encode(RNAAlphabet{4}, reinterpret(RNA, 0b10000))
@@ -75,7 +75,7 @@
 
         @testset "AminoAcid" begin
             @test encode(AminoAcidAlphabet, AA_A) === 0x00
-            for aa in alphabet(AminoAcid)
+            for aa in BioSymbols.alphabet(AminoAcid)
                 @test encode(AminoAcidAlphabet, aa) === convert(UInt8, aa)
             end
             @test_throws BioSequences.EncodeError encode(AminoAcidAlphabet, BioSymbols.AA_INVALID)

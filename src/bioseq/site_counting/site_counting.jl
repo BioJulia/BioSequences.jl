@@ -140,7 +140,7 @@ function Base.count(::Type{P}, a::BioSequence{A}, b::BioSequence{A}, width::Int,
     len = min(length(a), length(b))
     ritr = StepRange(width, step, len)
     width -= 1
-    results = Vector{IntervalValue{Int,bp_counter_type(P, A)}}(length(ritr))
+    results = Vector{IntervalValue{Int,bp_counter_type(P, A)}}(undef, length(ritr))
     r = 1
     @inbounds for i in ritr
         idx = (i - width):i
@@ -157,7 +157,7 @@ end
 
 function count_pairwise(::Type{P}, seqs::Vararg{BioSequence{A},N}) where {P<:Position,A<:NucAlphs,N}
     @assert N >= 2 "At least two sequences are required."
-    counts = Matrix{bp_counter_type(P, A)}(N, N)
+    counts = Matrix{bp_counter_type(P, A)}(undef, (N, N))
     for i in 1:N
         counts[i,i] = diag_val(eltype(counts))
         for j in (i+1):N

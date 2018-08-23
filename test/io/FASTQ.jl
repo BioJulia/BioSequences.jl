@@ -184,7 +184,7 @@ end
 @testset "Quality scores" begin
     @testset "Decoding base quality scores" begin
         function test_decode(encoding, values, expected)
-            result = Array{Int8}(length(expected))
+            result = Array{Int8}(undef, length(expected))
             FASTQ.decode_quality_string!(encoding, values, result, 1, length(result))
             @test result == expected
         end
@@ -212,7 +212,7 @@ end
 
     @testset "Encoding base quality scores" begin
         function test_encode(encoding, values, expected)
-            result = Array{UInt8}(length(expected))
+            result = Array{UInt8}(undef, length(expected))
             FASTQ.encode_quality_string!(encoding, values, result, 1, length(result))
             @test result == expected
         end

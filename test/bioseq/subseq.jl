@@ -2,7 +2,7 @@
     function test_subseq(A, seq)
         bioseq = BioSequence{A}(seq)
         for _ in 1:100
-            part = random_interval(1, endof(seq))
+            part = random_interval(1, lastindex(seq))
             @test convert(String, bioseq[part]) == seq[part]
         end
     end

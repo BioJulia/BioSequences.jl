@@ -147,10 +147,10 @@ Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlp
 julia> match(biore"A+C*"d, dna"AAAACC")
 Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}}(RegexMatch("AAAACC"))
 
-julia> ismatch(biore"A+C*"dna, dna"AAC")
+julia> occursin(biore"A+C*"dna, dna"AAC")
 true
 
-julia> ismatch(biore"A+C*"dna, dna"C")
+julia> occursin(biore"A+C*"dna, dna"C")
 false
 
 ```

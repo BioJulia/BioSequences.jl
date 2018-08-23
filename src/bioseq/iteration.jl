@@ -15,13 +15,17 @@ end
 
 ambiguous_positions(seq::BioSequence) = AmbiguousNucleicAcidIterator(seq)
 
-Base.start(it::AmbiguousNucleicAcidIterator) = find_next_ambiguous(it.seq, 1)
-Base.done(it::AmbiguousNucleicAcidIterator, nextpos) = nextpos == 0
-function Base.next(it::AmbiguousNucleicAcidIterator, nextpos)
-    return nextpos, find_next_ambiguous(it.seq, nextpos + 1)
+Base.iterate(it::AmbiguousNucleicAcidIterator) = iterate(it, find_next_ambiguous(it.seq, 1))
+
+function Base.iterate(it::AmbiguousNucleicAcidIterator, nextpos::Int)
+    if nextpos == 0
+        return nothing
+    else
+        nextpos, find_next_ambiguous(it.seq, nextpos + 1)
+    end
 end
 
-Base.iteratorsize(::AmbiguousNucleicAcidIterator) = Base.SizeUnknown()
+Base.IteratorSize(::AmbiguousNucleicAcidIterator) = Base.SizeUnknown()
 
 function find_next_ambiguous(seq::BioSequence{A}, i::Integer) where {A<:TwoBitNucs}
     # no ambiguity
@@ -29,7 +33,7 @@ function find_next_ambiguous(seq::BioSequence{A}, i::Integer) where {A<:TwoBitNu
 end
 
 function find_next_ambiguous(seq::BioSequence{A}, from::Integer) where {A<:FourBitNucs}
-    for i in max(from, 1):endof(seq)
+    for i in max(from, 1):lastindex(seq)
         nt = inbounds_getindex(seq, i)
         if isambiguous(nt)
             return i

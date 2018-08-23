@@ -60,7 +60,7 @@ const AminoAcidSequence = BioSequence{AminoAcidAlphabet}
 const CharSequence      = BioSequence{CharAlphabet}
 
 "Gets the alphabet encoding of a given BioSequence."
-alphabet(::Type{BioSequence{A}}) where {A} = alphabet(A)
+BioSymbols.alphabet(::Type{BioSequence{A}}) where {A} = alphabet(A)
 
 Base.length(seq::BioSequence) = length(seq.part)
 Base.eltype(::Type{BioSequence{A}}) where {A} = eltype(A)
@@ -78,12 +78,12 @@ function orphan!(seq::BioSequence{A}, size::Integer=length(seq), force::Bool=fal
     end
 
     j, r = bitindex(seq, 1)
-    data = Vector{UInt64}(seq_data_len(A, size))
+    data = Vector{UInt64}(undef, seq_data_len(A, size))
 
     if !isempty(seq) && !isempty(data)
         x = seq.data[j] >> r
-        m = index(bitindex(seq, endof(seq))) - j + 1
-        l = min(endof(data), m)
+        m = index(bitindex(seq, lastindex(seq))) - j + 1
+        l = min(lastindex(data), m)
         @inbounds @simd for i in 1:l-1
             y = seq.data[j + i]
             data[i] = x | y << (64 - r)

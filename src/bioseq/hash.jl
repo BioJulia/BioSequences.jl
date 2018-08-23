@@ -68,7 +68,7 @@ function Base.hash(seq::BioSequence, seed::UInt64)
     c2 = 0x4cf5ad432745937f
 
     next = bitindex(seq, 1)
-    last = bitindex(seq, endof(seq) + 1)
+    last = bitindex(seq, lastindex(seq) + 1)
 
     k1::UInt64 = 0
     k2::UInt64 = 0

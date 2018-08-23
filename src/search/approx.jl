@@ -28,7 +28,7 @@ struct ApproximateSearchQuery{S<:Sequence}
         else
             throw(ArgumentError("direction '$direction' is invalid"))
         end
-        H = Vector{Int}(length(seq) + 1)
+        H = Vector{Int}(undef, length(seq) + 1)
         return new{S}(seq, fPcom, bPcom, H)
     end
 end
@@ -57,7 +57,7 @@ function approx_preprocess(pat, forward)
         y = forward ? pat[i] : pat[end-i+1]
         for x in Σ
             if BioSequences.iscompatible(x, y)
-                Pcom[UInt8(x)+1] |= one(T) << (i - 1)
+                Pcom[convert(UInt8, x)+1] |= one(T) << (i - 1)
             end
         end
     end
@@ -65,66 +65,66 @@ function approx_preprocess(pat, forward)
 end
 
 """
-    approxsearch(seq, pat, k[, start=1[, stop=endof(seq)]])
+    approxsearch(seq, pat, k[, start=1[, stop=lastindex(seq)]])
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxsearch(seq::Sequence, pat::Sequence, k::Integer,
-                      start::Integer=1, stop::Integer=endof(seq))
+                      start::Integer=1, stop::Integer=lastindex(seq))
     return approxsearch(seq, ApproximateSearchQuery(pat, :forward), k, start, stop)
 end
 
 function approxsearch(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
-                      start::Integer=1, stop::Integer=endof(seq))
+                      start::Integer=1, stop::Integer=lastindex(seq))
     return _approxsearch(query, seq, k, start, stop, true)
 end
 
 """
-    approxrsearch(seq, pat, k[, start=endof(seq)[, stop=1]])
+    approxrsearch(seq, pat, k[, start=lastindex(seq)[, stop=1]])
 
 Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxrsearch(seq::Sequence, pat::Sequence, k::Integer,
-                       start::Integer=endof(seq), stop::Integer=1)
+                       start::Integer=lastindex(seq), stop::Integer=1)
     return approxrsearch(seq, ApproximateSearchQuery(pat, :backward), k, start, stop)
 end
 
 function approxrsearch(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
-                       start::Integer=endof(seq), stop::Integer=1)
+                       start::Integer=lastindex(seq), stop::Integer=1)
     return _approxsearch(query, seq, k, start, stop, false)
 end
 
 """
-    approxsearchindex(seq, pat, k[, start=1[, stop=endof(seq)]])
+    approxsearchindex(seq, pat, k[, start=1[, stop=lastindex(seq)]])
 
 Return the index of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxsearchindex(seq::Sequence, pat::Sequence, k::Integer,
-                           start::Integer=1, stop::Integer=endof(seq))
+                           start::Integer=1, stop::Integer=lastindex(seq))
     return first(approxsearch(seq, pat, k, start, stop))
 end
 
 function approxsearchindex(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
-                           start::Integer=1, stop::Integer=endof(seq))
+                           start::Integer=1, stop::Integer=lastindex(seq))
     return first(approxsearch(seq, query, k, start, stop))
 end
 
 """
-    approxrsearchindex(seq, pat, k[, start=endof(seq)[, stop=1]])
+    approxrsearchindex(seq, pat, k[, start=lastindex(seq)[, stop=1]])
 
 Return the index of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxrsearchindex(seq::Sequence, pat::Sequence, k::Integer,
-                            start::Integer=endof(seq), stop::Integer=1)
+                            start::Integer=lastindex(seq), stop::Integer=1)
     return first(approxrsearch(seq, pat, k, start, stop))
 end
 
 function approxrsearchindex(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
-                            start::Integer=endof(seq), stop::Integer=1)
+                            start::Integer=lastindex(seq), stop::Integer=1)
     return first(approxrsearch(seq, query, k, start, stop))
 end
 
@@ -183,7 +183,7 @@ function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward
     end
 
     while (forward && j ≤ min(stop, n)) || (!forward && j ≥ max(stop, 1))
-        Eq = Pcom[UInt8(seq[j])+1]
+        Eq = Pcom[convert(UInt8, seq[j])+1]
         Xv = Eq | Mv
         Xh = (((Eq & Pv) + Pv) ⊻ Pv) | Eq
 

@@ -11,39 +11,39 @@
     @test string(biore"A+"rna) == "biore\"A+\"rna"
     @test string(biore"A+"aa) == "biore\"A+\"aa"
 
-    @test  ismatch(biore"A"d, dna"A")
-    @test !ismatch(biore"A"d, dna"C")
-    @test !ismatch(biore"A"d, dna"G")
-    @test !ismatch(biore"A"d, dna"T")
-    @test  ismatch(biore"N"d, dna"A")
-    @test  ismatch(biore"N"d, dna"C")
-    @test  ismatch(biore"N"d, dna"G")
-    @test  ismatch(biore"N"d, dna"T")
-    @test  ismatch(biore"[AT]"d, dna"A")
-    @test !ismatch(biore"[AT]"d, dna"C")
-    @test !ismatch(biore"[AT]"d, dna"G")
-    @test  ismatch(biore"[AT]"d, dna"T")
-    @test !ismatch(biore"[^AT]"d, dna"A")
-    @test  ismatch(biore"[^AT]"d, dna"C")
-    @test  ismatch(biore"[^AT]"d, dna"G")
-    @test !ismatch(biore"[^AT]"d, dna"T")
+    @test  occursin(biore"A"d, dna"A")
+    @test !occursin(biore"A"d, dna"C")
+    @test !occursin(biore"A"d, dna"G")
+    @test !occursin(biore"A"d, dna"T")
+    @test  occursin(biore"N"d, dna"A")
+    @test  occursin(biore"N"d, dna"C")
+    @test  occursin(biore"N"d, dna"G")
+    @test  occursin(biore"N"d, dna"T")
+    @test  occursin(biore"[AT]"d, dna"A")
+    @test !occursin(biore"[AT]"d, dna"C")
+    @test !occursin(biore"[AT]"d, dna"G")
+    @test  occursin(biore"[AT]"d, dna"T")
+    @test !occursin(biore"[^AT]"d, dna"A")
+    @test  occursin(biore"[^AT]"d, dna"C")
+    @test  occursin(biore"[^AT]"d, dna"G")
+    @test !occursin(biore"[^AT]"d, dna"T")
 
     re = biore"^A(C+G*)(T{2,})N$"d
-    @test !ismatch(re, dna"AC")
-    @test !ismatch(re, dna"AGTT")
-    @test !ismatch(re, dna"CCGTT")
-    @test !ismatch(re, dna"ACTT")
-    @test !ismatch(re, dna"ACTTGT")
-    @test  ismatch(re, dna"ACGTTA")
-    @test  ismatch(re, dna"ACGTTT")
-    @test  ismatch(re, dna"ACCGGTTT")
-    @test  ismatch(re, dna"ACCGGTTT")
-    @test  ismatch(re, dna"ACCGGTTTA")
-    @test  ismatch(re, dna"ACCGGTTTG")
+    @test !occursin(re, dna"AC")
+    @test !occursin(re, dna"AGTT")
+    @test !occursin(re, dna"CCGTT")
+    @test !occursin(re, dna"ACTT")
+    @test !occursin(re, dna"ACTTGT")
+    @test  occursin(re, dna"ACGTTA")
+    @test  occursin(re, dna"ACGTTT")
+    @test  occursin(re, dna"ACCGGTTT")
+    @test  occursin(re, dna"ACCGGTTT")
+    @test  occursin(re, dna"ACCGGTTTA")
+    @test  occursin(re, dna"ACCGGTTTG")
 
     @test matched(match(re, dna"ACCGTTTTA")) == dna"ACCGTTTTA"
-    @test get(captured(match(re, dna"ACCGTTTTA"))[1]) == dna"CCG"
-    @test get(captured(match(re, dna"ACCGTTTTA"))[2]) == dna"TTTT"
+    @test captured(match(re, dna"ACCGTTTTA"))[1] == dna"CCG"
+    @test captured(match(re, dna"ACCGTTTTA"))[2] == dna"TTTT"
 
     # greedy
     @test matched(match(biore"A*"d, dna"AAA")) == dna"AAA"
@@ -62,10 +62,10 @@
     @test matched(match(biore"A{2,4}?"d, dna"AAA")) == dna"AA"
 
     # search
-    @test search(dna"ACGTAAT", biore"A+"d) == 1:1
-    @test search(dna"ACGTAAT", biore"A+"d, 1) == 1:1
-    @test search(dna"ACGTAAT", biore"A+"d, 2) == 5:6
-    @test search(dna"ACGTAAT", biore"A+"d, 7) == 0:-1
+    @test findfirst(biore"A+"d, dna"ACGTAAT") == 1:1
+    @test findfirst(biore"A+"d, dna"ACGTAAT", 1) == 1:1
+    @test findfirst(biore"A+"d, dna"ACGTAAT", 2) == 5:6
+    @test findfirst(biore"A+"d, dna"ACGTAAT", 7) == nothing
 
     # eachmatch
     matches = [dna"CG", dna"GC", dna"GC", dna"CG"]
@@ -78,6 +78,9 @@
     end
 
     # matchall
+    matchall(pat, seq, overlap=true) =
+        collect(map(matched, eachmatch(pat, seq, overlap)))
+
     @test matchall(biore"A*"d, dna"") == [dna""]
     @test matchall(biore"A*"d, dna"AAA") == [
         dna"AAA", dna"AA", dna"A", dna"",
@@ -90,18 +93,18 @@
     @test matchall(biore"AC*G*T"d, dna"ACCGGGT", false) == [dna"ACCGGGT"]
 
     # RNA and Amino acid
-    @test  ismatch(biore"U(A[AG]|GA)$"r, rna"AUUGUAUGA")
-    @test !ismatch(biore"U(A[AG]|GA)$"r, rna"AUUGUAUGG")
-    @test  ismatch(biore"T+[NQ]A?P"a, aa"MTTQAPMFTQPL")
-    @test  ismatch(biore"T+[NQ]A?P"a, aa"MTTAAPMFTQPL")
-    @test !ismatch(biore"T+[NQ]A?P"a, aa"MTTAAPMFSQPL")
+    @test  occursin(biore"U(A[AG]|GA)$"r, rna"AUUGUAUGA")
+    @test !occursin(biore"U(A[AG]|GA)$"r, rna"AUUGUAUGG")
+    @test  occursin(biore"T+[NQ]A?P"a, aa"MTTQAPMFTQPL")
+    @test  occursin(biore"T+[NQ]A?P"a, aa"MTTAAPMFTQPL")
+    @test !occursin(biore"T+[NQ]A?P"a, aa"MTTAAPMFSQPL")
 
     # PROSITE
-    @test  ismatch(prosite"[AC]-x-V-x(4)-{ED}", aa"ADVAARRK")
-    @test  ismatch(prosite"[AC]-x-V-x(4)-{ED}", aa"CPVAARRK")
-    @test !ismatch(prosite"[AC]-x-V-x(4)-{ED}", aa"ADVAARRE")
-    @test !ismatch(prosite"[AC]-x-V-x(4)-{ED}", aa"CPVAARK")
-    @test  ismatch(prosite"<[AC]-x-V-x(4)-{ED}>", aa"ADVAARRK")
-    @test !ismatch(prosite"<[AC]-x-V-x(4)-{ED}>", aa"AADVAARRK")
-    @test !ismatch(prosite"<[AC]-x-V-x(4)-{ED}>", aa"ADVAARRKA")
+    @test  occursin(prosite"[AC]-x-V-x(4)-{ED}", aa"ADVAARRK")
+    @test  occursin(prosite"[AC]-x-V-x(4)-{ED}", aa"CPVAARRK")
+    @test !occursin(prosite"[AC]-x-V-x(4)-{ED}", aa"ADVAARRE")
+    @test !occursin(prosite"[AC]-x-V-x(4)-{ED}", aa"CPVAARK")
+    @test  occursin(prosite"<[AC]-x-V-x(4)-{ED}>", aa"ADVAARRK")
+    @test !occursin(prosite"<[AC]-x-V-x(4)-{ED}>", aa"AADVAARRK")
+    @test !occursin(prosite"<[AC]-x-V-x(4)-{ED}>", aa"ADVAARRKA")
 end

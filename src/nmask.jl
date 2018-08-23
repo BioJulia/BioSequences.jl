@@ -18,7 +18,7 @@ end
 
 Base.copy(nmask::NMask) = NMask(copy(nmask.blockmask), copy(nmask.blocks), nmask.len)
 
-function Base.convert(::Type{NMask}, bv::BitVector)
+function NMask(bv::BitVector)
     n = length(bv.chunks)
     blockmask = BitVector()
     blocks = Vector{UInt64}()

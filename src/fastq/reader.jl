@@ -3,7 +3,7 @@
 
 struct Reader <: BioCore.IO.AbstractReader
     state::BioCore.Ragel.State
-    seq_transform::Nullable{Function}
+    seq_transform::Union{Function, Nothing}
 
     function Reader(input::BufferedInputStream, seq_transform)
         return new(BioCore.Ragel.State(file_machine.start_state, input), seq_transform)
@@ -51,7 +51,7 @@ function generate_fill_ambiguous(symbol::BioSymbols.DNA)
 end
 
 # NOTE: This does not support line-wraps within sequence and quality.
-isinteractive() && info("Compiling FASTQ parser...")
+isinteractive() && @info "Compiling FASTQ parser..."
 const record_machine, file_machine = (function ()
     cat = Automa.RegExp.cat
     rep = Automa.RegExp.rep
@@ -125,7 +125,7 @@ function check_identical(data1, range1, data2, range2)
 end
 
 function memcmp(p1::Ptr, p2::Ptr, len::Integer)
-    return ccall(:memcmp, Cint, (Ptr{Void}, Ptr{Void}, Csize_t), p1, p2, len) % Int
+    return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), p1, p2, len) % Int
 end
 
 const record_actions = Dict(
@@ -151,20 +151,20 @@ eval(
         file_machine,
         :(mark = offset = 0),
         merge(record_actions, Dict(
-            :header1_identifier  => :(record.identifier  = (mark:p-1) - stream.anchor + 1),
-            :header1_description => :(record.description = (mark:p-1) - stream.anchor + 1),
-            :header2_identifier  => :(check_identical(data, mark:p-1, data, (record.identifier) + stream.anchor - 1)),
-            :header2_description => :(check_identical(data, mark:p-1, data, (record.description) + stream.anchor - 1)),
-            :sequence            => :(record.sequence    = (mark:p-1) - stream.anchor + 1),
-            :quality             => :(record.quality     = (mark:p-1) - stream.anchor + 1),
+            :header1_identifier  => :(record.identifier  = (mark:p-1) .- stream.anchor .+ 1),
+            :header1_description => :(record.description = (mark:p-1) .- stream.anchor .+ 1),
+            :header2_identifier  => :(check_identical(data, mark:p-1, data, (record.identifier) .+ stream.anchor .- 1)),
+            :header2_description => :(check_identical(data, mark:p-1, data, (record.description) .+ stream.anchor .- 1)),
+            :sequence            => :(record.sequence    = (mark:p-1) .- stream.anchor .+ 1),
+            :quality             => :(record.quality     = (mark:p-1) .- stream.anchor .+ 1),
             :record => quote
                 if length(record.sequence) != length(record.quality)
                     error("the length of sequence does not match the length of quality")
                 end
                 BioCore.ReaderHelper.resize_and_copy!(record.data, data, BioCore.ReaderHelper.upanchor!(stream):p-1)
-                record.filled = (offset+1:p-1) - offset
-                if !isnull(reader.seq_transform)
-                    get(reader.seq_transform)(record.data, record.sequence)
+                record.filled = (offset+1:p-1) .- offset
+                if reader.seq_transform != nothing
+                    reader.seq_transform(record.data, record.sequence)
                 end
                 found_record = true
                 @escape

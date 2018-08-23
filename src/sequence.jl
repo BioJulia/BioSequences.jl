@@ -26,11 +26,11 @@ function Sequence()
 end
 
 Base.size(seq::Sequence) = (length(seq),)
-Base.endof(seq::Sequence) = length(seq)
-Base.eachindex(seq::Sequence) = 1:endof(seq)
+Base.lastindex(seq::Sequence) = length(seq)
+Base.eachindex(seq::Sequence) = 1:lastindex(seq)
 
 @inline function Base.checkbounds(seq::Sequence, i::Integer)
-    if 1 ≤ i ≤ endof(seq)
+    if 1 ≤ i ≤ lastindex(seq)
         return true
     end
     throw(BoundsError(seq, i))
@@ -41,16 +41,12 @@ end
     return inbounds_getindex(seq, i)
 end
 
-@inline function Base.start(seq::Sequence)
-    return 1
-end
-
-@inline function Base.done(seq::Sequence, i)
-    return i > endof(seq)
-end
-
-@inline function Base.next(seq::Sequence, i)
-    return inbounds_getindex(seq, i), i + 1
+function Base.iterate(seq::Sequence, i::Int=1)
+    if i > lastindex(seq)
+        return nothing
+    else
+        return inbounds_getindex(seq, i), i + 1
+    end
 end
 
 
@@ -85,7 +81,7 @@ end
 function Base.findnext(seq::Sequence, val, start::Integer)
     checkbounds(seq, start)
     v = convert(eltype(seq), val)
-    for i in start:endof(seq)
+    for i in start:lastindex(seq)
         if inbounds_getindex(seq, i) == v
             return i
         end
@@ -105,7 +101,7 @@ function Base.findprev(seq::Sequence, val, start::Integer)
 end
 
 Base.findfirst(seq::Sequence, val) = findnext(seq, val, 1)
-Base.findlast(seq::Sequence, val) = findprev(seq, val, endof(seq))
+Base.findlast(seq::Sequence, val) = findprev(seq, val, lastindex(seq))
 
 
 # GC content
@@ -189,7 +185,7 @@ function isrepetitive(seq::Sequence, n::Integer=length(seq))
         return true
     end
     last = first(seq)
-    for i in 2:endof(seq)
+    for i in 2:lastindex(seq)
         x = seq[i]
         if x == last
             rep += 1
@@ -210,10 +206,10 @@ end
 # ---------------
 
 "Create a copy of a sequence with gap characters removed."
-ungap(seq::Sequence)  =  filter(x -> x != gap(eltype(seq)), seq)
+ungap(seq::Sequence)  =  filter(x -> x != BioSymbols.gap(eltype(seq)), seq)
 
 "Remove gap characters from a sequence. Modifies the input sequence."
-ungap!(seq::Sequence) = filter!(x -> x != gap(eltype(seq)), seq)
+ungap!(seq::Sequence) = filter!(x -> x != BioSymbols.gap(eltype(seq)), seq)
 
 
 # Printers
@@ -238,7 +234,7 @@ function Base.show(io::IO, seq::Sequence)
     showcompact(io, seq)
 end
 
-function Base.showcompact(io::IO, seq::Sequence)
+function showcompact(io::IO, seq::Sequence)
     # don't show more than this many characters
     # to avoid filling the screen with junk
     if isempty(seq)
@@ -251,12 +247,12 @@ function Base.showcompact(io::IO, seq::Sequence)
                 print(io, seq[i])
             end
             print(io, '…')
-            for i in endof(seq)-half+2:endof(seq)
+            for i in lastindex(seq)-half+2:lastindex(seq)
                 print(io, seq[i])
             end
         else
             for x in seq
-                print(io, Char(x))
+                print(io, convert(Char, x))
             end
         end
     end

@@ -4,13 +4,13 @@
         @test !isfilled(record)
         @test_throws ArgumentError FASTA.identifier(record)
 
-        record = FASTA.Record(b">foo\nACGT\n")
+        record = FASTA.Record(">foo\nACGT\n")
         @test isfilled(record)
         @test hasseqname(record)
         @test FASTA.hasidentifier(record)
         @test seqname(record) == FASTA.identifier(record) == "foo"
         @test !FASTA.hasdescription(record)
-        @test_throws MissingFieldException FASTA.description(record)
+        @test_throws BioCore.Exceptions.MissingFieldException FASTA.description(record)
         @test hassequence(record)
         @test FASTA.hassequence(record)
         @test FASTA.sequence(record) == dna"ACGT"
@@ -19,7 +19,7 @@
         @test FASTA.sequence(String, record, 2:3) == "CG"
         @test record == FASTA.Record(">foo\nACGT\n")
 
-        record = FASTA.Record(b"""
+        record = FASTA.Record("""
         >CYS1_DICDI fragment
         SCWSFSTTGNVEGQHFISQNKL
         VSLSEQNLVDCDHECMEYEGE
@@ -117,7 +117,7 @@
     for specimen in YAML.load_file(joinpath(path, "index.yml"))
         tags = specimen["tags"]
         valid = get(specimen, "valid", true)
-        if contains(tags, "comments")
+        if occursin("comments", tags)
             # currently comments are not supported
             continue
         end
