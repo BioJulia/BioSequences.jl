@@ -182,7 +182,7 @@ julia> matchall(biore"TATA*?"d, dna"TATTATAATTA")  # overlap (default)
  TATA
  TATAA
 
-julia> matchall(biore"TATA*"d, dna"TATTATAATTA", false)  # no overlap
+julia> matchall(biore"TATA*"d, dna"TATTATAATTA", overlap=false)  # no overlap
 2-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
  TAT  
  TATAA
