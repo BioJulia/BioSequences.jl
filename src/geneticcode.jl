@@ -28,22 +28,20 @@ end
 Base.copy(code::GeneticCode) = GeneticCode(copy(code.name), copy(code.tbl))
 Base.length(code::GeneticCode) = 64
 
-function Base.show(io::IO, code::GeneticCode)
-    if get(io, :compact, false)
-        print(io, code.name)
-    else
-        print(io, code.name)
-        rna = rna"ACGU"
-        for x in rna, y in rna
-            println(io)
-            print(io, "  ")
-            for z in rna
-                codon = Kmer(x, y, z)
-                aa = code[codon]
-                print(io, codon, ": ", aa)
-                if z != RNA_U
-                    print(io, "    ")
-                end
+Base.show(io::IO, code::GeneticCode) = print(io, code.name)
+
+function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
+    print(io, code.name)
+    rna = rna"ACGU"
+    for x in rna, y in rna
+        println(io)
+        print(io, "  ")
+        for z in rna
+            codon = Kmer(x, y, z)
+            aa = code[codon]
+            print(io, codon, ": ", aa)
+            if z != RNA_U
+                print(io, "    ")
             end
         end
     end
@@ -83,7 +81,7 @@ function Base.show(io::IO, trans::TransTables)
     for id in ids
         println(io)
         print(io, lpad(id, 3), ". ")
-        showcompact(io, trans.tables[id])
+        show(io, trans.tables[id])
         if haskey(trans.bindings, id)
             print(io, " (", trans.bindings[id], ")")
         end

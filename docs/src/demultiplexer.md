@@ -21,7 +21,7 @@ a few options:
 julia> barcodes = DNASequence["ATGG", "CAGA", "GGAA", "TACG"];
 
 julia> dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)
-BioSequences.Demultiplexer{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}:
+Demultiplexer{BioSequence{DNAAlphabet{4}}}:
   distance: hamming
   number of barcodes: 4
   number of correctable errors: 1

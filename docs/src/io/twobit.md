@@ -47,5 +47,5 @@ TwoBit.Record
 To write a sequence to a TwoBit file, first a record must be created.
 
 ```@docs
-TwoBit.Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing
+TwoBit.Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing})
 ```

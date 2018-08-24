@@ -22,7 +22,7 @@ elements of strings. See sections beginning from
 
 ## DNA and RNA nucleotides
 
-Set of nucleotide symbols in BioSequences.jl covers IUPAC nucleotide base plus
+Set of nucleotide symbols in BioSequences covers IUPAC nucleotide base plus
 a gap symbol:
 
 | Symbol | Constant              | Meaning                    |
@@ -62,10 +62,10 @@ julia> DNA_Gap
 DNA_Gap
 
 julia> typeof(DNA_A)
-BioSymbols.DNA
+DNA
 
 julia> typeof(RNA_A)
-BioSymbols.RNA
+RNA
 
 ```
 
@@ -96,16 +96,16 @@ of `0001` (`DNA_A`) and `0100` (`DNA_G`). The gap symbol is always `0000`.
 
 The next examples demonstrate bit operations of DNA:
 ```jldoctest
-julia> bits(reinterpret(UInt8, DNA_A))
+julia> bitstring(reinterpret(UInt8, DNA_A))
 "00000001"
 
-julia> bits(reinterpret(UInt8, DNA_G))
+julia> bitstring(reinterpret(UInt8, DNA_G))
 "00000100"
 
-julia> bits(reinterpret(UInt8, DNA_R))
+julia> bitstring(reinterpret(UInt8, DNA_R))
 "00000101"
 
-julia> bits(reinterpret(UInt8, DNA_B))
+julia> bitstring(reinterpret(UInt8, DNA_B))
 "00001110"
 
 julia> ~DNA_A
@@ -168,7 +168,7 @@ julia> AA_Term
 AA_Term
 
 julia> typeof(AA_A)
-BioSymbols.AminoAcid
+AminoAcid
 
 ```
 

@@ -78,7 +78,7 @@ end
 # Finders
 # -------
 
-function Base.findnext(seq::Sequence, val, start::Integer)
+function Base.findnext(val, seq::Sequence, start::Integer)
     checkbounds(seq, start)
     v = convert(eltype(seq), val)
     for i in start:lastindex(seq)
@@ -86,10 +86,10 @@ function Base.findnext(seq::Sequence, val, start::Integer)
             return i
         end
     end
-    return 0
+    return nothing
 end
 
-function Base.findprev(seq::Sequence, val, start::Integer)
+function Base.findprev(val, seq::Sequence, start::Integer)
     checkbounds(seq, start)
     v = convert(eltype(seq), val)
     for i in start:-1:1
@@ -97,11 +97,11 @@ function Base.findprev(seq::Sequence, val, start::Integer)
             return i
         end
     end
-    return 0
+    return nothing
 end
 
-Base.findfirst(seq::Sequence, val) = findnext(seq, val, 1)
-Base.findlast(seq::Sequence, val) = findprev(seq, val, lastindex(seq))
+Base.findfirst(val, seq::Sequence) = findnext(val, seq, 1)
+Base.findlast(val, seq::Sequence) = findprev(val, seq, lastindex(seq))
 
 
 # GC content
@@ -227,10 +227,10 @@ function Base.print(io::IO, seq::Sequence; width::Integer = 0)
     end
 end
 
-function Base.show(io::IO, seq::Sequence)
-    if !get(io, :compact, false)
-        println(io, summary(seq), ':')
-    end
+Base.show(io::IO, seq::Sequence) = showcompact(io, seq)
+
+function Base.show(io::IO, ::MIME"text/plain", seq::Sequence)
+    println(io, summary(seq), ':')
     showcompact(io, seq)
 end
 

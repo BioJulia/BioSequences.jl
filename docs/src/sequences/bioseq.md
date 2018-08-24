@@ -226,7 +226,7 @@ julia> convert(String, dna"TTANGTA")
 "TTANGTA"
 
 julia> convert(Vector{DNA}, dna"TTANGTA")
-7-element Array{BioSymbols.DNA,1}:
+7-element Array{DNA,1}:
  DNA_T
  DNA_T
  DNA_A
@@ -364,8 +364,8 @@ people used to editing arrays.
 ```@docs
 push!
 pop!
-shift!
-unshift!
+popfirst!
+pushfirst!
 insert!
 deleteat!(::BioSequences.BioSequence, ::Integer)
 append!
@@ -548,7 +548,7 @@ julia> n = 0
 
 julia> for nt in dna"ATNGNNT"
            if nt == DNA_N
-               n += 1
+               global n += 1
            end
        end
 

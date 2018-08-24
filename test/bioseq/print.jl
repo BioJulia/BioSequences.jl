@@ -21,8 +21,8 @@ end
     buf = IOBuffer()
 
     show(buf, dna"")
-    @test String(take!(buf)) == "0nt DNA Sequence:\n< EMPTY SEQUENCE >"
+    @test String(take!(buf)) == "< EMPTY SEQUENCE >"
 
     show(buf, dna"ATCG")
-    @test String(take!(buf)) == "4nt DNA Sequence:\nATCG"
+    @test String(take!(buf)) == "ATCG"
 end

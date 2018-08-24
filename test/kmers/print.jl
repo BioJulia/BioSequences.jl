@@ -15,8 +15,8 @@ end
     buf = IOBuffer()
 
     show(buf, DNAKmer(""))
-    @test String(take!(buf)) == "DNA 0-mer:\n< EMPTY SEQUENCE >"
+    @test String(take!(buf)) == "< EMPTY SEQUENCE >"
 
     show(buf, DNAKmer("AGAGT"))
-    @test String(take!(buf)) == "DNA 5-mer:\nAGAGT"
+    @test String(take!(buf)) == "AGAGT"
 end

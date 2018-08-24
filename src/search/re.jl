@@ -674,8 +674,8 @@ function Base.match(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=
     s = start
     while true
         if firstsym != BioSequences.gap(T)
-            s = findnext(seq, firstsym, s)
-            if s == 0
+            s = findnext(firstsym, seq, s)
+            if s == nothing
                 break
             end
         end
@@ -765,7 +765,7 @@ function advance!(threads, captured, s, re, seq, overlap)
     return nothing, threads, captured, s
 end
 
-function Base.eachmatch(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool=true) where {T}
+function Base.eachmatch(re::Regex{T}, seq::BioSequences.BioSequence, overlap::Bool = true) where {T}
     checkeltype(re, seq)
     return RegexMatchIterator{T,typeof(seq)}(re, seq, overlap)
 end

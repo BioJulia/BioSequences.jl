@@ -77,7 +77,7 @@ FASTQ.quality
 To write a `BioSequence` to FASTQ file, you first have to create a `FASTQ.Record`:
 
 ```@docs
-FASTQ.Record(identifier::AbstractString, description::Union{AbstractString,Void}, sequence, quality::Vector; offset=33)
+FASTQ.Record(identifier::AbstractString, description::Union{AbstractString,Nothing}, sequence, quality::Vector; offset=33)
 ```
 
 As always with julia IO types, remember to close your file readers and writer

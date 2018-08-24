@@ -31,11 +31,7 @@ composition
 For example to get the nucleotide composition of a sequence:
 
 ```jldoctest
-julia> comp = composition(dna"ACGAG")
-DNA Composition:
-  DNA_A => 2
-  DNA_G => 2
-  DNA_C => 1
+julia> comp = composition(dna"ACGAG");
 
 julia> comp[DNA_A]
 2

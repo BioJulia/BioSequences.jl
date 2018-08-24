@@ -31,7 +31,7 @@ DNA 4-mer:
 ACGT
 
 julia> typeof(DNAKmer("ACGT"))
-BioSequences.Kmer{BioSymbols.DNA,4}
+Kmer{DNA,4}
 ```
 
 

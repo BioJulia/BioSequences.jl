@@ -19,58 +19,58 @@ are considered.
 ## Exact search
 
 Exact search functions search for an occurrence of the query symbol or
-sequence. Four functions, `search`, `searchindex`, `rsearch`, and
-`rsearchindex` are available:
+sequence.
 ```jldoctest
 julia> seq = dna"ACAGCGTAGCT";
 
-julia> search(seq, DNA_G)  # search a query symbol
-4:4
+julia> findfirst(DNA_G, seq)
+4
 
 julia> query = dna"AGC";
 
-julia> search(seq, query)  # search a query sequence
+julia> findfirst(query, seq)
 3:5
 
-julia> searchindex(seq, query)
-3
-
-julia> rsearch(seq, query)  # similar to `search` but in the reverse direction
+julia> findlast(query, seq)
 8:10
 
-julia> rsearchindex(seq, query)  # similar to `searchindex` but in the reverse direction
-8
-
 ```
 
-These search functions take ambiguous symbols into account. That is, if two
-symbols are compatible (e.g. `DNA_A` and `DNA_N`), they match when searching an
-occurrence. In the following example, 'N' is a wild card that matches any
-symbols:
+These search functions take ambiguous symbols into account.
+That is, if two symbols are compatible (e.g. `DNA_A` and `DNA_N`),
+they match when searching an occurrence.
+In the following example, 'N' is a wild card that matches any symbols.
+
 ```jldoctest
-julia> search(dna"ACNT", DNA_N)  # 'A' matches 'N'
-1:1
-
-julia> search(dna"ACNT", dna"CGT")  # 'N' matches 'G'
+julia> findfirst(dna"CGT", dna"ACNT")  # 'N' matches 'G'
 2:4
 
-julia> search(dna"ACGT", dna"CNT")  # 'G' matches 'N'
+julia> findfirst(dna"CNT", dna"ACGT")  # 'G' matches 'N'
 2:4
 
 ```
 
-The exact sequence search needs preprocessing phase of query sequence before
-searching phase. This would be enough fast for most search applications. But
-when searching a query sequence to large amounts of target sequences, caching
-the result of preprocessing may save time. The `ExactSearchQuery` creates such
-a preprocessed query object and is applicable to the search functions:
+The exception to this behaviour is if you are finding a single 'character',
+in which case an ambiguous symbol is matched exactly:
+
+```jldoctest
+julia> findfirst(DNA_N, dna"ACNT")
+3
+
+```
+
+The exact sequence search needs a preprocessing phase of query sequence before
+the searching phase. This would be fast enough for most search applications.
+But when searching a query sequence to many target sequences, caching
+the result of preprocessing may save time. You can do this by creating an
+`ExactSearchQuery` object and re-use it for each search:
 ```jldoctest
 julia> query = ExactSearchQuery(dna"ATT");
 
-julia> search(dna"ATTTATT", query)
+julia> findfirst(query, dna"ATTTATT")
 1:3
 
-julia> rsearch(dna"ATTTATT", query)
+julia> findlast(query, dna"ATTTATT")
 5:7
 
 ```
@@ -133,7 +133,7 @@ julia> approxsearch(dna"ACTACGT", query, 2)
 Query patterns can be described in regular expressions. The syntax supports
 a subset of Perl and PROSITE's notation.
 
-The Perl-like syntax starts with `biore` (**bio**logical **re**gular expression)
+The Perl-like syntax starts with `biore` (BIOlogical REgular expression)
 and ends with a symbol option: "dna", "rna" or "aa". For example, `biore"A+"dna`
 is a regular expression for DNA sequences and `biore"A+"aa` is for amino acid
 sequences. The symbol options can be abbreviated to its first character: "d",
@@ -142,10 +142,10 @@ sequences. The symbol options can be abbreviated to its first character: "d",
 Here are examples of using the regular expression for `BioSequence`s:
 ```jldoctest
 julia> match(biore"A+C*"dna, dna"AAAACC")
-Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}}(RegexMatch("AAAACC"))
+RegexMatch("AAAACC")
 
 julia> match(biore"A+C*"d, dna"AAAACC")
-Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}}(RegexMatch("AAAACC"))
+RegexMatch("AAAACC")
 
 julia> occursin(biore"A+C*"dna, dna"AAC")
 true
@@ -173,29 +173,30 @@ The table below summarizes available syntax elements.
 | `(...)` | pattern grouping | `"(TA)+"` matches `"TA"` and `"TATA"` |
 | `[...]` | one of symbols | `"[ACG]+"` matches `"AGGC"` |
 
-`eachmatch`, `matchall`, and `search` are also defined like usual strings:
+`eachmatch` and `findfirst` are also defined like usual strings:
+
 ```jldoctest
-julia> matchall(biore"TATA*?"d, dna"TATTATAATTA")  # overlap (default)
-4-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
+julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap
+4-element Array{BioSequence{DNAAlphabet{4}},1}:
  TAT  
- TAT  
+ TAT
  TATA
  TATAA
 
-julia> matchall(biore"TATA*"d, dna"TATTATAATTA", false)  # no overlap
-2-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:
+julia> collect(matched(x) for x in eachmatch(biore"TATA*"d, dna"TATTATAATTA", false)) # no overlap
+2-element Array{BioSequence{DNAAlphabet{4}},1}:
  TAT  
  TATAA
 
-julia> search(dna"TATTATAATTA", biore"TATA*"d)
+julia> findfirst(biore"TATA*"d, dna"TATTATAATTA")
 1:3
 
-julia> search(dna"TATTATAATTA", biore"TATA*"d, 2)
+julia> findfirst(biore"TATA*"d, dna"TATTATAATTA", 2)
 4:8
 
 ```
 
-Notewothy differences from strings are:
+Noteworthy differences from strings are:
 
 * Ambiguous characters match any compatible characters (e.g. `biore"N"d` is equivalent to `biore"[ACGT]"d`).
 * Whitespaces are ignored (e.g. `biore"A C G"d` is equivalent to `biore"ACG"d`).
@@ -205,12 +206,13 @@ manual](http://prosite.expasy.org/scanprosite/scanprosite_doc.html). The syntax
 supports almost all notations including the extended syntax. The PROSITE
 notation starts with `prosite` prefix and no symbol option is needed because it
 always describes patterns of amino acid sequences:
+
 ```jldoctest
 julia> match(prosite"[AC]-x-V-x(4)-{ED}", aa"CPVPQARG")
-Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.AminoAcidAlphabet}}}(RegexMatch("CPVPQARG"))
+RegexMatch("CPVPQARG")
 
 julia> match(prosite"[AC]xVx(4){ED}", aa"CPVPQARG")
-Nullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.AminoAcidAlphabet}}}(RegexMatch("CPVPQARG"))
+RegexMatch("CPVPQARG")
 
 ```
 
@@ -240,7 +242,7 @@ and then create a `PWM` from the `PFM` object.
 
 ```jldoctest
 julia> kmers = DNAKmer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
-5-element Array{BioSequences.Kmer{BioSymbols.DNA,3},1}:
+5-element Array{Kmer{DNA,3},1}:
  TTA
  CTA
  ACA
@@ -248,28 +250,28 @@ julia> kmers = DNAKmer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
  GTA
 
 julia> pfm = PFM(kmers)  # sequence set => PFM
-4×3 BioSequences.PFM{BioSymbols.DNA,Int64}:
+4×3 PFM{DNA,Int64}:
  A  1  0  5
  C  1  2  0
  G  1  0  0
  T  2  3  0
 
 julia> pwm = PWM(pfm)  # PFM => PWM
-4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+4×3 PWM{DNA,Float64}:
  A -0.321928 -Inf       2.0
  C -0.321928  0.678072 -Inf
  G -0.321928 -Inf      -Inf
  T  0.678072  1.26303  -Inf
 
 julia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
-4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+4×3 PWM{DNA,Float64}:
  A -0.319068 -6.97728   1.99139
  C -0.319068  0.673772 -6.97728
  G -0.319068 -6.97728  -6.97728
  T  0.673772  1.25634  -6.97728
 
 julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
-4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:
+4×3 PWM{DNA,Float64}:
  A  0.00285965 -6.65535   2.31331
  C -0.582103    0.410737 -7.24031
  G -0.582103   -7.24031  -7.24031

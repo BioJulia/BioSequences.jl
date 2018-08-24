@@ -219,7 +219,7 @@ mutable struct WriteRecord{S<:BioSequences.Sequence}
 end
 
 """
-    Record()
+Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)
 
 Prepare a record for writing to a 2bit formatted file.
 
@@ -228,6 +228,6 @@ ranges that delineate masked regions of sequence.
 """
 function Record(name::AbstractString,
                 seq::BioSequences.Sequence,
-                masks = nothing)
+                masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)
     return WriteRecord(string(name), seq, masks)
 end

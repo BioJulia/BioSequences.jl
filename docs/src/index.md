@@ -1,4 +1,4 @@
-# <img src="./sticker.svg" width="30%" align="right" /> BioSequences
+# BioSequences
 
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE) 
@@ -34,7 +34,7 @@ the master branch to try new features before release.
 
 ## Testing
 
-BioSequences is tested against Julia `0.7` and current `1.X` on
+BioSequences is tested against Julia `0.7` and current `1.X.` on
 Linux, OS X, and Windows.
 
 | **Latest release** | **Latest build status** |
@@ -47,7 +47,7 @@ Linux, OS X, and Windows.
 We appreciate contributions from users including reporting bugs, fixing
 issues, improving performance and adding new features.
 
-Take a look at the [CONTRIBUTING](CONTRIBUTING.md) file provided with
+Take a look at the [CONTRIBUTING](https://github.com/BioJulia/BioCore.jl/blob/master/CONTRIBUTING.md) file provided with
 every BioJulia package package for detailed contributor and maintainer
 guidelines.
 

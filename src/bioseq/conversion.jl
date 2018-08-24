@@ -37,6 +37,9 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
 end
 
 # Convert from a BioSequence to to a DNA or RNA vector
+function Base.convert(::Type{BioSequence{A}}, seq::Vector) where A<:Alphabet
+    return BioSequence{A}(seq)
+end
 Base.convert(::Type{Vector}, seq::BioSequence) = collect(seq)
 function Base.convert(::Type{Vector{DNA}}, seq::BioSequence{<:DNAAlphabet})
     return collect(seq)
