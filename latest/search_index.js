@@ -9,11 +9,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#BioSequences.jl-1",
+    "location": "index.html#BioSequences-1",
     "page": "Home",
-    "title": "BioSequences.jl",
+    "title": "BioSequences",
     "category": "section",
-    "text": "_Biological sequences for julia_Latest release:(Image: Latest Release) (Image: BioSequences) (Image: BioSequences) (Image: License) (Image: ) (Image: BioJulia maintainer: bicycle1885) (Image: BioJulia maintainer: Ward9250)Development status:(Image: Build Status) (Image: Build status) (Image: codecov) (Image: )"
+    "text": "(Image: Latest Release) (Image: MIT license)  (Image: Stable documentation) (Image: Latest documentation) (Image: Lifecycle) (Image: Chat on Discord)"
 },
 
 {
@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Description",
     "category": "section",
-    "text": "BioSequences.jl provides DNA, RNA and amino acid sequence data types for the julia language, with a comprehensive set of methods for common operations and IO of major sequence data formats.   "
+    "text": "BioSequences provides data types and methods for common operations with  biological sequences, including DNA, RNA, and amino acid sequences. It also provides I/O for common sequence file formats including FASTA, FASTQ, 2bit and more. "
 },
 
 {
@@ -29,7 +29,47 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Installation",
     "category": "section",
-    "text": "Install BioSequences from the Julia REPL:julia> Pkg.add(\"BioSequences\")If you are interested in the cutting edge of the development, please check out the master branch to try new features before release."
+    "text": "BioSequences is bundled into the Bio.jl package, so you may not need to install this package explicitly. However, if you do, you can install BioSequences from the Julia REPL:using Pkg\nadd(\"BioSequences\")\n#Pkg.add(\"BioSequences\") for julia prior to v0.7If you are interested in the cutting edge of the development, please check out the master branch to try new features before release."
+},
+
+{
+    "location": "index.html#Testing-1",
+    "page": "Home",
+    "title": "Testing",
+    "category": "section",
+    "text": "BioSequences is tested against Julia 0.7 and current 1.X. on Linux, OS X, and Windows.Latest release Latest build status\n(Image: ) (Image: ) (Image: ) (Image: ) (Image: )"
+},
+
+{
+    "location": "index.html#Contributing-1",
+    "page": "Home",
+    "title": "Contributing",
+    "category": "section",
+    "text": "We appreciate contributions from users including reporting bugs, fixing issues, improving performance and adding new features.Take a look at the CONTRIBUTING file provided with every BioJulia package package for detailed contributor and maintainer guidelines."
+},
+
+{
+    "location": "index.html#Financial-contributions-1",
+    "page": "Home",
+    "title": "Financial contributions",
+    "category": "section",
+    "text": "We also welcome financial contributions in full transparency on our open collective. Anyone can file an expense. If the expense makes sense for the development of the community, it will be \"merged\" in the ledger of our open collective by the core contributors and the person who filed the expense will be reimbursed."
+},
+
+{
+    "location": "index.html#Backers-and-Sponsors-1",
+    "page": "Home",
+    "title": "Backers & Sponsors",
+    "category": "section",
+    "text": "Thank you to all our backers and sponsors!Love our work and community? Become a backer.(Image: backers)Does your company use BioJulia? Help keep BioJulia feature rich and healthy by sponsoring the project Your logo will show up here with a link to your website.(Image: ) (Image: ) (Image: ) (Image: ) (Image: ) (Image: ) (Image: ) (Image: ) (Image: ) (Image: )"
+},
+
+{
+    "location": "index.html#Questions?-1",
+    "page": "Home",
+    "title": "Questions?",
+    "category": "section",
+    "text": "If you have a question about contributing or using BioJulia software, come on over and chat to us on Discord, or you can try the Bio category of the Julia discourse site."
 },
 
 {
@@ -53,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "DNA and RNA nucleotides",
     "category": "section",
-    "text": "Set of nucleotide symbols in BioSequences.jl covers IUPAC nucleotide base plus a gap symbol:Symbol Constant Meaning\n\'A\' DNA_A / RNA_A A; Adenine\n\'C\' DNA_C / RNA_C C; Cytosine\n\'G\' DNA_G / RNA_G G; Guanine\n\'T\' DNA_T T; Thymine (DNA only)\n\'U\' RNA_U U; Uracil (RNA only)\n\'M\' DNA_M / RNA_M A or C\n\'R\' DNA_R / RNA_R A or G\n\'W\' DNA_W / RNA_W A or T/U\n\'S\' DNA_S / RNA_S C or G\n\'Y\' DNA_Y / RNA_Y C or T/U\n\'K\' DNA_K / RNA_K G or T/U\n\'V\' DNA_V / RNA_V A or C or G; not T/U\n\'H\' DNA_H / RNA_H A or C or T; not G\n\'D\' DNA_D / RNA_D A or G or T/U; not C\n\'B\' DNA_B / RNA_B C or G or T/U; not A\n\'N\' DNA_N / RNA_N A or C or G or T/U\n\'-\' DNA_Gap / RNA_Gap Gap (none of the above)http://www.insdc.org/documents/feature_table.html#7.4.1Symbols are accessible as constants with DNA_ or RNA_ prefix:julia> DNA_A\nDNA_A\n\njulia> DNA_T\nDNA_T\n\njulia> RNA_U\nRNA_U\n\njulia> DNA_Gap\nDNA_Gap\n\njulia> typeof(DNA_A)\nBioSymbols.DNA\n\njulia> typeof(RNA_A)\nBioSymbols.RNA\nSymbols can be constructed by converting regular characters:julia> convert(DNA, \'C\')\nDNA_C\n\njulia> convert(DNA, \'C\') === DNA_C\ntrue\nEvery nucleotide is encoded using the lower 4 bits of a byte. An unambiguous nucleotide has only one set bit and the other bits are unset. The table below summarizes all unambiguous nucleotides and their corresponding bits. An ambiguous nucleotide is the bitwise OR of unambiguous nucleotides that the ambiguous nucleotide can take. For example, DNA_R (meaning the nucleotide is either DNA_A or DNA_G) is encoded as 0101 because 0101 is the bitwise OR of 0001 (DNA_A) and 0100 (DNA_G). The gap symbol is always 0000.NucleicAcid Bits\nDNA_A, RNA_A 0001\nDNA_C, RNA_C 0010\nDNA_G, RNA_G 0100\nDNA_T, RNA_U 1000The next examples demonstrate bit operations of DNA:julia> bits(reinterpret(UInt8, DNA_A))\n\"00000001\"\n\njulia> bits(reinterpret(UInt8, DNA_G))\n\"00000100\"\n\njulia> bits(reinterpret(UInt8, DNA_R))\n\"00000101\"\n\njulia> bits(reinterpret(UInt8, DNA_B))\n\"00001110\"\n\njulia> ~DNA_A\nDNA_B\n\njulia> DNA_A | DNA_G\nDNA_R\n\njulia> DNA_R & DNA_B\nDNA_G\n"
+    "text": "Set of nucleotide symbols in BioSequences covers IUPAC nucleotide base plus a gap symbol:Symbol Constant Meaning\n\'A\' DNA_A / RNA_A A; Adenine\n\'C\' DNA_C / RNA_C C; Cytosine\n\'G\' DNA_G / RNA_G G; Guanine\n\'T\' DNA_T T; Thymine (DNA only)\n\'U\' RNA_U U; Uracil (RNA only)\n\'M\' DNA_M / RNA_M A or C\n\'R\' DNA_R / RNA_R A or G\n\'W\' DNA_W / RNA_W A or T/U\n\'S\' DNA_S / RNA_S C or G\n\'Y\' DNA_Y / RNA_Y C or T/U\n\'K\' DNA_K / RNA_K G or T/U\n\'V\' DNA_V / RNA_V A or C or G; not T/U\n\'H\' DNA_H / RNA_H A or C or T; not G\n\'D\' DNA_D / RNA_D A or G or T/U; not C\n\'B\' DNA_B / RNA_B C or G or T/U; not A\n\'N\' DNA_N / RNA_N A or C or G or T/U\n\'-\' DNA_Gap / RNA_Gap Gap (none of the above)http://www.insdc.org/documents/feature_table.html#7.4.1Symbols are accessible as constants with DNA_ or RNA_ prefix:julia> DNA_A\nDNA_A\n\njulia> DNA_T\nDNA_T\n\njulia> RNA_U\nRNA_U\n\njulia> DNA_Gap\nDNA_Gap\n\njulia> typeof(DNA_A)\nDNA\n\njulia> typeof(RNA_A)\nRNA\nSymbols can be constructed by converting regular characters:julia> convert(DNA, \'C\')\nDNA_C\n\njulia> convert(DNA, \'C\') === DNA_C\ntrue\nEvery nucleotide is encoded using the lower 4 bits of a byte. An unambiguous nucleotide has only one set bit and the other bits are unset. The table below summarizes all unambiguous nucleotides and their corresponding bits. An ambiguous nucleotide is the bitwise OR of unambiguous nucleotides that the ambiguous nucleotide can take. For example, DNA_R (meaning the nucleotide is either DNA_A or DNA_G) is encoded as 0101 because 0101 is the bitwise OR of 0001 (DNA_A) and 0100 (DNA_G). The gap symbol is always 0000.NucleicAcid Bits\nDNA_A, RNA_A 0001\nDNA_C, RNA_C 0010\nDNA_G, RNA_G 0100\nDNA_T, RNA_U 1000The next examples demonstrate bit operations of DNA:julia> bitstring(reinterpret(UInt8, DNA_A))\n\"00000001\"\n\njulia> bitstring(reinterpret(UInt8, DNA_G))\n\"00000100\"\n\njulia> bitstring(reinterpret(UInt8, DNA_R))\n\"00000101\"\n\njulia> bitstring(reinterpret(UInt8, DNA_B))\n\"00001110\"\n\njulia> ~DNA_A\nDNA_B\n\njulia> DNA_A | DNA_G\nDNA_R\n\njulia> DNA_R & DNA_B\nDNA_G\n"
 },
 
 {
@@ -61,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "Amino acids",
     "category": "section",
-    "text": "Set of amino acid symbols also covers IUPAC amino acid symbols plus a gap symbol:Symbol Constant Meaning\n\'A\' AA_A Alanine\n\'R\' AA_R Arginine\n\'N\' AA_N Asparagine\n\'D\' AA_D Aspartic acid (Aspartate)\n\'C\' AA_C Cysteine\n\'Q\' AA_Q Glutamine\n\'E\' AA_E Glutamic acid (Glutamate)\n\'G\' AA_G Glycine\n\'H\' AA_H Histidine\n\'I\' AA_I Isoleucine\n\'L\' AA_L Leucine\n\'K\' AA_K Lysine\n\'M\' AA_M Methionine\n\'F\' AA_F Phenylalanine\n\'P\' AA_P Proline\n\'S\' AA_S Serine\n\'T\' AA_T Threonine\n\'W\' AA_W Tryptophan\n\'Y\' AA_Y Tyrosine\n\'V\' AA_V Valine\n\'O\' AA_O Pyrrolysine\n\'U\' AA_U Selenocysteine\n\'B\' AA_B Aspartic acid or Asparagine\n\'J\' AA_J Leucine or Isoleucine\n\'Z\' AA_Z Glutamine or Glutamic acid\n\'X\' AA_X Any amino acid\n\'*\' AA_Term Termination codon\n\'-\' AA_Gap Gap (none of the above)http://www.insdc.org/documents/feature_table.html#7.4.3Symbols are accessible as constants with AA_ prefix:julia> AA_A\nAA_A\n\njulia> AA_Q\nAA_Q\n\njulia> AA_Term\nAA_Term\n\njulia> typeof(AA_A)\nBioSymbols.AminoAcid\nSymbols can be constructed by converting regular characters:julia> convert(AminoAcid, \'A\')\nAA_A\n\njulia> convert(AminoAcid, \'P\') === AA_P\ntrue\n"
+    "text": "Set of amino acid symbols also covers IUPAC amino acid symbols plus a gap symbol:Symbol Constant Meaning\n\'A\' AA_A Alanine\n\'R\' AA_R Arginine\n\'N\' AA_N Asparagine\n\'D\' AA_D Aspartic acid (Aspartate)\n\'C\' AA_C Cysteine\n\'Q\' AA_Q Glutamine\n\'E\' AA_E Glutamic acid (Glutamate)\n\'G\' AA_G Glycine\n\'H\' AA_H Histidine\n\'I\' AA_I Isoleucine\n\'L\' AA_L Leucine\n\'K\' AA_K Lysine\n\'M\' AA_M Methionine\n\'F\' AA_F Phenylalanine\n\'P\' AA_P Proline\n\'S\' AA_S Serine\n\'T\' AA_T Threonine\n\'W\' AA_W Tryptophan\n\'Y\' AA_Y Tyrosine\n\'V\' AA_V Valine\n\'O\' AA_O Pyrrolysine\n\'U\' AA_U Selenocysteine\n\'B\' AA_B Aspartic acid or Asparagine\n\'J\' AA_J Leucine or Isoleucine\n\'Z\' AA_Z Glutamine or Glutamic acid\n\'X\' AA_X Any amino acid\n\'*\' AA_Term Termination codon\n\'-\' AA_Gap Gap (none of the above)http://www.insdc.org/documents/feature_table.html#7.4.3Symbols are accessible as constants with AA_ prefix:julia> AA_A\nAA_A\n\njulia> AA_Q\nAA_Q\n\njulia> AA_Term\nAA_Term\n\njulia> typeof(AA_A)\nAminoAcid\nSymbols can be constructed by converting regular characters:julia> convert(AminoAcid, \'A\')\nAA_A\n\njulia> convert(AminoAcid, \'P\') === AA_P\ntrue\n"
 },
 
 {
@@ -69,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "BioSymbols.alphabet",
     "category": "function",
-    "text": "alphabet(DNA)\n\nGet all symbols of DNA in sorted order.\n\nExamples\n\njulia> alphabet(DNA)\n(DNA_Gap, DNA_A, DNA_C, DNA_M, DNA_G, DNA_R, DNA_S, DNA_V, DNA_T, DNA_W, DNA_Y, DNA_H, DNA_K, DNA_D, DNA_B, DNA_N)\n\njulia> issorted(alphabet(DNA))\ntrue\n\n\n\n\nalphabet(RNA)\n\nGet all symbols of RNA in sorted order.\n\nExamples\n\njulia> alphabet(RNA)\n(RNA_Gap, RNA_A, RNA_C, RNA_M, RNA_G, RNA_R, RNA_S, RNA_V, RNA_U, RNA_W, RNA_Y, RNA_H, RNA_K, RNA_D, RNA_B, RNA_N)\n\njulia> issorted(alphabet(RNA))\ntrue\n\n\n\n\nalphabet(AminoAcid)\n\nGet all symbols of AminoAcid in sorted order.\n\nExamples\n\njulia> alphabet(AminoAcid)\n(AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)\n\njulia> issorted(alphabet(AminoAcid))\ntrue\n\n\n\n\nGets the alphabet encoding of a given BioSequence.\n\n\n\n"
+    "text": "alphabet(DNA)\n\nGet all symbols of DNA in sorted order.\n\nExamples\n\njulia> alphabet(DNA)\n(DNA_Gap, DNA_A, DNA_C, DNA_M, DNA_G, DNA_R, DNA_S, DNA_V, DNA_T, DNA_W, DNA_Y, DNA_H, DNA_K, DNA_D, DNA_B, DNA_N)\n\njulia> issorted(alphabet(DNA))\ntrue\n\n\n\n\n\n\nalphabet(RNA)\n\nGet all symbols of RNA in sorted order.\n\nExamples\n\njulia> alphabet(RNA)\n(RNA_Gap, RNA_A, RNA_C, RNA_M, RNA_G, RNA_R, RNA_S, RNA_V, RNA_U, RNA_W, RNA_Y, RNA_H, RNA_K, RNA_D, RNA_B, RNA_N)\n\njulia> issorted(alphabet(RNA))\ntrue\n\n\n\n\n\n\nalphabet(AminoAcid)\n\nGet all symbols of AminoAcid in sorted order.\n\nExamples\n\njulia> alphabet(AminoAcid)\n(AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H, AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W, AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)\n\njulia> issorted(alphabet(AminoAcid))\ntrue\n\n\n\n\n\n\nGets the alphabet encoding of a given BioSequence.\n\n\n\n\n\n"
 },
 
 {
@@ -77,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "BioSymbols.gap",
     "category": "function",
-    "text": "gap(DNA)\n\nReturn DNA_Gap.\n\n\n\ngap(RNA)\n\nReturn RNA_Gap.\n\n\n\ngap(AminoAcid)\n\nReturn AA_Gap.\n\n\n\n"
+    "text": "gap(DNA)\n\nReturn DNA_Gap.\n\n\n\n\n\ngap(RNA)\n\nReturn RNA_Gap.\n\n\n\n\n\ngap(AminoAcid)\n\nReturn AA_Gap.\n\n\n\n\n\n"
 },
 
 {
@@ -85,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "BioSymbols.iscompatible",
     "category": "function",
-    "text": "iscompatible(x::T, y::T) where T <: NucleicAcid\n\nTest if x and y are compatible with each other (i.e. x and y can be the same symbol).\n\nx and y must be the same type.\n\nExamples\n\njulia> iscompatible(DNA_A, DNA_A)\ntrue\n\njulia> iscompatible(DNA_C, DNA_N)  # DNA_N can be DNA_C\ntrue\n\njulia> iscompatible(DNA_C, DNA_R)  # DNA_R (A or G) cannot be DNA_C\nfalse\n\n\n\n\niscompatible(x::AminoAcid, y::AminoAcid)\n\nTest if x and y are compatible with each other.\n\nExamples\n\njulia> iscompatible(AA_A, AA_R)\nfalse\n\njulia> iscompatible(AA_A, AA_X)\ntrue\n\n\n\n\n"
+    "text": "iscompatible(x::T, y::T) where T <: NucleicAcid\n\nTest if x and y are compatible with each other (i.e. x and y can be the same symbol).\n\nx and y must be the same type.\n\nExamples\n\njulia> iscompatible(DNA_A, DNA_A)\ntrue\n\njulia> iscompatible(DNA_C, DNA_N)  # DNA_N can be DNA_C\ntrue\n\njulia> iscompatible(DNA_C, DNA_R)  # DNA_R (A or G) cannot be DNA_C\nfalse\n\n\n\n\n\n\niscompatible(x::AminoAcid, y::AminoAcid)\n\nTest if x and y are compatible with each other.\n\nExamples\n\njulia> iscompatible(AA_A, AA_R)\nfalse\n\njulia> iscompatible(AA_A, AA_X)\ntrue\n\n\n\n\n\n\n"
 },
 
 {
@@ -93,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Biological Symbols",
     "title": "BioSymbols.isambiguous",
     "category": "function",
-    "text": "isambiguous(nt::NucleicAcid)\n\nTest if nt is an ambiguous nucleotide.\n\n\n\nisambiguous(aa::AminoAcid)\n\nTest if aa is an ambiguous amino acid.\n\n\n\n"
+    "text": "isambiguous(nt::NucleicAcid)\n\nTest if nt is an ambiguous nucleotide.\n\n\n\n\n\nisambiguous(aa::AminoAcid)\n\nTest if aa is an ambiguous amino acid.\n\n\n\n\n\n"
 },
 
 {
@@ -165,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Other constructors and conversion",
     "category": "section",
-    "text": "Sequences can also be constructed from strings or arrays of nucleotide or amino acid symbols using constructors or the convert function:julia> DNASequence(\"TTANC\")\n5nt DNA Sequence:\nTTANC\n\njulia> DNASequence([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])\n5nt DNA Sequence:\nTTANC\n\njulia> convert(DNASequence, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])\n5nt DNA Sequence:\nTTANC\nUsing convert, these operations are reversible: sequences can be converted to strings or arrays:julia> convert(String, dna\"TTANGTA\")\n\"TTANGTA\"\n\njulia> convert(Vector{DNA}, dna\"TTANGTA\")\n7-element Array{BioSymbols.DNA,1}:\n DNA_T\n DNA_T\n DNA_A\n DNA_N\n DNA_G\n DNA_T\n DNA_A\nSequences can also be concatenated into longer sequences:julia> DNASequence(dna\"ACGT\", dna\"NNNN\", dna\"TGCA\")\n12nt DNA Sequence:\nACGTNNNNTGCA\n\njulia> dna\"ACGT\" * dna\"TGCA\"\n8nt DNA Sequence:\nACGTTGCA\n\njulia> repeat(dna\"TA\", 10)\n20nt DNA Sequence:\nTATATATATATATATATATA\n\njulia> dna\"TA\" ^ 10\n20nt DNA Sequence:\nTATATATATATATATATATA\nDespite being separate types, DNASequence and RNASequence can freely be converted between efficiently without copying the underlying data:julia> dna = dna\"TTANGTAGACCG\"\n12nt DNA Sequence:\nTTANGTAGACCG\n\njulia> rna = convert(RNASequence, dna)\n12nt RNA Sequence:\nUUANGUAGACCG\n\njulia> dna.data === rna.data  # underlying data are same\ntrue\nA random sequence can be obtained by the randdnaseq, randrnaseq and randaaseq functions, which generate DNASequence, RNASequence and AminoAcidSequence, respectively. Generated sequences are composed of the standard symbols without ambiguity and gap. For example, randdnaseq(6) may generate dna\"TCATAG\" but never generates dna\"TNANAG\" or dna\"T-ATAG\".A translatable RNASequence can also be converted to an AminoAcidSequence using the translate function."
+    "text": "Sequences can also be constructed from strings or arrays of nucleotide or amino acid symbols using constructors or the convert function:julia> DNASequence(\"TTANC\")\n5nt DNA Sequence:\nTTANC\n\njulia> DNASequence([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])\n5nt DNA Sequence:\nTTANC\n\njulia> convert(DNASequence, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])\n5nt DNA Sequence:\nTTANC\nUsing convert, these operations are reversible: sequences can be converted to strings or arrays:julia> convert(String, dna\"TTANGTA\")\n\"TTANGTA\"\n\njulia> convert(Vector{DNA}, dna\"TTANGTA\")\n7-element Array{DNA,1}:\n DNA_T\n DNA_T\n DNA_A\n DNA_N\n DNA_G\n DNA_T\n DNA_A\nSequences can also be concatenated into longer sequences:julia> DNASequence(dna\"ACGT\", dna\"NNNN\", dna\"TGCA\")\n12nt DNA Sequence:\nACGTNNNNTGCA\n\njulia> dna\"ACGT\" * dna\"TGCA\"\n8nt DNA Sequence:\nACGTTGCA\n\njulia> repeat(dna\"TA\", 10)\n20nt DNA Sequence:\nTATATATATATATATATATA\n\njulia> dna\"TA\" ^ 10\n20nt DNA Sequence:\nTATATATATATATATATATA\nDespite being separate types, DNASequence and RNASequence can freely be converted between efficiently without copying the underlying data:julia> dna = dna\"TTANGTAGACCG\"\n12nt DNA Sequence:\nTTANGTAGACCG\n\njulia> rna = convert(RNASequence, dna)\n12nt RNA Sequence:\nUUANGUAGACCG\n\njulia> dna.data === rna.data  # underlying data are same\ntrue\nA random sequence can be obtained by the randdnaseq, randrnaseq and randaaseq functions, which generate DNASequence, RNASequence and AminoAcidSequence, respectively. Generated sequences are composed of the standard symbols without ambiguity and gap. For example, randdnaseq(6) may generate dna\"TCATAG\" but never generates dna\"TNANAG\" or dna\"T-ATAG\".A translatable RNASequence can also be converted to an AminoAcidSequence using the translate function."
 },
 
 {
@@ -189,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.push!",
     "category": "function",
-    "text": "push!(collection, items...) -> collection\n\nInsert one or more items at the end of collection.\n\nExample\n\njulia> push!([1, 2, 3], 4, 5, 6)\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse append! to add all the elements of another collection to collection. The result of the preceding example is equivalent to append!([1, 2, 3], [4, 5, 6]).\n\n\n\n"
+    "text": "push!(collection, items...) -> collection\n\nInsert one or more items at the end of collection.\n\nExamples\n\njulia> push!([1, 2, 3], 4, 5, 6)\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse append! to add all the elements of another collection to collection. The result of the preceding example is equivalent to append!([1, 2, 3], [4, 5, 6]).\n\n\n\n\n\n"
 },
 
 {
@@ -197,23 +237,23 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.pop!",
     "category": "function",
-    "text": "pop!(collection, key[, default])\n\nDelete and return the mapping for key if it exists in collection, otherwise return default, or throw an error if default is not specified.\n\nExamples\n\njulia> d = Dict(\"a\"=>1, \"b\"=>2, \"c\"=>3);\n\njulia> pop!(d, \"a\")\n1\n\njulia> pop!(d, \"d\")\nERROR: KeyError: key \"d\" not found\nStacktrace:\n [1] pop!(::Dict{String,Int64}, ::String) at ./dict.jl:539\n\njulia> pop!(d, \"e\", 4)\n4\n\n\n\npop!(collection) -> item\n\nRemove the last item in collection and return it.\n\nExamples\n\njulia> A=[1, 2, 3, 4, 5, 6]\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\njulia> pop!(A)\n6\n\njulia> A\n5-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n\n\n\npop!(sc, k)\n\nDeletes the item with key k in SortedDict or SortedSet sc and returns the value that was associated with k in the case of SortedDict or k itself in the case of SortedSet. A KeyError results if k is not in sc. Time: O(c log n)\n\n\n\npop!(sc, k)\n\nDeletes the item with key k in SortedDict or SortedSet sc and returns the value that was associated with k in the case of SortedDict or k itself in the case of SortedSet. A KeyError results if k is not in sc. Time: O(c log n)\n\n\n\npop!(ss)\n\nDeletes the item with first key in SortedSet ss and returns the key. A BoundsError results if ss is empty. Time: O(c log n)\n\n\n\npop!(seq::BioSequence)\n\nRemove the symbol from the end of a biological sequence seq and return it. Returns a variable of eltype(seq).\n\n\n\n"
+    "text": "pop!(collection) -> item\n\nRemove an item in collection and return it. If collection is an ordered container, the last item is returned.\n\nExamples\n\njulia> A=[1, 2, 3]\n3-element Array{Int64,1}:\n 1\n 2\n 3\n\njulia> pop!(A)\n3\n\njulia> A\n2-element Array{Int64,1}:\n 1\n 2\n\njulia> S = Set([1, 2])\nSet([2, 1])\n\njulia> pop!(S)\n2\n\njulia> S\nSet([1])\n\njulia> pop!(Dict(1=>2))\n1 => 2\n\n\n\n\n\npop!(collection, key[, default])\n\nDelete and return the mapping for key if it exists in collection, otherwise return default, or throw an error if default is not specified.\n\nExamples\n\njulia> d = Dict(\"a\"=>1, \"b\"=>2, \"c\"=>3);\n\njulia> pop!(d, \"a\")\n1\n\njulia> pop!(d, \"d\")\nERROR: KeyError: key \"d\" not found\nStacktrace:\n[...]\n\njulia> pop!(d, \"e\", 4)\n4\n\n\n\n\n\npop!(sc, k)\n\nDeletes the item with key k in SortedDict or SortedSet sc and returns the value that was associated with k in the case of SortedDict or k itself in the case of SortedSet. A KeyError results if k is not in sc. Time: O(c log n)\n\n\n\n\n\npop!(sc, k)\n\nDeletes the item with key k in SortedDict or SortedSet sc and returns the value that was associated with k in the case of SortedDict or k itself in the case of SortedSet. A KeyError results if k is not in sc. Time: O(c log n)\n\n\n\n\n\npop!(ss)\n\nDeletes the item with first key in SortedSet ss and returns the key. A BoundsError results if ss is empty. Time: O(c log n)\n\n\n\n\n\npop!(cb)\n\nRemove the element at the back.\n\n\n\n\n\npop!(seq::BioSequence)\n\nRemove the symbol from the end of a biological sequence seq and return it. Returns a variable of eltype(seq).\n\n\n\n\n\n"
 },
 
 {
-    "location": "sequences/bioseq.html#Base.shift!",
+    "location": "sequences/bioseq.html#Base.popfirst!",
     "page": "BioSequence",
-    "title": "Base.shift!",
+    "title": "Base.popfirst!",
     "category": "function",
-    "text": "shift!(collection) -> item\n\nRemove the first item from collection.\n\nExample\n\njulia> A = [1, 2, 3, 4, 5, 6]\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\njulia> shift!(A)\n1\n\njulia> A\n5-element Array{Int64,1}:\n 2\n 3\n 4\n 5\n 6\n\n\n\n"
+    "text": "popfirst!(collection) -> item\n\nRemove the first item from collection.\n\nExamples\n\njulia> A = [1, 2, 3, 4, 5, 6]\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\njulia> popfirst!(A)\n1\n\njulia> A\n5-element Array{Int64,1}:\n 2\n 3\n 4\n 5\n 6\n\n\n\n\n\npopfirst!(cb)\n\nRemove the first item (at the back) from CircularBuffer.\n\n\n\n\n\npopfirst!(seq)\n\nRemove the symbol from the beginning of a biological sequence seq and return it. Returns a variable of eltype(seq).\n\n\n\n\n\n"
 },
 
 {
-    "location": "sequences/bioseq.html#Base.unshift!",
+    "location": "sequences/bioseq.html#Base.pushfirst!",
     "page": "BioSequence",
-    "title": "Base.unshift!",
+    "title": "Base.pushfirst!",
     "category": "function",
-    "text": "unshift!(collection, items...) -> collection\n\nInsert one or more items at the beginning of collection.\n\nExample\n\njulia> unshift!([1, 2, 3, 4], 5, 6)\n6-element Array{Int64,1}:\n 5\n 6\n 1\n 2\n 3\n 4\n\n\n\nunshift!(seq, x)\n\nInsert a biological symbol x at the beginning of a biological sequence seq.\n\n\n\n"
+    "text": "pushfirst!(collection, items...) -> collection\n\nInsert one or more items at the beginning of collection.\n\nExamples\n\njulia> pushfirst!([1, 2, 3, 4], 5, 6)\n6-element Array{Int64,1}:\n 5\n 6\n 1\n 2\n 3\n 4\n\n\n\n\n\npushfirst!(cb, data)\n\nInsert one or more items at the beginning of CircularBuffer  and overwrite back if full.\n\n\n\n\n\npushfirst!(seq, x)\n\nInsert a biological symbol x at the beginning of a biological sequence seq.\n\n\n\n\n\n"
 },
 
 {
@@ -221,15 +261,15 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.insert!",
     "category": "function",
-    "text": "insert!(a::Vector, index::Integer, item)\n\nInsert an item into a at the given index. index is the index of item in the resulting a.\n\nExample\n\njulia> insert!([6, 5, 4, 2, 1], 4, 3)\n6-element Array{Int64,1}:\n 6\n 5\n 4\n 3\n 2\n 1\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedDict or SortedMultiDict, k is a key and v is the corresponding value. This inserts the (k,v) pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(c log n)\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedDict or SortedMultiDict, k is a key and v is the corresponding value. This inserts the (k,v) pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(c log n)\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedSet and k is a key. This inserts the key into the container. If the key is already present, this overwrites the old value. (This is not necessarily a no-op; see below for remarks about the customizing the sort order.) The return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. Time: O(c log n)\n\n\n\ninsert!(seq, i, x)\n\nInsert a biological symbol x into a biological sequence seq, at the given index i.\n\n\n\n"
+    "text": "insert!(a::Vector, index::Integer, item)\n\nInsert an item into a at the given index. index is the index of item in the resulting a.\n\nExamples\n\njulia> insert!([6, 5, 4, 2, 1], 4, 3)\n6-element Array{Int64,1}:\n 6\n 5\n 4\n 3\n 2\n 1\n\n\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedDict or SortedMultiDict, k is a key and v is the corresponding value. This inserts the (k,v) pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(c log n)\n\n\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedDict or SortedMultiDict, k is a key and v is the corresponding value. This inserts the (k,v) pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(c log n)\n\n\n\n\n\ninsert!(sc, k)\n\nArgument sc is a SortedSet and k is a key. This inserts the key into the container. If the key is already present, this overwrites the old value. (This is not necessarily a no-op; see below for remarks about the customizing the sort order.) The return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. Time: O(c log n)\n\n\n\n\n\ninsert!(seq, i, x)\n\nInsert a biological symbol x into a biological sequence seq, at the given index i.\n\n\n\n\n\n"
 },
 
 {
-    "location": "sequences/bioseq.html#Base.deleteat!-Tuple{BioSequences.BioSequence,Integer}",
+    "location": "sequences/bioseq.html#Base.deleteat!-Tuple{BioSequence,Integer}",
     "page": "BioSequence",
     "title": "Base.deleteat!",
     "category": "method",
-    "text": "deleteat!(seq::BioSequence, i::Integer)\n\nDelete a biological symbol at a single position i in a biological sequence seq.\n\nModifies the input sequence.\n\n\n\n"
+    "text": "deleteat!(seq::BioSequence, i::Integer)\n\nDelete a biological symbol at a single position i in a biological sequence seq.\n\nModifies the input sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -237,7 +277,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.append!",
     "category": "function",
-    "text": "append!(collection, collection2) -> collection.\n\nAdd the elements of collection2 to the end of collection.\n\nExamples\n\njulia> append!([1],[2,3])\n3-element Array{Int64,1}:\n 1\n 2\n 3\n\njulia> append!([1, 2, 3], [4, 5, 6])\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse push! to add individual items to collection which are not already themselves in another collection. The result is of the preceding example is equivalent to push!([1, 2, 3], 4, 5, 6).\n\n\n\n"
+    "text": "append!(collection, collection2) -> collection.\n\nAdd the elements of collection2 to the end of collection.\n\nExamples\n\njulia> append!([1],[2,3])\n3-element Array{Int64,1}:\n 1\n 2\n 3\n\njulia> append!([1, 2, 3], [4, 5, 6])\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse push! to add individual items to collection which are not already themselves in another collection. The result is of the preceding example is equivalent to push!([1, 2, 3], 4, 5, 6).\n\n\n\n\n\nWrite part of a byte array.\n\n\n\n\n\nappend!(cb, datavec)\n\nPush at most last capacity items.\n\n\n\n\n\nappend!(seq, other)\n\nAdd a biological sequence other onto the end of biological sequence seq. Modifies and returns seq.\n\n\n\n\n\n"
 },
 
 {
@@ -245,7 +285,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.resize!",
     "category": "function",
-    "text": "resize!(a::Vector, n::Integer) -> Vector\n\nResize a to contain n elements. If n is smaller than the current collection length, the first n elements will be retained. If n is larger, the new elements are not guaranteed to be initialized.\n\nExamples\n\njulia> resize!([6, 5, 4, 3, 2, 1], 3)\n3-element Array{Int64,1}:\n 6\n 5\n 4\n\njulia> a = resize!([6, 5, 4, 3, 2, 1], 8);\n\njulia> length(a)\n8\n\njulia> a[1:6]\n6-element Array{Int64,1}:\n 6\n 5\n 4\n 3\n 2\n 1\n\n\n\nresize!(seq, size)\n\nResize a biological sequence seq, to a given size.\n\n\n\n"
+    "text": "resize!(a::Vector, n::Integer) -> Vector\n\nResize a to contain n elements. If n is smaller than the current collection length, the first n elements will be retained. If n is larger, the new elements are not guaranteed to be initialized.\n\nExamples\n\njulia> resize!([6, 5, 4, 3, 2, 1], 3)\n3-element Array{Int64,1}:\n 6\n 5\n 4\n\njulia> a = resize!([6, 5, 4, 3, 2, 1], 8);\n\njulia> length(a)\n8\n\njulia> a[1:6]\n6-element Array{Int64,1}:\n 6\n 5\n 4\n 3\n 2\n 1\n\n\n\n\n\nresize!(seq, size)\n\nResize a biological sequence seq, to a given size.\n\n\n\n\n\n"
 },
 
 {
@@ -253,15 +293,15 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Setindex and modifying DNA sequences",
     "category": "section",
-    "text": "The biological symbol at a given locus in a biological sequence can be set using setindex:julia> seq = dna\"ACGTTTANAGTNNAGTACC\"\n19nt DNA Sequence:\nACGTTTANAGTNNAGTACC\n\njulia> seq[5] = DNA_A\nDNA_A\nIn addition, many other modifying operations are possible for biological sequences such as push!, pop!, and insert!, which should be familiar to people used to editing arrays.push!\npop!\nshift!\nunshift!\ninsert!\ndeleteat!(::BioSequences.BioSequence, ::Integer)\nappend!\nresize!Here are some examples:julia> seq = dna\"ACG\"\n3nt DNA Sequence:\nACG\n\njulia> push!(seq, DNA_T)\n4nt DNA Sequence:\nACGT\n\njulia> append!(seq, dna\"AT\")\n6nt DNA Sequence:\nACGTAT\n\njulia> deleteat!(seq, 2)\n5nt DNA Sequence:\nAGTAT\n\njulia> deleteat!(seq, 2:3)\n3nt DNA Sequence:\nAAT\n"
+    "text": "The biological symbol at a given locus in a biological sequence can be set using setindex:julia> seq = dna\"ACGTTTANAGTNNAGTACC\"\n19nt DNA Sequence:\nACGTTTANAGTNNAGTACC\n\njulia> seq[5] = DNA_A\nDNA_A\nIn addition, many other modifying operations are possible for biological sequences such as push!, pop!, and insert!, which should be familiar to people used to editing arrays.push!\npop!\npopfirst!\npushfirst!\ninsert!\ndeleteat!(::BioSequences.BioSequence, ::Integer)\nappend!\nresize!Here are some examples:julia> seq = dna\"ACG\"\n3nt DNA Sequence:\nACG\n\njulia> push!(seq, DNA_T)\n4nt DNA Sequence:\nACGT\n\njulia> append!(seq, dna\"AT\")\n6nt DNA Sequence:\nACGTAT\n\njulia> deleteat!(seq, 2)\n5nt DNA Sequence:\nAGTAT\n\njulia> deleteat!(seq, 2:3)\n3nt DNA Sequence:\nAAT\n"
 },
 
 {
-    "location": "sequences/bioseq.html#Base.reverse!-Tuple{BioSequences.BioSequence}",
+    "location": "sequences/bioseq.html#Base.reverse!-Tuple{BioSequence}",
     "page": "BioSequence",
     "title": "Base.reverse!",
     "category": "method",
-    "text": "reverse!(seq)\n\nReverse a biological sequence seq in place.\n\n\n\n"
+    "text": "reverse!(seq)\n\nReverse a biological sequence seq in place.\n\n\n\n\n\n"
 },
 
 {
@@ -269,7 +309,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.complement!",
     "category": "function",
-    "text": "complement!(seq)\n\nMake a complement sequence of seq in place.\n\n\n\ncomplement!(seq)\n\nTransform seq into it\'s complement.\n\n\n\n"
+    "text": "complement!(seq)\n\nMake a complement sequence of seq in place.\n\n\n\n\n\ncomplement!(seq)\n\nTransform seq into it\'s complement.\n\n\n\n\n\n"
 },
 
 {
@@ -277,7 +317,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.reverse_complement!",
     "category": "function",
-    "text": "reverse_complement!(seq)\n\nMake a reversed complement sequence of seq in place.\n\nAmbiguous nucleotides are left as-is.\n\n\n\n"
+    "text": "reverse_complement!(seq)\n\nMake a reversed complement sequence of seq in place.\n\nAmbiguous nucleotides are left as-is.\n\n\n\n\n\n"
 },
 
 {
@@ -285,7 +325,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.ungap!",
     "category": "function",
-    "text": "Remove gap characters from a sequence. Modifies the input sequence.\n\n\n\n"
+    "text": "Remove gap characters from a sequence. Modifies the input sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -293,7 +333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.empty!",
     "category": "function",
-    "text": "empty!(collection) -> collection\n\nRemove all elements from a collection.\n\njulia> A = Dict(\"a\" => 1, \"b\" => 2)\nDict{String,Int64} with 2 entries:\n  \"b\" => 2\n  \"a\" => 1\n\njulia> empty!(A);\n\njulia> A\nDict{String,Int64} with 0 entries\n\n\n\nempty!(seq)\n\nCompletely empty a biological sequence seq of nucleotides.\n\n\n\n"
+    "text": "empty!(collection) -> collection\n\nRemove all elements from a collection.\n\nExamples\n\njulia> A = Dict(\"a\" => 1, \"b\" => 2)\nDict{String,Int64} with 2 entries:\n  \"b\" => 2\n  \"a\" => 1\n\njulia> empty!(A);\n\njulia> A\nDict{String,Int64} with 0 entries\n\n\n\n\n\nempty!(cb)\n\nReset the buffer.\n\n\n\n\n\nempty!(seq)\n\nCompletely empty a biological sequence seq of nucleotides.\n\n\n\n\n\n"
 },
 
 {
@@ -309,7 +349,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.translate",
     "category": "function",
-    "text": "translate(rna_seq, code=standard_genetic_code, allow_ambiguous_codons=true)\n\nTranslate an RNASequence to an AminoAcidSequence.\n\nTranslation uses genetic code code to map codons to amino acids. See ncbi_trans_table for available genetic codes. If codons in the given RNA sequence cannot determine a unique amino acid, they will be translated to AA_X if allow_ambiguous_codons is true and otherwise result in an error.\n\n\n\n"
+    "text": "translate(rna_seq, code=standard_genetic_code, allow_ambiguous_codons=true)\n\nTranslate an RNASequence to an AminoAcidSequence.\n\nTranslation uses genetic code code to map codons to amino acids. See ncbi_trans_table for available genetic codes. If codons in the given RNA sequence cannot determine a unique amino acid, they will be translated to AA_X if allow_ambiguous_codons is true and otherwise result in an error.\n\n\n\n\n\n"
 },
 
 {
@@ -317,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.ncbi_trans_table",
     "category": "constant",
-    "text": "Genetic code list of NCBI.\n\nThe standard genetic code is ncbi_trans_table[1] and others can be shown by show(ncbi_trans_table). For more details, consult the next link: http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes.\n\n\n\n"
+    "text": "Genetic code list of NCBI.\n\nThe standard genetic code is ncbi_trans_table[1] and others can be shown by show(ncbi_trans_table). For more details, consult the next link: http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes.\n\n\n\n\n\n"
 },
 
 {
@@ -341,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.Certain",
     "category": "type",
-    "text": "A Certain site describes a site where both of two aligned sites are not an ambiguity symbol or a gap.\n\n\n\n"
+    "text": "A Certain site describes a site where both of two aligned sites are not an ambiguity symbol or a gap.\n\n\n\n\n\n"
 },
 
 {
@@ -349,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.Gap",
     "category": "type",
-    "text": "An Gap site describes a site where either of two aligned sites are a gap symbol \'-\'.\n\n\n\n"
+    "text": "An Gap site describes a site where either of two aligned sites are a gap symbol \'-\'.\n\n\n\n\n\n"
 },
 
 {
@@ -357,7 +397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.Ambiguous",
     "category": "type",
-    "text": "An Ambiguous site describes a site where either of two aligned sites are an ambiguity symbol.\n\n\n\n"
+    "text": "An Ambiguous site describes a site where either of two aligned sites are an ambiguity symbol.\n\n\n\n\n\n"
 },
 
 {
@@ -365,7 +405,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.Match",
     "category": "type",
-    "text": "A Match site describes a site where two aligned nucleotides are the same biological symbol.\n\n\n\n"
+    "text": "A Match site describes a site where two aligned nucleotides are the same biological symbol.\n\n\n\n\n\n"
 },
 
 {
@@ -373,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.Mismatch",
     "category": "type",
-    "text": "A Mismatch site describes a site where two aligned nucleotides are not the same biological symbol.\n\n\n\n"
+    "text": "A Mismatch site describes a site where two aligned nucleotides are not the same biological symbol.\n\n\n\n\n\n"
 },
 
 {
@@ -453,7 +493,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Nucleic acid k-mers",
     "title": "BioSequences.each",
     "category": "function",
-    "text": "each(::Type{Kmer{T,k}}, seq::Sequence[, step=1])\n\nInitialize an iterator over all k-mers in a sequence seq skipping ambiguous nucleotides without changing the reading frame.\n\nArguments\n\nKmer{T,k}: k-mer type to enumerate.\nseq: a nucleotide sequence.\nstep=1: the number of positions between iterated k-mers\n\nExamples\n\n# iterate over DNA codons\nfor (pos, codon) in each(DNAKmer{3}, dna\"ATCCTANAGNTACT\", 3)\n    @show pos, codon\nend\n\n\n\n"
+    "text": "each(::Type{Kmer{T,k}}, seq::Sequence[, step=1])\n\nInitialize an iterator over all k-mers in a sequence seq skipping ambiguous nucleotides without changing the reading frame.\n\nArguments\n\nKmer{T,k}: k-mer type to enumerate.\nseq: a nucleotide sequence.\nstep=1: the number of positions between iterated k-mers\n\nExamples\n\n# iterate over DNA codons\nfor (pos, codon) in each(DNAKmer{3}, dna\"ATCCTANAGNTACT\", 3)\n    @show pos, codon\nend\n\n\n\n\n\n"
 },
 
 {
@@ -461,7 +501,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Nucleic acid k-mers",
     "title": "BioSequences.canonical",
     "category": "function",
-    "text": "canonical(kmer::Kmer)\n\nReturn the canonical k-mer of x.\n\nA canonical k-mer is the numerical lesser of a k-mer and its reverse complement. This is useful in hashing/counting k-mers in data that is not strand specific, and thus observing k-mer is equivalent to observing its reverse complement.\n\n\n\n"
+    "text": "canonical(kmer::Kmer)\n\nReturn the canonical k-mer of x.\n\nA canonical k-mer is the numerical lesser of a k-mer and its reverse complement. This is useful in hashing/counting k-mers in data that is not strand specific, and thus observing k-mer is equivalent to observing its reverse complement.\n\n\n\n\n\n"
 },
 
 {
@@ -469,7 +509,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Nucleic acid k-mers",
     "title": "BioSequences.neighbors",
     "category": "function",
-    "text": "neighbors(kmer::Kmer)\n\nReturn an iterator through k-mers neighboring kmer on a de Bruijn graph.\n\n\n\n"
+    "text": "neighbors(kmer::Kmer)\n\nReturn an iterator through k-mers neighboring kmer on a de Bruijn graph.\n\n\n\n\n\n"
 },
 
 {
@@ -477,7 +517,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Nucleic acid k-mers",
     "title": "Nucleic acid k-mers",
     "category": "section",
-    "text": "A common strategy to simplify the analysis of sequence data is to operate or short k-mers, for size fixed size k. These can be packed into machine integers allowing extremely efficient code. The BioSequences module has built in support for representing short sequences in 64-bit integers. Besides being fixed length, Kmer types, unlike other sequence types cannot contain ambiguous symbols like \'N\'.The Kmer{T,k} type parameterized on symbol type (T, either DNA, or RNA) and size k. For ease of writing code, two type aliases for each nucleotide type are defined and named as DNAKmer{k} and RNAKmer{k}:julia> DNAKmer(\"ACGT\")  # create a DNA 4-mer from a string\nDNA 4-mer:\nACGT\n\njulia> RNAKmer(\"ACGU\")  # create an RNA 4-mer from a string\nRNA 4-mer:\nACGU\n\njulia> kmer\"ACGT\" # DNA k-mers may also be written as literals\nDNA 4-mer:\nACGT\n\njulia> typeof(DNAKmer(\"ACGT\"))\nBioSequences.Kmer{BioSymbols.DNA,4}each\ncanonical\nneighbors"
+    "text": "A common strategy to simplify the analysis of sequence data is to operate or short k-mers, for size fixed size k. These can be packed into machine integers allowing extremely efficient code. The BioSequences module has built in support for representing short sequences in 64-bit integers. Besides being fixed length, Kmer types, unlike other sequence types cannot contain ambiguous symbols like \'N\'.The Kmer{T,k} type parameterized on symbol type (T, either DNA, or RNA) and size k. For ease of writing code, two type aliases for each nucleotide type are defined and named as DNAKmer{k} and RNAKmer{k}:julia> DNAKmer(\"ACGT\")  # create a DNA 4-mer from a string\nDNA 4-mer:\nACGT\n\njulia> RNAKmer(\"ACGU\")  # create an RNA 4-mer from a string\nRNA 4-mer:\nACGU\n\njulia> kmer\"ACGT\" # DNA k-mers may also be written as literals\nDNA 4-mer:\nACGT\n\njulia> typeof(DNAKmer(\"ACGT\"))\nKmer{DNA,4}each\ncanonical\nneighbors"
 },
 
 {
@@ -501,7 +541,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.Reader",
     "category": "type",
-    "text": "FASTA.Reader(input::IO; index=nothing)\n\nCreate a data reader of the FASTA file format.\n\nArguments\n\ninput: data source\nindex=nothing: filepath to a random access index (currently fai is supported)\n\n\n\n"
+    "text": "FASTA.Reader(input::IO; index=nothing)\n\nCreate a data reader of the FASTA file format.\n\nArguments\n\ninput: data source\nindex=nothing: filepath to a random access index (currently fai is supported)\n\n\n\n\n\n"
 },
 
 {
@@ -509,7 +549,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.Writer",
     "category": "type",
-    "text": "FASTA.Writer(output::IO; width=70)\n\nCreate a data writer of the FASTA file format.\n\nArguments\n\noutput: data sink\nwidth=70: wrapping width of sequence characters\n\n\n\n"
+    "text": "FASTA.Writer(output::IO; width=70)\n\nCreate a data writer of the FASTA file format.\n\nArguments\n\noutput: data sink\nwidth=70: wrapping width of sequence characters\n\n\n\n\n\n"
 },
 
 {
@@ -517,7 +557,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.Record",
     "category": "type",
-    "text": "FASTA.Record()\n\nCreate an unfilled FASTA record.\n\n\n\nFASTA.Record(data::Vector{UInt8})\n\nCreate a FASTA record object from data.\n\nThis function verifies and indexes fields for accessors. Note that the ownership of data is transferred to a new record object.\n\n\n\nFASTA.Record(str::AbstractString)\n\nCreate a FASTA record object from str.\n\nThis function verifies and indexes fields for accessors.\n\n\n\nFASTA.Record(identifier, sequence)\n\nCreate a FASTA record object from identifier and sequence.\n\n\n\nFASTA.Record(identifier, description, sequence)\n\nCreate a FASTA record object from identifier, description and sequence.\n\n\n\n"
+    "text": "FASTA.Record()\n\nCreate an unfilled FASTA record.\n\n\n\n\n\nFASTA.Record(data::Vector{UInt8})\n\nCreate a FASTA record object from data.\n\nThis function verifies and indexes fields for accessors. Note that the ownership of data is transferred to a new record object.\n\n\n\n\n\nFASTA.Record(str::AbstractString)\n\nCreate a FASTA record object from str.\n\nThis function verifies and indexes fields for accessors.\n\n\n\n\n\nFASTA.Record(identifier, sequence)\n\nCreate a FASTA record object from identifier and sequence.\n\n\n\n\n\nFASTA.Record(identifier, description, sequence)\n\nCreate a FASTA record object from identifier, description and sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -525,7 +565,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.hasidentifier",
     "category": "function",
-    "text": "hasidentifier(record::Record)\n\nChecks whether or not the record has an identifier.\n\n\n\n"
+    "text": "hasidentifier(record::Record)\n\nChecks whether or not the record has an identifier.\n\n\n\n\n\n"
 },
 
 {
@@ -533,7 +573,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.identifier",
     "category": "function",
-    "text": "identifier(record::Record)::String\n\nGet the sequence identifier of record.\n\n\n\n"
+    "text": "identifier(record::Record)::String\n\nGet the sequence identifier of record.\n\n\n\n\n\n"
 },
 
 {
@@ -541,7 +581,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.hasdescription",
     "category": "function",
-    "text": "hasdescription(record::Record)\n\nChecks whether or not the record has a description.\n\n\n\n"
+    "text": "hasdescription(record::Record)\n\nChecks whether or not the record has a description.\n\n\n\n\n\n"
 },
 
 {
@@ -549,7 +589,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.description",
     "category": "function",
-    "text": "description(record::Record)::String\n\nGet the description of record.\n\n\n\n"
+    "text": "description(record::Record)::String\n\nGet the description of record.\n\n\n\n\n\n"
 },
 
 {
@@ -557,7 +597,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.hassequence",
     "category": "function",
-    "text": "hassequence(record::Record)\n\nChecks whether or not a sequence record contains a sequence.\n\n\n\n"
+    "text": "hassequence(record::Record)\n\nChecks whether or not a sequence record contains a sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -565,7 +605,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTA formatted files",
     "title": "BioSequences.FASTA.sequence",
     "category": "method",
-    "text": "sequence(record::Record, [part::UnitRange{Int}])\n\nGet the sequence of record.\n\nThis function infers the sequence type from the data. When it is wrong or unreliable, use sequence(::Type{S}, record::Record).  If part argument is given, it returns the specified part of the sequence.\n\n\n\n"
+    "text": "sequence(record::Record, [part::UnitRange{Int}])\n\nGet the sequence of record.\n\nThis function infers the sequence type from the data. When it is wrong or unreliable, use sequence(::Type{S}, record::Record).  If part argument is given, it returns the specified part of the sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -597,7 +637,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.Reader",
     "category": "type",
-    "text": "FASTQ.Reader(input::IO; fill_ambiguous=nothing)\n\nCreate a data reader of the FASTQ file format.\n\nArguments\n\ninput: data source\nfill_ambiguous=nothing: fill ambiguous symbols with the given symbol\n\n\n\n"
+    "text": "FASTQ.Reader(input::IO; fill_ambiguous=nothing)\n\nCreate a data reader of the FASTQ file format.\n\nArguments\n\ninput: data source\nfill_ambiguous=nothing: fill ambiguous symbols with the given symbol\n\n\n\n\n\n"
 },
 
 {
@@ -605,7 +645,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.Writer",
     "category": "type",
-    "text": "FASTQ.Writer(output::IO; quality_header=false)\n\nCreate a data writer of the FASTQ file format.\n\nArguments\n\noutput: data sink\nquality_header=false: output the title line at the third line just after \'+\'\n\n\n\n"
+    "text": "FASTQ.Writer(output::IO; quality_header=false)\n\nCreate a data writer of the FASTQ file format.\n\nArguments\n\noutput: data sink\nquality_header=false: output the title line at the third line just after \'+\'\n\n\n\n\n\n"
 },
 
 {
@@ -613,7 +653,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.Record",
     "category": "type",
-    "text": "FASTQ.Record()\n\nCreate an unfilled FASTQ record.\n\n\n\nFASTQ.Record(data::Vector{UInt8})\n\nCreate a FASTQ record object from data.\n\nThis function verifies and indexes fields for accessors. Note that the ownership of data is transferred to a new record object.\n\n\n\nFASTQ.Record(str::AbstractString)\n\nCreate a FASTQ record object from str.\n\nThis function verifies and indexes fields for accessors.\n\n\n\nFASTQ.Record(identifier, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, sequence and quality.\n\n\n\nFASTQ.Record(identifier, description, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, description, sequence and quality.\n\n\n\n"
+    "text": "FASTQ.Record()\n\nCreate an unfilled FASTQ record.\n\n\n\n\n\nFASTQ.Record(data::Vector{UInt8})\n\nCreate a FASTQ record object from data.\n\nThis function verifies and indexes fields for accessors. Note that the ownership of data is transferred to a new record object.\n\n\n\n\n\nFASTQ.Record(str::AbstractString)\n\nCreate a FASTQ record object from str.\n\nThis function verifies and indexes fields for accessors.\n\n\n\n\n\nFASTQ.Record(identifier, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, sequence and quality.\n\n\n\n\n\nFASTQ.Record(identifier, description, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, description, sequence and quality.\n\n\n\n\n\n"
 },
 
 {
@@ -621,7 +661,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.hasidentifier",
     "category": "function",
-    "text": "hasidentifier(record::Record)\n\nChecks whether or not the record has an identifier.\n\n\n\n"
+    "text": "hasidentifier(record::Record)\n\nChecks whether or not the record has an identifier.\n\n\n\n\n\n"
 },
 
 {
@@ -629,7 +669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.identifier",
     "category": "function",
-    "text": "identifier(record::Record)::String\n\nGet the sequence identifier of record.\n\n\n\n"
+    "text": "identifier(record::Record)::String\n\nGet the sequence identifier of record.\n\n\n\n\n\n"
 },
 
 {
@@ -637,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.hasdescription",
     "category": "function",
-    "text": "hasdescription(record::Record)\n\nChecks whether or not the record has a description.\n\n\n\n"
+    "text": "hasdescription(record::Record)\n\nChecks whether or not the record has a description.\n\n\n\n\n\n"
 },
 
 {
@@ -645,7 +685,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.description",
     "category": "function",
-    "text": "description(record::Record)::String\n\nGet the description of record.\n\n\n\n"
+    "text": "description(record::Record)::String\n\nGet the description of record.\n\n\n\n\n\n"
 },
 
 {
@@ -653,7 +693,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.hassequence",
     "category": "function",
-    "text": "hassequence(record::Record)\n\nChecks whether or not a sequence record contains a sequence.\n\n\n\n"
+    "text": "hassequence(record::Record)\n\nChecks whether or not a sequence record contains a sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -661,7 +701,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.sequence",
     "category": "method",
-    "text": "sequence(record::Record, [part::UnitRange{Int}])::BioSequences.DNASequence\n\nGet the sequence of record.\n\n\n\n"
+    "text": "sequence(record::Record, [part::UnitRange{Int}])::BioSequences.DNASequence\n\nGet the sequence of record.\n\n\n\n\n\n"
 },
 
 {
@@ -669,7 +709,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.hasquality",
     "category": "function",
-    "text": "hasquality(record::Record)\n\nCheck whether the given FASTQ record has a quality string.\n\n\n\n"
+    "text": "hasquality(record::Record)\n\nCheck whether the given FASTQ record has a quality string.\n\n\n\n\n\n"
 },
 
 {
@@ -677,15 +717,15 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.quality",
     "category": "function",
-    "text": "quality(record::Record, [offset::Integer=33, [part::UnitRange]])::Vector{UInt8}\n\nGet the base quality of record.\n\n\n\nquality(record::Record, encoding_name::Symbol, [part::UnitRange])::Vector{UInt8}\n\nGet the base quality of record by decoding with encoding_name.\n\nThe encoding_name can be either :sanger, :solexa, :illumina13, :illumina15, or :illumina18.\n\n\n\n"
+    "text": "quality(record::Record, [offset::Integer=33, [part::UnitRange]])::Vector{UInt8}\n\nGet the base quality of record.\n\n\n\n\n\nquality(record::Record, encoding_name::Symbol, [part::UnitRange])::Vector{UInt8}\n\nGet the base quality of record by decoding with encoding_name.\n\nThe encoding_name can be either :sanger, :solexa, :illumina13, :illumina15, or :illumina18.\n\n\n\n\n\n"
 },
 
 {
-    "location": "io/fastq.html#BioSequences.FASTQ.Record-Tuple{AbstractString,Union{AbstractString, Void},Any,Array{T,1} where T}",
+    "location": "io/fastq.html#BioSequences.FASTQ.Record-Tuple{AbstractString,Union{Nothing, AbstractString},Any,Array{T,1} where T}",
     "page": "FASTQ formatted files",
     "title": "BioSequences.FASTQ.Record",
     "category": "method",
-    "text": "FASTQ.Record(identifier, description, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, description, sequence and quality.\n\n\n\n"
+    "text": "FASTQ.Record(identifier, description, sequence, quality; offset=33)\n\nCreate a FASTQ record from identifier, description, sequence and quality.\n\n\n\n\n\n"
 },
 
 {
@@ -693,7 +733,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FASTQ formatted files",
     "title": "Readers and Writers",
     "category": "section",
-    "text": "The reader and writer for FASTQ formatted files, are found within the BioSequences.FASTQ module.FASTQ.Reader\nFASTQ.WriterThey can be created with IOStreams:r = FASTQ.Reader(open(\"MyInput.fastq\", \"r\"))\nw = FASTQ.Writer(open(\"MyFile.fastq\", \"w\"))Note that FASTQ.Reader does not support line-wraps within sequence and quality. Usually sequence records will be read sequentially from a file by iteration.using BioSequences\nreader = FASTQ.Reader(open(\"hg38.fastq\", \"r\"))\nfor record in reader\n    # Do something\nend\nclose(reader)Reading in a record from a FASTQ formatted file will give you a variable of type FASTQ.Record.FASTQ.RecordVarious getters and setters are available for FASTQ.Records:FASTQ.hasidentifier\nFASTQ.identifier\nFASTQ.hasdescription\nFASTQ.description\nFASTQ.hassequence\nFASTQ.sequence(record::FASTQ.Record, [part::UnitRange{Int}])\nFASTQ.hasquality\nFASTQ.qualityTo write a BioSequence to FASTQ file, you first have to create a FASTQ.Record:FASTQ.Record(identifier::AbstractString, description::Union{AbstractString,Void}, sequence, quality::Vector; offset=33)As always with julia IO types, remember to close your file readers and writer after you are finished."
+    "text": "The reader and writer for FASTQ formatted files, are found within the BioSequences.FASTQ module.FASTQ.Reader\nFASTQ.WriterThey can be created with IOStreams:r = FASTQ.Reader(open(\"MyInput.fastq\", \"r\"))\nw = FASTQ.Writer(open(\"MyFile.fastq\", \"w\"))Note that FASTQ.Reader does not support line-wraps within sequence and quality. Usually sequence records will be read sequentially from a file by iteration.using BioSequences\nreader = FASTQ.Reader(open(\"hg38.fastq\", \"r\"))\nfor record in reader\n    # Do something\nend\nclose(reader)Reading in a record from a FASTQ formatted file will give you a variable of type FASTQ.Record.FASTQ.RecordVarious getters and setters are available for FASTQ.Records:FASTQ.hasidentifier\nFASTQ.identifier\nFASTQ.hasdescription\nFASTQ.description\nFASTQ.hassequence\nFASTQ.sequence(record::FASTQ.Record, [part::UnitRange{Int}])\nFASTQ.hasquality\nFASTQ.qualityTo write a BioSequence to FASTQ file, you first have to create a FASTQ.Record:FASTQ.Record(identifier::AbstractString, description::Union{AbstractString,Nothing}, sequence, quality::Vector; offset=33)As always with julia IO types, remember to close your file readers and writer after you are finished."
 },
 
 {
@@ -717,7 +757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "2bit formatted files",
     "title": "BioSequences.TwoBit.Reader",
     "category": "type",
-    "text": "TwoBit.Reader(input::IO)\n\nCreate a data reader of the 2bit file format.\n\nArguments\n\ninput: data source\n\n\n\n"
+    "text": "TwoBit.Reader(input::IO)\n\nCreate a data reader of the 2bit file format.\n\nArguments\n\ninput: data source\n\n\n\n\n\n"
 },
 
 {
@@ -725,7 +765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "2bit formatted files",
     "title": "BioSequences.TwoBit.Writer",
     "category": "type",
-    "text": "TwoBitWriter(output::IO, names::AbstractVector)\n\nCreate a data writer of the 2bit file format.\n\nArguments\n\noutput: data sink\nnames: a vector of sequence names written to output\n\n\n\n"
+    "text": "TwoBitWriter(output::IO, names::AbstractVector)\n\nCreate a data writer of the 2bit file format.\n\nArguments\n\noutput: data sink\nnames: a vector of sequence names written to output\n\n\n\n\n\n"
 },
 
 {
@@ -733,15 +773,15 @@ var documenterSearchIndex = {"docs": [
     "page": "2bit formatted files",
     "title": "BioSequences.TwoBit.Record",
     "category": "type",
-    "text": "TwoBit.Record()\n\nCreate an unfilled 2bit record.\n\n\n\nRecord()\n\nPrepare a record for writing to a 2bit formatted file.\n\nNeeds a name, a sequence, and (optionally) masks: a vector of ranges that delineate masked regions of sequence.\n\n\n\n"
+    "text": "TwoBit.Record()\n\nCreate an unfilled 2bit record.\n\n\n\n\n\nRecord(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)\n\nPrepare a record for writing to a 2bit formatted file.\n\nNeeds a name, a sequence, and (optionally) masks: a vector of ranges that delineate masked regions of sequence.\n\n\n\n\n\n"
 },
 
 {
-    "location": "io/twobit.html#BioSequences.TwoBit.Record",
+    "location": "io/twobit.html#BioSequences.TwoBit.Record-Tuple{AbstractString,Sequence,Union{Nothing, Array{UnitRange{Int64},1}}}",
     "page": "2bit formatted files",
     "title": "BioSequences.TwoBit.Record",
-    "category": "type",
-    "text": "Record()\n\nPrepare a record for writing to a 2bit formatted file.\n\nNeeds a name, a sequence, and (optionally) masks: a vector of ranges that delineate masked regions of sequence.\n\n\n\n"
+    "category": "method",
+    "text": "Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)\n\nPrepare a record for writing to a 2bit formatted file.\n\nNeeds a name, a sequence, and (optionally) masks: a vector of ranges that delineate masked regions of sequence.\n\n\n\n\n\n"
 },
 
 {
@@ -749,7 +789,7 @@ var documenterSearchIndex = {"docs": [
     "page": "2bit formatted files",
     "title": "Readers and Writers",
     "category": "section",
-    "text": "The reader and writer for 2bit formatted files, are found within the BioSequences.TwoBit module.TwoBit.Reader\nTwoBit.WriterThe 2bit reader supports random access using an index included in the header section of a .2bit file:reader = TwoBit.Reader(open(\"sacCer.2bit\", \"r\"))\nchrIV = reader[\"chrIV\"] # directly read chromosome 4If you want to know the names of the sequences available in the file, you can use the seqnames method on the reader.seqnames(reader)Reading from a TwoBit.Reader will yield a TwoBit.Record type variable:TwoBit.RecordTo write a sequence to a TwoBit file, first a record must be created.TwoBit.Record(name::AbstractString, seq::BioSequences.Sequence, masks = Nullable{Vector{UnitRange{Int}}}())"
+    "text": "The reader and writer for 2bit formatted files, are found within the BioSequences.TwoBit module.TwoBit.Reader\nTwoBit.WriterThe 2bit reader supports random access using an index included in the header section of a .2bit file:reader = TwoBit.Reader(open(\"sacCer.2bit\", \"r\"))\nchrIV = reader[\"chrIV\"] # directly read chromosome 4If you want to know the names of the sequences available in the file, you can use the seqnames method on the reader.seqnames(reader)Reading from a TwoBit.Reader will yield a TwoBit.Record type variable:TwoBit.RecordTo write a sequence to a TwoBit file, first a record must be created.TwoBit.Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing})"
 },
 
 {
@@ -773,7 +813,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Searching",
     "title": "Exact search",
     "category": "section",
-    "text": "Exact search functions search for an occurrence of the query symbol or sequence. Four functions, search, searchindex, rsearch, and rsearchindex are available:julia> seq = dna\"ACAGCGTAGCT\";\n\njulia> search(seq, DNA_G)  # search a query symbol\n4:4\n\njulia> query = dna\"AGC\";\n\njulia> search(seq, query)  # search a query sequence\n3:5\n\njulia> searchindex(seq, query)\n3\n\njulia> rsearch(seq, query)  # similar to `search` but in the reverse direction\n8:10\n\njulia> rsearchindex(seq, query)  # similar to `searchindex` but in the reverse direction\n8\nThese search functions take ambiguous symbols into account. That is, if two symbols are compatible (e.g. DNA_A and DNA_N), they match when searching an occurrence. In the following example, \'N\' is a wild card that matches any symbols:julia> search(dna\"ACNT\", DNA_N)  # \'A\' matches \'N\'\n1:1\n\njulia> search(dna\"ACNT\", dna\"CGT\")  # \'N\' matches \'G\'\n2:4\n\njulia> search(dna\"ACGT\", dna\"CNT\")  # \'G\' matches \'N\'\n2:4\nThe exact sequence search needs preprocessing phase of query sequence before searching phase. This would be enough fast for most search applications. But when searching a query sequence to large amounts of target sequences, caching the result of preprocessing may save time. The ExactSearchQuery creates such a preprocessed query object and is applicable to the search functions:julia> query = ExactSearchQuery(dna\"ATT\");\n\njulia> search(dna\"ATTTATT\", query)\n1:3\n\njulia> rsearch(dna\"ATTTATT\", query)\n5:7\n"
+    "text": "Exact search functions search for an occurrence of the query symbol or sequence.julia> seq = dna\"ACAGCGTAGCT\";\n\njulia> findfirst(DNA_G, seq)\n4\n\njulia> query = dna\"AGC\";\n\njulia> findfirst(query, seq)\n3:5\n\njulia> findlast(query, seq)\n8:10\nThese search functions take ambiguous symbols into account. That is, if two symbols are compatible (e.g. DNA_A and DNA_N), they match when searching an occurrence. In the following example, \'N\' is a wild card that matches any symbols.julia> findfirst(dna\"CGT\", dna\"ACNT\")  # \'N\' matches \'G\'\n2:4\n\njulia> findfirst(dna\"CNT\", dna\"ACGT\")  # \'G\' matches \'N\'\n2:4\nThe exception to this behaviour is if you are finding a single \'character\', in which case an ambiguous symbol is matched exactly:julia> findfirst(DNA_N, dna\"ACNT\")\n3\nThe exact sequence search needs a preprocessing phase of query sequence before the searching phase. This would be fast enough for most search applications. But when searching a query sequence to many target sequences, caching the result of preprocessing may save time. You can do this by creating an ExactSearchQuery object and re-use it for each search:julia> query = ExactSearchQuery(dna\"ATT\");\n\njulia> findfirst(query, dna\"ATTTATT\")\n1:3\n\njulia> findlast(query, dna\"ATTTATT\")\n5:7\n"
 },
 
 {
@@ -789,7 +829,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Searching",
     "title": "Regular expression search",
     "category": "section",
-    "text": "Query patterns can be described in regular expressions. The syntax supports a subset of Perl and PROSITE\'s notation.The Perl-like syntax starts with biore (biological regular expression) and ends with a symbol option: \"dna\", \"rna\" or \"aa\". For example, biore\"A+\"dna is a regular expression for DNA sequences and biore\"A+\"aa is for amino acid sequences. The symbol options can be abbreviated to its first character: \"d\", \"r\" or \"a\", respectively.Here are examples of using the regular expression for BioSequences:julia> match(biore\"A+C*\"dna, dna\"AAAACC\")\nNullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}}(RegexMatch(\"AAAACC\"))\n\njulia> match(biore\"A+C*\"d, dna\"AAAACC\")\nNullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}}}(RegexMatch(\"AAAACC\"))\n\njulia> ismatch(biore\"A+C*\"dna, dna\"AAC\")\ntrue\n\njulia> ismatch(biore\"A+C*\"dna, dna\"C\")\nfalse\nmatch always returns a Nullable object and it should be null if no match is found.The table below summarizes available syntax elements.Syntax Description Example\n| alternation \"A|T\" matches \"A\" and \"T\"\n* zero or more times repeat \"TA*\" matches \"T\", \"TA\" and \"TAA\"\n+ one or more times repeat \"TA+\" matches \"TA\" and \"TAA\"\n? zero or one time \"TA?\" matches \"T\" and \"TA\"\n{n,} n or more times repeat \"A{3,}\" matches \"AAA\" and \"AAAA\"\n{n,m} n-m times repeat \"A{3,5}\" matches \"AAA\", \"AAAA\" and \"AAAAA\"\n^ the start of the sequence \"^TAN*\" matches \"TATGT\"\n$ the end of the sequence \"N*TA$\" matches \"GCTA\"\n(...) pattern grouping \"(TA)+\" matches \"TA\" and \"TATA\"\n[...] one of symbols \"[ACG]+\" matches \"AGGC\"eachmatch, matchall, and search are also defined like usual strings:julia> matchall(biore\"TATA*?\"d, dna\"TATTATAATTA\")  # overlap (default)\n4-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:\n TAT  \n TAT  \n TATA\n TATAA\n\njulia> matchall(biore\"TATA*\"d, dna\"TATTATAATTA\", false)  # no overlap\n2-element Array{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}},1}:\n TAT  \n TATAA\n\njulia> search(dna\"TATTATAATTA\", biore\"TATA*\"d)\n1:3\n\njulia> search(dna\"TATTATAATTA\", biore\"TATA*\"d, 2)\n4:8\nNotewothy differences from strings are:Ambiguous characters match any compatible characters (e.g. biore\"N\"d is equivalent to biore\"[ACGT]\"d).\nWhitespaces are ignored (e.g. biore\"A C G\"d is equivalent to biore\"ACG\"d).The PROSITE notation is described in ScanProsite - user manual. The syntax supports almost all notations including the extended syntax. The PROSITE notation starts with prosite prefix and no symbol option is needed because it always describes patterns of amino acid sequences:julia> match(prosite\"[AC]-x-V-x(4)-{ED}\", aa\"CPVPQARG\")\nNullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.AminoAcidAlphabet}}}(RegexMatch(\"CPVPQARG\"))\n\njulia> match(prosite\"[AC]xVx(4){ED}\", aa\"CPVPQARG\")\nNullable{BioSequences.RE.RegexMatch{BioSequences.BioSequence{BioSequences.AminoAcidAlphabet}}}(RegexMatch(\"CPVPQARG\"))\n"
+    "text": "Query patterns can be described in regular expressions. The syntax supports a subset of Perl and PROSITE\'s notation.The Perl-like syntax starts with biore (BIOlogical REgular expression) and ends with a symbol option: \"dna\", \"rna\" or \"aa\". For example, biore\"A+\"dna is a regular expression for DNA sequences and biore\"A+\"aa is for amino acid sequences. The symbol options can be abbreviated to its first character: \"d\", \"r\" or \"a\", respectively.Here are examples of using the regular expression for BioSequences:julia> match(biore\"A+C*\"dna, dna\"AAAACC\")\nRegexMatch(\"AAAACC\")\n\njulia> match(biore\"A+C*\"d, dna\"AAAACC\")\nRegexMatch(\"AAAACC\")\n\njulia> occursin(biore\"A+C*\"dna, dna\"AAC\")\ntrue\n\njulia> occursin(biore\"A+C*\"dna, dna\"C\")\nfalse\nmatch always returns a Nullable object and it should be null if no match is found.The table below summarizes available syntax elements.Syntax Description Example\n| alternation \"A|T\" matches \"A\" and \"T\"\n* zero or more times repeat \"TA*\" matches \"T\", \"TA\" and \"TAA\"\n+ one or more times repeat \"TA+\" matches \"TA\" and \"TAA\"\n? zero or one time \"TA?\" matches \"T\" and \"TA\"\n{n,} n or more times repeat \"A{3,}\" matches \"AAA\" and \"AAAA\"\n{n,m} n-m times repeat \"A{3,5}\" matches \"AAA\", \"AAAA\" and \"AAAAA\"\n^ the start of the sequence \"^TAN*\" matches \"TATGT\"\n$ the end of the sequence \"N*TA$\" matches \"GCTA\"\n(...) pattern grouping \"(TA)+\" matches \"TA\" and \"TATA\"\n[...] one of symbols \"[ACG]+\" matches \"AGGC\"eachmatch and findfirst are also defined like usual strings:julia> collect(matched(x) for x in eachmatch(biore\"TATA*?\"d, dna\"TATTATAATTA\")) # overlap\n4-element Array{BioSequence{DNAAlphabet{4}},1}:\n TAT  \n TAT\n TATA\n TATAA\n\njulia> collect(matched(x) for x in eachmatch(biore\"TATA*\"d, dna\"TATTATAATTA\", false)) # no overlap\n2-element Array{BioSequence{DNAAlphabet{4}},1}:\n TAT  \n TATAA\n\njulia> findfirst(biore\"TATA*\"d, dna\"TATTATAATTA\")\n1:3\n\njulia> findfirst(biore\"TATA*\"d, dna\"TATTATAATTA\", 2)\n4:8\nNoteworthy differences from strings are:Ambiguous characters match any compatible characters (e.g. biore\"N\"d is equivalent to biore\"[ACGT]\"d).\nWhitespaces are ignored (e.g. biore\"A C G\"d is equivalent to biore\"ACG\"d).The PROSITE notation is described in ScanProsite - user manual. The syntax supports almost all notations including the extended syntax. The PROSITE notation starts with prosite prefix and no symbol option is needed because it always describes patterns of amino acid sequences:julia> match(prosite\"[AC]-x-V-x(4)-{ED}\", aa\"CPVPQARG\")\nRegexMatch(\"CPVPQARG\")\n\njulia> match(prosite\"[AC]xVx(4){ED}\", aa\"CPVPQARG\")\nRegexMatch(\"CPVPQARG\")\n"
 },
 
 {
@@ -797,7 +837,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Searching",
     "title": "Position weight matrix search",
     "category": "section",
-    "text": "A motif can also be specified using position weight matrix (PWM) in a probabilistic way. search(seq, pwm, threshold) method searches for the first position in the sequence where a score calculated using the PWM is greater than or equal to the threshold. More formally, denoting the sequence as S and the PWM value of symbol s at position j as M_sj, the score starting from a position p is defined asoperatornamescore(S p) = sum_i=1^L M_Sp+i-1iand search(S, M, t) returns the smallest p that satisfies operatornamescore(S p) ge t.There are two kinds of matrices in this package: PFM and PWM. The PFM type is a position frequency matrix and stores symbol frequencies for each position. The PWM is a position weight matrix and stores symbol scores for each position. You can create a PFM from a set of sequences with the same length and then create a PWM from the PFM object.julia> kmers = DNAKmer.([\"TTA\", \"CTA\", \"ACA\", \"TCA\", \"GTA\"])\n5-element Array{BioSequences.Kmer{BioSymbols.DNA,3},1}:\n TTA\n CTA\n ACA\n TCA\n GTA\n\njulia> pfm = PFM(kmers)  # sequence set => PFM\n4×3 BioSequences.PFM{BioSymbols.DNA,Int64}:\n A  1  0  5\n C  1  2  0\n G  1  0  0\n T  2  3  0\n\njulia> pwm = PWM(pfm)  # PFM => PWM\n4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:\n A -0.321928 -Inf       2.0\n C -0.321928  0.678072 -Inf\n G -0.321928 -Inf      -Inf\n T  0.678072  1.26303  -Inf\n\njulia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values\n4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:\n A -0.319068 -6.97728   1.99139\n C -0.319068  0.673772 -6.97728\n G -0.319068 -6.97728  -6.97728\n T  0.673772  1.25634  -6.97728\n\njulia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior\n4×3 BioSequences.PWM{BioSymbols.DNA,Float64}:\n A  0.00285965 -6.65535   2.31331\n C -0.582103    0.410737 -7.24031\n G -0.582103   -7.24031  -7.24031\n T  0.9957      1.57827  -6.65535\nThe PWM_sj matrix is computed from PFM_sj and the prior probability p(s) as follows ([Wasserman2004]):beginalign\n    PWM_sj = log_2 fracp(sj)p(s) \n    p(sj)  = fracPFM_sjsum_s PFM_sj\nendalign[Wasserman2004]: https://doi.org/10.1038/nrg1315"
+    "text": "A motif can also be specified using position weight matrix (PWM) in a probabilistic way. search(seq, pwm, threshold) method searches for the first position in the sequence where a score calculated using the PWM is greater than or equal to the threshold. More formally, denoting the sequence as S and the PWM value of symbol s at position j as M_sj, the score starting from a position p is defined asoperatornamescore(S p) = sum_i=1^L M_Sp+i-1iand search(S, M, t) returns the smallest p that satisfies operatornamescore(S p) ge t.There are two kinds of matrices in this package: PFM and PWM. The PFM type is a position frequency matrix and stores symbol frequencies for each position. The PWM is a position weight matrix and stores symbol scores for each position. You can create a PFM from a set of sequences with the same length and then create a PWM from the PFM object.julia> kmers = DNAKmer.([\"TTA\", \"CTA\", \"ACA\", \"TCA\", \"GTA\"])\n5-element Array{Kmer{DNA,3},1}:\n TTA\n CTA\n ACA\n TCA\n GTA\n\njulia> pfm = PFM(kmers)  # sequence set => PFM\n4×3 PFM{DNA,Int64}:\n A  1  0  5\n C  1  2  0\n G  1  0  0\n T  2  3  0\n\njulia> pwm = PWM(pfm)  # PFM => PWM\n4×3 PWM{DNA,Float64}:\n A -0.321928 -Inf       2.0\n C -0.321928  0.678072 -Inf\n G -0.321928 -Inf      -Inf\n T  0.678072  1.26303  -Inf\n\njulia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values\n4×3 PWM{DNA,Float64}:\n A -0.319068 -6.97728   1.99139\n C -0.319068  0.673772 -6.97728\n G -0.319068 -6.97728  -6.97728\n T  0.673772  1.25634  -6.97728\n\njulia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior\n4×3 PWM{DNA,Float64}:\n A  0.00285965 -6.65535   2.31331\n C -0.582103    0.410737 -7.24031\n G -0.582103   -7.24031  -7.24031\n T  0.9957      1.57827  -6.65535\nThe PWM_sj matrix is computed from PFM_sj and the prior probability p(s) as follows ([Wasserman2004]):beginalign\n    PWM_sj = log_2 fracp(sj)p(s) \n    p(sj)  = fracPFM_sjsum_s PFM_sj\nendalign[Wasserman2004]: https://doi.org/10.1038/nrg1315"
 },
 
 {
@@ -813,7 +853,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Sequence Composition",
     "title": "BioSequences.Composition",
     "category": "type",
-    "text": "Sequence composition.\n\nThis is a subtype of Associative{T,Int}, and the getindex method returns the number of occurrences of a symbol or a k-mer.\n\n\n\n"
+    "text": "Sequence composition.\n\nThis is a subtype of Associative{T,Int}, and the getindex method returns the number of occurrences of a symbol or a k-mer.\n\n\n\n\n\n"
 },
 
 {
@@ -821,7 +861,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Sequence Composition",
     "title": "BioSequences.composition",
     "category": "function",
-    "text": "composition(seq | kmer_iter)\n\nCalculate composition of biological symbols in seq or k-mers in kmer_iter.\n\n\n\ncomposition(iter)\n\nA generalised composition algorithm, which computes the number of unique items produced by an iterable.\n\nExample\n\n\n# Example, counting unique sequences.\n\njulia> a = dna\"AAAAAAAATTTTTT\"\n14nt DNA Sequence:\nAAAAAAAATTTTTT\n\njulia> b = dna\"AAAAAAAATTTTTT\"\n14nt DNA Sequence:\nAAAAAAAATTTTTT\n\njulia> c = a[5:10]\n6nt DNA Sequence:\nAAAATT\n\njulia> composition([a, b, c])\nVector{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}} Composition:\n  AAAATT         => 1\n  AAAAAAAATTTTTT => 2\n\n\n\n"
+    "text": "composition(seq | kmer_iter)\n\nCalculate composition of biological symbols in seq or k-mers in kmer_iter.\n\n\n\n\n\ncomposition(iter)\n\nA generalised composition algorithm, which computes the number of unique items produced by an iterable.\n\nExample\n\n\n# Example, counting unique sequences.\n\njulia> a = dna\"AAAAAAAATTTTTT\"\n14nt DNA Sequence:\nAAAAAAAATTTTTT\n\njulia> b = dna\"AAAAAAAATTTTTT\"\n14nt DNA Sequence:\nAAAAAAAATTTTTT\n\njulia> c = a[5:10]\n6nt DNA Sequence:\nAAAATT\n\njulia> composition([a, b, c])\nVector{BioSequences.BioSequence{BioSequences.DNAAlphabet{4}}} Composition:\n  AAAATT         => 1\n  AAAAAAAATTTTTT => 2\n\n\n\n\n\n"
 },
 
 {
@@ -829,7 +869,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Sequence Composition",
     "title": "Sequence composition",
     "category": "section",
-    "text": "There are many instances in analyzing sequence data where you will want to know about the composition of your sequences.For example, for a given sequence, you may want to count how many of each possible Kmer, is present in the sequence. This would be important if - for instance - you wanted to analyze the Kmer spectra of your data. Alternatively you might have a collection of sequences, and may want to count how many of each unique sequence you have in your collection. This would be important if - for instance - your collection of sequences were from a population sample, and you wanted to compute the allele or genotype frequencies for the population.Whatever the application, BioSequences provides a method called composition, and a parametric struct called Composition to both compute, and handle the results of such sequence composition calculations.Composition{T}\ncompositionFor example to get the nucleotide composition of a sequence:julia> comp = composition(dna\"ACGAG\")\nDNA Composition:\n  DNA_A => 2\n  DNA_G => 2\n  DNA_C => 1\n\njulia> comp[DNA_A]\n2\n\njulia> comp[DNA_T]\n0\nComposition structs behave like an associative collection, such as a Dict. But there are a few differences:The getindex method for Composition structs is overloaded to return a default value of 0, if a key is used that is not present in the Composition.\nThe merge! method for two Composition structs adds counts together, unlike the merge! method for other associative containers, which would overwrite the counts.merge! is used to accumulate composition statistics of multiple sequences:# initiaize an empty composition counter\ncomp = composition(dna\"\");\n\n# iterate over sequences and accumulate composition statistics into `comp`\nfor seq in seqs\n    merge!(comp, composition(seq))\nend\n\n# or functional programming style in one line\nfoldl((x, y) -> merge(x, composition(y)), composition(dna\"\"), seqs)composition is also applicable to a k-mer iterator:julia> comp = composition(each(DNAKmer{4}, dna\"ACGT\"^100));\n\njulia> comp[DNAKmer(\"ACGT\")]\n100\n\njulia> comp[DNAKmer(\"CGTA\")]\n99\n"
+    "text": "There are many instances in analyzing sequence data where you will want to know about the composition of your sequences.For example, for a given sequence, you may want to count how many of each possible Kmer, is present in the sequence. This would be important if - for instance - you wanted to analyze the Kmer spectra of your data. Alternatively you might have a collection of sequences, and may want to count how many of each unique sequence you have in your collection. This would be important if - for instance - your collection of sequences were from a population sample, and you wanted to compute the allele or genotype frequencies for the population.Whatever the application, BioSequences provides a method called composition, and a parametric struct called Composition to both compute, and handle the results of such sequence composition calculations.Composition{T}\ncompositionFor example to get the nucleotide composition of a sequence:julia> comp = composition(dna\"ACGAG\")\nDNA Composition:\n  DNA_G => 2\n  DNA_A => 2\n  DNA_C => 1\n\njulia> comp[DNA_A]\n2\n\njulia> comp[DNA_T]\n0\nComposition structs behave like an associative collection, such as a Dict. But there are a few differences:The getindex method for Composition structs is overloaded to return a default value of 0, if a key is used that is not present in the Composition.\nThe merge! method for two Composition structs adds counts together, unlike the merge! method for other associative containers, which would overwrite the counts.merge! is used to accumulate composition statistics of multiple sequences:# initiaize an empty composition counter\ncomp = composition(dna\"\");\n\n# iterate over sequences and accumulate composition statistics into `comp`\nfor seq in seqs\n    merge!(comp, composition(seq))\nend\n\n# or functional programming style in one line\nfoldl((x, y) -> merge(x, composition(y)), composition(dna\"\"), seqs)composition is also applicable to a k-mer iterator:julia> comp = composition(each(DNAKmer{4}, dna\"ACGT\"^100));\n\njulia> comp[DNAKmer(\"ACGT\")]\n100\n\njulia> comp[DNAKmer(\"CGTA\")]\n99\n"
 },
 
 {
