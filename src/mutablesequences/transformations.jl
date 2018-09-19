@@ -203,67 +203,37 @@ Create a sequence which is the reverse of the bioloigcal sequence `seq`.
 """
 Base.reverse(seq::GeneralSequence) = reverse!(copy(seq))
 
-#TODO: See about making this a non-generated functon that uses dispatch and traits.
-@generated function Base.reverse(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
-    #TODO: Resolve use of bits per symbol.
-    n = bits_per_symbol(A())
-    if n == 2
-        nucrev = :nucrev2
-    elseif n == 4
-        nucrev = :nucrev4
-else
-        error("n (= $n) ∉ (2, 4)")
-    end
-
-    quote
-        data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
-        i = 1
-        next = BitIndex(seq, lastindex(seq))
-        stop = BitIndex(seq, 0)
-        r = rem(offset(next) + $n, 64)
-        if r == 0
-            @inbounds while next - stop > 0
-                x = seq.data[index(next)]
-                data[i] = $nucrev(x)
-                i += 1
-                next -= 64
-            end
-        else
-            @inbounds while next - stop > 64
-                j = index(next)
-                x = (seq.data[j] << (64 - r)) | (seq.data[j-1] >> r)
-                data[i] = $nucrev(x)
-                i += 1
-                next -= 64
-            end
-            if next - stop > 0
-                j = index(next)
-                x = seq.data[j] << (64 - r)
-                if r < next - stop
-                    x |= seq.data[j-1] >> r
-                end
-                data[i] = $nucrev(x)
-            end
+function Base.reverse(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet}
+    data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
+    i = 1
+    next = lastbitindex(seq)
+    stop = bitindex(seq, 0)
+    r = rem(offset(next) + bits_per_symbol(seq), 64)
+    if r == 0
+        @inbounds while next - stop > 0
+            x = seq.data[index(next)]
+            data[i] = reversebits(x, BitsPerSymbol(seq))
+            i += 1
+            next -= 64
         end
-        return GeneralSequence{A}(data, 1:length(seq), false)
+    else
+        @inbounds while next - stop > 64
+            j = index(next)
+            x = (seq.data[j] << (64 - r)) | (seq.data[j - 1] >> r)
+            data[i] = reversebits(x, BitsPerSymbol(seq))
+            i += 1
+            next -= 64
+        end
+        if next - stop > 0
+            j = index(next)
+            x = seq.data[j] << (64 - r)
+            if r < next - stop
+                x |= seq.data[j - 1] >> r
+            end
+            data[i] = reversebits(x, BitsPerSymbol(seq))
+        end
     end
-end
-
-@inline function nucrev2(x::UInt64)
-     x = (x & 0x3333333333333333) <<  2 | (x & 0xCCCCCCCCCCCCCCCC) >>  2
-     x = (x & 0x0F0F0F0F0F0F0F0F) <<  4 | (x & 0xF0F0F0F0F0F0F0F0) >>  4
-     x = (x & 0x00FF00FF00FF00FF) <<  8 | (x & 0xFF00FF00FF00FF00) >>  8
-     x = (x & 0x0000FFFF0000FFFF) << 16 | (x & 0xFFFF0000FFFF0000) >> 16
-     x = (x & 0x00000000FFFFFFFF) << 32 | (x & 0xFFFFFFFF00000000) >> 32
-     return x
-end
-
-@inline function nucrev4(x::UInt64)
-     x = (x & 0x0F0F0F0F0F0F0F0F) <<  4 | (x & 0xF0F0F0F0F0F0F0F0) >>  4
-     x = (x & 0x00FF00FF00FF00FF) <<  8 | (x & 0xFF00FF00FF00FF00) >>  8
-     x = (x & 0x0000FFFF0000FFFF) << 16 | (x & 0xFFFF0000FFFF0000) >> 16
-     x = (x & 0x00000000FFFFFFFF) << 32 | (x & 0xFFFFFFFF00000000) >> 32
-     return x
+    return GeneralSequence{A}(data, 1:length(seq), false)
 end
 
 """
@@ -273,8 +243,8 @@ Make a complement sequence of `seq` in place.
 """
 function complement!(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet{2}}
     orphan!(seq)
-    next = BitIndex(seq, 1)
-    stop = BitIndex(seq, lastindex(seq) + 1)
+    next = firstbitindex(seq)
+    stop = bitindex(seq, lastindex(seq) + 1)
     @inbounds while next < stop
         seq.data[index(next)] = ~seq.data[index(next)]
         next += 64
@@ -289,8 +259,8 @@ Transform `seq` into it's complement.
 """
 function complement!(seq::GeneralSequence{A}) where {A<:NucleicAcidAlphabet{4}}
     orphan!(seq)
-    next = BitIndex(seq, 1)
-    stop = BitIndex(seq, lastindex(seq) + 1)
+    next = firstbitindex(seq)
+    stop = bitindex(seq, lastindex(seq) + 1)
     @inbounds while next < stop
         x = seq.data[index(next)]
         seq.data[index(next)] = (

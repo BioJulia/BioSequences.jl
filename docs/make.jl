@@ -26,10 +26,12 @@ makedocs(
         ],
 
         "Developer Notes" => [
-            "Biological Symbols" => "dev_docs/symbols.md",
-            "Biological Sequences" => [
+        
+            "Biological symbols" => "dev_docs/symbols.md",
+            "Biological sequence types" => [
                 "BioSequence" => "dev_docs/sequences/biosequence.md"
             ],
+            "BitIndex" => "dev_docs/bitindex.md"
         ]
     ],
     authors = "Ben J. Ward, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors."

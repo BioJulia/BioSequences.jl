@@ -36,7 +36,7 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
     end
 end
 
-# Convert from a MutableBioSequence to to a DNA or RNA vector
+# Convert from a GeneralSequence to to a DNA or RNA vector
 function Base.convert(::Type{GeneralSequence{A}}, seq::Vector) where A<:Alphabet
     return GeneralSequence{A}(seq)
 end
@@ -49,10 +49,11 @@ function Base.convert(::Type{Vector{RNA}}, seq::GeneralSequence{<:RNAAlphabet})
 end
 Base.convert(::Type{Vector{AminoAcid}}, seq::AminoAcidSequence) = collect(seq)
 
-# Covert from a string to a BioSequence and _vice versa_.
+#= Covert from a string to a BioSequence and _vice versa_.
 function Base.convert(::Type{S}, seq::GeneralSequence) where {S<:AbstractString}
     return S([Char(x) for x in seq])
 end
 Base.String(seq::GeneralSequence) = convert(String, seq)
+=#
 Base.convert(::Type{GeneralSequence{A}}, seq::AbstractString) where A = GeneralSequence{A}(seq)
 

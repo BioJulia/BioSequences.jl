@@ -9,6 +9,7 @@
 module BioSequences
 
 export
+    # Symbols
     NucleicAcid,
     DNA,
     RNA,
@@ -55,6 +56,37 @@ export
     isgap,
     ispurine,
     ispyrimidine,
+    AminoAcid,
+    AA_A,
+    AA_R,
+    AA_N,
+    AA_D,
+    AA_C,
+    AA_Q,
+    AA_E,
+    AA_G,
+    AA_H,
+    AA_I,
+    AA_L,
+    AA_K,
+    AA_M,
+    AA_F,
+    AA_P,
+    AA_S,
+    AA_T,
+    AA_W,
+    AA_Y,
+    AA_V,
+    AA_O,
+    AA_U,
+    AA_B,
+    AA_J,
+    AA_Z,
+    AA_X,
+    AA_Term,
+    AA_Gap,
+    
+    # BioSequences
     BioSequence,
     GeneralSequence,
     DNASequence,
@@ -103,42 +135,16 @@ export
     Composition,
     composition,
     NucleicAcidCounts,
+    Skipmer,
     Kmer,
+    BigSkipmer,
+    BigKmer,
     DNAKmer,
     RNAKmer,
     DNACodon,
     RNACodon,
     translate,
     ncbi_trans_table,
-    AminoAcid,
-    AA_A,
-    AA_R,
-    AA_N,
-    AA_D,
-    AA_C,
-    AA_Q,
-    AA_E,
-    AA_G,
-    AA_H,
-    AA_I,
-    AA_L,
-    AA_K,
-    AA_M,
-    AA_F,
-    AA_P,
-    AA_S,
-    AA_T,
-    AA_W,
-    AA_Y,
-    AA_V,
-    AA_O,
-    AA_U,
-    AA_B,
-    AA_J,
-    AA_Z,
-    AA_X,
-    AA_Term,
-    AA_Gap,
     FASTA,
     FASTQ,
     TwoBit,
@@ -193,22 +199,29 @@ import IndexableBitVectors
 import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
-    count_zero_nibbles,
+    count_0000_nibbles,
+    count_1111_nibbles,
     count_nonzero_nibbles,
-    count_zero_bitpairs,
-    count_nonzero_bitpairs
+    count_00_bitpairs,
+    count_01_bitpairs,
+    count_10_bitpairs,
+    count_11_bitpairs,
+    count_nonzero_bitpairs,
+    repeatbyte
 using Random
 
 BioSymbols.gap(::Type{Char}) = '-'
 
 include("trait_definitions/alphabet.jl")
-include("seq_types/biosequences/biosequence.jl")
-include("seq_types/mutablesequences/mutableseq.jl")
-include("seq_types/mutablesequences/hash.jl")
-include("seq_types/mutablesequences/randseq.jl")
-include("seq_types/kmers/kmer.jl")
+include("bit-manipulation/bit-manipulation.jl")
+include("biosequences/biosequence.jl")
+include("mutablesequences/mutableseq.jl")
+include("mutablesequences/hash.jl")
+include("mutablesequences/randseq.jl")
+include("shortsequence/shortsequence.jl")
+include("kmers/kmer.jl")
 include("nmask.jl")
-include("seq_types/refseq/refseq.jl")
+include("refseq/refseq.jl")
 include("eachkmer.jl")
 include("composition.jl")
 include("geneticcode.jl")

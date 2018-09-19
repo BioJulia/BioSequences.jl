@@ -1,4 +1,4 @@
-julia 0.7
+julia 1.0
 Automa 0.7
 BioCore 2.0.2
 BioSymbols 3.1.0
@@ -6,4 +6,4 @@ BufferedStreams
 Combinatorics
 IndexableBitVectors 1.0.0
 IntervalTrees
-Twiddle 1.0.0
+Twiddle 1.1.0

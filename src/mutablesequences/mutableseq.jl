@@ -23,7 +23,7 @@
 # decoder that is a pair of the encoder. The length of encoded binary bits is
 # fixed, and hence a character at arbitrary position can be extracted in a
 # constant time. To know the exact location of a character at a position, you
-# can use the `bitsof(seq, i)` function, which returns a pair of element's index
+# can use the `bitindex(seq, i)` function, which returns a pair of element's index
 # containing binary bits and bits' offset. As a whole, character extraction
 # `seq[i]` can be written as:
 #
@@ -63,8 +63,6 @@ const CharSequence      = GeneralSequence{CharAlphabet}
 # Required type traits and methods
 # ================================
 
-Base.length(seq::GeneralSequence) = length(seq.part)
-
 "Gets the alphabet encoding of a given BioSequence."
 BioSymbols.alphabet(::Type{GeneralSequence{A}}) where {A} = alphabet(A)
 Alphabet(::Type{GeneralSequence{A}}) where {A <: Alphabet} = A()
@@ -77,6 +75,9 @@ Base.eltype(::Type{GeneralSequence{A}}) where {A} = eltype(A)
     return cld(len, div(64, bits_per_symbol(A())))
 end
 
+@inbounds function encoded_data(seq::GeneralSequence)
+    return seq.data
+end
 
 
 # Replace a GeneralSequence's data with a copy, copying only what's needed.
@@ -90,12 +91,12 @@ function orphan!(seq::GeneralSequence{A},
         return seq
     end
 
-    j, r = BitIndex(seq, 1)
+    j, r = bitindex(seq, 1)
     data = Vector{UInt64}(undef, seq_data_len(A, size))
 
     if !isempty(seq) && !isempty(data)
         x = seq.data[j] >> r
-        m = index(BitIndex(seq, lastindex(seq))) - j + 1
+        m = index(bitindex(seq, lastindex(seq))) - j + 1
         l = min(lastindex(data), m)
         @inbounds @simd for i in 1:l-1
             y = seq.data[j + i]

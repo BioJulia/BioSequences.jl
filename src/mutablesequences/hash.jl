@@ -60,15 +60,15 @@ macro murmur()
 end
 
 # ref: MurmurHash3_x64_128
-function Base.hash(seq::MutableBioSequence, seed::UInt64)
+function Base.hash(seq::GeneralSequence, seed::UInt64)
     # Mix sequence length so that dna"A" and dna"AA"
     # return the different hash values.
     h1::UInt64 = h2::UInt64 = hash(length(seq), seed)
     c1 = 0x87c37b91114253d5
     c2 = 0x4cf5ad432745937f
 
-    next = BitIndex(seq, 1)
-    last = BitIndex(seq, lastindex(seq) + 1)
+    next = bitindex(seq, 1)
+    last = bitindex(seq, lastindex(seq) + 1)
 
     k1::UInt64 = 0
     k2::UInt64 = 0

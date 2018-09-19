@@ -322,14 +322,14 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}};
+function translate(seq::Union{RNASequence, GeneralSequence{RNAAlphabet{2}}};
                    code::GeneticCode=standard_genetic_code,
                    allow_ambiguous_codons::Bool = true,
 		   alternative_start::Bool = false)
     return translate(seq, code, allow_ambiguous_codons, alternative_start)
 end
 
-function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
+function translate(seq::Union{RNASequence, GeneralSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
     aaseqlen, r = divrem(length(seq), 3)
     if r != 0
         error("RNASequence length is not divisible by three. Cannot translate.")
@@ -368,8 +368,8 @@ function translate(seq::DNASequence; kwargs...)
     return translate(convert(RNASequence, seq); kwargs...)
 end
 
-function translate(seq::BioSequence{DNAAlphabet{2}}; kwargs...)
-    return translate(convert(BioSequence{RNAAlphabet{2}}, seq); kwargs...)
+function translate(seq::GeneralSequence{DNAAlphabet{2}}; kwargs...)
+    return translate(convert(GeneralSequence{RNAAlphabet{2}}, seq); kwargs...)
 end
 
 function try_translate_ambiguous_codon(code::GeneticCode,

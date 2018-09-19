@@ -74,7 +74,7 @@
         end
 
         @testset "AminoAcid" begin
-            @test encode(AminoAcidAlphabet, AA_A) === 0x00
+            @test encode(AminoAcidAlphabet(), AA_A) === 0x00
             for aa in BioSymbols.alphabet(AminoAcid)
                 @test encode(AminoAcidAlphabet(), aa) === convert(UInt8, aa)
             end

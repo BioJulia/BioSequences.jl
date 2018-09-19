@@ -123,4 +123,25 @@ global reps = 10
         @test_throws LoadError eval(:(kmer"ACGN"))
         @test_throws LoadError eval(:(kmer"ACG-"))
     end
+    
+    @testset "Capacity" begin
+        @test BioSequences.capacity(DNAKmer(random_dna_kmer(10))) == 32
+        @test BioSequences.capacity(RNAKmer(random_rna_kmer(10))) == 32
+        @test BioSequences.capacity(DNAKmer(random_dna_kmer(32))) == 32
+        @test BioSequences.capacity(RNAKmer(random_rna_kmer(32))) == 32
+    end
+    
+    @testset "N unused" begin
+        @test BioSequences.n_unused(DNAKmer(random_dna_kmer(10))) == 22
+        @test BioSequences.n_unused(RNAKmer(random_rna_kmer(10))) == 22
+        @test BioSequences.n_unused(DNAKmer(random_dna_kmer(32))) == 0
+        @test BioSequences.n_unused(RNAKmer(random_rna_kmer(32))) == 0
+    end
+    
+    @testset "Span" begin
+        @test BioSequences.span(DNAKmer(random_dna_kmer(10))) == 10
+        @test BioSequences.span(RNAKmer(random_rna_kmer(10))) == 10
+        @test BioSequences.span(DNAKmer(random_dna_kmer(32))) == 32
+        @test BioSequences.span(RNAKmer(random_rna_kmer(32))) == 32
+    end
 end

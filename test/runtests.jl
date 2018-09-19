@@ -72,7 +72,7 @@ function random_seq(n::Integer, nts, probs)
     return String(x)
 end
 
-function random_seq{A<:Alphabet}(::Type{A}, n::Integer)
+function random_seq(::Type{A}, n::Integer) where {A<:Alphabet}
     # TODO: Resolve the use of symbols(A()).
     nts = symbols(A())
     probs = Vector{Float64}(undef, length(nts))
