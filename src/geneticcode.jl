@@ -310,13 +310,13 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 # -----------
 
 """
-    translate(rna_seq, code=standard_genetic_code, allow_ambiguous_codons=true)
+    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true)
 
-Translate an `RNASequence` to an `AminoAcidSequence`.
+Translate an `RNASequence` or a `DNASequence` to an `AminoAcidSequence`.
 
 Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.
-If codons in the given RNA sequence cannot determine a unique amino acid, they
+If codons in the given sequence cannot determine a unique amino acid, they
 will be translated to `AA_X` if `allow_ambiguous_codons` is `true` and otherwise
 result in an error.
 """
@@ -356,6 +356,10 @@ function translate(seq::RNASequence, code::GeneticCode, allow_ambiguous_codons::
         j += 1
     end
     return aaseq
+end
+
+function translate(seq::DNASequence; kwargs...)
+    return translate(convert(RNASequence, seq); kwargs...)
 end
 
 function try_translate_ambiguous_codon(code::GeneticCode,
