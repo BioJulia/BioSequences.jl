@@ -444,7 +444,8 @@ we describe it here in more detail.
 The [`translate`](@ref) funtion translates a sequence of codons in a RNA sequence
 to a amino acid sequence besed on a genetic code mapping. The `BioSequences` module
 contains all NCBI defined genetic codes and they are registered in
-[`ncbi_trans_table`](@ref).
+[`ncbi_trans_table`](@ref). DNA sequences are automatically converted to RNA before
+being translated.
 
 ```@docs
 translate
