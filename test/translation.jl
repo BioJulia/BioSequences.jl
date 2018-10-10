@@ -45,6 +45,9 @@
     @test translate(rna"YUGMGG") == aa"LR"
     @test translate(rna"GAYGARGAM") == aa"DEX"
 
+    # DNASequence
+    @test translate(dna"ATGTAA") == aa"M*"
+
     @test_throws Exception translate(rna"ACGUACGU")  # can't translate non-multiples of three
     # can't translate N
     @test_throws Exception translate(rna"ACGUACGNU", allow_ambiguous_codons=false)
