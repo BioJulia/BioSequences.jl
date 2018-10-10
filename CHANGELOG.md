@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Automatic convertion of `DNASequence` to `RNASequence` when translating sequences.
+- Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
 
 ## [1.0.0] - 2018-08-23
 ### Added
