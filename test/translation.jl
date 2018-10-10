@@ -45,6 +45,10 @@
     @test translate(rna"YUGMGG") == aa"LR"
     @test translate(rna"GAYGARGAM") == aa"DEX"
 
+    # BioSequences{RNAAlphabet{2}}
+    @test translate(BioSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
+    @test translate(BioSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
+
     # DNASequence
     @test translate(dna"ATGTAA") == aa"M*"
 

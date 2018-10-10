@@ -320,13 +320,13 @@ If codons in the given sequence cannot determine a unique amino acid, they
 will be translated to `AA_X` if `allow_ambiguous_codons` is `true` and otherwise
 result in an error.
 """
-function translate(seq::RNASequence;
+function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}};
                    code::GeneticCode=standard_genetic_code,
                    allow_ambiguous_codons::Bool = true)
     return translate(seq, code, allow_ambiguous_codons)
 end
 
-function translate(seq::RNASequence, code::GeneticCode, allow_ambiguous_codons::Bool)
+function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool)
     aaseqlen, r = divrem(length(seq), 3)
     if r != 0
         error("RNASequence length is not divisible by three. Cannot translate.")
@@ -360,6 +360,10 @@ end
 
 function translate(seq::DNASequence; kwargs...)
     return translate(convert(RNASequence, seq); kwargs...)
+end
+
+function translate(seq::BioSequence{DNAAlphabet{2}}, kwargs...)
+    return translate(convert(BioSequence{RNAAlphabet{2}}, seq), kwargs...)
 end
 
 function try_translate_ambiguous_codon(code::GeneticCode,
