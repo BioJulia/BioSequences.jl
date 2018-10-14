@@ -309,8 +309,6 @@ end
     reverse_complement!(seq)
 
 Make a reversed complement sequence of `seq` in place.
-
-Ambiguous nucleotides are left as-is.
 """
 function reverse_complement!(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(reverse!(seq))
@@ -320,8 +318,6 @@ end
     reverse_complement(seq)
 
 Make a reversed complement sequence of `seq`.
-
-Ambiguous nucleotides are left as-is.
 """
 function reverse_complement(seq::BioSequence{A}) where {A<:NucAlphs}
     return complement!(reverse(seq))

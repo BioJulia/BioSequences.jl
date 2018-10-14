@@ -74,8 +74,7 @@ function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}
         end
     else
         for (_, x) in iter
-            get!(counts, x, 0)
-            counts[x] += 1
+            counts[x] = get(counts, x, 0) + 1
         end
     end
     return Composition{T}(counts)

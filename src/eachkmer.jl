@@ -17,7 +17,9 @@
 # increment is how far the index jumps ahead when going to the next kmer.
 # for close kmers where no jump is possible, it's 1, else it can be arbitrary high.
 #
-#       |---------- step --------|
+# For a kmeriterator that first emits xxxxxxx, then zzzzzzz:
+#
+#       |--------- step ---------|
 #       xxxxxxx                  zzzzzzz
 # -------------------------------------------------------------
 #           yyyyyyy
@@ -65,7 +67,7 @@ end
 function each(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1) where {T,K}
     if eltype(seq) ∉ (DNA, RNA)
         throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
-    elseif !(0 ≤ K ≤ 32)
+    elseif !(1 ≤ K ≤ 32)
         throw(ArgumentError("k-mer length must be between 0 and 32"))
     elseif step < 1
         throw(ArgumentError("step size must be positive"))
@@ -84,9 +86,15 @@ eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet
 eachkmer(seq::ReferenceSequence, K::Integer, step::Integer=1) = each(DNAKmer{Int(K)}, seq, step)
 
 Base.eltype(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
-Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
+) where {T,S<:Union{ReferenceSequence, BioSequence{<:FourBitNucs}}} = Base.SizeUnknown()
+Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
+) where {T,S<:BioSequence{<:TwoBitNucs}} = Base.HasLength()
 
-positions(::Type{Kmer{T, K}}) where {T, K} = max(1, K) # Only to handle K = 0
+function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:TwoBitNucs}}
+    return max(0, fld(it.stop - it.start + 1 - kmersize(T), step(it)) + 1)
+end
+
 Base.step(x::EveryKmerIterator) = 1
 Base.step(x::SpacedKmerIterator) = x.step
 
@@ -106,7 +114,7 @@ function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:T
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
         filled += 1
-        if filled == positions(T)
+        if filled == kmersize(T)
             return (1, T(kmer)), (i, kmer)
         end
         i += 1
@@ -125,7 +133,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
-        pos = i - positions(T) + 1
+        pos = i - kmersize(T) + 1
         return (pos, T(kmer)), (i, kmer)
     end
 end
@@ -141,8 +149,8 @@ function Base.iterate(it::SpacedKmerIterator{T,S}, state
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
         filled += 1
-        if filled == positions(T)
-            pos = i - positions(T) + 1
+        if filled == kmersize(T)
+            pos = i - kmersize(T) + 1
             return (pos, T(kmer)), (i, kmer)
         end
         i += 1
@@ -162,9 +170,9 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
         kmer = kmer << 2 | val
         filled = ifelse(val == 0xff, 0, filled+1)
 
-        if filled == positions(T)
-            pos = i - positions(T) + 1
-            return (pos, T(kmer)), (i, positions(T), kmer)
+        if filled == kmersize(T)
+            pos = i - kmersize(T) + 1
+            return (pos, T(kmer)), (i, kmersize(T), kmer)
         end
         i += 1
     end
@@ -188,8 +196,8 @@ end
             filled += 1
             kmer = kmer << 2 | val
         end
-        if filled == positions(T)
-            state = (i, i - positions(T) + 1 + it.step, it.filled, kmer)
+        if filled == kmersize(T)
+            state = (i, i - kmersize(T) + 1 + it.step, it.filled, kmer)
             return (pos, T(kmer)), state
         end
         i += 1
