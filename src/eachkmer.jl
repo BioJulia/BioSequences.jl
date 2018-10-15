@@ -81,9 +81,18 @@ function each(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1) where {T,K}
     end
 end
 
-eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet} = each(DNAKmer{Int(K)}, seq, step)
-eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet} = each(RNAKmer{Int(K)}, seq, step)
-eachkmer(seq::ReferenceSequence, K::Integer, step::Integer=1) = each(DNAKmer{Int(K)}, seq, step)
+function eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet}
+    Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
+    return each(DNAKmer{Int(K)}, seq, step)
+end
+function eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet}
+    Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
+    return each(RNAKmer{Int(K)}, seq, step)
+end
+function eachkmer(seq::ReferenceSequence, K::Integer, step::Integer=1)
+    Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
+    return each(DNAKmer{Int(K)}, seq, step)
+end
 
 Base.eltype(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
