@@ -123,36 +123,18 @@ end
 
 function dna_complement(seq::AbstractString)
     seqc = Vector{Char}(undef, length(seq))
+    complementer = Dict(zip("-ACGTSWYRKMDVHBN", "-TGCASWRYMKHBDVN"))
     for (i, c) in enumerate(seq)
-        if c     ==   'A'
-            seqc[i] = 'T'
-        elseif c ==   'C'
-            seqc[i] = 'G'
-        elseif c ==   'G'
-            seqc[i] = 'C'
-        elseif c ==   'T'
-            seqc[i] = 'A'
-        else
-            seqc[i] = seq[i]
-        end
+        seqc[i] = complementer[c]
     end
     return String(seqc)
 end
 
 function rna_complement(seq::AbstractString)
     seqc = Vector{Char}(undef, length(seq))
+    complementer = Dict(zip("-ACGUSWYRKMDVHBN", "-UGCASWRYMKHBDVN"))
     for (i, c) in enumerate(seq)
-        if c == 'A'
-            seqc[i] = 'U'
-        elseif c == 'C'
-            seqc[i] = 'G'
-        elseif c == 'G'
-            seqc[i] = 'C'
-        elseif c == 'U'
-            seqc[i] = 'A'
-        else
-            seqc[i] = seq[i]
-        end
+        seqc[i] = complementer[c]
     end
     return String(seqc)
 end

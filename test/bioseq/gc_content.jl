@@ -6,7 +6,6 @@
     @test gc_content(dna"ACATTGTGTATAACAAAAGG") === 6 / 20
     @test gc_content(dna"GAGGCGTTTATCATC"[2:end]) === 6 / 14
 
-    @test gc_content(DNAKmer("")) === 0.0
     @test gc_content(DNAKmer("AATA")) === 0.0
     @test gc_content(DNAKmer("ACGT")) === 0.5
     @test gc_content(DNAKmer("CGGC")) === 1.0
@@ -19,7 +18,6 @@
     @test gc_content(rna"ACAUUGUGUAUAACAAAAGG") === 6 / 20
     @test gc_content(rna"GAGGCGUUUAUCAUC"[2:end]) === 6 / 14
 
-    @test gc_content(RNAKmer("")) === 0.0
     @test gc_content(RNAKmer("AAUA")) === 0.0
     @test gc_content(RNAKmer("ACGU")) === 0.5
     @test gc_content(RNAKmer("CGGC")) === 1.0

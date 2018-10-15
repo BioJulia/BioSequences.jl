@@ -58,7 +58,7 @@ function Composition(seq::AminoAcidSequence)
     return Composition{AminoAcid}(count_array2dict(counts, alphabet(AminoAcid)))
 end
 
-function Composition(iter::EachKmerIterator{T}) where {T<:Kmer}
+function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}
     counts = Dict{T,Int}()
     if kmersize(T) ≤ 8
         # This is faster for short k-mers.
@@ -74,8 +74,7 @@ function Composition(iter::EachKmerIterator{T}) where {T<:Kmer}
         end
     else
         for (_, x) in iter
-            get!(counts, x, 0)
-            counts[x] += 1
+            counts[x] = get(counts, x, 0) + 1
         end
     end
     return Composition{T}(counts)
@@ -86,7 +85,7 @@ end
 
 Calculate composition of biological symbols in `seq` or k-mers in `kmer_iter`.
 """
-function composition(iter::Union{Sequence,EachKmerIterator})
+function composition(iter::Union{Sequence,AbstractKmerIterator})
     return Composition(iter)
 end
 

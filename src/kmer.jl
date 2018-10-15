@@ -52,14 +52,10 @@ end
 # Conversion
 # ----------
 
-function DNAKmer{K}(x::UInt64) where {K}
+function Kmer{T, K}(x::UInt64) where {T, K}
+    checkkmer(Kmer{T,K})
     mask = ~UInt64(0) >> (64 - 2K)
-    return reinterpret(DNAKmer{K}, x & mask)
-end
-
-function RNAKmer{K}(x::UInt64) where {K}
-    mask = ~UInt64(0) >> (64 - 2K)
-    return reinterpret(RNAKmer{K}, x & mask)
+    return reinterpret(Kmer{T, K}, x & mask)
 end
 
 UInt64(x::Kmer) = reinterpret(UInt64, x)
@@ -157,8 +153,8 @@ function Base.typemax(::Type{Kmer{T,K}}) where {T,K}
 end
 
 @inline function checkkmer(::Type{Kmer{T,K}}) where {T,K}
-    if !(0 ≤ K ≤ 32)
-        throw(ArgumentError("the length K must be within 0..32"))
+    if !(1 ≤ K ≤ 32)
+        throw(ArgumentError("the length K must be within 1..32"))
     end
 end
 

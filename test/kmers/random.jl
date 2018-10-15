@@ -1,5 +1,5 @@
 @testset "Random" begin
-    @testset for k in 0:32
+    @testset for k in 1:32
         for _ in 1:10
             kmer = rand(DNAKmer{k})
             @test isa(kmer, DNAKmer{k})
