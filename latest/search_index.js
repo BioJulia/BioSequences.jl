@@ -277,7 +277,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "Base.append!",
     "category": "function",
-    "text": "append!(collection, collection2) -> collection.\n\nAdd the elements of collection2 to the end of collection.\n\nExamples\n\njulia> append!([1],[2,3])\n3-element Array{Int64,1}:\n 1\n 2\n 3\n\njulia> append!([1, 2, 3], [4, 5, 6])\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse push! to add individual items to collection which are not already themselves in another collection. The result is of the preceding example is equivalent to push!([1, 2, 3], 4, 5, 6).\n\n\n\n\n\nWrite part of a byte array.\n\n\n\n\n\nappend!(cb, datavec)\n\nPush at most last capacity items.\n\n\n\n\n\nappend!(seq, other)\n\nAdd a biological sequence other onto the end of biological sequence seq. Modifies and returns seq.\n\n\n\n\n\n"
+    "text": "append!(collection, collection2) -> collection.\n\nAdd the elements of collection2 to the end of collection.\n\nExamples\n\njulia> append!([1],[2,3])\n3-element Array{Int64,1}:\n 1\n 2\n 3\n\njulia> append!([1, 2, 3], [4, 5, 6])\n6-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n 5\n 6\n\nUse push! to add individual items to collection which are not already themselves in another collection. The result of the preceding example is equivalent to push!([1, 2, 3], 4, 5, 6).\n\n\n\n\n\nappend!(cb, datavec)\n\nPush at most last capacity items.\n\n\n\n\n\nWrite part of a byte array.\n\n\n\n\n\nappend!(seq, other)\n\nAdd a biological sequence other onto the end of biological sequence seq. Modifies and returns seq.\n\n\n\n\n\n"
 },
 
 {
@@ -317,7 +317,7 @@ var documenterSearchIndex = {"docs": [
     "page": "BioSequence",
     "title": "BioSequences.reverse_complement!",
     "category": "function",
-    "text": "reverse_complement!(seq)\n\nMake a reversed complement sequence of seq in place.\n\nAmbiguous nucleotides are left as-is.\n\n\n\n\n\n"
+    "text": "reverse_complement!(seq)\n\nMake a reversed complement sequence of seq in place.\n\n\n\n\n\n"
 },
 
 {
