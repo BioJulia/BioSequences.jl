@@ -8,6 +8,6 @@ julia:
 notifications:
   email: false
 after_success:
-  - julia -e 'using Pkg; Pkg.add("Documenter"); Pkg.add("Coverage"); Pkg.add("BioSequences")'
+  - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps); Pkg.add("Coverage"); Pkg.add("BioSequences")'
   - julia -e 'using Coverage; import BioSequences; cd(dirname(dirname(pathof(BioSequences)))); Codecov.submit(process_folder())'
   - julia --color=yes -e 'import BioSequences; cd(dirname(dirname(pathof(BioSequences)))); include(joinpath("docs", "make.jl"))'
