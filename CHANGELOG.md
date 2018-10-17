@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
 - Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
 - Add `alternative_start` keyword argument to translate().
 - Add abstract type for kmer iterators
