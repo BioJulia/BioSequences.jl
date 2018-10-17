@@ -1,5 +1,5 @@
 @testset "Shuffle" begin
-    for s in ["", "A", "C", "G", "T"]
+    for s in ["A", "C", "G", "T"]
         kmer = DNAKmer(s)
         @test kmer === shuffle(kmer)
     end
@@ -15,7 +15,7 @@
         return a, c, g, t
     end
 
-    for k in 0:32, _ in 1:10
+    for k in 1:32, _ in 1:10
         kmer = rand(DNAKmer{k})
         @test count(kmer) == count(shuffle(kmer))
         if k ≥ 30

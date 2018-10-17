@@ -19,12 +19,10 @@
 
     @testset "Iteration through DNA Kmer" begin
         @test iterate(DNAKmer("ACTG")) == (DNA_A, 2)
-        @test iterate(DNAKmer(""))     === nothing
 
         @test iterate(DNAKmer("ACTG"), 1) == (DNA_A, 2)
         @test iterate(DNAKmer("ACTG"), 4) == (DNA_G, 5)
 
-        @test iterate(DNAKmer(""), 1)      === nothing
         @test iterate(DNAKmer("ACTG"), 1)  !== nothing
         @test iterate(DNAKmer("ACTG"), 4)  !== nothing
         @test iterate(DNAKmer("ACTG"), 5)  === nothing
@@ -51,12 +49,10 @@
 
     @testset "Iteration through RNA Kmer" begin
         @test iterate(RNAKmer("ACUG")) == (RNA_A, 2)
-        @test iterate(RNAKmer("")) === nothing
 
         @test iterate(RNAKmer("ACUG"), 1) == (RNA_A, 2)
         @test iterate(RNAKmer("ACUG"), 4) == (RNA_G, 5)
 
-        @test iterate(RNAKmer(""), 1)      === nothing
         @test iterate(RNAKmer("ACUG"), 1)  !== nothing
         @test iterate(RNAKmer("ACUG"), 4)  !== nothing
         @test iterate(RNAKmer("ACUG"), 5)  === nothing

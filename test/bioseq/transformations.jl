@@ -45,6 +45,13 @@
             test_dna_complement(DNAAlphabet{2}, random_dna(len, probs))
             test_rna_complement(RNAAlphabet{2}, random_rna(len, probs))
         end
+        seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
+        seq = complement(BioSequence{DNAAlphabet{4}}(seq_string))
+        @test String(seq) == dna_complement(seq_string)
+
+        seq_string = join(rand("-ACGUSWKMYRBDHVN", 1000))
+        seq = complement(BioSequence{RNAAlphabet{4}}(seq_string))
+        @test String(seq) == rna_complement(seq_string)
     end
 
     @testset "Reverse complement" begin
@@ -56,6 +63,13 @@
             test_dna_revcomp(DNAAlphabet{2}, random_dna(len, probs))
             test_rna_revcomp(RNAAlphabet{2}, random_rna(len, probs))
         end
+        seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
+        seq = reverse_complement(BioSequence{DNAAlphabet{4}}(seq_string))
+        @test String(seq) == reverse(dna_complement(seq_string))
+
+        seq_string = join(rand("-ACGUSWKMYRBDHVN", 1000))
+        seq = reverse_complement(BioSequence{RNAAlphabet{4}}(seq_string))
+        @test String(seq) == reverse(rna_complement(seq_string))
     end
 
     @testset "Map" begin

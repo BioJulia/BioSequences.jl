@@ -47,7 +47,7 @@ global reps = 10
         return String(BioSequence{A}(Kmer(BioSequence{A}(seq)))) == uppercase(seq)
     end
 
-    for len in [0, 1, 16, 32]
+    for len in [1, 16, 32]
         # UInt64 conversions
         @test all(Bool[check_uint64_convertion(DNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
         @test all(Bool[check_uint64_convertion(RNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
@@ -65,10 +65,8 @@ global reps = 10
         @test all(Bool[check_biosequence_construction(RNASequence(random_rna_kmer(len))) for _ in 1:reps])
 
         # Construction from nucleotide arrays
-        if len > 0
-            @test all(Bool[check_nucarray_kmer(random_dna_kmer_nucleotides(len)) for _ in 1:reps])
-            @test all(Bool[check_nucarray_kmer(random_rna_kmer_nucleotides(len)) for _ in 1:reps])
-        end
+        @test all(Bool[check_nucarray_kmer(random_dna_kmer_nucleotides(len)) for _ in 1:reps])
+        @test all(Bool[check_nucarray_kmer(random_rna_kmer_nucleotides(len)) for _ in 1:reps])
 
         # Roundabout conversions
         @test all(Bool[check_roundabout_construction(DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
@@ -78,6 +76,9 @@ global reps = 10
     end
 
     @test_throws Exception Kmer() # can't construct 0-mer using `Kmer()`
+    @test_throws Exception Kmer(dna"") # 0-mers not allowed
+    @test_throws Exception DNAKmer{0}(UInt64(0)) # 0-mers not allowed
+    @test_throws Exception RNAKmer{0}(UInt64(0)) # 0-mers not allowed
     @test_throws Exception Kmer(RNA_A, RNA_C, RNA_G, RNA_N, RNA_U) # no Ns in kmers
     @test_throws Exception Kmer(DNA_A, DNA_C, DNA_G, DNA_N, DNA_T) # no Ns in kmers
     @test_throws Exception Kmer(rna"ACGNU")# no Ns in kmers

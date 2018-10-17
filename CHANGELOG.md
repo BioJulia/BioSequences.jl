@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
+- Add `alternative_start` keyword argument to translate().
+- Add abstract type for kmer iterators
+- :racehorse: Faster kmer iteration
 
 ## [1.0.0] - 2018-08-23
 ### Added
