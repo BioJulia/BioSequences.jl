@@ -52,6 +52,9 @@
     # DNASequence
     @test translate(dna"ATGTAA") == aa"M*"
 
+    # Alternative start codons
+    @test translate(rna"GUGUAA", alternative_start = true) == aa"M*"
+
     @test_throws Exception translate(rna"ACGUACGU")  # can't translate non-multiples of three
     # can't translate N
     @test_throws Exception translate(rna"ACGUACGNU", allow_ambiguous_codons=false)

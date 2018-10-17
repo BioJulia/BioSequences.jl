@@ -310,7 +310,7 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 # -----------
 
 """
-    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true)
+    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
 
 Translate an `RNASequence` or a `DNASequence` to an `AminoAcidSequence`.
 
@@ -318,15 +318,18 @@ Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.
 If codons in the given sequence cannot determine a unique amino acid, they
 will be translated to `AA_X` if `allow_ambiguous_codons` is `true` and otherwise
-result in an error.
+result in an error. For organisms that utilize alternative start codons, one
+can set `alternative_start=true`, in which case the first codon will always be
+converted to a methionine.
 """
 function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}};
                    code::GeneticCode=standard_genetic_code,
-                   allow_ambiguous_codons::Bool = true)
-    return translate(seq, code, allow_ambiguous_codons)
+                   allow_ambiguous_codons::Bool = true,
+		   alternative_start::Bool = false)
+    return translate(seq, code, allow_ambiguous_codons, alternative_start)
 end
 
-function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool)
+function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
     aaseqlen, r = divrem(length(seq), 3)
     if r != 0
         error("RNASequence length is not divisible by three. Cannot translate.")
@@ -355,6 +358,9 @@ function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::G
         i += 3
         j += 1
     end
+    if alternative_start
+        aaseq[1] = AA_M
+    end
     return aaseq
 end
 
@@ -362,8 +368,8 @@ function translate(seq::DNASequence; kwargs...)
     return translate(convert(RNASequence, seq); kwargs...)
 end
 
-function translate(seq::BioSequence{DNAAlphabet{2}}, kwargs...)
-    return translate(convert(BioSequence{RNAAlphabet{2}}, seq), kwargs...)
+function translate(seq::BioSequence{DNAAlphabet{2}}; kwargs...)
+    return translate(convert(BioSequence{RNAAlphabet{2}}, seq); kwargs...)
 end
 
 function try_translate_ambiguous_codon(code::GeneticCode,
