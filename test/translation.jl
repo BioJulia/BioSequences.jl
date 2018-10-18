@@ -45,7 +45,16 @@
     @test translate(rna"YUGMGG") == aa"LR"
     @test translate(rna"GAYGARGAM") == aa"DEX"
 
-    @test_throws Exception translate(dna"ACGTACGTA") # can't translate DNA
+    # BioSequences{RNAAlphabet{2}}
+    @test translate(BioSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
+    @test translate(BioSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
+
+    # DNASequence
+    @test translate(dna"ATGTAA") == aa"M*"
+
+    # Alternative start codons
+    @test translate(rna"GUGUAA", alternative_start = true) == aa"M*"
+
     @test_throws Exception translate(rna"ACGUACGU")  # can't translate non-multiples of three
     # can't translate N
     @test_throws Exception translate(rna"ACGUACGNU", allow_ambiguous_codons=false)
