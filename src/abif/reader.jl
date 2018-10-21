@@ -133,7 +133,7 @@ end
 # extract all tags in file
 function read_abif_tags(input::IO, header::AbifDirEntry)
     tags = AbifDirEntry[]
-    for index in 1:header.num_elements
+    for index in 0:header.num_elements-1
         start = header.data_offset + index * header.element_size
         tag = parse_directory(input, start)
         push!(tags, tag)
