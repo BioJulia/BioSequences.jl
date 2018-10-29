@@ -4,91 +4,155 @@ global reps = 10
     @test DNACodon(DNA_A, DNA_G, DNA_T) === DNAKmer("AGT")
     @test RNACodon(RNA_A, RNA_G, RNA_U) === RNAKmer("AGU")
 
-    # Check that kmers in strings survive round trip conversion:
-    #   UInt64 → Kmer → UInt64
+    # Check that skipmers and kmers in uint64s survive round trip conversion:
+    #   UInt64 → Skipmer / Kmer → UInt64
     function check_uint64_convertion(T::Type, n::UInt64, len::Int)
-        return UInt64(Kmer{T, len}(n)) === n
+        return UInt64(Skipmer{T, 2, 3, len}(n)) === n && UInt64(Kmer{T, len}(n)) === n
+    end
+    
+    # Check that skipmers and kmers in uint128's survive round trip conversion:
+    #   UInt128 → BigSkipmer / BigKmer → UInt128
+    function check_uint128_convertion(T::Type, n::UInt128, len::Int)
+        return UInt128(BigSkipmer{T, 2, 3, len}(n)) === n && UInt128(BigKmer{T, len}(n)) === n
     end
 
     # Check that kmers in strings survive round trip conversion:
     #   String → Kmer → String
     function check_string_construction(T::Type, seq::AbstractString)
-        return String(Kmer{T}(seq)) == uppercase(seq)
+        return String(T(seq)) == uppercase(seq)
     end
 
     # Check that dnakmers can be constructed from a DNASequence
     #   DNASequence → Kmer → DNASequence
-    function check_dnasequence_construction(seq::DNASequence)
-        return DNASequence(DNAKmer(seq)) == seq
+    function check_dnasequence_construction(T::Type, seq::DNASequence)
+        return DNASequence(T(seq)) == seq
     end
 
     # Check that rnakmers can be constructed from a RNASequence
     #   RNASequence → Kmer → RNASequence
-    function check_rnasequence_construction(seq::RNASequence)
-        return RNASequence(RNAKmer(seq)) == seq
+    function check_rnasequence_construction(T::Type, seq::RNASequence)
+        return RNASequence(T(seq)) == seq
     end
 
     # Check that kmers can be constructed from a BioSequence
     #   BioSequence → Kmer → BioSequence
-    function check_biosequence_construction(seq::GeneralSequence)
-        return GeneralSequence(Kmer(seq)) == seq
+    function check_biosequence_construction(T::Type, seq::GeneralSequence)
+        return GeneralSequence(T(seq)) == seq
     end
 
     # Check that kmers can be constructed from an array of nucleotides
     #   Vector{NucleicAcid} → Kmer → Vector{NucleicAcid}
-    function check_nucarray_kmer(seq::Vector{T}) where T <: NucleicAcid
-        return String([convert(Char, c) for c in seq]) == String(Kmer(seq...))
+    function check_nucarray_kmer(t::Type, seq::Vector{T}) where T <: NucleicAcid
+        return String([convert(Char, c) for c in seq]) == String(t(seq...))
     end
 
     # Check that kmers in strings survive round trip conversion:
     #   String → BioSequence → Kmer → BioSequence → String
-    function check_roundabout_construction(A, seq::AbstractString)
-        T = eltype(A)
-        return String(GeneralSequence{A}(Kmer(GeneralSequence{A}(seq)))) == uppercase(seq)
+    function check_roundabout_construction(T::Type, A, seq::AbstractString)
+        #T = eltype(A)
+        return String(GeneralSequence{A}(T(GeneralSequence{A}(seq)))) == uppercase(seq)
     end
 
-    for len in [1, 16, 32]
-        # UInt64 conversions
-        @test all(Bool[check_uint64_convertion(DNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
-        @test all(Bool[check_uint64_convertion(RNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
+    @testset "Skipmer and Kmer conversion" begin
+        for len in [1, 16, 32]
+            # UInt64 conversions
+            @test all(Bool[check_uint64_convertion(DNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint64_convertion(RNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
 
-        # String construction
-        @test all(Bool[check_string_construction(DNA, random_dna_kmer(len)) for _ in 1:reps])
-        @test all(Bool[check_string_construction(RNA, random_rna_kmer(len)) for _ in 1:reps])
+            # String construction
+            @test all(Bool[check_string_construction(Kmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Kmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Skipmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Skipmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
 
-        # DNA/RNASequence Constructions
-        @test all(Bool[check_dnasequence_construction(DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-        @test all(Bool[check_rnasequence_construction(RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            # DNA/RNASequence Constructions
+            @test all(Bool[check_dnasequence_construction(Kmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(Kmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_dnasequence_construction(Skipmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(Skipmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
 
-        # BioSequence Construction
-        @test all(Bool[check_biosequence_construction(DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-        @test all(Bool[check_biosequence_construction(RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            # BioSequence Construction
+            @test all(Bool[check_biosequence_construction(Kmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(Kmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(Skipmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(Skipmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
 
-        # Construction from nucleotide arrays
-        @test all(Bool[check_nucarray_kmer(random_dna_kmer_nucleotides(len)) for _ in 1:reps])
-        @test all(Bool[check_nucarray_kmer(random_rna_kmer_nucleotides(len)) for _ in 1:reps])
+            # Construction from nucleotide arrays
+            @test all(Bool[check_nucarray_kmer(Kmer, random_dna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(Kmer, random_rna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(Skipmer, random_dna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(Skipmer, random_rna_kmer_nucleotides(len)) for _ in 1:reps])
 
-        # Roundabout conversions
-        @test all(Bool[check_roundabout_construction(DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
-        @test all(Bool[check_roundabout_construction(DNAAlphabet{4}, random_dna_kmer(len)) for _ in 1:reps])
-        @test all(Bool[check_roundabout_construction(RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
-        @test all(Bool[check_roundabout_construction(RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
+            # Roundabout conversions
+            @test all(Bool[check_roundabout_construction(Kmer, DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Kmer, DNAAlphabet{4}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Kmer, RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Kmer, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
+            
+            @test all(Bool[check_roundabout_construction(Skipmer, DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Skipmer, DNAAlphabet{4}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Skipmer, RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(Skipmer, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
+        end
+    end
+    
+    @testset "BigSkipmer and BigKmer conversion" begin
+        for len in [33, 41, 56, 64]
+            # UInt64 conversions
+            @test all(Bool[check_uint128_convertion(DNA, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint128_convertion(RNA, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
+
+            # String construction
+            @test all(Bool[check_string_construction(BigKmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigKmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigSkipmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigSkipmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
+
+            # DNA/RNASequence Constructions
+            @test all(Bool[check_dnasequence_construction(BigKmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(BigKmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_dnasequence_construction(BigSkipmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(BigSkipmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+
+            # BioSequence Construction
+            @test all(Bool[check_biosequence_construction(BigKmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigKmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigSkipmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigSkipmer, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+
+            # Construction from nucleotide arrays
+            @test all(Bool[check_nucarray_kmer(BigKmer, random_dna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(BigKmer, random_rna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(BigSkipmer, random_dna_kmer_nucleotides(len)) for _ in 1:reps])
+            @test all(Bool[check_nucarray_kmer(BigSkipmer, random_rna_kmer_nucleotides(len)) for _ in 1:reps])
+
+            # Roundabout conversions
+            @test all(Bool[check_roundabout_construction(BigKmer, DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigKmer, DNAAlphabet{4}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigKmer, RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigKmer, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
+            
+            @test all(Bool[check_roundabout_construction(BigSkipmer, DNAAlphabet{2}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigSkipmer, DNAAlphabet{4}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigSkipmer, RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_roundabout_construction(BigSkipmer, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
+        end
     end
 
-    @test_throws Exception Kmer() # can't construct 0-mer using `Kmer()`
-    @test_throws Exception Kmer(dna"") # 0-mers not allowed
-    @test_throws Exception DNAKmer{0}(UInt64(0)) # 0-mers not allowed
-    @test_throws Exception RNAKmer{0}(UInt64(0)) # 0-mers not allowed
-    @test_throws Exception Kmer(RNA_A, RNA_C, RNA_G, RNA_N, RNA_U) # no Ns in kmers
-    @test_throws Exception Kmer(DNA_A, DNA_C, DNA_G, DNA_N, DNA_T) # no Ns in kmers
-    @test_throws Exception Kmer(rna"ACGNU")# no Ns in kmers
-    @test_throws Exception RNAKmer(rna"ACGNU")# no Ns in kmers
-    @test_throws Exception Kmer(dna"ACGNT") # no Ns in kmers
-    @test_throws Exception DNAKmer(dna"ACGNT") # no Ns in kmers
-    @test_throws Exception Kmer(RNA_A, DNA_A) # no mixing of RNA and DNA
-    @test_throws Exception Kmer(random_rna(33)) # no kmer larger than 32nt
-    @test_throws Exception Kmer(random_dna(33)) # no kmer larger than 32nt
-    @test_throws Exception Kmer(
+    @test_throws MethodError Kmer() # can't construct 0-mer using `Kmer()`
+    @test_throws ArgumentError Kmer(dna"") # 0-mers not allowed
+    @test_throws ArgumentError DNAKmer{0}(UInt64(0)) # 0-mers not allowed
+    @test_throws ArgumentError RNAKmer{0}(UInt64(0)) # 0-mers not allowed
+    @test_throws ArgumentError Kmer(RNA_A, RNA_C, RNA_G, RNA_N, RNA_U) # no Ns in kmers
+    @test_throws ArgumentError Kmer(DNA_A, DNA_C, DNA_G, DNA_N, DNA_T) # no Ns in kmers
+    @test_throws ArgumentError Kmer(rna"ACGNU")# no Ns in kmers
+    @test_throws ArgumentError RNAKmer(rna"ACGNU")# no Ns in kmers
+    @test_throws ArgumentError Kmer(dna"ACGNT") # no Ns in kmers
+    @test_throws ArgumentError DNAKmer(dna"ACGNT") # no Ns in kmers
+    @test_throws MethodError Kmer(RNA_A, DNA_A) # no mixing of RNA and DNA
+    @test_throws ArgumentError Kmer{RNA}(random_rna(33)) # no kmer larger than 32nt
+    @test_throws ArgumentError Kmer{DNA}(random_dna(33)) # no kmer larger than 32nt
+    @test_throws ArgumentError Kmer(
                       RNA_A, RNA_C, RNA_G, RNA_U, # no kmer larger than 32nt
                       RNA_A, RNA_C, RNA_G, RNA_U,
                       RNA_A, RNA_C, RNA_G, RNA_U,
@@ -98,7 +162,7 @@ global reps = 10
                       RNA_A, RNA_C, RNA_G, RNA_U,
                       RNA_A, RNA_C, RNA_G, RNA_U,
                       RNA_A, RNA_C, RNA_G, RNA_U)
-    @test_throws Exception Kmer(
+    @test_throws ArgumentError Kmer(
                       DNA_A, DNA_C, DNA_G, DNA_T, # no kmer larger than 32nt
                       DNA_A, DNA_C, DNA_G, DNA_T,
                       DNA_A, DNA_C, DNA_G, DNA_T,

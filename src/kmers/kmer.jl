@@ -1,5 +1,5 @@
-# K-mer
-# =====
+# Skipmer & Kmer types
+# ====================
 
 primitive type Skipmer{T <: NucleicAcid, M, N, K} <: ShortSequence{64} 64 end
 const Kmer{T <: NucleicAcid, K} = Skipmer{T, 1, 1, K}
@@ -15,8 +15,10 @@ const DNACodon = DNAKmer{3}
 const RNACodon = RNAKmer{3}
 
 cycle_len(::Type{Skipmer{T, M, N, K}}) where {T <: NucleicAcid, M, N, K} = N
+cycle_len(::Type{BigSkipmer{T, M, N, K}}) where {T <: NucleicAcid, M, N, K} = N
 
 bases_per_cycle(::Type{Skipmer{T, M, N, K}}) where {T <: NucleicAcid, M, N, K} = M
+bases_per_cycle(::Type{BigSkipmer{T, M, N, K}}) where {T <: NucleicAcid, M, N, K} = M
 
 kmersize(::Type{Skipmer{T, M, N, K}}) where {T, M, N, K} = K
 kmersize(::Type{BigSkipmer{T, M, N, K}}) where {T, M, N, K} = K
@@ -29,54 +31,42 @@ end
 span(skipmer::T) where T <: Union{Skipmer, BigSkipmer} = span(typeof(skipmer))
 
 @inline function checkskipmer(::Type{Skipmer{T, M, N, K}}) where {T, M, N, K}
+    if !(T <: NucleicAcid)
+        throw(ArgumentError("T must be DNA or RNA in Skipmer{T, M, N, K}"))
+    end
     if !(1 ≤ K ≤ 32)
-        throw(ArgumentError("K must be within 1..32"))
+        throw(ArgumentError("K must be within 1..32 in Skipmer{T, M, N, K}"))
     end
     if M > N
-        throw(ArgumentError("M must not be greater than N"))
+        throw(ArgumentError("M must not be greater than N in Skipmer{T, M, N, K}"))
     end
 end
 
 @inline function checkskipmer(::Type{BigSkipmer{T, M, N, K}}) where {T, M, N, K}
+    if !(T <: NucleicAcid)
+        throw(ArgumentError("T must be DNA or RNA in BigSkipmer{T, M, N, K}"))
+    end
     if !(1 ≤ K ≤ 64)
-        throw(ArgumentError("K must be within 1..64"))
+        throw(ArgumentError("K must be within 1..64 in BigSkipmer{T, M, N, K}"))
     end
     if M > N
-        throw(ArgumentError("M must not be greater than N"))
+        throw(ArgumentError("M must not be greater than N in BigSkipmer{T, M, N, K}"))
     end
-end
-
-@inline function checkkmer(::Type{Kmer{T,K}}) where {T,K}
-    if !(1 ≤ K ≤ 32)
-        throw(ArgumentError("K must be within 1..32"))
-    end
-end
-
-@inline function checkkmer(::Type{BigKmer{T,K}}) where {T,K}
-    if !(1 ≤ K ≤ 64)
-        throw(ArgumentError("the length K must be within 1..64"))
-    end
-end  
-
-
-
-
-
+end 
 
 include("conversion.jl")
 
+BioSymbols.alphabet(::Type{T}) where {T <: Union{Skipmer{DNA}, BigSkipmer{DNA}}} = (DNA_A, DNA_C, DNA_G, DNA_T)
+BioSymbols.alphabet(::Type{T}) where {T <: Union{Skipmer{RNA}, BigSkipmer{RNA}}} = (RNA_A, RNA_C, RNA_G, RNA_U)
+Alphabet(::Type{Skipmer{T, M, N, K} where T<:NucleicAcid}) where {M, N, K} = Any
+Alphabet(::Type{BigSkipmer{T, M, N, K} where T<:NucleicAcid}) where {M, N, K} = Any
+Alphabet(::Type{T}) where {T <: Union{Skipmer{DNA}, BigSkipmer{DNA}}} = DNAAlphabet{2}()
+Alphabet(::Type{T}) where {T <: Union{Skipmer{RNA}, BigSkipmer{RNA}}} = RNAAlphabet{2}()
 
 # Base Functions
 # --------------
 
-BioSymbols.alphabet(::Type{Skipmer{DNA, M, N, K}}) where {M, N, K} = (DNA_A, DNA_C, DNA_G, DNA_T)
-BioSymbols.alphabet(::Type{Skipmer{RNA, M, N, K}}) where {M, N, K} = (RNA_A, RNA_C, RNA_G, RNA_U)
-Alphabet(::Type{Skipmer{T, M, N, K} where T<:NucleicAcid}) where {M, N, K} = Any
-Alphabet(::Type{T}) where {T <: Skipmer{DNA}} = DNAAlphabet{2}()
-Alphabet(::Type{T}) where {T <: Skipmer{RNA}} = RNAAlphabet{2}()
-
 Base.length(x::T) where {T <: Union{Skipmer, BigSkipmer}} = kmersize(x)
-#Base.eltype(::Type{Kmer{T,k}}) where {T,k} = T
 
 Base.summary(x::DNAKmer{k}) where {k} = string("DNA ", k, "-mer")
 Base.summary(x::RNAKmer{k}) where {k} = string("RNA ", k, "-mer")

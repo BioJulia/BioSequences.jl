@@ -3,6 +3,7 @@
 
 # Create a skipmer from a sequence whose elements are convertible to a nucleotide
 function make_skipmer(::Type{T}, seq) where {T <: Union{Skipmer, BigSkipmer}}
+    checkskipmer(T)
     seqlen = length(seq)
     if seqlen != kmersize(T)
         throw(ArgumentError("seq does not contain the correct number of nucleotides ($seqlen ≠ $(kmersize(T)))"))
@@ -22,18 +23,22 @@ function make_skipmer(::Type{T}, seq) where {T <: Union{Skipmer, BigSkipmer}}
     return T(x)
 end
 
-make_skipmer(seq::NTuple{K,T}) where {K,T} = make_skipmer(Kmer{T,K}, seq)
+make_skipmer(seq::Tuple{T, Vararg{T, K}}) where {K, T<:NucleicAcid} = make_skipmer(Skipmer{T, 2, 3, K + 1}, seq)
+make_kmer(seq::Tuple{T, Vararg{T, K}}) where {K, T<:NucleicAcid} = make_skipmer(Kmer{T, K + 1}, seq)
+make_bigskipmer(seq::Tuple{T, Vararg{T, K}}) where {K, T<:NucleicAcid} = make_skipmer(BigSkipmer{T, 2, 3, K + 1}, seq)
+make_bigkmer(seq::Tuple{T, Vararg{T, K}}) where {K, T<:NucleicAcid} = make_skipmer(BigKmer{T, K + 1}, seq)
 
-function Kmer(nts::T...) where {T<:NucleicAcid}
-    return make_skipmer(nts)
-end
+Skipmer(nts::T...) where {T<:NucleicAcid} = make_skipmer(nts)
+Kmer(nts::T...) where {T<:NucleicAcid} = make_kmer(nts)
+BigSkipmer(nts::T...) where {T<:NucleicAcid} = make_bigskipmer(nts)
+BigKmer(nts::T...) where {T<:NucleicAcid} = make_bigkmer(nts)
 
 function DNACodon(x::DNA, y::DNA, z::DNA)
-    return make_skipmer((x, y, z))
+    return make_skipmer(Kmer{DNA, 3}, (x, y, z))
 end
 
 function RNACodon(x::RNA, y::RNA, z::RNA)
-    return make_skipmer((x, y, z))
+    return make_skipmer(Kmer{RNA,3}, (x, y, z))
 end
 
 @inline function make_mask(::Type{T}) where {T <: Union{Skipmer, BigSkipmer}}
@@ -49,7 +54,7 @@ UInt64(x::Skipmer) = reinterpret(UInt64, x)
 Base.convert(::Type{UInt64}, x::Skipmer) = reinterpret(UInt64, x)
 
 function BigSkipmer{T, M, N, K}(x::UInt128) where {T, M, N, K}
-    checkskipkmer(BigSkipmer{T, M, N, K})
+    checkskipmer(BigSkipmer{T, M, N, K})
     mask = make_mask(BigSkipmer{T, M, N, K})
     return reinterpret(BigKmer{T, K}, x & mask)
 end
@@ -68,17 +73,30 @@ end
 Skipmer{T, M, N}(seq::AbstractString) where {T, M, N} = Skipmer{T, M, N, length(seq)}(seq)
 Skipmer{T}(seq::AbstractString) where T = Skipmer{T, 2, 3, length(seq)}(seq)
 
+function BigSkipmer{T, M, N, K}(seq::AbstractString) where {T, M, N, K}
+    return make_skipmer(BigSkipmer{T, M, N, K}, seq)
+end
+BigSkipmer{T, M, N}(seq::AbstractString) where {T, M, N} = BigSkipmer{T, M, N, length(seq)}(seq)
+BigSkipmer{T}(seq::AbstractString) where {T} = BigSkipmer{T, 2, 3, length(seq)}(seq)
+
 # Constructor for all concrete skipmer types
 function Skipmer{T, M, N, K}(seq::GeneralSequence) where {T, M, N, K}
-    return BioSequences.make_skipmer(Skipmer{T, M, N, K}, seq)
+    return make_skipmer(Skipmer{T, M, N, K}, seq)
 end
 Skipmer{T, M, N}(seq::GeneralSequence) where {T, M, N} = Skipmer{T, M, N, length(seq)}(seq)
 Skipmer(seq::GeneralSequence) = Skipmer{eltype(seq), 2, 3, length(seq)}(seq)
 Kmer(seq::GeneralSequence{A}) where {A <: NucleicAcidAlphabet} = Kmer{eltype(A),length(seq)}(seq)
 
+function BigSkipmer{T, M, N, K}(seq::GeneralSequence) where {T, M, N, K}
+    return make_skipmer(BigSkipmer{T, M, N, K}, seq)
+end
+BigSkipmer{T, M, N}(seq::GeneralSequence) where {T, M, N} = BigSkipmer{T, M, N, length(seq)}(seq)
+BigSkipmer(seq::GeneralSequence) = BigSkipmer{eltype(seq), 2, 3, length(seq)}(seq)
+BigKmer(seq::GeneralSequence{A}) where {A <: NucleicAcidAlphabet} = BigKmer{eltype(A),length(seq)}(seq)
+
 Skipmer{T, M, N, K}(x::Skipmer{T, M, N, K}) where {T, M, N, K} = x
 
-GeneralSequence(x::Skipmer{DNA, M, N, K}) where {M, N, K} = GeneralSequence{DNAAlphabet{2}}(x)
-GeneralSequence(x::Skipmer{RNA, M, N, K}) where {M, N, K} = GeneralSequence{RNAAlphabet{2}}(x)
-GeneralSequence{A}(x::Skipmer{DNA, M, N, K}) where {A <: DNAAlphabet, M, N, K} = GeneralSequence{A}([nt for nt in x])
-GeneralSequence{A}(x::Skipmer{RNA, M, N, K}) where {A <: RNAAlphabet, M, N, K} = GeneralSequence{A}([nt for nt in x])
+GeneralSequence(x::T) where {T <: Union{Skipmer{DNA}, BigSkipmer{DNA}}} = GeneralSequence{DNAAlphabet{2}}(x)
+GeneralSequence(x::T) where {T <: Union{Skipmer{RNA}, BigSkipmer{RNA}}} = GeneralSequence{RNAAlphabet{2}}(x)
+GeneralSequence{A}(x::T) where {A <: DNAAlphabet, T <: Union{Skipmer{DNA}, BigSkipmer{DNA}}} = GeneralSequence{A}([nt for nt in x])
+GeneralSequence{A}(x::T) where {A <: RNAAlphabet, T <: Union{Skipmer{RNA}, BigSkipmer{RNA}}} = GeneralSequence{A}([nt for nt in x])
