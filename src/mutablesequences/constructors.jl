@@ -7,7 +7,7 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function GeneralSequence{A}(len::Integer) where {A<:Alphabet}
-    return GeneralSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:len, false)
+    return GeneralSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:convert(Int, len), false)
 end
 
 GeneralSequence(::Type{DNA}) = DNASequence()
