@@ -17,7 +17,7 @@ makedocs(
             "FASTQ formatted files" => "io/fastq.md",
             "2bit formatted files" => "io/twobit.md"
         ],
-        "Searching" => "search.md",
+        "Searching" => "searching.md",
         "Sequence Composition" => "composition.md",
         "Demultiplexing" => "demultiplexer.md",
         "Contributing" => "contributing.md"
