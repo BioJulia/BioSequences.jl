@@ -1,7 +1,7 @@
 using Documenter, BioSequences
 
 makedocs(
-    format = :html,
+    format = Documenter.HTML(),
     sitename = "BioSequences.jl",
     pages = [
         "Home" => "index.md",
