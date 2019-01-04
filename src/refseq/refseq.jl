@@ -14,14 +14,14 @@ Reference sequence is a sequence of A/C/G/T/N. In the internals, it compresses
 reference sequences are immutable and hence no modifyting operators are
 provided.
 """
-struct ReferenceSequence <: BioSequence
+struct ReferenceSequence <: BioSequence{DNAAlphabet{2}}
     data::Vector{UInt64}  # 2-bit encoding of A/C/G/T nucloetides
     nmask::NMask          # positions of N
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
 end
 
 Base.length(seq::ReferenceSequence) = length(seq.part)
-Alphabet(::Type{ReferenceSequence}) = DNAAlphabet{2}()
+#Alphabet(::Type{ReferenceSequence}) = DNAAlphabet{2}()
 Base.summary(seq::ReferenceSequence) = string(length(seq), "nt Reference Sequence")
 
 function Base.copy(seq::ReferenceSequence)

@@ -39,7 +39,7 @@ For example, the memory layout of "TACG" is:
 With this representation, the unused portion of the unsigned integer, should
 be kept blank (all zeros). 
 """
-abstract type ShortSequence{N} <: BioSequence end
+abstract type ShortSequence{N, A <: Alphabet} <: BioSequence{A} end
 
 encoded_data_eltype(::Type{T}) where T <: ShortSequence{128} = UInt128
 encoded_data_eltype(::Type{T}) where T <: ShortSequence{64}  = UInt64

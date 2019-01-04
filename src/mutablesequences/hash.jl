@@ -1,4 +1,4 @@
-encoded_data# Hash
+# Hash
 # ====
 #
 # MurmurHash3 function of BioSequence.

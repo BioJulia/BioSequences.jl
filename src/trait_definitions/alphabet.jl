@@ -98,6 +98,9 @@ for alph in (DNAAlphabet, RNAAlphabet)
     end
 end
 
+minimal_alphabet(::Type{A}) where A <: DNAAlphabet = DNAAlphabet{2}
+minimal_alphabet(::Type{A}) where A <: RNAAlphabet = RNAAlphabet{2} 
+minimal_alphabet(x::A) where A <: NucleicAcidAlphabet = minimal_alphabet(typeof(x))
 
 # Amino acid alphabet
 # ===================

@@ -42,7 +42,7 @@
 """
 Biological sequence data structure indexed by an alphabet type `A`.
 """
-mutable struct GeneralSequence{A<:Alphabet} <: BioSequence
+mutable struct GeneralSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
     shared::Bool          # true if and only if `data` is shared between sequences
@@ -71,7 +71,6 @@ bindata(seq::GeneralSequence) = seq.data
 Base.eltype(::Type{GeneralSequence{A}}) where {A} = eltype(A)
 
 @inbounds function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
-    #TODO: Resolve this use of bits_per_symbol.
     return cld(len, div(64, bits_per_symbol(A())))
 end
 
@@ -116,15 +115,6 @@ function orphan!(seq::GeneralSequence{A},
     seq.shared = false
     return seq
 end
-
-
-# Summaries
-# ---------
-
-Base.summary(seq::GeneralSequence{<:DNAAlphabet}) = string(length(seq), "nt ", "DNA Sequence")
-Base.summary(seq::GeneralSequence{<:RNAAlphabet}) = string(length(seq), "nt ", "RNA Sequence")
-Base.summary(seq::AminoAcidSequence) = string(length(seq), "aa ", "Amino Acid Sequence")
-Base.summary(seq::CharSequence) = string(length(seq), "char ", "Char Sequence")
 
 include("indexing.jl")
 include("constructors.jl")

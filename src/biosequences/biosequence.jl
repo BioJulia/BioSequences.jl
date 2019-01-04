@@ -17,8 +17,7 @@
 
 Any subtype of `BioSequence` should implement the following methods:
 
-* `encoded_data(seq)`: return the thing containing the encoded elements of `seq`. 
-* `Alphabet(typeof(seq))`: return the type of the alphabet of the type of `seq`.
+* `encoded_data(seq)`: return the thing containing the encoded elements of `seq`.
 * `Base.length(seq)`: return the length of `seq`.
 * `inbounds_getindex(seq, i)`: return the i'th element of `seq`, without checking bounds.
 * `find_next_ambiguous(seq)`: return the index of the next ambiguous symbol in the
@@ -64,7 +63,7 @@ Any subtype of `BioSequence` should implement the following methods:
   `val` in `seq`.
 * `Base.isempty(seq::S)`: Determine whether `seq` has no elements.
 """
-abstract type BioSequence end
+abstract type BioSequence{A <: Alphabet} end
 
 # This is useful for obscure reasons. We use SeqRecord{BioSequence} for reading
 # sequence in an undetermined alphabet, but a consequence that we need to be
@@ -95,8 +94,8 @@ encoded_data_eltype(seq::BioSequence) = eltype(encoded_data(seq))
 Return the `Alpahbet` type defining the possible biological symbols
 and their encoding for a given biological sequence.
 """
-@inline function Alphabet(::Type{S}) where S <: BioSequence
-    error(string("This sequence type trait has not been defined for BioSequence type: ", S))
+@inline function Alphabet(::Type{<:BioSequence{A}}) where {A <: Alphabet}
+    return A()
 end
 
 # Provided traits and methods
@@ -107,6 +106,7 @@ end
 @inline function Alphabet(seq::BioSequence)
     return Alphabet(typeof(seq))
 end
+BioSymbols.alphabet(::Type{BioSequence{A}}) where {A<:Alphabet} = alphabet(A)
 
 BitsPerSymbol(seq::BioSequence) = BitsPerSymbol(Alphabet(seq))
 bits_per_symbol(seq::BioSequence) = bits_per_symbol(Alphabet(seq))

@@ -56,14 +56,14 @@ global reps = 10
     @testset "Skipmer and Kmer conversion" begin
         for len in [1, 16, 32]
             # UInt64 conversions
-            @test all(Bool[check_uint64_convertion(DNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
-            @test all(Bool[check_uint64_convertion(RNA, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint64_convertion(DNAAlphabet{2}, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint64_convertion(RNAAlphabet{2}, rand(UInt64(0):UInt64(UInt64(1) << 2len - 1)), len) for _ in 1:reps])
 
             # String construction
-            @test all(Bool[check_string_construction(Kmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(Kmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(Skipmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(Skipmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Kmer{DNAAlphabet{2}}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Kmer{RNAAlphabet{2}}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Skipmer{DNAAlphabet{2}}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(Skipmer{RNAAlphabet{2}}, random_rna_kmer(len)) for _ in 1:reps])
 
             # DNA/RNASequence Constructions
             @test all(Bool[check_dnasequence_construction(Kmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
@@ -99,14 +99,14 @@ global reps = 10
     @testset "BigSkipmer and BigKmer conversion" begin
         for len in [33, 41, 56, 64]
             # UInt64 conversions
-            @test all(Bool[check_uint128_convertion(DNA, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
-            @test all(Bool[check_uint128_convertion(RNA, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint128_convertion(DNAAlphabet{2}, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
+            @test all(Bool[check_uint128_convertion(RNAAlphabet{2}, rand(UInt128(0):UInt128(UInt128(1) << 2len - 1)), len) for _ in 1:reps])
 
             # String construction
-            @test all(Bool[check_string_construction(BigKmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(BigKmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(BigSkipmer{DNA}, random_dna_kmer(len)) for _ in 1:reps])
-            @test all(Bool[check_string_construction(BigSkipmer{RNA}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigKmer{DNAAlphabet{2}}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigKmer{RNAAlphabet{2}}, random_rna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigSkipmer{DNAAlphabet{2}}, random_dna_kmer(len)) for _ in 1:reps])
+            @test all(Bool[check_string_construction(BigSkipmer{RNAAlphabet{2}}, random_rna_kmer(len)) for _ in 1:reps])
 
             # DNA/RNASequence Constructions
             @test all(Bool[check_dnasequence_construction(BigKmer, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
@@ -150,8 +150,8 @@ global reps = 10
     @test_throws ArgumentError Kmer(dna"ACGNT") # no Ns in kmers
     @test_throws ArgumentError DNAKmer(dna"ACGNT") # no Ns in kmers
     @test_throws MethodError Kmer(RNA_A, DNA_A) # no mixing of RNA and DNA
-    @test_throws ArgumentError Kmer{RNA}(random_rna(33)) # no kmer larger than 32nt
-    @test_throws ArgumentError Kmer{DNA}(random_dna(33)) # no kmer larger than 32nt
+    @test_throws ArgumentError Kmer{RNAAlphabet{2}}(random_rna(33)) # no kmer larger than 32nt
+    @test_throws ArgumentError Kmer{DNAAlphabet{2}}(random_dna(33)) # no kmer larger than 32nt
     @test_throws ArgumentError Kmer(
                       RNA_A, RNA_C, RNA_G, RNA_U, # no kmer larger than 32nt
                       RNA_A, RNA_C, RNA_G, RNA_U,

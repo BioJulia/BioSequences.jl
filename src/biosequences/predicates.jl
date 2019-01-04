@@ -29,7 +29,7 @@ Base.isempty(seq::BioSequence) = length(seq) == 0
 
 Return `true` if and only if `seq` contains a repetitive subsequence of length `≥ n`.
 """
-function isrepetitive(seq::BioSequence, n::Integer=length(seq))
+function isrepetitive(seq::BioSequence, n::Integer = length(seq))
     if n < 0
         error("repetition must be non-negative")
     elseif isempty(seq)

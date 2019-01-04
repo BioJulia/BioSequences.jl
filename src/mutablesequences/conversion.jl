@@ -40,20 +40,6 @@ end
 function Base.convert(::Type{GeneralSequence{A}}, seq::Vector) where A<:Alphabet
     return GeneralSequence{A}(seq)
 end
-Base.convert(::Type{Vector}, seq::GeneralSequence) = collect(seq)
-function Base.convert(::Type{Vector{DNA}}, seq::GeneralSequence{<:DNAAlphabet})
-    return collect(seq)
-end
-function Base.convert(::Type{Vector{RNA}}, seq::GeneralSequence{<:RNAAlphabet})
-    return collect(seq)
-end
-Base.convert(::Type{Vector{AminoAcid}}, seq::AminoAcidSequence) = collect(seq)
 
-#= Covert from a string to a BioSequence and _vice versa_.
-function Base.convert(::Type{S}, seq::GeneralSequence) where {S<:AbstractString}
-    return S([Char(x) for x in seq])
-end
-Base.String(seq::GeneralSequence) = convert(String, seq)
-=#
 Base.convert(::Type{GeneralSequence{A}}, seq::AbstractString) where A = GeneralSequence{A}(seq)
 
