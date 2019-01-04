@@ -16,7 +16,7 @@ struct Composition{T} <: AbstractDict{T,Int}
     counts::Dict{T,Int}
 end
 
-function Composition(seq::GeneralSequence{A}) where A <: NucleicAcidAlphabet
+function Composition(seq::LongSequence{A}) where A <: NucleicAcidAlphabet
     counts = zeros(Int, 16)
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1

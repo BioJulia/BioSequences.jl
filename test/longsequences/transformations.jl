@@ -1,26 +1,26 @@
 @testset "Transformations" begin
     function test_reverse(A, seq)
-        revseq = reverse(GeneralSequence{A}(seq))
+        revseq = reverse(LongSequence{A}(seq))
         @test convert(String, revseq) == reverse(seq)
     end
 
     function test_dna_complement(A, seq)
-        comp = complement(GeneralSequence{A}(seq))
+        comp = complement(LongSequence{A}(seq))
         @test convert(String, comp) == dna_complement(seq)
     end
 
     function test_rna_complement(A, seq)
-        comp = complement(GeneralSequence{A}(seq))
+        comp = complement(LongSequence{A}(seq))
         @test convert(String, comp) == rna_complement(seq)
     end
 
     function test_dna_revcomp(A, seq)
-        revcomp = reverse_complement(GeneralSequence{A}(seq))
+        revcomp = reverse_complement(LongSequence{A}(seq))
         @test convert(String, revcomp) == reverse(dna_complement(seq))
     end
 
     function test_rna_revcomp(A, seq)
-        revcomp = reverse_complement(GeneralSequence{A}(seq))
+        revcomp = reverse_complement(LongSequence{A}(seq))
         @test convert(String, revcomp) == reverse(rna_complement(seq))
     end
 
@@ -46,11 +46,11 @@
             test_rna_complement(RNAAlphabet{2}, random_rna(len, probs))
         end
         seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
-        seq = complement(GeneralSequence{DNAAlphabet{4}}(seq_string))
+        seq = complement(LongSequence{DNAAlphabet{4}}(seq_string))
         @test String(seq) == dna_complement(seq_string)
 
         seq_string = join(rand("-ACGUSWKMYRBDHVN", 1000))
-        seq = complement(GeneralSequence{RNAAlphabet{4}}(seq_string))
+        seq = complement(LongSequence{RNAAlphabet{4}}(seq_string))
         @test String(seq) == rna_complement(seq_string)
     end
 
@@ -64,11 +64,11 @@
             test_rna_revcomp(RNAAlphabet{2}, random_rna(len, probs))
         end
         seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
-        seq = reverse_complement(GeneralSequence{DNAAlphabet{4}}(seq_string))
+        seq = reverse_complement(LongSequence{DNAAlphabet{4}}(seq_string))
         @test String(seq) == reverse(dna_complement(seq_string))
 
         seq_string = join(rand("-ACGUSWKMYRBDHVN", 1000))
-        seq = reverse_complement(GeneralSequence{RNAAlphabet{4}}(seq_string))
+        seq = reverse_complement(LongSequence{RNAAlphabet{4}}(seq_string))
         @test String(seq) == reverse(rna_complement(seq_string))
     end
 

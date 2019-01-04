@@ -1,7 +1,7 @@
 # Basic Operators
 # ---------------
 
-function count_gc(seq::GeneralSequence{A}) where A <: NucleicAcidAlphabet
+function count_gc(seq::LongSequence{A}) where A <: NucleicAcidAlphabet
     n = 0
     i = bitindex(seq, 1)
     stop = bitindex(seq, lastindex(seq) + 1)
@@ -79,7 +79,7 @@ julia> seqmatrix(seqs, :site)
   DNA_A  DNA_T  DNA_C  DNA_G
 ```
 """
-function seqmatrix(vseq::AbstractVector{GeneralSequence{A}}, major::Symbol) where {A<:Alphabet}
+function seqmatrix(vseq::AbstractVector{LongSequence{A}}, major::Symbol) where {A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -147,7 +147,7 @@ julia> seqmatrix(seqs, :seq, UInt8)
  0x01  0x08  0x02  0x04
 ```
 """
-function seqmatrix(::Type{T}, vseq::AbstractVector{GeneralSequence{A}}, major::Symbol) where {T,A<:Alphabet}
+function seqmatrix(::Type{T}, vseq::AbstractVector{LongSequence{A}}, major::Symbol) where {T,A<:Alphabet}
     nseqs = length(vseq)
     @assert nseqs > 0 throw(ArgumentError("Vector of BioSequence{$A} is empty."))
     nsites = length(vseq[1])
@@ -175,7 +175,7 @@ end
 # ---------
 
 """
-    majorityvote(seqs::AbstractVector{GeneralSequence{A}}) where {A<:NucleicAcidAlphabet}
+    majorityvote(seqs::AbstractVector{LongSequence{A}}) where {A<:NucleicAcidAlphabet}
 
 Construct a sequence that is a consensus of a vector of sequences.
 
@@ -203,7 +203,7 @@ julia> majorityvote(seqs)
 MTCGAAARATCG
 ```
 """
-function majorityvote(seqs::AbstractVector{GeneralSequence{A}}) where {A<:NucleicAcidAlphabet}
+function majorityvote(seqs::AbstractVector{LongSequence{A}}) where {A<:NucleicAcidAlphabet}
     mat = seqmatrix(UInt8, seqs, :site)
     nsites = size(mat, 2)
     nseqs = size(mat, 1)

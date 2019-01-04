@@ -9,8 +9,8 @@
 # Promotion
 # ---------
 for alph in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.promote_rule(::Type{GeneralSequence{A}}, ::Type{GeneralSequence{B}}) where {A<:$alph,B<:$alph}
-        return GeneralSequence{promote_rule(A, B)}
+    @eval function Base.promote_rule(::Type{LongSequence{A}}, ::Type{LongSequence{B}}) where {A<:$alph,B<:$alph}
+        return LongSequence{promote_rule(A, B)}
     end
 end
 
@@ -31,15 +31,15 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
                        (RNAAlphabet{2}, DNAAlphabet{2}),
                        (RNAAlphabet{4}, DNAAlphabet{4})]
     
-    @eval function Base.convert(::Type{GeneralSequence{$alpha}}, seq::GeneralSequence{$alphb})
-        return GeneralSequence{$alpha}(seq)
+    @eval function Base.convert(::Type{LongSequence{$alpha}}, seq::LongSequence{$alphb})
+        return LongSequence{$alpha}(seq)
     end
 end
 
-# Convert from a GeneralSequence to to a DNA or RNA vector
-function Base.convert(::Type{GeneralSequence{A}}, seq::Vector) where A<:Alphabet
-    return GeneralSequence{A}(seq)
+# Convert from a LongSequence to to a DNA or RNA vector
+function Base.convert(::Type{LongSequence{A}}, seq::Vector) where A<:Alphabet
+    return LongSequence{A}(seq)
 end
 
-Base.convert(::Type{GeneralSequence{A}}, seq::AbstractString) where A = GeneralSequence{A}(seq)
+Base.convert(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
 

@@ -6,7 +6,7 @@
                 push!(expected, i)
             end
         end
-        bioseq = GeneralSequence{A}(seq)
+        bioseq = LongSequence{A}(seq)
         @test collect(ambiguous_positions(bioseq)) == expected
     end
 

@@ -36,8 +36,8 @@ global reps = 10
 
     # Check that kmers can be constructed from a BioSequence
     #   BioSequence → Kmer → BioSequence
-    function check_biosequence_construction(T::Type, seq::GeneralSequence)
-        return GeneralSequence(T(seq)) == seq
+    function check_biosequence_construction(T::Type, seq::LongSequence)
+        return LongSequence(T(seq)) == seq
     end
 
     # Check that kmers can be constructed from an array of nucleotides
@@ -50,7 +50,7 @@ global reps = 10
     #   String → BioSequence → Kmer → BioSequence → String
     function check_roundabout_construction(T::Type, A, seq::AbstractString)
         #T = eltype(A)
-        return String(GeneralSequence{A}(T(GeneralSequence{A}(seq)))) == uppercase(seq)
+        return String(LongSequence{A}(T(LongSequence{A}(seq)))) == uppercase(seq)
     end
 
     @testset "Skipmer and Kmer conversion" begin

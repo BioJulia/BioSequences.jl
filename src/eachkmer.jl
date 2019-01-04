@@ -81,11 +81,11 @@ function each(::Type{Kmer{T,K}}, seq::BioSequence, step::Integer=1) where {T,K}
     end
 end
 
-function eachkmer(seq::GeneralSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet}
+function eachkmer(seq::LongSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet}
     Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
     return each(DNAKmer{Int(K)}, seq, step)
 end
-function eachkmer(seq::GeneralSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet}
+function eachkmer(seq::LongSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet}
     Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
     return each(RNAKmer{Int(K)}, seq, step)
 end
@@ -96,11 +96,11 @@ end
 
 Base.eltype(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
-) where {T,S<:Union{ReferenceSequence, GeneralSequence{<:NucleicAcidAlphabet{4}}}} = Base.SizeUnknown()
+) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}} = Base.SizeUnknown()
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
-) where {T,S<:GeneralSequence{<:NucleicAcidAlphabet{2}}} = Base.HasLength()
+) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}} = Base.HasLength()
 
-function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:GeneralSequence{<:NucleicAcidAlphabet{2}}}
+function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     return max(0, fld(it.stop - it.start + 1 - kmersize(T), step(it)) + 1)
 end
 
@@ -115,7 +115,7 @@ const kmerbits = (0xff, 0x00, 0x01, 0xff,
                   0xff, 0xff, 0xff, 0xff)
 
 # Initializer for TwoBitNucs
-function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:GeneralSequence{<:NucleicAcidAlphabet{2}}}
+function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     filled, i, kmer = 0, it.start, UInt64(0)
 
     while i ≤ it.stop
@@ -132,7 +132,7 @@ function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:GeneralSequence
 end
 
 function Base.iterate(it::EveryKmerIterator{T,S}, state
-    ) where {T,S<:GeneralSequence{<:NucleicAcidAlphabet{2}}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     i, kmer = state
     i += 1
 
@@ -148,7 +148,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state
 end
 
 function Base.iterate(it::SpacedKmerIterator{T,S}, state
-    ) where {T,S<:GeneralSequence{<:NucleicAcidAlphabet{2}}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     i, kmer = state
     filled = it.filled
     i += it.increment
@@ -168,7 +168,7 @@ function Base.iterate(it::SpacedKmerIterator{T,S}, state
 end
 
 function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
-    ) where {T,S<:Union{ReferenceSequence, GeneralSequence{<:NucleicAcidAlphabet{4}}}}
+    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
     i, filled, kmer = state
     i += 1
     filled -= 1
@@ -189,7 +189,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
 end
 
 @inline function Base.iterate(it::SpacedKmerIterator{T,S}, state=(it.start-it.increment, 1, 0, UInt64(0))
-    ) where {T,S<:Union{ReferenceSequence, GeneralSequence{<:NucleicAcidAlphabet{4}}}}
+    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
     i, pos, filled, kmer = state
     i += it.increment
 

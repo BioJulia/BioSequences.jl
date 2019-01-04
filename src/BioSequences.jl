@@ -88,7 +88,7 @@ export
     
     # BioSequences
     BioSequence,
-    GeneralSequence,
+    LongSequence,
     DNASequence,
     RNASequence,
     AminoAcidSequence,
@@ -215,9 +215,9 @@ BioSymbols.gap(::Type{Char}) = '-'
 include("trait_definitions/alphabet.jl")
 include("bit-manipulation/bit-manipulation.jl")
 include("biosequences/biosequence.jl")
-include("mutablesequences/mutableseq.jl")
-include("mutablesequences/hash.jl")
-include("mutablesequences/randseq.jl")
+include("longsequences/longsequence.jl")
+include("longsequences/hash.jl")
+include("longsequences/randseq.jl")
 include("shortsequence/shortsequence.jl")
 include("kmers/kmer.jl")
 include("nmask.jl")

@@ -1,4 +1,4 @@
-# GeneralSequence
+# LongSequence
 # ==================
 #
 # A general purpose biological sequence representation.
@@ -16,7 +16,7 @@
 # About Internals
 # ---------------
 #
-# The `data` field of a `GeneralSequence{A}` object contains binary representation
+# The `data` field of a `LongSequence{A}` object contains binary representation
 # of a biological character sequence. Each character is encoded with an encoder
 # corresponding to the alphabet `A` and compactly packed into `data`. To extract
 # a character from a sequence, you should decode this binary sequence with a
@@ -42,47 +42,47 @@
 """
 Biological sequence data structure indexed by an alphabet type `A`.
 """
-mutable struct GeneralSequence{A <: Alphabet} <: BioSequence{A}
+mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
     part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
     shared::Bool          # true if and only if `data` is shared between sequences
 
-    function GeneralSequence{A}(data::Vector{UInt64},
+    function LongSequence{A}(data::Vector{UInt64},
                             part::UnitRange{Int},
                             shared::Bool) where A
         return new(data, part, shared)
     end
 end
 
-const DNASequence       = GeneralSequence{DNAAlphabet{4}}
-const RNASequence       = GeneralSequence{RNAAlphabet{4}}
-const AminoAcidSequence = GeneralSequence{AminoAcidAlphabet}
-const CharSequence      = GeneralSequence{CharAlphabet}
+const DNASequence       = LongSequence{DNAAlphabet{4}}
+const RNASequence       = LongSequence{RNAAlphabet{4}}
+const AminoAcidSequence = LongSequence{AminoAcidAlphabet}
+const CharSequence      = LongSequence{CharAlphabet}
 
 
 # Required type traits and methods
 # ================================
 
 "Gets the alphabet encoding of a given BioSequence."
-BioSymbols.alphabet(::Type{GeneralSequence{A}}) where {A} = alphabet(A)
-Alphabet(::Type{GeneralSequence{A}}) where {A <: Alphabet} = A()
-Base.length(seq::GeneralSequence) = length(seq.part)
-bindata(seq::GeneralSequence) = seq.data
-Base.eltype(::Type{GeneralSequence{A}}) where {A} = eltype(A)
+BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
+Alphabet(::Type{LongSequence{A}}) where {A <: Alphabet} = A()
+Base.length(seq::LongSequence) = length(seq.part)
+bindata(seq::LongSequence) = seq.data
+Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
 
 @inbounds function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
     return cld(len, div(64, bits_per_symbol(A())))
 end
 
-@inbounds function encoded_data(seq::GeneralSequence)
+@inbounds function encoded_data(seq::LongSequence)
     return seq.data
 end
 
 
-# Replace a GeneralSequence's data with a copy, copying only what's needed.
+# Replace a LongSequence's data with a copy, copying only what's needed.
 # The user should never need to call this, as it has no outward effect on the
 # sequence.
-function orphan!(seq::GeneralSequence{A},
+function orphan!(seq::LongSequence{A},
 		 size::Integer = length(seq),
 		 force::Bool = false) where {A}
 

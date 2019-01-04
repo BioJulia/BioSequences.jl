@@ -84,27 +84,27 @@ BigSkipmer{A, M, N}(seq::AbstractString) where {A, M, N} = BigSkipmer{A, M, N, l
 BigSkipmer{A}(seq::AbstractString) where {A} = BigSkipmer{A, 2, 3, length(seq)}(seq)
 
 # Constructor for all concrete skipmer types
-function Skipmer{A, M, N, K}(seq::GeneralSequence) where {A, M, N, K}
+function Skipmer{A, M, N, K}(seq::LongSequence) where {A, M, N, K}
     return make_skipmer(Skipmer{A, M, N, K}, seq)
 end
-Skipmer{A, M, N}(seq::GeneralSequence) where {A, M, N} = Skipmer{A, M, N, length(seq)}(seq)
-Skipmer(seq::GeneralSequence{A}) where {A <: DNAAlphabet} = Skipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
-Skipmer(seq::GeneralSequence{A}) where {A <: RNAAlphabet} = Skipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
-Kmer(seq::GeneralSequence{A}) where {A <: DNAAlphabet} = Kmer{DNAAlphabet{2},length(seq)}(seq)
-Kmer(seq::GeneralSequence{A}) where {A <: RNAAlphabet} = Kmer{RNAAlphabet{2},length(seq)}(seq)
+Skipmer{A, M, N}(seq::LongSequence) where {A, M, N} = Skipmer{A, M, N, length(seq)}(seq)
+Skipmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = Skipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
+Skipmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = Skipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
+Kmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = Kmer{DNAAlphabet{2},length(seq)}(seq)
+Kmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = Kmer{RNAAlphabet{2},length(seq)}(seq)
 
-function BigSkipmer{A, M, N, K}(seq::GeneralSequence) where {A, M, N, K}
+function BigSkipmer{A, M, N, K}(seq::LongSequence) where {A, M, N, K}
     return make_skipmer(BigSkipmer{A, M, N, K}, seq)
 end
-BigSkipmer{A, M, N}(seq::GeneralSequence) where {A, M, N} = BigSkipmer{A, M, N, length(seq)}(seq)
-BigSkipmer(seq::GeneralSequence{A}) where {A <: DNAAlphabet} = BigSkipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
-BigSkipmer(seq::GeneralSequence{A}) where {A <: RNAAlphabet} = BigSkipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
-BigKmer(seq::GeneralSequence{A}) where {A <: DNAAlphabet} = BigKmer{DNAAlphabet{2},length(seq)}(seq)
-BigKmer(seq::GeneralSequence{A}) where {A <: RNAAlphabet} = BigKmer{RNAAlphabet{2},length(seq)}(seq)
+BigSkipmer{A, M, N}(seq::LongSequence) where {A, M, N} = BigSkipmer{A, M, N, length(seq)}(seq)
+BigSkipmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = BigSkipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
+BigSkipmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = BigSkipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
+BigKmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = BigKmer{DNAAlphabet{2},length(seq)}(seq)
+BigKmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = BigKmer{RNAAlphabet{2},length(seq)}(seq)
 
 Skipmer{A, M, N, K}(x::Skipmer{A, M, N, K}) where {A, M, N, K} = x
 
-GeneralSequence(x::T) where {T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = GeneralSequence{DNAAlphabet{2}}(x)
-GeneralSequence(x::T) where {T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = GeneralSequence{RNAAlphabet{2}}(x)
-GeneralSequence{A}(x::T) where {A <: DNAAlphabet, T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = GeneralSequence{A}([nt for nt in x])
-GeneralSequence{A}(x::T) where {A <: RNAAlphabet, T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = GeneralSequence{A}([nt for nt in x])
+LongSequence(x::T) where {T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = LongSequence{DNAAlphabet{2}}(x)
+LongSequence(x::T) where {T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = LongSequence{RNAAlphabet{2}}(x)
+LongSequence{A}(x::T) where {A <: DNAAlphabet, T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = LongSequence{A}([nt for nt in x])
+LongSequence{A}(x::T) where {A <: RNAAlphabet, T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = LongSequence{A}([nt for nt in x])

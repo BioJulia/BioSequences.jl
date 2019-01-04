@@ -46,8 +46,8 @@
     @test translate(rna"GAYGARGAM") == aa"DEX"
 
     # BioSequences{RNAAlphabet{2}}
-    @test translate(GeneralSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
-    @test translate(GeneralSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
+    @test translate(LongSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
+    @test translate(LongSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
 
     # DNASequence
     @test translate(dna"ATGTAA") == aa"M*"

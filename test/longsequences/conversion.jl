@@ -1,27 +1,27 @@
 @testset "Constructing empty sequences" begin
-    @test DNASequence() == GeneralSequence(DNA)
-    @test RNASequence() == GeneralSequence(RNA)
-    @test AminoAcidSequence() == GeneralSequence(AminoAcid)
-    @test CharSequence() == GeneralSequence(Char)
+    @test DNASequence() == LongSequence(DNA)
+    @test RNASequence() == LongSequence(RNA)
+    @test AminoAcidSequence() == LongSequence(AminoAcid)
+    @test CharSequence() == LongSequence(Char)
 end
 
 @testset "Constructing uninitialized sequences" begin
-    @test isa(GeneralSequence{DNAAlphabet{2}}(0), GeneralSequence)
-    @test isa(GeneralSequence{DNAAlphabet{4}}(10), GeneralSequence)
-    @test isa(GeneralSequence{RNAAlphabet{2}}(0), GeneralSequence)
-    @test isa(GeneralSequence{RNAAlphabet{4}}(10), GeneralSequence)
-    @test isa(GeneralSequence{AminoAcidAlphabet}(10), GeneralSequence)
+    @test isa(LongSequence{DNAAlphabet{2}}(0), LongSequence)
+    @test isa(LongSequence{DNAAlphabet{4}}(10), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{2}}(0), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{4}}(10), LongSequence)
+    @test isa(LongSequence{AminoAcidAlphabet}(10), LongSequence)
 end
 
 @testset "Conversion from/to strings" begin
     # Check that sequences in strings survive round trip conversion:
-    #   String → GeneralSequence → String
+    #   String → LongSequence → String
     function test_string_construction(A::Type, seq::AbstractString)
-        @test convert(String, GeneralSequence{A}(seq)) == uppercase(seq)
+        @test convert(String, LongSequence{A}(seq)) == uppercase(seq)
     end
 
     function test_string_parse(A::Type, seq::AbstractString)
-        @test parse(GeneralSequence{A}, seq) == GeneralSequence{A}(seq)
+        @test parse(LongSequence{A}, seq) == LongSequence{A}(seq)
     end
 
     for len in [0, 1, 2, 3, 10, 32, 1000, 10000]
@@ -67,7 +67,7 @@ end
     function test_vector_construction(A, seq::AbstractString)
         T = eltype(A)
         xs = T[convert(T, c) for c in seq]
-        @test GeneralSequence{A}(xs) == GeneralSequence{A}(seq)
+        @test LongSequence{A}(xs) == LongSequence{A}(seq)
     end
 
     for len in [0, 1, 10, 32, 1000, 10000]
@@ -83,7 +83,7 @@ end
 
 @testset "Conversion between 2-bit and 4-bit encodings" begin
     function test_conversion(A1, A2, seq)
-        @test convert(GeneralSequence{A1}, GeneralSequence{A2}(seq)) == convert(GeneralSequence{A1}, seq)
+        @test convert(LongSequence{A1}, LongSequence{A2}(seq)) == convert(LongSequence{A1}, seq)
     end
 
     test_conversion(DNAAlphabet{2}, DNAAlphabet{4}, "")
@@ -103,17 +103,17 @@ end
 
     # ambiguous nucleotides cannot be stored in 2-bit encoding
     EncodeError = BioSequences.EncodeError
-    @test_throws EncodeError convert(GeneralSequence{DNAAlphabet{2}}, dna"AN")
-    @test_throws EncodeError convert(GeneralSequence{RNAAlphabet{2}}, rna"AN")
+    @test_throws EncodeError convert(LongSequence{DNAAlphabet{2}}, dna"AN")
+    @test_throws EncodeError convert(LongSequence{RNAAlphabet{2}}, rna"AN")
 
     # test promotion
-    a = GeneralSequence{DNAAlphabet{2}}("ATCG")
-    b = GeneralSequence{DNAAlphabet{4}}("ATCG")
-    c = GeneralSequence{RNAAlphabet{2}}("AUCG")
-    d = GeneralSequence{RNAAlphabet{4}}("AUCG")
+    a = LongSequence{DNAAlphabet{2}}("ATCG")
+    b = LongSequence{DNAAlphabet{4}}("ATCG")
+    c = LongSequence{RNAAlphabet{2}}("AUCG")
+    d = LongSequence{RNAAlphabet{4}}("AUCG")
 
-    @test typeof(promote(a, b)) == Tuple{GeneralSequence{DNAAlphabet{4}},GeneralSequence{DNAAlphabet{4}}}
-    @test typeof(promote(c, d)) == Tuple{GeneralSequence{RNAAlphabet{4}},GeneralSequence{RNAAlphabet{4}}}
+    @test typeof(promote(a, b)) == Tuple{LongSequence{DNAAlphabet{4}},LongSequence{DNAAlphabet{4}}}
+    @test typeof(promote(c, d)) == Tuple{LongSequence{RNAAlphabet{4}},LongSequence{RNAAlphabet{4}}}
     @test_throws ErrorException typeof(promote(a, d))
     @test_throws ErrorException typeof(promote(a, b, d))
 end
