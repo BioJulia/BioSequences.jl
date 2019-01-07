@@ -5,7 +5,7 @@
 [![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/stable)
 [![Latest documentation](https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/latest/)
 ![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg?style=flat-square)
-[![Chat on Discord](https://img.shields.io/badge/discord-chat-blue.svg?style=flat-square&logo=discord&colorB=%237289DA)](https://discord.gg/z73YNFz)
+[![Chat](https://img.shields.io/gitter/room/BioJulia/BioSequences.svg?style=flat-square)](https://gitter.im/BioJulia/BioSequences.jl)
 
 
 ## Description
