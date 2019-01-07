@@ -9,13 +9,13 @@
 """
 Query type for approximate sequence search.
 """
-struct ApproximateSearchQuery{S<:Sequence}
+struct ApproximateSearchQuery{S<:BioSequence}
     seq::S          # query sequence
     fPcom::Vector   # compatibility vector for forward search
     bPcom::Vector   # compatibility vector for backward search
     H::Vector{Int}  # distance vector for alignback function
 
-    function ApproximateSearchQuery{S}(seq::Sequence, direction::Symbol) where S
+    function ApproximateSearchQuery{S}(seq::BioSequence, direction::Symbol) where S
         if direction == :forward
             fPcom = approx_preprocess(seq, true)
             bPcom = []
@@ -34,7 +34,7 @@ struct ApproximateSearchQuery{S<:Sequence}
 end
 
 """
-    ApproximateSearchQuery(pat::Sequence[, direction=:both])
+    ApproximateSearchQuery(pat::BioSequence[, direction=:both])
 
 Create an query object for approximate sequence search from the `pat` sequence.
 
@@ -42,7 +42,7 @@ Create an query object for approximate sequence search from the `pat` sequence.
 * `pat`: Query sequence.
 * `direction=:both`: Search direction (`:forward`, `:backward`, or `:both`).
 """
-function ApproximateSearchQuery(pat::Sequence, direction::Symbol=:both)
+function ApproximateSearchQuery(pat::BioSequence, direction::Symbol=:both)
     return ApproximateSearchQuery{typeof(pat)}(pat, direction)
 end
 
@@ -70,12 +70,12 @@ end
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function approxsearch(seq::Sequence, pat::Sequence, k::Integer,
+function approxsearch(seq::BioSequence, pat::BioSequence, k::Integer,
                       start::Integer=1, stop::Integer=lastindex(seq))
     return approxsearch(seq, ApproximateSearchQuery(pat, :forward), k, start, stop)
 end
 
-function approxsearch(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
+function approxsearch(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                       start::Integer=1, stop::Integer=lastindex(seq))
     return _approxsearch(query, seq, k, start, stop, true)
 end
@@ -86,12 +86,12 @@ end
 Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function approxrsearch(seq::Sequence, pat::Sequence, k::Integer,
+function approxrsearch(seq::BioSequence, pat::BioSequence, k::Integer,
                        start::Integer=lastindex(seq), stop::Integer=1)
     return approxrsearch(seq, ApproximateSearchQuery(pat, :backward), k, start, stop)
 end
 
-function approxrsearch(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
+function approxrsearch(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                        start::Integer=lastindex(seq), stop::Integer=1)
     return _approxsearch(query, seq, k, start, stop, false)
 end
@@ -102,12 +102,12 @@ end
 Return the index of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function approxsearchindex(seq::Sequence, pat::Sequence, k::Integer,
+function approxsearchindex(seq::BioSequence, pat::BioSequence, k::Integer,
                            start::Integer=1, stop::Integer=lastindex(seq))
     return first(approxsearch(seq, pat, k, start, stop))
 end
 
-function approxsearchindex(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
+function approxsearchindex(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                            start::Integer=1, stop::Integer=lastindex(seq))
     return first(approxsearch(seq, query, k, start, stop))
 end
@@ -118,12 +118,12 @@ end
 Return the index of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function approxrsearchindex(seq::Sequence, pat::Sequence, k::Integer,
+function approxrsearchindex(seq::BioSequence, pat::BioSequence, k::Integer,
                             start::Integer=lastindex(seq), stop::Integer=1)
     return first(approxrsearch(seq, pat, k, start, stop))
 end
 
-function approxrsearchindex(seq::Sequence, query::ApproximateSearchQuery, k::Integer,
+function approxrsearchindex(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                             start::Integer=lastindex(seq), stop::Integer=1)
     return first(approxrsearch(seq, query, k, start, stop))
 end

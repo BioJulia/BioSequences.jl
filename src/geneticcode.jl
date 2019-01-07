@@ -117,7 +117,7 @@ function parse_gencode(s)
         b1 = DNA(base1[i])
         b2 = DNA(base2[i])
         b3 = DNA(base3[i])
-        codon = DNACodon(Kmer(b1, b2, b3))
+        codon = DNACodon(b1, b2, b3)
         codes[codon] = aa
     end
     return codes
@@ -322,14 +322,14 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}};
+function translate(seq::Union{RNASequence, LongSequence{RNAAlphabet{2}}};
                    code::GeneticCode=standard_genetic_code,
                    allow_ambiguous_codons::Bool = true,
 		   alternative_start::Bool = false)
     return translate(seq, code, allow_ambiguous_codons, alternative_start)
 end
 
-function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
+function translate(seq::Union{RNASequence, LongSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
     aaseqlen, r = divrem(length(seq), 3)
     if r != 0
         error("RNASequence length is not divisible by three. Cannot translate.")
@@ -353,7 +353,7 @@ function translate(seq::Union{RNASequence, BioSequence{RNAAlphabet{2}}}, code::G
                 aaseq[j] = aa
             end
         else
-            aaseq[j] = code[Kmer(x, y, z)]
+            aaseq[j] = code[RNACodon(x, y, z)]
         end
         i += 3
         j += 1
@@ -368,8 +368,8 @@ function translate(seq::DNASequence; kwargs...)
     return translate(convert(RNASequence, seq); kwargs...)
 end
 
-function translate(seq::BioSequence{DNAAlphabet{2}}; kwargs...)
-    return translate(convert(BioSequence{RNAAlphabet{2}}, seq); kwargs...)
+function translate(seq::LongSequence{DNAAlphabet{2}}; kwargs...)
+    return translate(convert(LongSequence{RNAAlphabet{2}}, seq); kwargs...)
 end
 
 function try_translate_ambiguous_codon(code::GeneticCode,
@@ -378,10 +378,10 @@ function try_translate_ambiguous_codon(code::GeneticCode,
                                        z::RNA)
     if !isambiguous(x) && !isambiguous(y)
         # try to translate a codon `(x, y, RNA_N)`
-        aa_a = code[Kmer(x, y, RNA_A)]
-        aa_c = code[Kmer(x, y, RNA_C)]
-        aa_g = code[Kmer(x, y, RNA_G)]
-        aa_u = code[Kmer(x, y, RNA_U)]
+        aa_a = code[RNACodon(x, y, RNA_A)]
+        aa_c = code[RNACodon(x, y, RNA_C)]
+        aa_g = code[RNACodon(x, y, RNA_G)]
+        aa_u = code[RNACodon(x, y, RNA_U)]
         if aa_a == aa_c == aa_g == aa_u
             return aa_a
         end

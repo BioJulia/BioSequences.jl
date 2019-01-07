@@ -3,10 +3,14 @@ os:
   - linux
   - osx
 julia:
-  - 0.7
   - 1.0
 notifications:
   email: false
+
+matrix:
+  allow_failures:
+  - julia: nightly
+
 after_success:
   - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps); Pkg.add("Coverage"); Pkg.add("BioSequences")'
   - julia -e 'using Coverage; import BioSequences; cd(dirname(dirname(pathof(BioSequences)))); Codecov.submit(process_folder())'

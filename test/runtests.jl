@@ -72,11 +72,12 @@ function random_seq(n::Integer, nts, probs)
     return String(x)
 end
 
-function random_seq(::Type{A}, n::Integer) where A<:Alphabet
-    nts = BioSymbols.alphabet(A)
+function random_seq(::Type{A}, n::Integer) where {A<:Alphabet}
+    # TODO: Resolve the use of symbols(A()).
+    nts = symbols(A())
     probs = Vector{Float64}(undef, length(nts))
     fill!(probs, 1 / length(nts))
-    return BioSequence{A}(random_seq(n, nts, probs))
+    return LongSequence{A}(random_seq(n, nts, probs))
 end
 
 function random_dna(n, probs=[0.24, 0.24, 0.24, 0.24, 0.04])
@@ -157,21 +158,21 @@ include("symbols.jl")
 end
 
 @testset "BioSequences" begin
-    include("bioseq/conversion.jl")
-    include("bioseq/basics.jl")
-    include("bioseq/hashing.jl")
-    include("bioseq/iteration.jl")
-    include("bioseq/subseq.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/print.jl")
-    include("bioseq/transformations.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/predicates.jl")
-    include("bioseq/find.jl")
-    include("bioseq/counting.jl")
-    include("bioseq/gc_content.jl")
-    include("bioseq/ambiguous.jl")
-    include("bioseq/shuffle.jl")
+    include("longsequences/conversion.jl")
+    include("longsequences/basics.jl")
+    include("longsequences/hashing.jl")
+    include("longsequences/iteration.jl")
+    include("longsequences/subseq.jl")
+    include("longsequences/mutability.jl")
+    include("longsequences/print.jl")
+    include("longsequences/transformations.jl")
+    include("longsequences/mutability.jl")
+    include("longsequences/predicates.jl")
+    include("longsequences/find.jl")
+    include("longsequences/counting.jl")
+    include("longsequences/gc_content.jl")
+    include("longsequences/ambiguous.jl")
+    include("longsequences/shuffle.jl")
 end
 
 @testset "ReferenceSequences" begin

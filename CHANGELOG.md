@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The abstract `Sequence` type is now called `BioSequence{A}`.
+- The type previously called `BioSequence{A}` is now `LongSequence{A}`.
+- `Kmers` are now a parametric type: `Skipmer{U<:Unsigned, A<:Alphabet, M, N, K}`.
+   A `Skipmer` is a more generic type of `Kmer`, where in addition to `K`, you have two other numeric parameters `M` and `N`. They are more fully described here: https://www.biorxiv.org/content/early/2017/09/19/179960.full.pdf+html
 
 ## [1.1.0]
 ### Changed

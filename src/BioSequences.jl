@@ -9,6 +9,7 @@
 module BioSequences
 
 export
+    # Symbols
     NucleicAcid,
     DNA,
     RNA,
@@ -55,60 +56,6 @@ export
     isgap,
     ispurine,
     ispyrimidine,
-    Sequence,
-    BioSequence,
-    DNASequence,
-    RNASequence,
-    AminoAcidSequence,
-    CharSequence,
-    NucleicAcidSequence,
-    SeqRecord,
-    seqname,
-    hasseqname,
-    sequence,
-    hassequence,
-    metadata,
-    @dna_str,
-    @rna_str,
-    @aa_str,
-    @char_str,
-    @biore_str,
-    @prosite_str,
-    @kmer_str,
-    matched,
-    captured,
-    alphabet,
-    gap,
-    complement,
-    complement!,
-    reverse_complement,
-    reverse_complement!,
-    ungap,
-    ungap!,
-    mismatches,
-    ispalindromic,
-    hasambiguity,
-    isrepetitive,
-    ambiguous_positions,
-    gc_content,
-    SequenceGenerator,
-    randdnaseq,
-    randrnaseq,
-    randaaseq,
-    canonical,
-    neighbors,
-    eachkmer,
-    each,
-    Composition,
-    composition,
-    NucleicAcidCounts,
-    Kmer,
-    DNAKmer,
-    RNAKmer,
-    DNACodon,
-    RNACodon,
-    translate,
-    ncbi_trans_table,
     AminoAcid,
     AA_A,
     AA_R,
@@ -138,6 +85,66 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
+    
+    # BioSequences
+    BioSequence,
+    LongSequence,
+    DNASequence,
+    RNASequence,
+    AminoAcidSequence,
+    CharSequence,
+    NucleicAcidSequence,
+    SeqRecord,
+    seqname,
+    hasseqname,
+    sequence,
+    hassequence,
+    metadata,
+    @dna_str,
+    @rna_str,
+    @aa_str,
+    @char_str,
+    @biore_str,
+    @prosite_str,
+    @kmer_str,
+    matched,
+    captured,
+    alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
+    symbols,
+    gap,
+    complement,
+    complement!,
+    reverse_complement,
+    reverse_complement!,
+    ungap,
+    ungap!,
+    mismatches,
+    ispalindromic,
+    hasambiguity,
+    isrepetitive,
+    ambiguous_positions,
+    gc_content,
+    SequenceGenerator,
+    randdnaseq,
+    randrnaseq,
+    randaaseq,
+    canonical,
+    neighbors,
+    eachkmer,
+    each,
+    Composition,
+    composition,
+    NucleicAcidCounts,
+    Skipmer,
+    Kmer,
+    DNAKmer,
+    RNAKmer,
+    BigDNAKmer,
+    BigRNAKmer,
+    DNACodon,
+    RNACodon,
+    translate,
+    ncbi_trans_table,
     FASTA,
     FASTQ,
     TwoBit,
@@ -145,9 +152,9 @@ export
 
     # Alphabets
     Alphabet,
+    NucleicAcidAlphabet,
     DNAAlphabet,
     RNAAlphabet,
-    NucAlphs,
     AminoAcidAlphabet,
     CharAlphabet,
 
@@ -192,23 +199,29 @@ import IndexableBitVectors
 import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
-    count_zero_nibbles,
+    count_0000_nibbles,
+    count_1111_nibbles,
     count_nonzero_nibbles,
-    count_zero_bitpairs,
-    count_nonzero_bitpairs
+    count_00_bitpairs,
+    count_01_bitpairs,
+    count_10_bitpairs,
+    count_11_bitpairs,
+    count_nonzero_bitpairs,
+    repeatbyte
 using Random
 
 BioSymbols.gap(::Type{Char}) = '-'
 
-include("alphabet.jl")
-include("bitindex.jl")
-include("sequence.jl")
-include("bioseq/bioseq.jl")
-include("bioseq/hash.jl")
-include("bioseq/randseq.jl")
-include("kmer.jl")
+include("trait_definitions/alphabet.jl")
+include("bit-manipulation/bit-manipulation.jl")
+include("biosequences/biosequence.jl")
+include("longsequences/longsequence.jl")
+include("longsequences/hash.jl")
+include("longsequences/randseq.jl")
+#include("shortsequence/shortsequence.jl")
+include("kmers/kmer.jl")
 include("nmask.jl")
-include("refseq.jl")
+include("refseq/refseq.jl")
 include("eachkmer.jl")
 include("composition.jl")
 include("geneticcode.jl")

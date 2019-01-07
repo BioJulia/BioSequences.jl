@@ -30,13 +30,13 @@
 
 abstract type AbstractKmerIterator{T,S} end
 
-struct EveryKmerIterator{T<:Kmer,S<:Sequence} <: AbstractKmerIterator{T,S}
+struct EveryKmerIterator{T<:Kmer,S<:BioSequence} <: AbstractKmerIterator{T,S}
     seq::S
     start::Int
     stop::Int
 end
 
-struct SpacedKmerIterator{T<:Kmer,S<:Sequence} <: AbstractKmerIterator{T,S}
+struct SpacedKmerIterator{T<:Kmer,S<:BioSequence} <: AbstractKmerIterator{T,S}
     seq::S
     start::Int
     step::Int
@@ -46,7 +46,7 @@ struct SpacedKmerIterator{T<:Kmer,S<:Sequence} <: AbstractKmerIterator{T,S}
 end
 
 """
-    each(::Type{Kmer{T,k}}, seq::Sequence[, step=1])
+    each(::Type{Kmer{T,k}}, seq::BioSequence[, step=1])
 
 Initialize an iterator over all k-mers in a sequence `seq` skipping ambiguous
 nucleotides without changing the reading frame.
@@ -64,28 +64,28 @@ for (pos, codon) in each(DNAKmer{3}, dna"ATCCTANAGNTACT", 3)
 end
 ```
 """
-function each(::Type{Kmer{T,K}}, seq::Sequence, step::Integer=1) where {T,K}
+function each(::Type{Kmer{U, A, K}}, seq::BioSequence, step::Integer=1) where {U, A, K}
     if eltype(seq) ∉ (DNA, RNA)
         throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
-    elseif !(1 ≤ K ≤ 32)
-        throw(ArgumentError("k-mer length must be between 0 and 32"))
+    elseif !(1 ≤ K ≤ capacity(Kmer{U, A, K}))
+        throw(ArgumentError("k-mer length must be between 0 and $(capacity(Kmer{U, A, K}))"))
     elseif step < 1
         throw(ArgumentError("step size must be positive"))
     end
     if step == 1
-        return EveryKmerIterator{Kmer{T,K},typeof(seq)}(seq, 1, lastindex(seq))
+        return EveryKmerIterator{Kmer{U, A, K},typeof(seq)}(seq, 1, lastindex(seq))
     else
         filled = max(0, K - step)
         increment = max(1, step - K + 1)
-        return SpacedKmerIterator{Kmer{T,K},typeof(seq)}(seq, 1, step, lastindex(seq), filled, increment)
+        return SpacedKmerIterator{Kmer{U, A, K},typeof(seq)}(seq, 1, step, lastindex(seq), filled, increment)
     end
 end
 
-function eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet}
+function eachkmer(seq::LongSequence{A}, K::Integer, step::Integer=1) where {A<:DNAAlphabet}
     Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
     return each(DNAKmer{Int(K)}, seq, step)
 end
-function eachkmer(seq::BioSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet}
+function eachkmer(seq::LongSequence{A}, K::Integer, step::Integer=1) where {A<:RNAAlphabet}
     Base.depwarn("eachkmer is depreceated: type instability means it is too slow. Please use each(::Type{Kmer{T,K}}, seq, step) instead", :eachkmer)
     return each(RNAKmer{Int(K)}, seq, step)
 end
@@ -96,11 +96,11 @@ end
 
 Base.eltype(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
-) where {T,S<:Union{ReferenceSequence, BioSequence{<:FourBitNucs}}} = Base.SizeUnknown()
+) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}} = Base.SizeUnknown()
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
-) where {T,S<:BioSequence{<:TwoBitNucs}} = Base.HasLength()
+) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}} = Base.HasLength()
 
-function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:TwoBitNucs}}
+function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     return max(0, fld(it.stop - it.start + 1 - kmersize(T), step(it)) + 1)
 end
 
@@ -115,8 +115,8 @@ const kmerbits = (0xff, 0x00, 0x01, 0xff,
                   0xff, 0xff, 0xff, 0xff)
 
 # Initializer for TwoBitNucs
-function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:TwoBitNucs}}
-    filled, i, kmer = 0, it.start, UInt64(0)
+function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
+    filled, i, kmer = 0, it.start, zero(encoded_data_eltype(T))
 
     while i ≤ it.stop
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
@@ -132,7 +132,7 @@ function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:T
 end
 
 function Base.iterate(it::EveryKmerIterator{T,S}, state
-    ) where {T,S<:BioSequence{<:TwoBitNucs}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     i, kmer = state
     i += 1
 
@@ -148,7 +148,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state
 end
 
 function Base.iterate(it::SpacedKmerIterator{T,S}, state
-    ) where {T,S<:BioSequence{<:TwoBitNucs}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
     i, kmer = state
     filled = it.filled
     i += it.increment
@@ -168,7 +168,7 @@ function Base.iterate(it::SpacedKmerIterator{T,S}, state
 end
 
 function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
-    ) where {T,S<:Union{ReferenceSequence, BioSequence{<:FourBitNucs}}}
+    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
     i, filled, kmer = state
     i += 1
     filled -= 1
@@ -177,7 +177,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
-        filled = ifelse(val == 0xff, 0, filled+1)
+        filled = ifelse(val == 0xff, 0, filled + 1)
 
         if filled == kmersize(T)
             pos = i - kmersize(T) + 1
@@ -188,8 +188,8 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
     return nothing
 end
 
-@inline function Base.iterate(it::SpacedKmerIterator{T,S}, state=(it.start-it.increment, 1, 0, UInt64(0))
-    ) where {T,S<:Union{ReferenceSequence, BioSequence{<:FourBitNucs}}}
+@inline function Base.iterate(it::SpacedKmerIterator{T,S}, state=(it.start-it.increment, 1, 0, zero(encoded_data_eltype(T)))
+    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
     i, pos, filled, kmer = state
     i += it.increment
 

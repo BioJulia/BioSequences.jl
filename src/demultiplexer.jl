@@ -172,7 +172,7 @@ end
 
 """
     demultiplex(demultiplexer::Demultiplexer,
-                seq::Sequence,
+                seq::BioSequence,
                 linear_search_fallback::Bool=false) -> (index, distance)
 
 Return a barcode index that matches `seq` with least errors and its distance.
@@ -182,7 +182,8 @@ parameter of `demultiplexer`. When `linear_search_fallback` is `true`, this
 function tries to find the best matching barcodes using linear search and
 returns one of them at random.
 """
-function demultiplex(demultiplexer::Demultiplexer, seq::Sequence, linear_search_fallback::Bool=false)
+function demultiplex(demultiplexer::Demultiplexer, seq::BioSequence, linear_search_fallback::Bool=false)
+
     if eltype(seq) != DNA
         error("sequence must be a DNA sequence")
     end

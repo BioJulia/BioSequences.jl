@@ -16,12 +16,13 @@ struct Composition{T} <: AbstractDict{T,Int}
     counts::Dict{T,Int}
 end
 
-function Composition(seq::BioSequence{A}) where A <: NucAlphs
+function Composition(seq::LongSequence{A}) where A <: NucleicAcidAlphabet
     counts = zeros(Int, 16)
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
     end
-    return Composition{eltype(A)}(count_array2dict(counts, alphabet(A)))
+    # TODO: resolve use of symbols(A()).
+    return Composition{eltype(A)}(count_array2dict(counts, symbols(A())))
 end
 
 function Composition(seq::ReferenceSequence)
@@ -51,25 +52,26 @@ function Composition(kmer::RNAKmer)
 end
 
 function Composition(seq::AminoAcidSequence)
-    counts = zeros(Int, length(alphabet(AminoAcid)))
+    # TODO: Resolve use of symbols AminoAcid.
+    counts = zeros(Int, length(symbols(AminoAcidAlphabet())))
     @inbounds for x in seq
         counts[reinterpret(UInt8, x) + 1] += 1
     end
-    return Composition{AminoAcid}(count_array2dict(counts, alphabet(AminoAcid)))
+    return Composition{AminoAcid}(count_array2dict(counts, symbols(AminoAcidAlphabet())))
 end
 
 function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}
     counts = Dict{T,Int}()
     if kmersize(T) ≤ 8
         # This is faster for short k-mers.
-        counts′ = zeros(Int, 4^kmersize(T))
+        counts′ = zeros(Int, 4 ^ kmersize(T))
         for (_, x) in iter
-            @inbounds counts′[reinterpret(Int, x)+1] += 1
+            @inbounds counts′[BioSequences.encoded_data(x) + 1] += 1
         end
-        for x in 1:lastindex(counts′)
+        for x in eachindex(counts′)
             @inbounds c = counts′[x]
             if c > 0
-                counts[reinterpret(T, x-1)] = c
+                counts[T(x - 1)] = c
             end
         end
     else
@@ -85,7 +87,7 @@ end
 
 Calculate composition of biological symbols in `seq` or k-mers in `kmer_iter`.
 """
-function composition(iter::Union{Sequence,AbstractKmerIterator})
+function composition(iter::Union{BioSequence,AbstractKmerIterator})
     return Composition(iter)
 end
 

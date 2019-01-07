@@ -1,6 +1,6 @@
 @testset "Transformations" begin
-    function test_reverse(T, seq)
-        revseq = reverse(Kmer{T,length(seq)}(seq))
+    function test_reverse(A, seq)
+        revseq = reverse(Kmer{UInt64, A, length(seq)}(seq))
         @test String(revseq) == reverse(seq)
     end
 
@@ -26,8 +26,8 @@
 
     @testset "Reverse" begin
         for len in 1:32, _ in 1:10
-            test_reverse(DNA, random_dna_kmer(len))
-            test_reverse(RNA, random_rna_kmer(len))
+            test_reverse(DNAAlphabet{2}, random_dna_kmer(len))
+            test_reverse(RNAAlphabet{2}, random_rna_kmer(len))
         end
 
         seq = dna"AAAAAAAAAAAAAAAAAAAAAAAAAAAAGATAC"

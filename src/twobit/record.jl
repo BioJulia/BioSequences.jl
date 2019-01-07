@@ -79,7 +79,7 @@ end
 
 function truncate(seq, len)
     if length(seq) > len
-        return "$(seq[1:len-1])…"
+        return "$(seq[1:len - 1])…"
     else
         return string(seq)
     end
@@ -107,7 +107,7 @@ end
 
 function sequence(::Type{BioSequences.ReferenceSequence}, record::Record)
     checkfilled(record)
-    data = decode_sequence(record.packeddna, record.dnasize, 2, twobit2refseq_table)
+    data = decode_sequence(record.packeddna, record.dnasize, BioSequences.BitsPerSymbol{2}(), twobit2refseq_table)
     nmask = falses(record.dnasize)
     for i in 1:record.blockcount
         nmask[record.blockstarts[i] .+ (1:record.blocksizes[i])] .= true
@@ -117,7 +117,7 @@ end
 
 function sequence(::Type{BioSequences.DNASequence}, record::Record)
     checkfilled(record)
-    data = decode_sequence(record.packeddna, record.dnasize, 4, twobit2dnaseq_table)
+    data = decode_sequence(record.packeddna, record.dnasize, BioSequences.BitsPerSymbol{4}(), twobit2dnaseq_table)
     seq = BioSequences.DNASequence(data, 1:record.dnasize, false)
     for i in 1:record.blockcount
         for j in record.blockstarts[i] .+ (1:record.blocksizes[i])
@@ -149,15 +149,15 @@ function maskedblocks(record::Record)
     return blocks
 end
 
-function decode_sequence(packeddna, seqlen, nbits, table)
-    @assert nbits ∈ (2, 4)
-    data = zeros(UInt64, cld(seqlen, div(64, nbits)))
-    stop = BioSequences.BitIndex(seqlen, nbits)
-    i = BioSequences.BitIndex(1, nbits)
+function decode_sequence(packeddna::Vector{UInt8}, seqlen::UInt32, nbits::BioSequences.BitsPerSymbol{n}, table::Vector{UInt64}) where {n}
+    @assert n ∈ (2, 4)
+    data = zeros(UInt64, cld(seqlen, div(64, n)))
+    stop = BioSequences.bitindex(nbits, UInt64, seqlen)
+    i = BioSequences.bitindex(nbits, UInt64, 1)
     j = 1
     while i ≤ stop
-        data[BioSequences.index(i)] |= table[Int(packeddna[j])+1] << BioSequences.offset(i)
-        i += 4 * nbits
+        data[BioSequences.index(i)] |= table[Int(packeddna[j]) + 1] << BioSequences.offset(i)
+        i += 4 * n
         j += 1
     end
     return data
@@ -212,14 +212,14 @@ Creates a sequence record suitable for writing to 2bit, in a similar way that
 FASTA and FASTQ records are created before being written to file. i.e. by calling
 a `Record` method on a name, some sequence, and some masks.
 """
-mutable struct WriteRecord{S<:BioSequences.Sequence}
+mutable struct WriteRecord{S<:BioSequences.BioSequence}
     name::String
     seq::S
     masks::Union{Vector{UnitRange{Int}}, Nothing}
 end
 
 """
-Record(name::AbstractString, seq::BioSequences.Sequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)
+Record(name::AbstractString, seq::BioSequences.BioSequence, masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)
 
 Prepare a record for writing to a 2bit formatted file.
 
@@ -227,7 +227,7 @@ Needs a `name`, a `sequence`, and (optionally) `masks`: a vector of
 ranges that delineate masked regions of sequence.
 """
 function Record(name::AbstractString,
-                seq::BioSequences.Sequence,
+                seq::BioSequences.BioSequence,
                 masks::Union{Vector{UnitRange{Int}}, Nothing} = nothing)
     return WriteRecord(string(name), seq, masks)
 end
