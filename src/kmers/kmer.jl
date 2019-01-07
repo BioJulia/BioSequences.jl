@@ -1,127 +1,125 @@
 # Skipmer & Kmer types
 # ====================
 
-primitive type Skipmer{A <: NucleicAcidAlphabet{2}, M, N, K} <: ShortSequence{64, A} 64 end
-const Kmer{A <: NucleicAcidAlphabet{2}, K} = Skipmer{A, 1, 1, K}
-const DNAKmer{K} = Kmer{DNAAlphabet{2}, K}
-const RNAKmer{K} = Kmer{RNAAlphabet{2}, K}
+struct Skipmer{U <: Unsigned, A <: NucleicAcidAlphabet{2}, M, N, K} <: BioSequence{A}
+    bits::U
+    function Skipmer{U, A, M, N, K}(x::U) where {U <: Unsigned, A <: NucleicAcidAlphabet{2}, M, N, K}
+        checkskipmer(Skipmer{U, A, M, N, K})
+        mask = (one(U) << (2 * K)) - 1
+        return new(x & mask)
+    end
+end
 
-primitive type BigSkipmer{A <: NucleicAcidAlphabet{2}, M, N, K} <: ShortSequence{128, A} 128 end
-const BigKmer{A <: NucleicAcidAlphabet{2}, K} = BigSkipmer{A, 1, 1, K}
-const BigDNAKmer{K} = BigKmer{DNAAlphabet{2}, K}
-const BigRNAKmer{K} = BigKmer{RNAAlphabet{2}, K}
-
+const Kmer{U, A <: NucleicAcidAlphabet{2}, K} = Skipmer{U, A, 1, 1, K}
+const DNAKmer{K} = Kmer{UInt64, DNAAlphabet{2}, K}
+const RNAKmer{K} = Kmer{UInt64, RNAAlphabet{2}, K}
+const BigDNAKmer{K} = Kmer{UInt128, DNAAlphabet{2}, K}
+const BigRNAKmer{K} = Kmer{UInt128, RNAAlphabet{2}, K}
 const DNACodon = DNAKmer{3}
 const RNACodon = RNAKmer{3}
 
-cycle_len(::Type{Skipmer{A, M, N, K}}) where {A <: NucleicAcidAlphabet{2}, M, N, K} = N
-cycle_len(::Type{BigSkipmer{A, M, N, K}}) where {A <: NucleicAcidAlphabet{2}, M, N, K} = N
+@inline encoded_data_eltype(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = U
 
-bases_per_cycle(::Type{Skipmer{A, M, N, K}}) where {A <: NucleicAcidAlphabet{2}, M, N, K} = M
-bases_per_cycle(::Type{BigSkipmer{A, M, N, K}}) where {A <: NucleicAcidAlphabet{2}, M, N, K} = M
+@inline encoded_data(x::Skipmer) = x.bits
 
-kmersize(::Type{Skipmer{A, M, N, K}}) where {A, M, N, K} = K
-kmersize(::Type{BigSkipmer{A, M, N, K}}) where {A, M, N, K} = K
-kmersize(skipmer::T) where {T <: Union{Skipmer, BigSkipmer}} = kmersize(typeof(skipmer))
+@inline cycle_len(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = N
+
+@inline bases_per_cycle(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = M
+
+@inline kmersize(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = K
+@inline kmersize(skipmer::Skipmer) = kmersize(typeof(skipmer))
+
+@inline capacity(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = div(8 * sizeof(U), 2)
+@inline capacity(x::Skipmer) = capacity(typeof(x))
+@inline n_unused(x::Skipmer) = capacity(x) - length(x)
 
 _span(M, N, K) = N * (K / M - 1) + M
-@inline function span(::Type{T}) where {T <: Union{Skipmer, BigSkipmer}}
+@inline function span(::Type{T}) where {T <: Skipmer}
     return _span(bases_per_cycle(T), cycle_len(T), kmersize(T))
 end
-span(skipmer::T) where T <: Union{Skipmer, BigSkipmer} = span(typeof(skipmer))
+@inline span(skipmer::T) where {T <: Skipmer} = span(typeof(skipmer))
 
-@inline function checkskipmer(::Type{Skipmer{A, M, N, K}}) where {A, M, N, K}
-    if !(A <: NucleicAcidAlphabet{2})
-        throw(ArgumentError("Skipmer must have a NucleicAcidAlphabet{2}"))
+@inline function checkskipmer(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K}
+    if !(U <: Unsigned)
+        throw(ArgumentError("Parameter U must be an unsigned integer type"))
     end
-    if !(1 ≤ K ≤ 32)
-        throw(ArgumentError("K must be within 1..32 in Skipmer{A, M, N, K}"))
+    if !(A <: NucleicAcidAlphabet{2})
+        throw(ArgumentError("Skipmer types must have a NucleicAcidAlphabet{2} alphabet"))
+    end
+    capacity = div(8 * sizeof(U), 2)
+    if !(1 ≤ K ≤ capacity)
+        throw(ArgumentError("K must be within 1..$capacity"))
     end
     if M > N
         throw(ArgumentError("M must not be greater than N in Skipmer{A, M, N, K}"))
     end
 end
 
-@inline function checkskipmer(::Type{BigSkipmer{A, M, N, K}}) where {A, M, N, K}
-    if !(A <: NucleicAcidAlphabet{2})
-        throw(ArgumentError("BigSkipmer must have a NucleicAcidAlphabet{2}"))
-    end
-    if !(1 ≤ K ≤ 64)
-        throw(ArgumentError("K must be within 1..64 in BigSkipmer{T, M, N, K}"))
-    end
-    if M > N
-        throw(ArgumentError("M must not be greater than N in BigSkipmer{T, M, N, K}"))
-    end
-end 
-
 include("conversion.jl")
 
-Alphabet(::Type{Skipmer{A, M, N, K} where A<:NucleicAcidAlphabet{2}}) where {M, N, K} = Any
-Alphabet(::Type{BigSkipmer{A, M, N, K} where A<:NucleicAcidAlphabet{2}}) where {M, N, K} = Any
+Alphabet(::Type{Skipmer{U, A, M, N, K} where A<:NucleicAcidAlphabet{2}}) where {U, M, N, K} = Any
 
 
 # Base Functions
 # --------------
 
-Base.length(x::T) where {T <: Union{Skipmer, BigSkipmer}} = kmersize(x)
+Base.length(x::Skipmer) = kmersize(x)
 
 Base.summary(x::DNAKmer{k}) where {k} = string("DNA ", k, "-mer")
 Base.summary(x::RNAKmer{k}) where {k} = string("RNA ", k, "-mer")
-Base.summary(x::Skipmer{DNAAlphabet{2}, M, N, K}) where {M, N, K} = string("DNA Skip(", M, ", ", N, ", ", K, ")-mer")
-Base.summary(x::Skipmer{RNAAlphabet{2}, M, N, K}) where {M, N, K} = string("RNA Skip(", M, ", ", N, ", ", K, ")-mer")
+Base.summary(x::Skipmer{U, DNAAlphabet{2}, M, N, K}) where {U, M, N, K} = string("DNA Skip(", M, ", ", N, ", ", K, ")-mer")
+Base.summary(x::Skipmer{U, RNAAlphabet{2}, M, N, K}) where {U, M, N, K} = string("RNA Skip(", M, ", ", N, ", ", K, ")-mer")
 
-function Base.typemin(::Type{Skipmer{A, M, N, K}}) where {A, M, N, K}
-    checkskipmer(Skipmer{A, M, N, K})
-    return reinterpret(Skipmer{A, M, N, K}, UInt64(0))
+function Base.typemin(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K}
+    checkskipmer(Skipmer{U, A, M, N, K})
+    return Skipmer{U, A, M, N, K}(typemin(U))
 end
 
-function Base.typemin(::Type{BigSkipmer{A, M, N, K}}) where {A, M, N, K}
-    checkskipmer(BigSkipmer{A, M, N, K})
-    return reinterpret(BigSkipmer{A, M, N, K}, UInt128(0))
-end
-
-function Base.typemax(::Type{Skipmer{A, M, N, K}}) where {A, M, N, K}
-    checkskipmer(Skipmer{A, M, N, K})
-    return reinterpret(Skipmer{A, M, N, K}, ~UInt64(0) >> (64 - 2K))
+function Base.typemax(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K}
+    checkskipmer(Skipmer{U, A, M, N, K})
+    return Skipmer{U, A, M, N, K}(typemax(U) >> (8 * sizeof(U) - 2K))
 end 
 
-function Base.typemax(::Type{BigSkipmer{A, M, N, K}}) where {A, M, N, K}
-    checkskipmer(BigSkipmer{A, M, N, K})
-    return reinterpret(BigSkipmer{A, M, N, K}, ~UInt128(0) >> (128 - 2K))
-end 
-
-function Base.rand(::Type{T}) where {T <: Union{Skipmer, BigSkipmer}}
+function Base.rand(::Type{T}) where {T <: Skipmer}
     return T(rand(encoded_data_eltype(T)))
 end
 
-function Base.rand(::Type{T}, size::Integer) where {T <: Union{Skipmer, BigSkipmer}}
+function Base.rand(::Type{T}, size::Integer) where {T <: Skipmer}
     return [rand(T) for _ in 1:size]
 end
 
+include("indexing.jl")
+include("predicates.jl")
+include("operations.jl")
+include("transformations.jl")
+
+Base.:-(x::Skipmer, y::Integer) = typeof(x)(encoded_data(x) - y % encoded_data_eltype(x))
+Base.:+(x::Skipmer, y::Integer) = typeof(x)(encoded_data(x) + y % encoded_data_eltype(x))
+Base.:+(x::Integer, y::Skipmer) = y + x
 
 # K-mer neighbor
 # --------------
 
-# neighbors on a de Bruijn graph
-struct KmerNeighborIterator{A, K}
-    x::Kmer{A, K}
+# Neighbors on a de Bruijn graph
+struct SkipmerNeighborIterator{S <: Skipmer}
+    x::S
 end
 
 """
-    neighbors(kmer::Kmer)
+    neighbors(skipmer::S) where {S <: Skipmer}
 
-Return an iterator through k-mers neighboring `kmer` on a de Bruijn graph.
+Return an iterator through skip-mers neighboring `skipmer` on a de Bruijn graph.
 """
-neighbors(x::Kmer{A,K}) where {A,K} = KmerNeighborIterator{A,K}(x)
+neighbors(skipmer::S) where {S <: Skipmer} = SkipmerNeighborIterator{S}(skipmer)
 
-Base.length(::KmerNeighborIterator) = 4
-Base.eltype(::Type{KmerNeighborIterator{A,K}}) where {A,K} = Kmer{A,K}
+Base.length(::SkipmerNeighborIterator) = 4
+Base.eltype(::Type{SkipmerNeighborIterator{S}}) where {S <: Skipmer} = S
 
-function Base.iterate(it::KmerNeighborIterator{A, K}, i::UInt64=UInt64(0)) where {A,K}
+function Base.iterate(it::SkipmerNeighborIterator{S}, i::UInt64 = UInt64(0)) where {S <: Skipmer}
     if i == 4
         return nothing
     else
-        return Kmer{A,K}((UInt64(it.x) << 2) | i), i + 1
+        return S((encoded_data(it.x) << 2) | i), i + 1
     end
 end
 

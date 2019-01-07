@@ -137,10 +137,10 @@ export
     NucleicAcidCounts,
     Skipmer,
     Kmer,
-    BigSkipmer,
-    BigKmer,
     DNAKmer,
     RNAKmer,
+    BigDNAKmer,
+    BigRNAKmer,
     DNACodon,
     RNACodon,
     translate,
@@ -218,7 +218,7 @@ include("biosequences/biosequence.jl")
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
-include("shortsequence/shortsequence.jl")
+#include("shortsequence/shortsequence.jl")
 include("kmers/kmer.jl")
 include("nmask.jl")
 include("refseq/refseq.jl")

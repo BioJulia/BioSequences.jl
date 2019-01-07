@@ -64,20 +64,20 @@ for (pos, codon) in each(DNAKmer{3}, dna"ATCCTANAGNTACT", 3)
 end
 ```
 """
-function each(::Type{Kmer{T,K}}, seq::BioSequence, step::Integer=1) where {T,K}
+function each(::Type{Kmer{U, A, K}}, seq::BioSequence, step::Integer=1) where {U, A, K}
     if eltype(seq) ∉ (DNA, RNA)
         throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
-    elseif !(1 ≤ K ≤ 32)
-        throw(ArgumentError("k-mer length must be between 0 and 32"))
+    elseif !(1 ≤ K ≤ capacity(Kmer{U, A, K}))
+        throw(ArgumentError("k-mer length must be between 0 and $(capacity(Kmer{U, A, K}))"))
     elseif step < 1
         throw(ArgumentError("step size must be positive"))
     end
     if step == 1
-        return EveryKmerIterator{Kmer{T,K},typeof(seq)}(seq, 1, lastindex(seq))
+        return EveryKmerIterator{Kmer{U, A, K},typeof(seq)}(seq, 1, lastindex(seq))
     else
         filled = max(0, K - step)
         increment = max(1, step - K + 1)
-        return SpacedKmerIterator{Kmer{T,K},typeof(seq)}(seq, 1, step, lastindex(seq), filled, increment)
+        return SpacedKmerIterator{Kmer{U, A, K},typeof(seq)}(seq, 1, step, lastindex(seq), filled, increment)
     end
 end
 
@@ -116,7 +116,7 @@ const kmerbits = (0xff, 0x00, 0x01, 0xff,
 
 # Initializer for TwoBitNucs
 function Base.iterate(it::AbstractKmerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
-    filled, i, kmer = 0, it.start, UInt64(0)
+    filled, i, kmer = 0, it.start, zero(encoded_data_eltype(T))
 
     while i ≤ it.stop
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
@@ -177,7 +177,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
-        filled = ifelse(val == 0xff, 0, filled+1)
+        filled = ifelse(val == 0xff, 0, filled + 1)
 
         if filled == kmersize(T)
             pos = i - kmersize(T) + 1
@@ -188,7 +188,7 @@ function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start-1,1,UInt64(0))
     return nothing
 end
 
-@inline function Base.iterate(it::SpacedKmerIterator{T,S}, state=(it.start-it.increment, 1, 0, UInt64(0))
+@inline function Base.iterate(it::SpacedKmerIterator{T,S}, state=(it.start-it.increment, 1, 0, zero(encoded_data_eltype(T)))
     ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
     i, pos, filled, kmer = state
     i += it.increment

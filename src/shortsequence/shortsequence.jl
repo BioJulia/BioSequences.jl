@@ -39,19 +39,8 @@ For example, the memory layout of "TACG" is:
 With this representation, the unused portion of the unsigned integer, should
 be kept blank (all zeros). 
 """
-abstract type ShortSequence{N, A <: Alphabet} <: BioSequence{A} end
+abstract type ShortSequence{A <: Alphabet} <: BioSequence{A} end
 
-encoded_data_eltype(::Type{T}) where T <: ShortSequence{128} = UInt128
-encoded_data_eltype(::Type{T}) where T <: ShortSequence{64}  = UInt64
-encoded_data_eltype(::Type{T}) where T <: ShortSequence{32}  = UInt32
-encoded_data_eltype(::Type{T}) where T <: ShortSequence{16}  = UInt16
-encoded_data_eltype(::Type{T}) where T <: ShortSequence{8}   = UInt8
-encoded_data_eltype(x::ShortSequence) = encoded_data_eltype(typeof(x))
-
-encoded_data(x::ShortSequence) = reinterpret(encoded_data_eltype(x), x)
-
-@inline capacity(::Type{<:ShortSequence{N}}) where N = div(N, 2)
-@inline capacity(x::ShortSequence) = capacity(typeof(x))
 @inline n_unused(x::ShortSequence) where N = capacity(x) - length(x)
 
 include("indexing.jl")

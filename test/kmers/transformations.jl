@@ -1,6 +1,6 @@
 @testset "Transformations" begin
-    function test_reverse(T, seq)
-        revseq = reverse(Kmer{T,length(seq)}(seq))
+    function test_reverse(A, seq)
+        revseq = reverse(Kmer{UInt64, A, length(seq)}(seq))
         @test String(revseq) == reverse(seq)
     end
 

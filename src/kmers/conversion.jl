@@ -1,110 +1,78 @@
 # Conversion & Construction
 # -------------------------
 
-# Create a skipmer from a sequence whose elements are convertible to a nucleotide
-function make_skipmer(::Type{T}, seq) where {T <: Union{Skipmer, BigSkipmer}}
-    checkskipmer(T)
+# Create a skipmer from a sequence whose elements are convertible to a nucleotide.
+function (::Type{Skipmer{U, A, M, N, K}})(seq) where {U, A, M, N, K}
+    checkskipmer(Skipmer{U, A, M, N, K})
     seqlen = length(seq)
-    if seqlen != kmersize(T)
-        throw(ArgumentError("seq does not contain the correct number of nucleotides ($seqlen ≠ $(kmersize(T)))"))
+    if seqlen != K
+        throw(ArgumentError("seq does not contain the correct number of nucleotides ($seqlen ≠ $K)"))
     end
 
-    x = encoded_data_eltype(T)(0)
+    x = zero(U)
     for c in seq
-        nt = convert(eltype(T), c)
+        nt = convert(eltype(Skipmer{U, A, M, N, K}), c)
         if isambiguous(nt)
             throw(ArgumentError("cannot create a skipmer with ambiguous nucleotides"))
         elseif isgap(nt)
             throw(ArgumentError("cannot create a skipmer with gaps"))
         end
-        x = (x << 2) | encoded_data_eltype(T)(twobitnucs[reinterpret(UInt8, nt) + 0x01])
+        x = (x << 2) | U(twobitnucs[reinterpret(UInt8, nt) + 0x01])
     end
 
-    return T(x)
+    return Skipmer{U, A, M, N, K}(x)
 end
 
-make_skipmer(seq::Tuple{DNA, Vararg{DNA, K}}) where {K} = make_skipmer(Skipmer{DNAAlphabet{2}, 2, 3, K + 1}, seq)
-make_skipmer(seq::Tuple{RNA, Vararg{RNA, K}}) where {K} = make_skipmer(Skipmer{RNAAlphabet{2}, 2, 3, K + 1}, seq)
-make_kmer(seq::Tuple{DNA, Vararg{DNA, K}}) where {K} = make_skipmer(Kmer{DNAAlphabet{2}, K + 1}, seq)
-make_kmer(seq::Tuple{RNA, Vararg{RNA, K}}) where {K} = make_skipmer(Kmer{RNAAlphabet{2}, K + 1}, seq)
-make_bigskipmer(seq::Tuple{DNA, Vararg{DNA, K}}) where {K} = make_skipmer(BigSkipmer{DNAAlphabet{2}, 2, 3, K + 1}, seq)
-make_bigskipmer(seq::Tuple{RNA, Vararg{RNA, K}}) where {K} = make_skipmer(BigSkipmer{RNAAlphabet{2}, 2, 3, K + 1}, seq)
-make_bigkmer(seq::Tuple{DNA, Vararg{DNA, K}}) where {K} = make_skipmer(BigKmer{DNAAlphabet{2}, K + 1}, seq)
-make_bigkmer(seq::Tuple{RNA, Vararg{RNA, K}}) where {K} = make_skipmer(BigKmer{RNAAlphabet{2}, K + 1}, seq)
 
-Skipmer(nts::T...) where {T<:NucleicAcid} = make_skipmer(nts)
-Kmer(nts::T...) where {T<:NucleicAcid} = make_kmer(nts)
-BigSkipmer(nts::T...) where {T<:NucleicAcid} = make_bigskipmer(nts)
-BigKmer(nts::T...) where {T<:NucleicAcid} = make_bigkmer(nts)
-
-function DNACodon(x::DNA, y::DNA, z::DNA)
-    return make_skipmer(Kmer{DNAAlphabet{2}, 3}, (x, y, z))
+# Create a skipmer from a sequence whose elements are convertible to a nucleotide,
+# without defining K.
+function (::Type{Skipmer{U, A, M, N}})(seq) where {U, A, M, N}
+    return Skipmer{U, A, M, N, length(seq)}(seq)
 end
 
-function RNACodon(x::RNA, y::RNA, z::RNA)
-    return make_skipmer(Kmer{RNAAlphabet{2},3}, (x, y, z))
+# Construct a Skipmer from a series of nucleic acids.
+function Skipmer{U, DNAAlphabet{2}, M, N, K}(nts::Vararg{DNA,K}) where {U, M, N, K}
+    return Skipmer{U, DNAAlphabet{2}, M, N, K}(nts)
 end
 
-@inline function make_mask(::Type{T}) where {T <: Union{Skipmer, BigSkipmer}}
-    return (encoded_data_eltype(T)(1) << (2 * kmersize(T))) - 1
+function Skipmer{U, RNAAlphabet{2}, M, N, K}(nts::Vararg{RNA,K}) where {U, M, N, K}
+    return Skipmer{U, RNAAlphabet{2}, M, N, K}(nts)
 end
 
-function Skipmer{A, M, N, K}(x::UInt64) where {A, M, N, K}
-    checkskipmer(Skipmer{A, M, N, K})
-    mask = make_mask(Skipmer{A, M, N, K})
-    return reinterpret(Skipmer{A, M, N, K}, x & mask)
+function Skipmer{U, DNAAlphabet{2}, M, N}(nts::Vararg{DNA,K}) where {U, M, N, K}
+    return Skipmer{U, DNAAlphabet{2}, M, N, K}(nts)
 end
-UInt64(x::Skipmer) = reinterpret(UInt64, x)
-Base.convert(::Type{UInt64}, x::Skipmer) = reinterpret(UInt64, x)
 
-function BigSkipmer{A, M, N, K}(x::UInt128) where {A, M, N, K}
-    checkskipmer(BigSkipmer{A, M, N, K})
-    mask = make_mask(BigSkipmer{A, M, N, K})
-    return reinterpret(BigKmer{A, K}, x & mask)
+function Skipmer{U, RNAAlphabet{2}, M, N}(nts::Vararg{RNA,K}) where {U, M, N, K}
+    return Skipmer{U, RNAAlphabet{2}, M, N, K}(nts)
 end
-UInt128(x::BigSkipmer) = reinterpret(UInt128, x)
-Base.convert(::Type{UInt128}, x::BigSkipmer) = reinterpret(UInt128, x)
 
-Skipmer{DNAAlphabet{2}, M, N, K}(x::Skipmer{RNAAlphabet{2}, M, N, K}) where {M, N, K} = reinterpret(Skipmer{DNAAlphabet{2}, M, N, K}, x)
-Skipmer{RNAAlphabet{2}, M, N, K}(x::Skipmer{DNAAlphabet{2}, M, N, K}) where {M, N, K} = reinterpret(Skipmer{RNAAlphabet{2}, M, N, K}, x)
-BigSkipmer{DNAAlphabet{2}, M, N, K}(x::BigSkipmer{RNAAlphabet{2}, M, N, K}) where {M, N, K} = reinterpret(BigSkipmer{DNAAlphabet{2}, M, N, K}, x)
-BigSkipmer{RNAAlphabet{2}, M, N, K}(x::BigSkipmer{DNAAlphabet{2}, M, N, K}) where {M, N, K} = reinterpret(BigSkipmer{RNAAlphabet{2}, M, N, K}, x)
-
-# Constructor for all concrete skiper types
-function Skipmer{A, M, N, K}(seq::AbstractString) where {A, M, N, K}
-    return make_skipmer(Skipmer{A, M, N, K}, seq)
+# Construct Skipmers from integers...
+function Skipmer{UInt64, A, M, N, K}(i::Int64) where {A, M, N, K}
+    return Skipmer{UInt64, A, M, N, K}(convert(UInt64, i))
 end
-Skipmer{A, M, N}(seq::AbstractString) where {A, M, N} = Skipmer{A, M, N, length(seq)}(seq)
-Skipmer{A}(seq::AbstractString) where A = Skipmer{A, 2, 3, length(seq)}(seq)
 
-function BigSkipmer{A, M, N, K}(seq::AbstractString) where {A, M, N, K}
-    return make_skipmer(BigSkipmer{A, M, N, K}, seq)
+function Skipmer{UInt128, A, M, N, K}(i::Int128) where {A, M, N, K}
+    return Skipmer{UInt128, A, M, N, K}(convert(UInt128, i))
 end
-BigSkipmer{A, M, N}(seq::AbstractString) where {A, M, N} = BigSkipmer{A, M, N, length(seq)}(seq)
-BigSkipmer{A}(seq::AbstractString) where {A} = BigSkipmer{A, 2, 3, length(seq)}(seq)
 
-# Constructor for all concrete skipmer types
-function Skipmer{A, M, N, K}(seq::LongSequence) where {A, M, N, K}
-    return make_skipmer(Skipmer{A, M, N, K}, seq)
+function Skipmer{UInt32, A, M, N, K}(i::Int32) where {A, M, N, K}
+    return Skipmer{UInt32, A, M, N, K}(convert(UInt32, i))
 end
-Skipmer{A, M, N}(seq::LongSequence) where {A, M, N} = Skipmer{A, M, N, length(seq)}(seq)
-Skipmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = Skipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
-Skipmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = Skipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
-Kmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = Kmer{DNAAlphabet{2},length(seq)}(seq)
-Kmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = Kmer{RNAAlphabet{2},length(seq)}(seq)
 
-function BigSkipmer{A, M, N, K}(seq::LongSequence) where {A, M, N, K}
-    return make_skipmer(BigSkipmer{A, M, N, K}, seq)
+function Skipmer{UInt16, A, M, N, K}(i::Int16) where {A, M, N, K}
+    return Skipmer{UInt16, A, M, N, K}(convert(UInt16, i))
 end
-BigSkipmer{A, M, N}(seq::LongSequence) where {A, M, N} = BigSkipmer{A, M, N, length(seq)}(seq)
-BigSkipmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = BigSkipmer{DNAAlphabet{2}, 2, 3, length(seq)}(seq)
-BigSkipmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = BigSkipmer{RNAAlphabet{2}, 2, 3, length(seq)}(seq)
-BigKmer(seq::LongSequence{A}) where {A <: DNAAlphabet} = BigKmer{DNAAlphabet{2},length(seq)}(seq)
-BigKmer(seq::LongSequence{A}) where {A <: RNAAlphabet} = BigKmer{RNAAlphabet{2},length(seq)}(seq)
 
-Skipmer{A, M, N, K}(x::Skipmer{A, M, N, K}) where {A, M, N, K} = x
+function Skipmer{UInt8, A, M, N, K}(i::Int8) where {A, M, N, K}
+    return Skipmer{UInt8, A, M, N, K}(convert(UInt8, i))
+end
 
-LongSequence(x::T) where {T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = LongSequence{DNAAlphabet{2}}(x)
-LongSequence(x::T) where {T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = LongSequence{RNAAlphabet{2}}(x)
-LongSequence{A}(x::T) where {A <: DNAAlphabet, T <: Union{Skipmer{DNAAlphabet{2}}, BigSkipmer{DNAAlphabet{2}}}} = LongSequence{A}([nt for nt in x])
-LongSequence{A}(x::T) where {A <: RNAAlphabet, T <: Union{Skipmer{RNAAlphabet{2}}, BigSkipmer{RNAAlphabet{2}}}} = LongSequence{A}([nt for nt in x])
+Skipmer{U, A, M, N, K}(x::Skipmer{U, A, M, N, K}) where {U, A, M, N, K} = x
+
+# Construct a LongSequence from a Skipmer.
+LongSequence{A}(x::Skipmer{U, DNAAlphabet{2}, M, N, K}) where {U, A<:DNAAlphabet, M, N, K} = LongSequence{A}([nt for nt in x])
+LongSequence{A}(x::Skipmer{U, RNAAlphabet{2}, M, N, K}) where {U, A<:RNAAlphabet, M, N, K} = LongSequence{A}([nt for nt in x])
+LongSequence(x::Skipmer{U, A, M, N, K}) where {U, A, M, N, K} = LongSequence{A}([nt for nt in x])
+
+Base.convert(::Type{U}, x::Skipmer{U, A, M, N, K}) where {U<:Unsigned, A, M, N, K} = encoded_data(x)

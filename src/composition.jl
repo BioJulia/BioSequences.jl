@@ -64,14 +64,14 @@ function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}
     counts = Dict{T,Int}()
     if kmersize(T) ≤ 8
         # This is faster for short k-mers.
-        counts′ = zeros(Int, 4^kmersize(T))
+        counts′ = zeros(Int, 4 ^ kmersize(T))
         for (_, x) in iter
-            @inbounds counts′[reinterpret(Int, x)+1] += 1
+            @inbounds counts′[BioSequences.encoded_data(x) + 1] += 1
         end
-        for x in 1:lastindex(counts′)
+        for x in eachindex(counts′)
             @inbounds c = counts′[x]
             if c > 0
-                counts[reinterpret(T, x-1)] = c
+                counts[T(x - 1)] = c
             end
         end
     else
