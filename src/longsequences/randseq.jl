@@ -4,44 +4,45 @@
 # Random sequence generator.
 #
 # This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/LongSequences.jl/blob/master/LICENSE.md
-
-# TODO: Add length check in instantiator of LongSequence
+# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 import Random: Sampler
 
 """
     SamplerUniform{T}
 
-Uniform sampler of type T. Instantiate with a an iterable collection of eltype T
-containing the desired elements.
+Weighted sampler of type T. Instantiate with a collection of eltype T containing
+the elements to sample.
 
 # Examples
 ```
-julia> sp = SamplerUniform{RNA}(rna"ACGU")
+julia> sp = SamplerUniform(rna"ACGU");
 ```
 """
 struct SamplerUniform{T} <: Sampler{T}
     elems::Vector{T}
-    len::Int
 
     function SamplerUniform{T}(elems) where {T}
         elemsvector = convert(Vector{T}, collect(elems))
-        return new(elemsvector, length(elemsvector))
+        return new(elemsvector)
     end
 end
+
+SamplerUniform(elems) = SamplerUniform{eltype(elems)}(elems)
+Base.rand(rng::AbstractRNG, sp::SamplerUniform) = rand(sp.elems)
+const DefaultAASampler = SamplerUniform(aa"ACDEFGHIKLMNPQRSTVWY")
 
 """
     SamplerWeighted{T}
 
-Weighted sampler of type T. Instantiate with a Vector{T} containing the desired
-elements of type T, and a Vector{Float64} containing the probability to generate
+Weighted sampler of type T. Instantiate with a collection of eltype T containing
+the elements to sample, and an orderen collection of probabilities to sample
 each element except the last. The last probability is the remaining probability
 up to 1.
 
 # Examples
 ```
-julia> sp = SamplerWeighted{RNA}(rna"ACGUN", fill(0.2475, 4))
+julia> sp = SamplerWeighted(rna"ACGUN", fill(0.2475, 4));
 ```
 """
 struct SamplerWeighted{T} <: Sampler{T}
@@ -65,29 +66,24 @@ struct SamplerWeighted{T} <: Sampler{T}
     end
 end
 
+SamplerWeighted(elems, probs) = SamplerWeighted{eltype(elems)}(elems, probs)
+
 Base.eltype(::Type{SamplerWeighted{T}}) where {T} = T
 Base.eltype(::Type{SamplerUniform{T}}) where {T} = T
 
 function Base.rand(rng::AbstractRNG, sp::SamplerWeighted)
-    probs = sp.probs
     r = rand(rng)
     j = 1
-    @inbounds cumulative_prob = probs[j]
+    @inbounds cumulative_prob = sp.probs[j]
     while cumulative_prob < r
         j += 1
-        @inbounds cumulative_prob += probs[j]
+        @inbounds cumulative_prob += sp.probs[j]
     end
     return @inbounds sp.elems[j]
 end
 
-function Base.rand(rng::AbstractRNG, sp::SamplerUniform)
-    return @inbounds sp.elems[rand(1:sp.len)]
-end
-
-const DefaultAASampler = SamplerUniform{AminoAcid}(aa"ACDEFGHIKLMNPQRSTVWY")
-
 """
-    randseq{A::Alphabet, sp::SamplerWeighted{T}, len::Integer)
+    randseq{A::Alphabet, sp::Sampler, len::Integer)
 
 Generate a LongSequence{A} of length `len` with elements drawn from
 the given sampler.
@@ -95,7 +91,7 @@ the given sampler.
 # Example:
 ```
 # Generate 1000-length RNA with 4% chance of N, 24% for A, C, G, or U
-julia> sp = SamplerWeighted{RNA}(rna"ACGUN", fill(0.24, 4))
+julia> sp = SamplerWeighted(rna"ACGUN", fill(0.24, 4))
 julia> seq = randseq(RNAAlphabet{4}(), sp, 50)
 50nt RNA Sequence:
 CUNGGGCCCGGGNAAACGUGGUACACCCUGUUAAUAUCAACNNGCGCUNU
@@ -121,7 +117,7 @@ For RNA and DNA alphabets, the default distribution is uniform across A, C, G,
 and T/U.
 For AminoAcidAlphabet, it is uniform across the 20 proteogenic amino acids.
 For a user-defined alphabet A, default is uniform across all elements of
-alphabet(eltype(A)).
+`symbols(A)`.
 
 # Example:
 ```
@@ -130,12 +126,6 @@ julia> seq = randseq(AminoAcidAlphabet(), 50)
 VFMHSIRMIRLMVHRSWKMHSARHVNFIRCQDKKWKSADGIYTDICKYSM
 ```
 """
-function randseq(A::NucleicAcidAlphabet{2}, len::Integer)
-    vector = rand(UInt64, seq_data_len(typeof(A), len))
-    return LongSequence{typeof(A)}(vector, 1:len, false)
-end
-
-# Fast specialization for four-bit nucleotides
 function randseq(A::NucleicAcidAlphabet{4}, len::Integer)
     seq = LongSequence{typeof(A)}(len)
     randombits = zero(UInt64)
@@ -164,18 +154,27 @@ function randseq(::AminoAcidAlphabet, len::Integer)
     return randseq(AminoAcidAlphabet(), DefaultAASampler, len)
 end
 
-# Generic fallback for user-defined Alphabets.
+# Generic fallback method.
 function randseq(A::Alphabet, len::Integer)
-    letters = symbols(A)
-    sampler = SamplerUniform{eltype(A)}(letters)
-    return randseq(A, sampler, len)
+    if length(A) == 1 << bits_per_symbol(A)
+        return randseq_allbits(A, len)
+    else
+        letters = symbols(A)
+        sampler = SamplerUniform{eltype(A)}(letters)
+        return randseq(A, sampler, len)
+    end
+end
+
+function randseq_allbits(A::Alphabet, len::Integer)
+    vector = rand(UInt64, seq_data_len(typeof(A), len))
+    return LongSequence{typeof(A)}(vector, 1:len, false)
 end
 
 """
     randdnaseq(len::Integer)
 
 Generate a random LongSequence{DNAAlphabet{4}} sequence of length `len`,
-with bases drawn uniformly from [A, C, G, T]
+with bases sampled uniformly from [A, C, G, T]
 """
 randdnaseq(len::Integer) = randseq(DNAAlphabet{4}(), len)
 
@@ -183,7 +182,7 @@ randdnaseq(len::Integer) = randseq(DNAAlphabet{4}(), len)
     randrnaseq(len::Integer)
 
 Generate a random LongSequence{RNAAlphabet{4}} sequence of length `len`,
-with bases drawn uniformly from [A, C, G, U]
+with bases sampled uniformly from [A, C, G, U]
 """
 randrnaseq(len::Integer) = randseq(RNAAlphabet{4}(), len)
 
@@ -191,6 +190,6 @@ randrnaseq(len::Integer) = randseq(RNAAlphabet{4}(), len)
     randaaseq(len::Integer)
 
 Generate a random LongSequence{AminoAcidAlphabet} sequence of length `len`,
-with amino acids drawn uniformly from the 20 proteogenic ones.
+with amino acids sampled uniformly from the 20 standard amino acids.
 """
 randaaseq(len::Integer) = randseq(AminoAcidAlphabet(), len)
