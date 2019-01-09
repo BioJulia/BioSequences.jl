@@ -55,11 +55,11 @@ abstract type NucleicAcidAlphabet{n} <: Alphabet end
 BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{2} = BitsPerSymbol{2}()
 BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{4} = BitsPerSymbol{4}()
 
-@inline function Base.iterate(x::A, state = 0x00) where {A <: NucleicAcidAlphabet{4}}
+@inline function Base.iterate(x::A, state::UInt8 = 0x00) where {A <: NucleicAcidAlphabet{4}}
     state > 0x0F ? nothing : (reinterpret(eltype(x), state), state + 0x01)
 end
 
-@inline function Base.iterate(x::A, state = 0x01) where {A <: NucleicAcidAlphabet{2}}
+@inline function Base.iterate(x::A, state::UInt8 = 0x01) where {A <: NucleicAcidAlphabet{2}}
     state > 0x08 ? nothing : (reinterpret(eltype(x), state), state << 0x01)
 end
 
@@ -113,7 +113,7 @@ BitsPerSymbol(::AminoAcidAlphabet) = BitsPerSymbol{8}()
 Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
 Base.length(x::AminoAcidAlphabet) = 28
 
-@inline function Base.iterate(x::AminoAcidAlphabet, state = 0x00)
+@inline function Base.iterate(x::AminoAcidAlphabet, state::UInt8 = 0x00)
     state > 0x1b ? nothing : (reinterpret(AminoAcid, state), state + 0x01)
 end
 
@@ -133,7 +133,7 @@ BitsPerSymbol(::CharAlphabet) = BitsPerSymbol{32}()
 Base.eltype(::Type{CharAlphabet}) = Char
 Base.length(::CharAlphabet) = 1114112
 
-@inline function Base.iterate(::CharAlphabet, state = '\0')
+@inline function Base.iterate(::CharAlphabet, state::Char = '\0')
     state > '\U10ffff' ? nothing : (state, state + UInt32(1))
 end
 
