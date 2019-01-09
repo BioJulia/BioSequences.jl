@@ -70,7 +70,7 @@ Base.length(x::A) where {A <: NucleicAcidAlphabet{4}} = 16
     return reinterpret(eltype(x), 0x01 << (i - 1))
 end
 @inline function Base.getindex(x::NucleicAcidAlphabet{4}, i::Int)
-    return reinterpret(eltype(x), i - 1)
+    return reinterpret(eltype(x), UInt8(i - 1))
 end
 
 
@@ -118,7 +118,7 @@ Base.length(x::AminoAcidAlphabet) = 28
 end
 
 @inline function Base.getindex(x::AminoAcidAlphabet, i)
-    return reinterpret(AminoAcid, i - 1)
+    return reinterpret(AminoAcid, UInt8(i - 1))
 end
 
 
