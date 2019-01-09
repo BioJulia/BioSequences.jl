@@ -7,6 +7,9 @@
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function LongSequence{A}(len::Integer) where {A<:Alphabet}
+    if len < 0
+        throw(ArgumentError("len must be non-negative"))
+    end
     return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:convert(Int, len), false)
 end
 
