@@ -109,8 +109,8 @@ function unsafe_setindex!(seq::LongSequence{A}, other::LongSequence{A}, locs::Ab
 end
 
 function unsafe_setindex!(seq::LongSequence{A},
-                        other::LongSequence{A},
-                        locs::AbstractVector{Bool}) where {A}
+                          other::LongSequence{A},
+                          locs::AbstractVector{Bool}) where {A}
     i = j = 0
     while true
         i = findnext(locs, i + 1)

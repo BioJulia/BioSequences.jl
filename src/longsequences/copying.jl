@@ -21,15 +21,21 @@ function Base.copyto!(dst::LongSequence{A}, doff::Integer,
     return copyto!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
-function Base.copyto!(dst::LongSequence{A}, doff::Integer,
+@inline function Base.copyto!(dst::LongSequence{A}, doff::Integer,
                     src::LongSequence{A}, soff::Integer, len::Integer) where {A}
-    checkbounds(dst, doff:doff+len-1)
-    checkbounds(src, soff:soff+len-1)
+    @boundscheck checkbounds(dst, doff:doff+len-1)
+    @boundscheck checkbounds(src, soff:soff+len-1)
 
     if dst.shared || (dst === src && doff > soff)
         orphan!(dst, length(dst), true)
     end
 
+    return unsafe_copyto!(dst, doff, src, soff, len)
+end
+
+function unsafe_copyto!(dst::LongSequence{A}, doff::Integer,
+                        src::LongSequence{A}, soff::Integer, len::Integer) where {A}
+                        
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
     #TODO: Resolve this use of bits_per_symbol
@@ -53,7 +59,7 @@ function Base.copyto!(dst::LongSequence{A}, doff::Integer,
         is += k
         rest -= k
     end
-
+    
     return dst
 end
 
