@@ -118,7 +118,6 @@ end
 
 include("indexing.jl")
 include("constructors.jl")
-include("iteration.jl")
 include("copying.jl")
 include("conversion.jl")
 include("stringliterals.jl")
