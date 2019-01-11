@@ -121,6 +121,5 @@ function Base.pushfirst!(seq::BioSequence, x)
     return seq
 end
 
-function Base.filter(f::Function, seq::BioSequence)
-    return filter!(f, copy(seq))
-end
+Base.filter(f::Function, seq::BioSequence) = filter!(f, copy(seq))
+Base.map(f::Function, seq::BioSequence) = map!(f, copy(seq))

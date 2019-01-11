@@ -1,20 +1,6 @@
 # Transformations
 # ---------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 """
     resize!(seq, size)
 
@@ -65,10 +51,6 @@ function Base.map!(f::Function, seq::LongSequence)
         unsafe_setindex!(seq, f(inbounds_getindex(seq, i)), i)
     end
     return seq
-end
-
-function Base.map(f::Function, seq::LongSequence)
-    return map!(f, copy(seq))
 end
 
 """
