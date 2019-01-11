@@ -88,6 +88,7 @@ export
     
     # BioSequences
     BioSequence,
+    NucleotideSeq,
     LongSequence,
     DNASequence,
     RNASequence,

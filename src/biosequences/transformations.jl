@@ -130,6 +130,24 @@ Base.reverse(seq::LongSequence) = reverse!(copy(seq))
 
 Make a complement sequence of `seq`.
 """
-function BioSymbols.complement(seq::T) where {T<:BioSequence{<:NucleicAcidAlphabet}}
+function BioSymbols.complement(seq::NucleotideSeq)
     return complement!(copy(seq))
+end
+
+"""
+    reverse_complement!(seq)
+
+Make a reversed complement sequence of `seq` in place.
+"""
+function reverse_complement!(seq::NucleotideSeq)
+    return complement!(reverse!(seq))
+end
+
+"""
+    reverse_complement(seq)
+
+Make a reversed complement sequence of `seq`.
+"""
+function reverse_complement(seq::NucleotideSeq)
+    return complement!(reverse(seq))
 end

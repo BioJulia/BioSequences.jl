@@ -120,24 +120,6 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     return seq
 end
 
-"""
-    reverse_complement!(seq)
-
-Make a reversed complement sequence of `seq` in place.
-"""
-function reverse_complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    return complement!(reverse!(seq))
-end
-
-"""
-    reverse_complement(seq)
-
-Make a reversed complement sequence of `seq`.
-"""
-function reverse_complement(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    return complement!(reverse(seq))
-end
-
 # Shuffle
 # -------
 
