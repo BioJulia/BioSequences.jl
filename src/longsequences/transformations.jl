@@ -1,20 +1,7 @@
 # Transformations
 # ---------------
 
-"""
-    pop!(seq::LongSequence)
 
-Remove the symbol from the end of a biological sequence `seq` and return it.
-Returns a variable of `eltype(seq)`.
-"""
-function Base.pop!(seq::LongSequence)
-    if isempty(seq)
-        throw(ArgumentError("sequence must be non-empty"))
-    end
-    x = seq[end]
-    deleteat!(seq, lastindex(seq))
-    return x
-end
 
 """
     insert!(seq, i, x)
