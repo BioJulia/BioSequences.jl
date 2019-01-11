@@ -151,3 +151,10 @@ Make a reversed complement sequence of `seq`.
 function reverse_complement(seq::NucleotideSeq)
     return complement!(reverse(seq))
 end
+
+# Shuffle
+# -------
+
+function Random.shuffle(seq::BioSequence)
+    return shuffle!(copy(seq))
+end

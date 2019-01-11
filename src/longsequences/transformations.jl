@@ -123,10 +123,6 @@ end
 # Shuffle
 # -------
 
-function Random.shuffle(seq::LongSequence)
-    return shuffle!(copy(seq))
-end
-
 function Random.shuffle!(seq::LongSequence)
     orphan!(seq)
     # Fisher-Yates shuffle
