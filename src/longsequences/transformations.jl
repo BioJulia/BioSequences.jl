@@ -11,20 +11,7 @@
 
 
 
-"""
-    popfirst!(seq)
 
-Remove the symbol from the beginning of a biological sequence `seq` and return
-it. Returns a variable of `eltype(seq)`.
-"""
-function Base.popfirst!(seq::LongSequence)
-    if isempty(seq)
-        throw(ArgumentError("sequence must be non-empty"))
-    end
-    x = seq[1]
-    deleteat!(seq, 1)
-    return x
-end
 
 """
     pushfirst!(seq, x)

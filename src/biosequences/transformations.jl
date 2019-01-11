@@ -95,3 +95,18 @@ function Base.append!(seq::BioSequence, other::BioSequence)
     copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
     return seq
 end
+
+"""
+    popfirst!(seq)
+
+Remove the symbol from the beginning of a biological sequence `seq` and return
+it. Returns a variable of `eltype(seq)`.
+"""
+function Base.popfirst!(seq::BioSequence)
+    if isempty(seq)
+        throw(ArgumentError("sequence must be non-empty"))
+    end
+    @inbounds x = seq[1]
+    deleteat!(seq, 1)
+    return x
+end
