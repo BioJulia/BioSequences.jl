@@ -120,3 +120,7 @@ function Base.pushfirst!(seq::BioSequence, x)
     unsafe_setindex!(seq, x, 1)
     return seq
 end
+
+function Base.filter(f::Function, seq::BioSequence)
+    return filter!(f, copy(seq))
+end

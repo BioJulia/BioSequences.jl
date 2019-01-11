@@ -59,10 +59,6 @@ function Base.filter!(f::Function, seq::LongSequence{A}) where {A}
     return seq
 end
 
-function Base.filter(f::Function, seq::LongSequence)
-    return filter!(f, copy(seq))
-end
-
 function Base.map!(f::Function, seq::LongSequence)
     orphan!(seq)
     for i in 1:lastindex(seq)
