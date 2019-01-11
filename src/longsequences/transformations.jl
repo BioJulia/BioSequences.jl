@@ -5,34 +5,9 @@
 
 
 
-"""
-    deleteat!(seq::LongSequence, range::UnitRange{<:Integer})
 
-Deletes a defined `range` from a biological sequence `seq`.
 
-Modifies the input sequence.
-"""
-function Base.deleteat!(seq::LongSequence{A}, range::UnitRange{<:Integer}) where {A}
-    checkbounds(seq, range)
-    copyto!(seq, range.start, seq, range.stop + 1, length(seq) - range.stop)
-    resize!(seq, length(seq) - length(range))
-    return seq
-end
 
-"""
-    deleteat!(seq::LongSequence, i::Integer)
-
-Delete a biological symbol at a single position `i` in a biological sequence
-`seq`.
-
-Modifies the input sequence.
-"""
-function Base.deleteat!(seq::LongSequence, i::Integer)
-    checkbounds(seq, i)
-    copyto!(seq, i, seq, i + 1, length(seq) - i)
-    resize!(seq, length(seq) - 1)
-    return seq
-end
 
 """
     append!(seq, other)
