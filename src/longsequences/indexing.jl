@@ -66,7 +66,7 @@ function Base.setindex!(seq::LongSequence{A},
 end
 
 function Base.setindex!(seq::LongSequence{A},
-			other::LongSequence{A}, ::Colon) where {A}
+			            other::LongSequence{A}, ::Colon) where {A}
     return setindex!(seq, other, 1:lastindex(seq))
 end
 

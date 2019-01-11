@@ -6,12 +6,6 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.copyto!(seq::LongSequence{A}, doff::Integer,
-                    src::Vector{UInt8},  soff::Integer, len::Integer) where {A}
-    datalen = seq_data_len(A, len)
-    return seq
-end
-
 function Base.copyto!(dst::LongSequence{A}, src::LongSequence{A}) where {A}
     return copyto!(dst, 1, src, 1)
 end
@@ -29,22 +23,18 @@ end
     if dst.shared || (dst === src && doff > soff)
         orphan!(dst, length(dst), true)
     end
-
-    return unsafe_copyto!(dst, doff, src, soff, len)
-end
-
-function unsafe_copyto!(dst::LongSequence{A}, doff::Integer,
-                        src::LongSequence{A}, soff::Integer, len::Integer) where {A}
-                        
+    
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
     #TODO: Resolve this use of bits_per_symbol
     rest = len * bits_per_symbol(A())
+    dstdata = dst.data
+    srcdata = src.data
 
-    while rest > 0
+    @inbounds while rest > 0
         # move `k` bits from `src` to `dst`
-        x = dst.data[index(id)]
-        y = src.data[index(is)]
+        x = dstdata[index(id)]
+        y = srcdata[index(is)]
         if offset(id) < offset(is)
             y >>= offset(is) - offset(id)
             k = min(64 - offset(is), rest)
@@ -53,7 +43,7 @@ function unsafe_copyto!(dst::LongSequence{A}, doff::Integer,
             k = min(64 - offset(id), rest)
         end
         m = bitmask(k) << offset(id)
-        dst.data[index(id)] = y & m | x & ~m
+        dstdata[index(id)] = y & m | x & ~m
 
         id += k
         is += k
