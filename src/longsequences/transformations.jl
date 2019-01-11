@@ -121,15 +121,6 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
 end
 
 """
-    complement(seq)
-
-Make a complement sequence of `seq`.
-"""
-function BioSymbols.complement(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    return complement!(copy(seq))
-end
-
-"""
     reverse_complement!(seq)
 
 Make a reversed complement sequence of `seq` in place.

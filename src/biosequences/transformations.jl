@@ -124,3 +124,12 @@ end
 Base.filter(f::Function, seq::BioSequence) = filter!(f, copy(seq))
 Base.map(f::Function, seq::BioSequence) = map!(f, copy(seq))
 Base.reverse(seq::LongSequence) = reverse!(copy(seq))
+
+"""
+    complement(seq)
+
+Make a complement sequence of `seq`.
+"""
+function BioSymbols.complement(seq::T) where {T<:BioSequence{<:NucleicAcidAlphabet}}
+    return complement!(copy(seq))
+end
