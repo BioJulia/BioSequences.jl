@@ -15,6 +15,17 @@ end
      return x
 end
 
+@inline function complementbits(x::UInt64, ::T) where {T <: NucleicAcidAlphabet{2}}
+    return ~x
+end
+
+@inline function complementbits(x::UInt64, ::T) where {T <: NucleicAcidAlphabet{4}}
+    return (
+        ((x & 0x1111111111111111) << 3) | ((x & 0x8888888888888888) >> 3) |
+        ((x & 0x2222222222222222) << 1) | ((x & 0x4444444444444444) >> 1)
+    )
+end
+
 function gc_bitcount(x::UInt64, ::BitsPerSymbol{2})
     msk = 0x5555555555555555
     c = x & msk

@@ -114,31 +114,14 @@ end
 
 Make a complement sequence of `seq` in place.
 """
-function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet{2}}
+function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     orphan!(seq)
     next = firstbitindex(seq)
     stop = bitindex(seq, lastindex(seq) + 1)
+    seqdata = seq.data
     @inbounds while next < stop
-        seq.data[index(next)] = ~seq.data[index(next)]
-        next += 64
-    end
-    return seq
-end
-
-"""
-    complement!(seq)
-
-Transform `seq` into it's complement.
-"""
-function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}}
-    orphan!(seq)
-    next = firstbitindex(seq)
-    stop = bitindex(seq, lastindex(seq) + 1)
-    @inbounds while next < stop
-        x = seq.data[index(next)]
-        seq.data[index(next)] = (
-            ((x & 0x1111111111111111) << 3) | ((x & 0x8888888888888888) >> 3) |
-            ((x & 0x2222222222222222) << 1) | ((x & 0x4444444444444444) >> 1))
+        x = seqdata[index(next)]
+        seqdata[index(next)] = complementbits(x, Alphabet(seq))
         next += 64
     end
     return seq
