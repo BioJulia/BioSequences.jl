@@ -123,3 +123,4 @@ end
 
 Base.filter(f::Function, seq::BioSequence) = filter!(f, copy(seq))
 Base.map(f::Function, seq::BioSequence) = map!(f, copy(seq))
+Base.reverse(seq::LongSequence) = reverse!(copy(seq))

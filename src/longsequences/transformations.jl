@@ -69,13 +69,6 @@ function Base.reverse!(seq::LongSequence)
     return seq
 end
 
-"""
-    reverse(seq)
-
-Create a sequence which is the reverse of the bioloigcal sequence `seq`.
-"""
-Base.reverse(seq::LongSequence) = reverse!(copy(seq))
-
 function Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
     i = 1
