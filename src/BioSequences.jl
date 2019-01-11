@@ -110,12 +110,6 @@ export
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
     symbols,
     gap,
-    complement,
-    complement!,
-    reverse_complement,
-    reverse_complement!,
-    ungap,
-    ungap!,
     mismatches,
     ispalindromic,
     hasambiguity,
@@ -147,6 +141,17 @@ export
     FASTQ,
     TwoBit,
     ABIF,
+    
+    # Indexing
+    unsafe_setindex!,
+    
+    # Transformations
+    complement,
+    complement!,
+    reverse_complement,
+    reverse_complement!,
+    ungap,
+    ungap!,
 
     # Alphabets
     Alphabet,
@@ -217,7 +222,7 @@ include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 #include("shortsequence/shortsequence.jl")
-include("kmers/kmer.jl")
+include("skipmers/kmer.jl")
 include("nmask.jl")
 include("refseq/refseq.jl")
 include("iterators/ambiguous.jl")
