@@ -27,24 +27,69 @@ function Base.setindex!(seq::LongSequence, x, i::Integer)
 end
 
 # Set multiple sequence positions to a single symbol value.
-function Base.setindex!(seq::LongSequence{A}, x,
-			locs::AbstractVector{<:Integer}) where {A}
-
-    checkbounds(seq, locs)
-    bin = enc64(seq, x)
+function Base.setindex!(seq::LongSequence{A}, x, locs::AbstractVector{<:Integer}) where {A}
+    @boundscheck checkbounds(seq, locs)
     orphan!(seq)
+    return unsafe_setindex!(seq, x, locs)
+end
+
+function Base.setindex!(seq::LongSequence{A}, x, locs::AbstractVector{Bool}) where {A}
+    @boundscheck checkbounds(seq, locs)
+    orphan!(seq)
+    return unsafe_setindex!(seq, x, locs)
+end
+
+function Base.setindex!(seq::LongSequence{A},
+                        other::LongSequence{A},
+                        locs::AbstractVector{<:Integer}) where {A}
+    @boundscheck checkbounds(seq, locs)
+    checkdimension(other, locs)
+    orphan!(seq)
+    return unsafe_setindex!(seq, other, locs)
+end
+
+function Base.setindex!(seq::LongSequence{A},
+                        other::LongSequence{A},
+                        locs::AbstractVector{Bool}) where {A}
+    @boundscheck checkbounds(seq, locs)
+    checkdimension(other, locs)
+    orphan!(seq)
+    return unsafe_setindex!(seq, other, locs)
+end
+
+function Base.setindex!(seq::LongSequence{A},
+                        other::LongSequence{A},
+                        locs::UnitRange{<:Integer}) where {A}
+    @boundscheck checkbounds(seq, locs)
+    checkdimension(other, locs)
+    return copyto!(seq, locs.start, other, 1)
+end
+
+function Base.setindex!(seq::LongSequence{A},
+			            other::LongSequence{A}, ::Colon) where {A}
+    return setindex!(seq, other, 1:lastindex(seq))
+end
+
+function Base.setindex!(seq::LongSequence{A}, x, ::Colon) where {A}
+    return setindex!(seq, x, 1:lastindex(seq))
+end
+
+# These are "unsafe" because of no bounds check and no orphan! call
+@inline function unsafe_setindex!(seq::LongSequence{A}, x, i::Integer) where {A}
+    bin = enc64(seq, x)
+    return encoded_setindex!(seq, bin, i)
+end
+
+@inline function unsafe_setindex!(seq::LongSequence{A}, x, locs::AbstractVector{<:Integer}) where {A}
+    bin = enc64(seq, x)
     for i in locs
         encoded_setindex!(seq, bin, i)
     end
     return seq
 end
 
-function Base.setindex!(seq::LongSequence{A}, x,
-			locs::AbstractVector{Bool}) where {A}
-
-    checkbounds(seq, locs)
+function unsafe_setindex!(seq::LongSequence{A}, x, locs::AbstractVector{Bool}) where {A}
     bin = enc64(seq, x)
-    orphan!(seq)
     i = j = 0
     while true
         i = findnext(locs, i + 1)
@@ -56,33 +101,16 @@ function Base.setindex!(seq::LongSequence{A}, x,
     return seq
 end
 
-function Base.setindex!(seq::LongSequence{A},
-                        other::LongSequence{A},
-                        locs::AbstractVector{<:Integer}) where {A}
-
-    checkbounds(seq, locs)
-    checkdimension(other, locs)
-    orphan!(seq)
+function unsafe_setindex!(seq::LongSequence{A}, other::LongSequence{A}, locs::AbstractVector{<:Integer}) where{A}
     for (i, x) in zip(locs, other)
         unsafe_setindex!(seq, x, i)
     end
     return seq
 end
 
-function Base.setindex!(seq::LongSequence{A},
-                        other::LongSequence{A},
-                        locs::UnitRange{<:Integer}) where {A}
-    checkbounds(seq, locs)
-    checkdimension(other, locs)
-    return copyto!(seq, locs.start, other, 1)
-end
-
-function Base.setindex!(seq::LongSequence{A},
-                        other::LongSequence{A},
-                        locs::AbstractVector{Bool}) where {A}
-    checkbounds(seq, locs)
-    checkdimension(other, locs)
-    orphan!(seq)
+function unsafe_setindex!(seq::LongSequence{A},
+                          other::LongSequence{A},
+                          locs::AbstractVector{Bool}) where {A}
     i = j = 0
     while true
         i = findnext(locs, i + 1)
@@ -92,21 +120,6 @@ function Base.setindex!(seq::LongSequence{A},
         unsafe_setindex!(seq, other[j += 1], i)
     end
     return seq
-end
-
-function Base.setindex!(seq::LongSequence{A},
-			other::LongSequence{A}, ::Colon) where {A}
-    return setindex!(seq, other, 1:lastindex(seq))
-end
-
-function Base.setindex!(seq::LongSequence{A}, x, ::Colon) where {A}
-    return setindex!(seq, x, 1:lastindex(seq))
-end
-
-# this is "unsafe" because of no bounds check and no orphan! call
-@inline function unsafe_setindex!(seq::LongSequence{A}, x, i::Integer) where {A}
-    bin = enc64(seq, x)
-    return encoded_setindex!(seq, bin, i)
 end
 
 function enc64(::LongSequence{A}, x) where {A}
