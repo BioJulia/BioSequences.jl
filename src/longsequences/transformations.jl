@@ -13,18 +13,7 @@
 
 
 
-"""
-    pushfirst!(seq, x)
 
-Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
-"""
-function Base.pushfirst!(seq::LongSequence{A}, x) where {A}
-    bin = enc64(seq, x)
-    resize!(seq, length(seq) + 1)
-    copyto!(seq, 2, seq, 1, length(seq) - 1)
-    encoded_setindex!(seq, bin, 1)
-    return seq
-end
 
 """
     resize!(seq, size)

@@ -6,8 +6,6 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-
-
 """
     empty!(seq::BioSequence)
 
@@ -109,4 +107,16 @@ function Base.popfirst!(seq::BioSequence)
     @inbounds x = seq[1]
     deleteat!(seq, 1)
     return x
+end
+
+"""
+    pushfirst!(seq, x)
+
+Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
+"""
+function Base.pushfirst!(seq::BioSequence, x)
+    resize!(seq, length(seq) + 1)
+    copyto!(seq, 2, seq, 1, length(seq) - 1)
+    unsafe_setindex!(seq, x, 1)
+    return seq
 end
