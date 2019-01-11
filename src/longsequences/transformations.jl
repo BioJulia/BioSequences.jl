@@ -9,18 +9,7 @@
 
 
 
-"""
-    append!(seq, other)
 
-Add a biological sequence `other` onto the end of biological sequence `seq`.
-Modifies and returns `seq`.
-"""
-function Base.append!(seq::LongSequence{A},
-		      other::LongSequence{A}) where {A}
-    resize!(seq, length(seq) + length(other))
-    copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
-    return seq
-end
 
 """
     popfirst!(seq)

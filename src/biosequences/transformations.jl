@@ -21,9 +21,6 @@ Base.empty!(seq::BioSequence) = resize!(seq, 0)
 Append a biological symbol `x` to a biological sequence `seq`.
 """
 function Base.push!(seq::BioSequence, x)
-    if eltype(seq) !== typeof(x)
-        throw(ArgumentError(string("Can't push a ", typeof(x), " onto a ", eltype(seq), " sequence.")))
-    end
     resize!(seq, length(seq) + 1)
     unsafe_setindex!(seq, x, lastindex(seq))
     return seq
@@ -51,9 +48,6 @@ Insert a biological symbol `x` into a biological sequence `seq`, at the given
 index `i`.
 """
 function Base.insert!(seq::BioSequence, i::Integer, x)
-    if eltype(seq) !== typeof(x)
-        throw(ArgumentError(string("Can't insert a ", typeof(x), " into a ", eltype(seq), " sequence.")))
-    end
     checkbounds(seq, i)
     resize!(seq, length(seq) + 1)
     copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
@@ -87,5 +81,17 @@ function Base.deleteat!(seq::BioSequence, i::Integer)
     checkbounds(seq, i)
     copyto!(seq, i, seq, i + 1, length(seq) - i)
     resize!(seq, length(seq) - 1)
+    return seq
+end
+
+"""
+    append!(seq, other)
+
+Add a biological sequence `other` onto the end of biological sequence `seq`.
+Modifies and returns `seq`.
+"""
+function Base.append!(seq::BioSequence, other::BioSequence)
+    resize!(seq, length(seq) + length(other))
+    copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
     return seq
 end
