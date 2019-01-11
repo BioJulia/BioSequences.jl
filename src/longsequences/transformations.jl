@@ -128,13 +128,6 @@ function Base.resize!(seq::LongSequence{A}, size::Integer) where {A}
     return seq
 end
 
-"""
-    empty!(seq)
-
-Completely empty a biological sequence `seq` of nucleotides.
-"""
-Base.empty!(seq::LongSequence) = resize!(seq, 0)
-
 function Base.filter!(f::Function, seq::LongSequence{A}) where {A}
     orphan!(seq)
 
