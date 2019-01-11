@@ -93,8 +93,6 @@ export
     RNASequence,
     AminoAcidSequence,
     CharSequence,
-    NucleicAcidSequence,
-    SeqRecord,
     seqname,
     hasseqname,
     sequence,
