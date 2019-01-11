@@ -21,16 +21,6 @@ function Base.count(f::Function, seq::BioSequence)
     return n
 end
 
-# Transformations
-# ---------------
-
-"Create a copy of a sequence with gap characters removed."
-ungap(seq::BioSequence)  =  filter(x -> x != gap(eltype(seq)), seq)
-
-"Remove gap characters from an input sequence."
-ungap!(seq::BioSequence) = filter!(x -> x != gap(eltype(seq)), seq)
-
-
 # GC content
 # ----------
 

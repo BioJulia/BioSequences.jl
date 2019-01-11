@@ -152,6 +152,12 @@ function reverse_complement(seq::NucleotideSeq)
     return complement!(reverse(seq))
 end
 
+"Create a copy of a sequence with gap characters removed."
+ungap(seq::BioSequence)  =  filter(x -> x != gap(eltype(seq)), seq)
+
+"Remove gap characters from an input sequence."
+ungap!(seq::BioSequence) = filter!(x -> x != gap(eltype(seq)), seq)
+
 # Shuffle
 # -------
 
