@@ -2,18 +2,6 @@
 # ---------------
 
 """
-    push!(seq::LongSequence{A}, x) where {A}
-
-Append a biological symbol `x` to a biological sequence `seq`.
-"""
-function Base.push!(seq::LongSequence{A}, x) where {A}
-    bin = enc64(seq, x)
-    resize!(seq, length(seq) + 1)
-    encoded_setindex!(seq, bin, lastindex(seq))
-    return seq
-end
-
-"""
     pop!(seq::LongSequence)
 
 Remove the symbol from the end of a biological sequence `seq` and return it.
