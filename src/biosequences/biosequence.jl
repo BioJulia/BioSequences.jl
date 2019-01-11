@@ -65,6 +65,8 @@ Any subtype of `BioSequence` should implement the following methods:
 """
 abstract type BioSequence{A <: Alphabet} end
 
+const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}
+
 # This is useful for obscure reasons. We use SeqRecord{BioSequence} for reading
 # sequence in an undetermined alphabet, but a consequence that we need to be
 # able to construct a `Sequence`.
