@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The type previously called `BioSequence{A}` is now `LongSequence{A}`.
 - `Kmers` are now a parametric type: `Skipmer{U<:Unsigned, A<:Alphabet, M, N, K}`.
    A `Skipmer` is a more generic type of `Kmer`, where in addition to `K`, you have two other numeric parameters `M` and `N`. They are more fully described here: https://www.biorxiv.org/content/early/2017/09/19/179960.full.pdf+html
+- `unsafe_setindex!` has been made systematic for all `setindex` methods as a 
+  way of bypassing all boundschecks and `orphan!` calls.
 
 ## [1.1.0]
 ### Changed

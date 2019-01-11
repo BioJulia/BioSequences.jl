@@ -6,6 +6,9 @@
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+# Indices
+# -------
+
 Base.firstindex(seq::BioSequence) = 1
 Base.lastindex(seq::BioSequence) = length(seq)
 Base.eachindex(seq::BioSequence) = Base.OneTo(lastindex(seq))
@@ -60,6 +63,9 @@ function checkdimension(seq::BioSequence, locs::AbstractVector{Bool})
     return checkdimension(length(seq), sum(locs))
 end
 
+# getindex
+# --------
+
 @inline function inbounds_getindex(seq::BioSequence, i::Integer)
     bidx = bitindex(seq, i)
     encoded_symbol = extract_encoded_symbol(bidx, encoded_data(seq))
@@ -70,6 +76,9 @@ end
     @boundscheck checkbounds(seq, i)
     return inbounds_getindex(seq, i)
 end
+
+# iterate
+# -------
 
 @inline function Base.iterate(seq::BioSequence, i::Int = firstindex(seq))
     if i > lastindex(seq)
