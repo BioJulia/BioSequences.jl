@@ -5,7 +5,7 @@
 #
 # This file is a part of BioJulia.
 # License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
-
+#
 #         index(i)-1        index(i)        index(i)+1
 # ....|................|..X.............|................|....
 #                          |<-offset(i)-|

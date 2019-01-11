@@ -8,7 +8,7 @@
 
 Base.firstindex(seq::BioSequence) = 1
 Base.lastindex(seq::BioSequence) = length(seq)
-Base.eachindex(seq::BioSequence) = 1:lastindex(seq)
+Base.eachindex(seq::BioSequence) = Base.OneTo(lastindex(seq))
 
 # Bounds checking
 # ---------------
