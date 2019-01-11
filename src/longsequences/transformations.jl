@@ -3,20 +3,7 @@
 
 
 
-"""
-    insert!(seq, i, x)
 
-Insert a biological symbol `x` into a biological sequence `seq`, at the given
-index `i`.
-"""
-function Base.insert!(seq::LongSequence{A}, i::Integer, x) where {A}
-    checkbounds(seq, i)
-    bin = enc64(seq, x)
-    resize!(seq, length(seq) + 1)
-    copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
-    encoded_setindex!(seq, bin, i)
-    return seq
-end
 
 """
     deleteat!(seq::LongSequence, range::UnitRange{<:Integer})

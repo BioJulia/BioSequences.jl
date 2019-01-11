@@ -22,7 +22,7 @@ Append a biological symbol `x` to a biological sequence `seq`.
 """
 function Base.push!(seq::BioSequence, x)
     if eltype(seq) !== typeof(x)
-        throw(ArgumentError("Can't push a $(typeof(x)) onto a sequence of $(eltype(seq))"))
+        throw(ArgumentError(string("Can't push a ", typeof(x), " onto a ", eltype(seq), " sequence.")))
     end
     resize!(seq, length(seq) + 1)
     unsafe_setindex!(seq, x, lastindex(seq))
@@ -42,4 +42,21 @@ function Base.pop!(seq::BioSequence)
     @inbounds x = seq[end]
     deleteat!(seq, lastindex(seq))
     return x
+end
+
+"""
+    insert!(seq, i, x)
+
+Insert a biological symbol `x` into a biological sequence `seq`, at the given
+index `i`.
+"""
+function Base.insert!(seq::BioSequence, i::Integer, x)
+    if eltype(seq) !== typeof(x)
+        throw(ArgumentError(string("Can't insert a ", typeof(x), " into a ", eltype(seq), " sequence.")))
+    end
+    checkbounds(seq, i)
+    resize!(seq, length(seq) + 1)
+    copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
+    unsafe_setindex!(seq, x, i)
+    return seq
 end
