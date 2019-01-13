@@ -1,11 +1,11 @@
-module t
-
 # Note: This test suite has many hard coded values in it.
 # While that is normally a bad idea, we need to guarantee reproducible results
 # when using the same seed.
 
 global SEED = 0 # Do not change this
+struct MyAlphabet <: Alphabet end
 
+@testset "Random LongSequences" begin
 function test_sampler(sampler, seed, elements, firstten, T)
     rng = MersenneTwister(seed)
     sampled1 = [rand(rng, sampler) for i in 1:1000]
@@ -156,17 +156,17 @@ end # randseq Sampler
     test_isseq(seq, AminoAcidAlphabet, 100)
 end # randseq
 
-@testset "Simple constructors"
+@testset "Simple constructors" begin
     manual = randseq(MersenneTwister(SEED), AminoAcidAlphabet(), 100)
     automatic = randaaseq(MersenneTwister(SEED), 100)
     @test automatic == manual
 
     manual = randseq(MersenneTwister(SEED), DNAAlphabet{4}(), 100)
-    automatic = randdna(MersenneTwister(SEED), 100)
+    automatic = randdnaseq(MersenneTwister(SEED), 100)
     @test automatic == manual
 
     manual = randseq(MersenneTwister(SEED), RNAAlphabet{4}(), 100)
-    automatic = randrna(MersenneTwister(SEED), 100)
+    automatic = randrnaseq(MersenneTwister(SEED), 100)
     @test automatic == manual
 
     # Casual tests to see that it can use the global RNG automatically
@@ -174,8 +174,32 @@ end # randseq
     test_isseq(seq, DNAAlphabet{4}, 10)
 
     seq = randrnaseq(10)
-    test_isseq(seq, DNAAlphabet{4}, 100)
+    test_isseq(seq, RNAAlphabet{4}, 10)
 
     seq = randaaseq(10)
     test_isseq(seq, AminoAcidAlphabet, 10)
 end # simple constructors
+
+@testset "Custom alphabet" begin
+    Base.length(A::MyAlphabet) = 6
+    BioSequences.symbols(A::MyAlphabet) = (DNA_A, DNA_C, DNA_G, DNA_T, RNA_U, DNA_N)
+    BioSequences.BitsPerSymbol(A::MyAlphabet) = BioSequences.BitsPerSymbol{8}()
+    BioSequences.encode(A::MyAlphabet, x::DNA) = reinterpret(UInt8, x)
+    BioSequences.encode(A::MyAlphabet, x::RNA) = reinterpret(UInt8, x) | 0x10
+    Base.eltype(A::MyAlphabet) = NucleicAcid
+
+    function BioSequences.decode(A::MyAlphabet, x::UInt64)
+        uint = UInt8(x)
+        if uint & 0x10 == 0x10
+            return reinterpret(RNA, uint & 0x0f)
+        else
+            return reinterpret(DNA, uint)
+        end
+    end
+
+    seq = randseq(MyAlphabet(), 1000)
+    @test typeof(seq) == LongSequence{MyAlphabet}
+    @test length(seq) == 1000
+    @test Set(seq) == Set(symbols(MyAlphabet()))
+end # Custom Alphabet
+end # Entire Random LongSequences testset

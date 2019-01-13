@@ -181,7 +181,6 @@ function randseq_allbits(rng::AbstractRNG, A::Alphabet, len::Integer)
     vector = rand(rng, UInt64, seq_data_len(typeof(A), len))
     return LongSequence{typeof(A)}(vector, 1:len, false)
 end
-randseq_allbits(A::Alphabet, len::Integer) = randseq_allbits(GLOBAL_RNG, A, len)
 
 """
     randdnaseq([rng::AbstractRNG], len::Integer)

@@ -19,7 +19,7 @@ LongSequence(::Type{AminoAcid}) = AminoAcidSequence()
 LongSequence(::Type{Char}) = CharSequence()
 
 function LongSequence()
-    return LongSequence{VoidAlphabet}(Vector{UInt64}(0), 0:-1, false)
+    return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
 end
 
 function LongSequence{A}(
@@ -56,7 +56,7 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
                        (DNAAlphabet{4}, RNAAlphabet{2}),
                        (RNAAlphabet{4}, DNAAlphabet{2}), # RNA to DNA
                        (RNAAlphabet{2}, DNAAlphabet{4})]
-    
+
     @eval function (::Type{LongSequence{$alpha}})(seq::LongSequence{$alphb})
         newseq = LongSequence{$alpha}(length(seq))
         for (i, x) in enumerate(seq)
@@ -70,7 +70,7 @@ for (alpha, alphb) in [(DNAAlphabet{2}, RNAAlphabet{2}),
                        (RNAAlphabet{2}, DNAAlphabet{2}),
                        (DNAAlphabet{4}, RNAAlphabet{4}),
                        (RNAAlphabet{4}, DNAAlphabet{4})]
-    
+
     @eval function (::Type{LongSequence{$alpha}})(seq::LongSequence{$alphb})
         newseq = LongSequence{$alpha}(seq.data, seq.part, true)
         seq.shared = true

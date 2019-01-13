@@ -11,6 +11,12 @@ end
     @test isa(LongSequence{RNAAlphabet{2}}(0), LongSequence)
     @test isa(LongSequence{RNAAlphabet{4}}(10), LongSequence)
     @test isa(LongSequence{AminoAcidAlphabet}(10), LongSequence)
+
+    @test_throws ArgumentError LongSequence{DNAAlphabet{2}}(-1)
+    @test_throws ArgumentError LongSequence{DNAAlphabet{4}}(-1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{2}}(-1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{4}}(-1)
+    @test_throws ArgumentError LongSequence{AminoAcidAlphabet}(-1)
 end
 
 @testset "Conversion from/to strings" begin
