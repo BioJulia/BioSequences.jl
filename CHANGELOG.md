@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- New subtypes of Random.Sampler, SamplerUniform and SamplerWeighted.
+- Random `LongSequence`s can now be created with `randseq`,
+  optionally using a sampler to specify element distribution.
+- All random `LongSequence` generator methods take an optional AbstractRNG argument.
+- Add methods to `randseq` to optimize random generation of `NucleicAcid` or `AminoAcid` `LongSequence`s.
+
 ### Changed
 - The abstract `Sequence` type is now called `BioSequence{A}`.
 - The type previously called `BioSequence{A}` is now `LongSequence{A}`.
@@ -51,7 +58,7 @@ is less than or equal to zero.
 ### Added
 - Position weight matrix search functionality.
 - A generalised composition method.
-- `typemin` and `typemax` methods for `Kmer` types. 
+- `typemin` and `typemax` methods for `Kmer` types.
 
 ### Changed
 - `MinHash` function now generalised to `Reader` types.
@@ -59,7 +66,7 @@ is less than or equal to zero.
 
 ## [0.7.0] - 2017-07-28
 ### Added
-- Support for julia v0.6 only. 
+- Support for julia v0.6 only.
 
 ### Removed
 - :exclamation: Dropped support for julia v0.5.

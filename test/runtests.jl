@@ -172,6 +172,7 @@ end
     include("longsequences/counting.jl")
     include("longsequences/gc_content.jl")
     include("longsequences/ambiguous.jl")
+    include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
 end
 

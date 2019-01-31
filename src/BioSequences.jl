@@ -85,7 +85,7 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-    
+
     # BioSequences
     BioSequence,
     NucleotideSeq,
@@ -117,7 +117,9 @@ export
     isrepetitive,
     ambiguous_positions,
     gc_content,
-    SequenceGenerator,
+    SamplerUniform,
+    SamplerWeighted,
+    randseq,
     randdnaseq,
     randrnaseq,
     randaaseq,
