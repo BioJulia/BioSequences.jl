@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `unsafe_setindex!` has been made systematic for all `setindex` methods as a 
   way of bypassing all boundschecks and `orphan!` calls.
 
+### Removed
+- The FASTQ module.
+- The FASTA module.
+- The TwoBit module.
+- The ABIF module.
+
 ## [1.1.0]
 ### Changed
 - Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
