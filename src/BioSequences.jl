@@ -231,9 +231,6 @@ include("composition.jl")
 include("geneticcode.jl")
 include("demultiplexer.jl")
 
-# Parsing file types
-include("abif/abif.jl")
-
 include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")
