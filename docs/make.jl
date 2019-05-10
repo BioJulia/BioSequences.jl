@@ -15,9 +15,6 @@ makedocs(
                 "Nucleic acid k-mers" => "user_manual/sequences/kmer.md"
             ],
             "Indexing sequences" => "user/manual/indexing.md",
-            "IO" => [
-                "2bit formatted files" => "user_manual/io/twobit.md"
-            ],
             "Searching" => "user_manual/search.md",
             "Sequence Composition" => "user_manual/composition.md",
             "Demultiplexing" => "user_manual/demultiplexer.md",

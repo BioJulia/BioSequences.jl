@@ -140,7 +140,6 @@ export
     RNACodon,
     translate,
     ncbi_trans_table,
-    TwoBit,
     ABIF,
     
     # Indexing
@@ -233,7 +232,6 @@ include("geneticcode.jl")
 include("demultiplexer.jl")
 
 # Parsing file types
-include("twobit/twobit.jl")
 include("abif/abif.jl")
 
 include("search/exact.jl")
