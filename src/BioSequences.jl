@@ -140,8 +140,6 @@ export
     RNACodon,
     translate,
     ncbi_trans_table,
-    FASTA,
-    FASTQ,
     TwoBit,
     ABIF,
     
@@ -235,8 +233,6 @@ include("geneticcode.jl")
 include("demultiplexer.jl")
 
 # Parsing file types
-include("fasta/fasta.jl")
-include("fastq/fastq.jl")
 include("twobit/twobit.jl")
 include("abif/abif.jl")
 
