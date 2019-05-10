@@ -191,9 +191,6 @@ export
     Mismatch,
     count_pairwise
 
-import Automa
-import Automa.RegExp: @re_str
-
 using BioCore
 using BioSymbols
 using BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
