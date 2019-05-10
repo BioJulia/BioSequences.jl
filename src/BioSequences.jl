@@ -193,7 +193,6 @@ export
 
 using BioCore
 using BioSymbols
-using BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
 import IndexableBitVectors
 import IntervalTrees: IntervalValue
