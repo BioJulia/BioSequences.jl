@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   optionally using a sampler to specify element distribution.
 - All random `LongSequence` generator methods take an optional AbstractRNG argument.
 - Add methods to `randseq` to optimize random generation of `NucleicAcid` or `AminoAcid` `LongSequence`s.
+- BioGenerics is now a dependency - replaces BioCore.
 
 ### Changed
 - The abstract `Sequence` type is now called `BioSequence{A}`.
@@ -25,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The FASTA module.
 - The TwoBit module.
 - The ABIF module.
+- BioCore is no longer a dependency.
+- Automa is no longer a dependency.
 
 ## [1.1.0]
 ### Changed

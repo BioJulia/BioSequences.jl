@@ -191,7 +191,7 @@ export
     Mismatch,
     count_pairwise
 
-using BioCore
+using BioGenerics
 using BioSymbols
 import Combinatorics
 import IndexableBitVectors
