@@ -11,7 +11,7 @@
 # ---------------
 
 """
-# An abstract biological sequence type.
+# The abstract biological sequence type.
 
 ## Required interface
 

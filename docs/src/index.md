@@ -47,7 +47,7 @@ Linux, OS X, and Windows.
 We appreciate contributions from users including reporting bugs, fixing
 issues, improving performance and adding new features.
 
-Take a look at the [CONTRIBUTING](https://github.com/BioJulia/BioCore.jl/blob/master/CONTRIBUTING.md) file provided with
+Take a look at the [CONTRIBUTING](https://github.com/BioJulia/BioSequences.jl/blob/master/CONTRIBUTING.md) file provided with
 every BioJulia package package for detailed contributor and maintainer
 guidelines.
 
