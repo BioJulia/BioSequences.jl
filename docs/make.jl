@@ -14,14 +14,12 @@ makedocs(
                 "Reference Sequences" => "user_manual/sequences/refseq.md",
                 "Nucleic acid k-mers" => "user_manual/sequences/kmer.md"
             ],
-            "Indexing sequences" => "user/manual/indexing.md",
+            "Indexing sequences" => "user_manual/indexing.md",
             "Searching" => "user_manual/search.md",
             "Sequence Composition" => "user_manual/composition.md",
             "Demultiplexing" => "user_manual/demultiplexer.md",
         ],
-
         "Developer Notes" => [
-        
             "Biological symbols" => "dev_docs/symbols.md",
             "Biological sequence types" => [
                 "BioSequence" => "dev_docs/sequences/biosequence.md"

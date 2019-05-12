@@ -8,7 +8,7 @@ using BioSequences
 using IntervalTrees: IntervalValue
 using StatsBase
 using YAML
-using BioCore
+using BioGenerics
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
@@ -210,7 +210,6 @@ end
 end
 
 include("translation.jl")
-
 include("demultiplexer.jl")
 
 end

@@ -191,12 +191,8 @@ export
     Mismatch,
     count_pairwise
 
-import Automa
-import Automa.RegExp: @re_str
-
-using BioCore
+using BioGenerics
 using BioSymbols
-using BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
 import IndexableBitVectors
 import IntervalTrees: IntervalValue
