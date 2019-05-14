@@ -91,3 +91,4 @@ function hasambiguity(seq::BioSequence)
     end
     return false
 end
+@inline hasambiguity(seq::BioSequence{<:NucleicAcidAlphabet{2}}) = false

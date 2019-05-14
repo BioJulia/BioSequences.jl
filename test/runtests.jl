@@ -197,10 +197,11 @@ include("composition.jl")
     include("kmers/print.jl")
     include("kmers/transformations.jl")
     include("kmers/mismatches.jl")
-    include("kmers/eachkmer.jl")
     include("kmers/debruijn_neighbors.jl")
     include("kmers/shuffle.jl")
 end
+
+include("iterators/eachskipmer.jl")
 
 @testset "Search" begin
     include("search/exact.jl")

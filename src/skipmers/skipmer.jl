@@ -10,6 +10,13 @@ struct Skipmer{U <: Unsigned, A <: NucleicAcidAlphabet{2}, M, N, K} <: BioSequen
     end
 end
 
+# Skipmer aliases.
+const DNASkipmer{M, N, K} = Skipmer{UInt64, DNAAlphabet{2}, M, N, K}
+const RNASkipmer{M, N, K} = Skipmer{UInt64, RNAAlphabet{2}, M, N, K}
+const BigDNASkipmer{M, N, K} = Skipmer{UInt128, DNAAlphabet{2}, M, N, K}
+const BigRNASkipmer{M, N, K} = Skipmer{UInt128, RNAAlphabet{2}, M, N, K}
+
+# Kmer aliases.
 const Kmer{U, A <: NucleicAcidAlphabet{2}, K} = Skipmer{U, A, 1, 1, K}
 const DNAKmer{K} = Kmer{UInt64, DNAAlphabet{2}, K}
 const RNAKmer{K} = Kmer{UInt64, RNAAlphabet{2}, K}
@@ -33,7 +40,7 @@ const RNACodon = RNAKmer{3}
 @inline capacity(x::Skipmer) = capacity(typeof(x))
 @inline n_unused(x::Skipmer) = capacity(x) - length(x)
 
-_span(M, N, K) = N * (K / M - 1) + M
+_span(M::Integer, N::Integer, K::Integer) = UInt(N * (K / M - 1) + M)
 @inline function span(::Type{T}) where {T <: Skipmer}
     return _span(bases_per_cycle(T), cycle_len(T), kmersize(T))
 end

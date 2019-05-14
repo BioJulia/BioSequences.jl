@@ -40,10 +40,7 @@ A canonical sequence is the numerical lesser of a k-mer and its reverse compleme
 This is useful in hashing/counting sequences in data that is not strand specific,
 and thus observing the short sequence is equivalent to observing its reverse complement.
 """
-function canonical(x::Skipmer)
-    y = reverse_complement(x)
-    return x < y ? x : y
-end
+@inline canonical(x::Skipmer) = min(x, reverse_complement(x))
 
 
 function swap(x::T, i, j) where {T <: Skipmer}
