@@ -1,4 +1,4 @@
-
+@inline _offset(K, i) = 2(K - i)
 @inline offset(::Type{S}, i::Integer) where {S <: Skipmer} = 2(kmersize(S) - i)
 @inline offset(x::Skipmer, i::Integer) = offset(typeof(x), i)
 

@@ -273,7 +273,7 @@ include("refseq/refseq.jl")
 # The generic iterators for any BioSequence...
 include("iterators/ambiguous.jl")
 include("iterators/eachkmer.jl")
-include("iterators/eachskipmer.jl")
+include("iterators/skipmerfactory.jl")
 
 include("composition.jl")
 

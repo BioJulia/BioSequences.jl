@@ -2,6 +2,7 @@ abstract type BioSequence{A <: Alphabet} end
 
 # Aliases and shorthands for describing subsets of the BioSequence type...
 const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}
+const ProteinSeq = BioSequence{AminoAcidAlphabet}
 
 
 # Required traits and methods

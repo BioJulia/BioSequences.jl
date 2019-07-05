@@ -58,6 +58,7 @@ end
 
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
+"Extract the element stored in a packed bitarray referred to by bidx."
 @inline function extract_encoded_element(bidx::BitIndex{N,W}, data::AbstractArray{W}) where {N,W}
     @inbounds chunk = data[index(bidx)]
     offchunk = chunk >> offset(bidx)
@@ -66,6 +67,7 @@ end
 
 # Create a bit mask that fills least significant `n` bits (`n` must be a
 # non-negative integer).
+"Create a bit mask covering the least significant `n` bits."
 bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
 
 # Create a bit mask filling least significant N bits.

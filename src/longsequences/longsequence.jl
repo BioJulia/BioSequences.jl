@@ -1,5 +1,5 @@
 # LongSequence
-# ==================
+# ============
 #
 # A general purpose biological sequence representation.
 #
@@ -54,6 +54,7 @@ mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     end
 end
 
+const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
 const DNASequence       = LongSequence{DNAAlphabet{4}}
 const RNASequence       = LongSequence{RNAAlphabet{4}}
 const AminoAcidSequence = LongSequence{AminoAcidAlphabet}

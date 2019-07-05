@@ -1,9 +1,9 @@
 # Skipmer & Kmer types
 # ====================
 
-struct Skipmer{U <: Unsigned, A <: NucleicAcidAlphabet{2}, M, N, K} <: BioSequence{A}
+struct Skipmer{U<:Unsigned,A<:NucleicAcidAlphabet{2},M,N,K} <: BioSequence{A}
     bits::U
-    function Skipmer{U, A, M, N, K}(x::U) where {U <: Unsigned, A <: NucleicAcidAlphabet{2}, M, N, K}
+    function Skipmer{U,A,M,N,K}(x::U) where {U<:Unsigned,A<:NucleicAcidAlphabet{2},M,N,K}
         checkskipmer(Skipmer{U, A, M, N, K})
         mask = (one(U) << (2 * K)) - 1
         return new(x & mask)
@@ -36,28 +36,23 @@ const RNACodon = RNAKmer{3}
 @inline kmersize(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = K
 @inline kmersize(skipmer::Skipmer) = kmersize(typeof(skipmer))
 
+@inline skipmer_capacity(::Type{U}) where {U<:Unsigned} = div(8 * sizeof(U), 2)
 @inline capacity(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K} = div(8 * sizeof(U), 2)
 @inline capacity(x::Skipmer) = capacity(typeof(x))
 @inline n_unused(x::Skipmer) = capacity(x) - length(x)
 
-_span(M::Integer, N::Integer, K::Integer) = UInt(N * (K / M - 1) + M)
+_span(M::Integer, N::Integer, K::Integer) = UInt(ceil(N * (K / M - 1) + M))
 @inline function span(::Type{T}) where {T <: Skipmer}
     return _span(bases_per_cycle(T), cycle_len(T), kmersize(T))
 end
 @inline span(skipmer::T) where {T <: Skipmer} = span(typeof(skipmer))
 
-@inline function checkskipmer(::Type{Skipmer{U, A, M, N, K}}) where {U, A, M, N, K}
-    if !(U <: Unsigned)
-        throw(ArgumentError("Parameter U must be an unsigned integer type"))
+@inline function checkskipmer(::Type{SK}) where {SK<:Skipmer}
+    c = capacity(SK)
+    if !(1 ≤ kmersize(SK) ≤ c)
+        throw(ArgumentError("K must be within 1..$c"))
     end
-    if !(A <: NucleicAcidAlphabet{2})
-        throw(ArgumentError("Skipmer types must have a NucleicAcidAlphabet{2} alphabet"))
-    end
-    capacity = div(8 * sizeof(U), 2)
-    if !(1 ≤ K ≤ capacity)
-        throw(ArgumentError("K must be within 1..$capacity"))
-    end
-    if M > N
+    if bases_per_cycle(SK) > cycle_len(SK)
         throw(ArgumentError("M must not be greater than N in Skipmer{A, M, N, K}"))
     end
 end
