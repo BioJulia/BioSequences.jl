@@ -1,10 +1,20 @@
-# Skipmer Iterators
-# =================
-#
-# Iterator over all Skipmers in a biological sequence.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+### Skipmer Iterators
+###
+###
+### Iterator over all Skipmers in a biological sequence.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+
+struct SkipmerFactoryResult{U,A,M,N,K}
+    position::Int
+    fw::Skipmer{U,A,M,N,K}
+    bw::Skipmer{U,A,M,N,K}
+end
+
+@inline function mertype(::Type{SkipmerFactoryResult{U,A,M,N,K}}) where {U,A,M,N,K}
+    return Skipmer{U,A,M,N,K}
+end
 
 mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,M,N,K}
     seq::S
@@ -48,15 +58,10 @@ mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,M,N,K}
     end
 end
 
-@inline function mertype(::Type{SkipmerFactory{S,U,M,N,K}}) where {U<:Unsigned,M,N,K,S<:LongNucleotideSequence}
-    return Skipmer{U,ifelse(eltype(S) === DNA, DNAAlphabet{2}, RNAAlphabet{2}),M,N,K}
-end
-@inline mertype(gen::SkipmerFactory) = mertype(typeof(gen))
-
 @inline function Base.eltype(::Type{SkipmerFactory{S,U,M,N,K}}) where {U<:Unsigned,M,N,K,S<:LongNucleotideSequence}
-    ST = mertype(SkipmerFactory{S,U,M,N,K})
-    return Tuple{Int,ST,ST}
+    return SkipmerFactoryResult{U,ifelse(eltype(S) === DNA, DNAAlphabet{2}, RNAAlphabet{2}),M,N,K}
 end
+@inline mertype(gen::SkipmerFactory) = mertype(eltype(gen))
 
 @inline Base.IteratorSize(::Type{T}) where T <: SkipmerFactory = Base.HasLength()
 

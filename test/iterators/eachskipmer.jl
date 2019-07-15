@@ -1,4 +1,4 @@
-import BioSequences.SkipmerFactory
+import BioSequences: SkipmerFactory, SkipmerFactoryResult
 
 function char_complement(::Type{DNA}, c::Char)
     c === 'A' && return 'T'
@@ -128,13 +128,10 @@ end
     
     #function test_iter_traits(it::CanonicalSkipmers{ST,U,S}) where {ST,U,S}
     function test_iter_traits(it::SkipmerFactory{S,U,M,N,K}) where {S,U,M,N,K}
-        #@test eltype(it) == ST
-        @test eltype(it) == Tuple{Int,Skipmer{U,DNAAlphabet{2},M,N,K},Skipmer{U,DNAAlphabet{2},M,N,K}}
+        @test eltype(it) == SkipmerFactoryResult{U,DNAAlphabet{2},M,N,K}
         @test BioSequences.mertype(it) == Skipmer{U,DNAAlphabet{2},M,N,K}
         @test Base.IteratorSize(it) == Base.HasLength()
         @test Base.IteratorEltype(it) == Base.HasEltype()
-        #@test BioSequences.kmersize(it) == BioSequences.kmersize(ST)
-        #@test BioSequences.kmer_mask(it) == one(U) << (BioSequences.kmersize(ST) * 2) - 1
     end
     
     # Test when Skipmers are based on UInt64, and sample nucletides using
@@ -153,8 +150,8 @@ end
     ST = Skipmer{UInt64, DNAAlphabet{2},2,3,14}
     BIGST = Skipmer{UInt128, DNAAlphabet{2},2,3,14}
     
-    ans = collect(zip(eachindex(fwans), ST.(fwans), ST.(string_reverse_complement.(DNA, fwans))))
-    bigans = collect(zip(eachindex(fwans), BIGST.(fwans), BIGST.(string_reverse_complement.(DNA, fwans))))
+    ans = collect(SkipmerFactoryResult(x...) for x in zip(eachindex(fwans), ST.(fwans), ST.(string_reverse_complement.(DNA, fwans))))
+    bigans = collect(SkipmerFactoryResult(x...) for x in zip(eachindex(fwans), BIGST.(fwans), BIGST.(string_reverse_complement.(DNA, fwans))))
     
     #ans = ["CAAGGGGCTCCCTC", "AGGGATCCCTTTGA", "CTAAGAGGCACCCC",
     #       "GCCAAGGGGCTCCC", "GGATCCCTTTGACC", "GGCTAAGAGGCACC",
