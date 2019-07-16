@@ -35,7 +35,7 @@ const DEFAULT_LARGE_K = 31
 @inline Base.length(x::AbstractMer{A,K}) where {A,K} = K(typeof(x))
 @inline Base.unsigned(x::AbstractMer) = encoded_data(x)
 @inline Base.summary(x::AbstractMer{DNAAlphabet{2},K}) where {K} = string("DNA ", K, "-mer")
-@inline Base.summary(x::AbstractMer{DNAAlphabet{2},K}) where {K} = string("RNA ", K, "-mer")
+@inline Base.summary(x::AbstractMer{RNAAlphabet{2},K}) where {K} = string("RNA ", K, "-mer")
 Base.typemin(::Type{T}) where {T<:AbstractMer} = T(typemin(encoded_data_type(T)))
 
 function Base.typemax(::Type{T}) where {T<:AbstractMer}
