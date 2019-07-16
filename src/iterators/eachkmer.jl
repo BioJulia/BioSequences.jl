@@ -87,7 +87,6 @@ for (pos, codon) in each(DNAKmer{3}, dna"ATCCTANAGNTACT", 3)
 end
 ```
 """
-#function each(::Type{Skipmer{U, A, M, M, K}}, seq::BioSequence, step::Integer = 1) where {U, A, M, K}
 function each(::Type{T}, seq::BioSequence{A}, step::Integer = 1) where {A<:NucleicAcidAlphabet{2},K,T<:AbstractMer{A,K}}
     if !(1 ≤ K ≤ capacity(T))
         throw(ArgumentError("k-mer length must be between 0 and $(capacity(T))"))

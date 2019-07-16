@@ -6,17 +6,13 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-struct SkipmerFactoryResult{U,A,M,N,K}
+struct SkipmerFactoryResult{T<:AbstractMer}
     position::Int
-    fw::Skipmer{U,A,M,N,K}
-    bw::Skipmer{U,A,M,N,K}
+    fw::T
+    bw::T
 end
 
-@inline function mertype(::Type{SkipmerFactoryResult{U,A,M,N,K}}) where {U,A,M,N,K}
-    return Skipmer{U,A,M,N,K}
-end
-
-mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,M,N,K}
+mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,K}
     seq::S
     cycle_pos::Vector{UInt8}
     last_unknown::Vector{Int64}
@@ -25,49 +21,64 @@ mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,M,N,K}
     position::Int
     finished::Int
     n::Int
+    cycle_len::Int
+    bases_per_cycle::Int
+    span::Int
     
-    function SkipmerFactory(::Type{Skipmer{U,A,M,N,K}}, seq::S) where {S<:LongNucleotideSequence,U<:Unsigned,A,M,N,K}
-        checkskipmer(Skipmer{U,A,M,N,K})
+    function SkipmerFactory(::Type{T},
+                            seq::LongSequence{A},
+                            bases_per_cycle::Int = 2,
+                            cycle_len::Int = 3) where {A<:NucleicAcidAlphabet,K,T<:AbstractMer{A,K}}
         
-        if _span(M,N,K) > length(seq)
-            throw(ArgumentError(string("The span of each skipmer (", _span(M,N,K), ") is greater than the input sequence length (", length(seq), ").")))
-        end
+        span = UInt(ceil(cycle_len * (K / bases_per_cycle - 1) + bases_per_cycle))
         
-        if eltype(Skipmer{U,A,M,N,K}) !== eltype(seq)
-            throw(ArgumentError(string("Input is a ", eltype(seq), "sequence, can't generate ", eltype(Skipmer{U,A,M,N,K}), "skipmers.")))
+        if span > length(seq)
+            throw(ArgumentError(string("The span of each skipmer (", span, ") is greater than the input sequence length (", length(seq), ").")))
         end
         
         # For each of the next N skipmers being build simultaneously by the iterator,
         # keep track of a cycle_pos variable: it keeps track of which nucleotides
         # in the sequence are appended to said skipmer, and is used by the
         # _consider_position! method.
-        cycle_pos = Vector{UInt8}(undef, N)
+        cycle_pos = Vector{UInt8}(undef, cycle_len)
         
         # Vector to keep track of position of last ambiguous nucleotide we saw,
         # for each of the N skipmers being built simultaneously by the iterator.
-        last_unknown = Vector{Int64}(undef, N)
+        last_unknown = Vector{Int64}(undef, cycle_len)
         
         # Storage for the next N skipers being built simultaneously by the iterator.
-        fkmer = Vector{U}(undef, N)
-        rkmer = Vector{U}(undef, N)
+        U = encoded_data_type(T)
+        fkmer = Vector{U}(undef, cycle_len)
+        rkmer = Vector{U}(undef, cycle_len)
         
-        gen = new{S,U,M,N,K}(seq, cycle_pos, last_unknown, fkmer, rkmer, 0, 0, 0)
+        gen = new{LongSequence{A},U,K}(seq, cycle_pos, last_unknown, fkmer, rkmer, 0, 0, 0, cycle_len, bases_per_cycle, span)
         _init_generator!(gen)
         
         return gen
     end
 end
 
-@inline function Base.eltype(::Type{SkipmerFactory{S,U,M,N,K}}) where {U<:Unsigned,M,N,K,S<:LongNucleotideSequence}
-    return SkipmerFactoryResult{U,ifelse(eltype(S) === DNA, DNAAlphabet{2}, RNAAlphabet{2}),M,N,K}
+@inline function mertype(::Type{SkipmerFactory{S,UInt64,K}}) where {S<:LongNucleotideSequence,K}
+    return Mer{typeof(Alphabet(S)),K}
 end
-@inline mertype(gen::SkipmerFactory) = mertype(eltype(gen))
+
+@inline function mertype(::Type{SkipmerFactory{S,UInt128,K}}) where {S<:LongNucleotideSequence,K}
+    return BigMer{typeof(Alphabet(S)),K}
+end
+
+@inline mertype(gen::SkipmerFactory) = mertype(typeof(gen))
+
+@inline function Base.eltype(::Type{S}) where {S<:SkipmerFactory}
+    return SkipmerFactoryResult{mertype(S)}
+end
+
+
 
 @inline Base.IteratorSize(::Type{T}) where T <: SkipmerFactory = Base.HasLength()
 
 @inline Base.IteratorEltype(::Type{T}) where T <: SkipmerFactory = Base.HasEltype()
 
-@inline Base.length(gen::SkipmerFactory)::Int = length(gen.seq) - span(mertype(gen)) + 1
+@inline Base.length(gen::SkipmerFactory)::Int = length(gen.seq) - gen.span + 1
 
 function set_sequence!(gen::SkipmerFactory{S}, seq::S) where {S<:LongNucleotideSequence}
     gen.seq = seq
@@ -75,7 +86,7 @@ function set_sequence!(gen::SkipmerFactory{S}, seq::S) where {S<:LongNucleotideS
 end
 
 function _init_generator!(gen::SkipmerFactory)
-    N = cycle_len(mertype(gen))
+    N = gen.cycle_len
     
     @inbounds for i in 1:N
         gen.cycle_pos[i] = N - i
@@ -87,7 +98,7 @@ function _init_generator!(gen::SkipmerFactory)
     gen.finished = 0
     gen.position = 0
     
-    for i in 1:span(mertype(gen))-1
+    for i in 1:gen.span-1
         _consider_next_position!(gen)
     end
 end
@@ -100,8 +111,10 @@ end
     return twobitnucs[extract_encoded_element(bitindex(seq, position), encoded_data(seq)) + 0x01]
 end
 
-@inline function _append_mers!(gen::SkipmerFactory{LongSequence{A},U,M,N,K}, fbits::U, rbits::U) where {A<:NucleicAcidAlphabet{2},U,M,N,K}
+@inline function _append_mers!(gen::SkipmerFactory{LongSequence{A},U,K}, fbits::U, rbits::U) where {A<:NucleicAcidAlphabet{2},U,K}
     # For each of the N next skipmers we are building...
+    N = gen.cycle_len
+    M = gen.bases_per_cycle
     for ni in 1:N
         # Update the ni'th skipmer's cycle_pos value.
         # This is used to decide if the ni'th skipmer will get the base at the
@@ -119,7 +132,9 @@ end
     end
 end
 
-@inline function _append_mers!(gen::SkipmerFactory{LongSequence{A},U,M,N,K}, fbits::U, rbits::U) where {A<:NucleicAcidAlphabet{4},U,M,N,K}
+@inline function _append_mers!(gen::SkipmerFactory{LongSequence{A},U,K}, fbits::U, rbits::U) where {A<:NucleicAcidAlphabet{4},U,K}
+    N = gen.cycle_len
+    M = gen.bases_per_cycle
     if fbits == 0xFF
         for ni in 1:N
             nextcycle = gen.cycle_pos[ni] + 1
@@ -141,7 +156,7 @@ end
     end
 end
 
-@inline function _consider_next_position!(gen::SkipmerFactory{S,U,M,N,K}) where {S,U,M,N,K}
+@inline function _consider_next_position!(gen::SkipmerFactory{S,U,K}) where {S,U,K}
     nextposition = gen.position + 1
     fbits = U(_get_base_bits(gen.seq, nextposition))
     gen.position = nextposition
@@ -149,7 +164,7 @@ end
     _append_mers!(gen, fbits, rbits)
 end
 
-function nextmer(gen::SkipmerFactory{LongSequence{A},U,M,N,K}) where {A<:NucleicAcidAlphabet{2},U,M,N,K}
+function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcidAlphabet{2},U,K}
     # If you've hit the end of the sequence, we're done.
     if gen.position == lastindex(gen.seq)
         return nothing
@@ -170,8 +185,9 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,M,N,K}) where {A<:Nucleic
     return (newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
 end
 
-function nextmer(gen::SkipmerFactory{LongSequence{A},U,M,N,K}) where {A<:NucleicAcidAlphabet{4},U,M,N,K}
+function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcidAlphabet{4},U,K}
     lastpos = lastindex(gen.seq)
+    span = gen.span
     # For every position in the sequence...
     while gen.position < lastpos
         # Consider the base at the next position, and append it to the relevant 
@@ -179,14 +195,14 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,M,N,K}) where {A<:Nucleic
         _consider_next_position!(gen)
             
         # If we are at pos, the skip-mer that started at pos-S is now done... 
-        if gen.position >= _span(M, N, K)
+        if gen.position >= span
             nextfinished = gen.finished + 1
             gen.finished = ifelse(nextfinished > N, 1, nextfinished)
             # If the currently finished skipmer, does not contain an ambiguous
             # nucleotide, then get the canonical form of the skipmer and return it.
             newn = gen.n + 1
             gen.n = newn
-            if gen.last_unknown[gen.finished] + _span(M, N, K) <= gen.position
+            if gen.last_unknown[gen.finished] + span <= gen.position
                 fkmer = gen.fkmer[gen.finished]
                 rkmer = gen.rkmer[gen.finished]
                 return (newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
@@ -211,10 +227,6 @@ end
     end
 end
 
-@inline function each(::Type{Skipmer{U,A,M,N,K}}, seq::BioSequence) where {U,A,M,N,K}
-    return ((@inbounds it[1], @inbounds it[2]) for it in SkipmerFactory(Skipmer{U,A,M,N,K}, seq))
-end
-
-@inline function eachcanonical(::Type{Skipmer{U,A,M,N,K}}, seq::BioSequence) where {U,A,M,N,K}
-    return ((@inbounds it[1], min(@inbounds it[2], @inbounds it[3])) for it in SkipmerFactory(Skipmer{U,A,M,N,K}, seq))
+@inline function each(::Type{T}, seq::BioSequence, bases_per_cycle::Int, cycle_len::Int) where {T<:AbstractMer}
+    return SkipmerFactory(T, seq, bases_per_cycle, cycle_len)
 end
