@@ -1,3 +1,7 @@
+###
+### Mer: Indexing
+###
+
 @inline _offset(K, i) = 2(K - i)
 @inline offset(::Type{T}, i::Integer) where {A,K,T<:AbstractMer{A,K}} = 2(K - i)
 @inline offset(x::AbstractMer, i::Integer) = offset(typeof(x), i)

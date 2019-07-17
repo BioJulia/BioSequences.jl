@@ -1,5 +1,6 @@
-# Transformations
-# ---------------
+###
+### Mer: Transformations
+###
 
 """
     complement(x::T) where {T <: Skipmer}

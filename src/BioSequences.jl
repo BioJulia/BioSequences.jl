@@ -91,9 +91,9 @@ export
     ispurine,
     ispyrimidine,
     
-    
-    # Alphabets
-    # ---------
+    ###
+    ### Alphabets
+    ###
     
     # Types & aliases
     Alphabet,
@@ -103,9 +103,9 @@ export
     AminoAcidAlphabet,
     CharAlphabet,
     
-    
-    # BioSequences
-    # ------------
+    ###
+    ### BioSequences
+    ###
     
     # Type & aliases
     BioSequence,
@@ -119,9 +119,9 @@ export
     hasambiguity,
     isrepetitive,
     
-    
-    # LongSequence
-    # ------------
+    ###
+    ### LongSequence
+    ###
     
     # Type & aliases
     LongSequence,
@@ -130,9 +130,9 @@ export
     AminoAcidSequence,
     CharSequence,
     
-    
-    # Skipmers
-    # --------
+    ###
+    ### Mers
+    ###
     
     # Type & aliases
     AbstractMer,
@@ -268,7 +268,7 @@ include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
 # The definition of the Skipmer concrete type, and its method overloads...
-include("skipmers/skipmer.jl")
+include("mers/mer.jl")
 
 # The definition of the ReferenceSequence concrete type, and its method overloads...
 include("nmask.jl")

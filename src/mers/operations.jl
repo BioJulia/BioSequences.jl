@@ -1,6 +1,6 @@
-
-# Counters
-# --------
+###
+### Mer: Counters
+###
 
 count_gc(x::AbstractMer) = gc_bitcount(encoded_data(x), BitsPerSymbol{2}())
 
