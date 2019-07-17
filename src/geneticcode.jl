@@ -312,7 +312,7 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 """
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
 
-Translate an `RNASequence` or a `DNASequence` to an `AminoAcidSequence`.
+Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAminoAcidSeq`.
 
 Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.
@@ -322,20 +322,20 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(seq::Union{RNASequence, LongSequence{RNAAlphabet{2}}};
+function translate(seq::Union{LongRNASeq, LongSequence{RNAAlphabet{2}}};
                    code::GeneticCode=standard_genetic_code,
                    allow_ambiguous_codons::Bool = true,
 		   alternative_start::Bool = false)
     return translate(seq, code, allow_ambiguous_codons, alternative_start)
 end
 
-function translate(seq::Union{RNASequence, LongSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
+function translate(seq::Union{LongRNASeq, LongSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
     aaseqlen, r = divrem(length(seq), 3)
     if r != 0
-        error("RNASequence length is not divisible by three. Cannot translate.")
+        error("LongRNASeq length is not divisible by three. Cannot translate.")
     end
 
-    aaseq = AminoAcidSequence(aaseqlen)
+    aaseq = LongAminoAcidSeq(aaseqlen)
     i = j = 1
     while i ≤ lastindex(seq) - 2
         x = seq[i]
@@ -364,8 +364,8 @@ function translate(seq::Union{RNASequence, LongSequence{RNAAlphabet{2}}}, code::
     return aaseq
 end
 
-function translate(seq::DNASequence; kwargs...)
-    return translate(convert(RNASequence, seq); kwargs...)
+function translate(seq::LongDNASeq; kwargs...)
+    return translate(convert(LongRNASeq, seq); kwargs...)
 end
 
 function translate(seq::LongSequence{DNAAlphabet{2}}; kwargs...)

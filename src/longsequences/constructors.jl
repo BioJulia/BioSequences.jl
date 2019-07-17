@@ -13,10 +13,10 @@ function LongSequence{A}(len::Integer) where {A<:Alphabet}
     return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:convert(Int, len), false)
 end
 
-LongSequence(::Type{DNA}) = DNASequence()
-LongSequence(::Type{RNA}) = RNASequence()
-LongSequence(::Type{AminoAcid}) = AminoAcidSequence()
-LongSequence(::Type{Char}) = CharSequence()
+LongSequence(::Type{DNA}) = LongDNASeq()
+LongSequence(::Type{RNA}) = LongRNASeq()
+LongSequence(::Type{AminoAcid}) = LongAminoAcidSeq()
+LongSequence(::Type{Char}) = LongCharSeq()
 
 function LongSequence()
     return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)

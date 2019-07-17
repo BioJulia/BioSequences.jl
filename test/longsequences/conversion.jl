@@ -1,8 +1,8 @@
 @testset "Constructing empty sequences" begin
-    @test DNASequence() == LongSequence(DNA)
-    @test RNASequence() == LongSequence(RNA)
-    @test AminoAcidSequence() == LongSequence(AminoAcid)
-    @test CharSequence() == LongSequence(Char)
+    @test LongDNASeq() == LongSequence(DNA)
+    @test LongRNASeq() == LongSequence(RNA)
+    @test LongAminoAcidSeq() == LongSequence(AminoAcid)
+    @test LongCharSeq() == LongSequence(Char)
 end
 
 @testset "Constructing uninitialized sequences" begin
@@ -58,15 +58,15 @@ end
     end
 
     # non-standard string literal
-    @test isa(dna"ACGTMRWSYKVHDBN-", DNASequence)
-    @test isa(rna"ACGUMRWSYKVHDBN-", RNASequence)
-    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", AminoAcidSequence)
-    @test isa(char"いろは αβγ 甲乙丙", CharSequence)
+    @test isa(dna"ACGTMRWSYKVHDBN-", LongDNASeq)
+    @test isa(rna"ACGUMRWSYKVHDBN-", LongRNASeq)
+    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAminoAcidSeq)
+    @test isa(char"いろは αβγ 甲乙丙", LongCharSeq)
 
     # Non-nucleotide characters should throw
-    @test_throws Exception DNASequence("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception RNASequence("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception AminoAcidSequence("ATGHLMY@ZACAGNM")
+    @test_throws Exception LongDNASeq("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongRNASeq("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongAminoAcidSeq("ATGHLMY@ZACAGNM")
 end
 
 @testset "Construction from vectors" begin
@@ -125,8 +125,8 @@ end
 end
 
 @testset "Conversion between RNA and DNA" begin
-    @test convert(RNASequence, DNASequence("ACGTN")) == rna"ACGUN"
-    @test convert(DNASequence, RNASequence("ACGUN")) == dna"ACGTN"
+    @test convert(LongRNASeq, LongDNASeq("ACGTN")) == rna"ACGUN"
+    @test convert(LongDNASeq, LongRNASeq("ACGUN")) == dna"ACGTN"
 end
 
 @testset "Conversion to Matrices" begin
@@ -208,7 +208,7 @@ end
     @test_throws ArgumentError seqmatrix(rnathrow, :seq)
     @test_throws ArgumentError seqmatrix(dna, :lol)
     @test_throws MethodError seqmatrix(AminoAcid, dna, :site)
-    @test_throws ArgumentError seqmatrix(DNASequence[], :site)
-    @test_throws ArgumentError seqmatrix(DNASequence[], :seq)
+    @test_throws ArgumentError seqmatrix(LongDNASeq[], :site)
+    @test_throws ArgumentError seqmatrix(LongDNASeq[], :seq)
 
 end

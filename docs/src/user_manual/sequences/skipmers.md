@@ -1,9 +1,4 @@
-```@meta
-CurrentModule = BioSequences
-DocTestSetup = quote
-    using BioSequences
-end
-```
+
 
 ## Skipmers and Kmers
 
@@ -165,7 +160,7 @@ AGTTAG
 julia> String(skipmer)
 "AGTTAG"
 
-julia> DNASequence(skipmer)
+julia> LongDNASeq(skipmer)
 6nt DNA Sequence:
 AGTTAG
 ```
@@ -201,6 +196,7 @@ these types as a result.
 - [`count_t`](@ref)
 
 #### Transformations
+Note that Kmers and Skipmers are structs and so are immutable.
 - [`complement`](@ref)
 - [`reverse`](@ref)
 - [`reverse_complement`](@ref)

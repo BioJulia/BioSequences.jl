@@ -27,7 +27,7 @@
 
     function check_nucleotide_count(::Type{DNA}, seq::AbstractString)
         string_counts = string_nucleotide_count(DNA, seq)
-        seq_counts = composition(DNASequence(seq))
+        seq_counts = composition(LongDNASeq(seq))
         return string_counts[DNA_A] == seq_counts[DNA_A] &&
                string_counts[DNA_C] == seq_counts[DNA_C] &&
                string_counts[DNA_G] == seq_counts[DNA_G] &&
@@ -37,7 +37,7 @@
 
     function check_nucleotide_count(::Type{RNA}, seq::AbstractString)
         string_counts = string_nucleotide_count(RNA, seq)
-        seq_counts = composition(RNASequence(seq))
+        seq_counts = composition(LongRNASeq(seq))
         return string_counts[RNA_A] == seq_counts[RNA_A] &&
                string_counts[RNA_C] == seq_counts[RNA_C] &&
                string_counts[RNA_G] == seq_counts[RNA_G] &&
@@ -95,8 +95,8 @@
 
     for _ in 1:30
         m, n = rand(0:1000), rand(0:1000)
-        seq1 = DNASequence(random_dna(m))
-        seq2 = DNASequence(random_dna(n))
+        seq1 = LongDNASeq(random_dna(m))
+        seq2 = LongDNASeq(random_dna(n))
         @test composition(seq1 * seq2) == merge(composition(seq1), composition(seq2))
     end
 
@@ -114,7 +114,7 @@
     @test comp[mer"TAC"dna] == 1
     @test comp[mer"AAA"dna] == 0
 
-    comp = composition(DNASequence[dna"ATCG", dna"GCTA", dna"ATCGG",
+    comp = composition(LongDNASeq[dna"ATCG", dna"GCTA", dna"ATCGG",
                                    dna"ATCG", dna"ATCG", dna"GCTA"])
     @test comp[dna"ATCG"] == 3
     @test comp[dna"GCTA"] == 2

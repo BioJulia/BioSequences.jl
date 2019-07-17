@@ -51,7 +51,7 @@ function Composition(kmer::AbstractMer{RNAAlphabet{2}})
     return Composition(counts)
 end
 
-function Composition(seq::AminoAcidSequence)
+function Composition(seq::LongAminoAcidSeq)
     # TODO: Resolve use of symbols AminoAcid.
     counts = zeros(Int, length(symbols(AminoAcidAlphabet())))
     @inbounds for x in seq

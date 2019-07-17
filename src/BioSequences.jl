@@ -110,6 +110,7 @@ export
     # Type & aliases
     BioSequence,
     NucleotideSeq,
+    AminoAcidSeq,
     
     # Indexing
     unsafe_setindex!,
@@ -125,10 +126,10 @@ export
     
     # Type & aliases
     LongSequence,
-    DNASequence,
-    RNASequence,
-    AminoAcidSequence,
-    CharSequence,
+    LongDNASeq,
+    LongRNASeq,
+    LongAminoAcidSeq,
+    LongCharSeq,
     
     ###
     ### Mers

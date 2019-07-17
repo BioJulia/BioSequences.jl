@@ -1,6 +1,6 @@
 @testset "Demultiplexer" begin
     function randdna(n)
-        return DNASequence(rand([DNA_A, DNA_C, DNA_G, DNA_T, DNA_N], n))
+        return LongDNASeq(rand([DNA_A, DNA_C, DNA_G, DNA_T, DNA_N], n))
     end
 
     function make_errors(seq, p=0.03)
@@ -27,7 +27,7 @@
     end
 
     @testset "Hamming distance" begin
-        barcodes = DNASequence["ATGG", "CAGA", "GGAA", "TACG"]
+        barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)
 
         for i in 1:lastindex(barcodes)
@@ -66,7 +66,7 @@
     end
 
     @testset "Levenshtein distance" begin
-        barcodes = DNASequence["ATGG", "CAGA", "GGAA", "TACG"]
+        barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:levenshtein)
 
         for i in 1:lastindex(barcodes)

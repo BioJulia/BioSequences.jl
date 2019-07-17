@@ -120,7 +120,7 @@ function Base.show(io::IO, demultiplexer::Demultiplexer)
 end
 
 """
-    Demultiplexer(barcodes::Vector{DNASequence};
+    Demultiplexer(barcodes::Vector{LongDNASeq};
                   n_max_errors::Integer=1,
                   distance::Symbol=:hamming)
 
@@ -131,7 +131,7 @@ Create a demultiplexer object from `barcodes`.
 * `n_max_errors=1`: the number of maximum correctable errors.
 * `distance=:hamming`: the distance metric (`:hamming` or `:levenshtein`).
 """
-function Demultiplexer(barcodes::Vector{DNASequence};
+function Demultiplexer(barcodes::Vector{LongDNASeq};
                        n_max_errors::Integer=1,
                        distance::Symbol=:hamming)
     if n_max_errors < 0
@@ -151,7 +151,7 @@ function Demultiplexer(barcodes::Vector{DNASequence};
     tries = BarcodeTrie[]
     for m in 0:n_max_errors
         # generate "erroneous" barcodes
-        mutated_barcodes = DNASequence[]
+        mutated_barcodes = LongDNASeq[]
         ids = Int[]
         for (i, barcode) in enumerate(barcodes)
             if distance == :hamming
@@ -231,7 +231,7 @@ function hamming_circle(seq, m)
     if m == 0
         return [seq]
     end
-    ret = DNASequence[]
+    ret = LongDNASeq[]
     for ps in Combinatorics.combinations(1:lastindex(seq), m)
         for rs in Iterators.product(fill(1:4, m)...)
             seq′ = copy(seq)
@@ -253,7 +253,7 @@ function levenshtein_circle(seq, m)
         return [seq]
     end
     @assert m > 0
-    seqs = DNASequence[]
+    seqs = LongDNASeq[]
     # substitution
     append!(seqs, hamming_circle(seq, 1))
     # deletion
@@ -271,7 +271,7 @@ function levenshtein_circle(seq, m)
         append!(ball, levenshtein_circle(seq′, m - 1))
     end
     ball = sort!(unique(ball))
-    ret = DNASequence[]
+    ret = LongDNASeq[]
     for seq′ in ball
         if levenshtein_distance(seq, seq′) == m
             push!(ret, seq′)

@@ -2,7 +2,7 @@
     @testset "Equality" begin
         function check_seq_kmer_equality(len)
             a = DNAMer(random_dna_kmer(len))
-            b = DNASequence(a)
+            b = LongDNASeq(a)
             return a == b && b == a
         end
 

@@ -55,10 +55,10 @@ mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
 end
 
 const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
-const DNASequence       = LongSequence{DNAAlphabet{4}}
-const RNASequence       = LongSequence{RNAAlphabet{4}}
-const AminoAcidSequence = LongSequence{AminoAcidAlphabet}
-const CharSequence      = LongSequence{CharAlphabet}
+const LongDNASeq       = LongSequence{DNAAlphabet{4}}
+const LongRNASeq       = LongSequence{RNAAlphabet{4}}
+const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
+const LongCharSeq      = LongSequence{CharAlphabet}
 
 
 # Required type traits and methods

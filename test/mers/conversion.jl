@@ -10,16 +10,16 @@ global reps = 10
         return String(T(seq)) == uppercase(seq)
     end
 
-    # Check that DNAMers can be constructed from a DNASequence
-    #   DNASequence → Kmer → DNASequence
-    function check_dnasequence_construction(::Type{T}, seq::DNASequence) where {T<:AbstractMer}
-        return DNASequence(T(seq)) == seq
+    # Check that DNAMers can be constructed from a LongDNASeq
+    #   LongDNASeq → Kmer → LongDNASeq
+    function check_dnasequence_construction(::Type{T}, seq::LongDNASeq) where {T<:AbstractMer}
+        return LongDNASeq(T(seq)) == seq
     end
 
-    # Check that RNAMers can be constructed from a RNASequence
-    #   RNASequence → Kmer → RNASequence
-    function check_rnasequence_construction(::Type{T}, seq::RNASequence) where {T<:AbstractMer}
-        return RNASequence(T(seq)) == seq
+    # Check that RNAMers can be constructed from a LongRNASeq
+    #   LongRNASeq → Kmer → LongRNASeq
+    function check_rnasequence_construction(::Type{T}, seq::LongRNASeq) where {T<:AbstractMer}
+        return LongRNASeq(T(seq)) == seq
     end
 
     # Check that kmers can be constructed from a BioSequence
@@ -61,23 +61,23 @@ global reps = 10
             @test all(Bool[check_string_construction(BigDNAMer{len}, random_dna_kmer(len)) for _ in 1:reps])
             @test all(Bool[check_string_construction(BigRNAMer{len}, random_rna_kmer(len)) for _ in 1:reps])
 
-            # DNA/RNASequence Constructions
-            @test all(Bool[check_dnasequence_construction(DNAMer{len}, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_rnasequence_construction(RNAMer{len}, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_dnasequence_construction(BigDNAMer{len}, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_rnasequence_construction(BigRNAMer{len}, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            # DNA/LongRNASeq Constructions
+            @test all(Bool[check_dnasequence_construction(DNAMer{len}, LongDNASeq(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(RNAMer{len}, LongRNASeq(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_dnasequence_construction(BigDNAMer{len}, LongDNASeq(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_rnasequence_construction(BigRNAMer{len}, LongRNASeq(random_rna_kmer(len))) for _ in 1:reps])
 
             # BioSequence Construction
-            @test all(Bool[check_biosequence_construction(DNAMer{len}, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_biosequence_construction(RNAMer{len}, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_biosequence_construction(BigDNAMer{len}, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_biosequence_construction(BigRNAMer{len}, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(DNAMer{len}, LongDNASeq(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(RNAMer{len}, LongRNASeq(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigDNAMer{len}, LongDNASeq(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigRNAMer{len}, LongRNASeq(random_rna_kmer(len))) for _ in 1:reps])
 
             # Construction from nucleotide arrays
             @test all(Bool[check_nucarray_kmer(DNAMer{len}, random_dna_kmer_nucleotides(len)) for _ in 1:reps])
             @test all(Bool[check_nucarray_kmer(RNAMer{len}, random_rna_kmer_nucleotides(len)) for _ in 1:reps])
-            @test all(Bool[check_biosequence_construction(BigDNAMer{len}, DNASequence(random_dna_kmer(len))) for _ in 1:reps])
-            @test all(Bool[check_biosequence_construction(BigRNAMer{len}, RNASequence(random_rna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigDNAMer{len}, LongDNASeq(random_dna_kmer(len))) for _ in 1:reps])
+            @test all(Bool[check_biosequence_construction(BigRNAMer{len}, LongRNASeq(random_rna_kmer(len))) for _ in 1:reps])
             
 
             # Roundabout conversions
@@ -125,15 +125,15 @@ global reps = 10
                       DNA_A, DNA_C, DNA_G, DNA_T)
 
     @testset "From strings" begin
-        @test DNAMer("ACTG") == DNAMer(DNASequence("ACTG"))
-        @test RNAMer("ACUG") == RNAMer(RNASequence("ACUG"))
+        @test DNAMer("ACTG") == DNAMer(LongDNASeq("ACTG"))
+        @test RNAMer("ACUG") == RNAMer(LongRNASeq("ACUG"))
 
         # N is not allowed in Kmers
         @test_throws Exception DNAMmer("ACGTNACGT")
         @test_throws Exception RNAMer("ACGUNACGU")
 
         # Test string literals
-        @test mer"ACTG"dna == DNAMer(DNASequence("ACTG"))
+        @test mer"ACTG"dna == DNAMer(LongDNASeq("ACTG"))
         @test isa(mer"ACGT"dna, DNAMer{4})
         @test_throws LoadError eval(:(mer"ACGN"dna))
         @test_throws LoadError eval(:(mer"ACG-"dna))

@@ -120,11 +120,11 @@
 
         for len in 1:50, _ in 1:10
             str = random_dna(len)
-            seq = DNASequence(str)
+            seq = LongDNASeq(str)
             @test filter(x -> x == DNA_N, seq) ==
-                DNASequence(filter(x -> x == 'N', str))
+                LongDNASeq(filter(x -> x == 'N', str))
             @test filter(x -> x != DNA_N, seq) ==
-                DNASequence(filter(x -> x != 'N', str))
+                LongDNASeq(filter(x -> x != 'N', str))
         end
 
         seq = rna""

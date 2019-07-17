@@ -1,6 +1,6 @@
 ## Reference sequences
 
-`DNASequence` (alias of `BioSequence{DNAAlphabet{4}}`) is a flexible data
+`LongDNASeq` (alias of `BioSequence{DNAAlphabet{4}}`) is a flexible data
 structure but always consumes 4 bits per base, which will waste a large part of
 the memory space when storing reference genome sequences.  In such a case,
 `ReferenceSequence` is helpful because it compresses positions of 'N' symbols so

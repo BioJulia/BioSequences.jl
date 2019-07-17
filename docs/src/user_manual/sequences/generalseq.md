@@ -19,10 +19,10 @@ The following table summarizes common sequence types that are defined in the
 
 | Type                                   | Symbol type | Type alias          |
 | :------------------------------------- | :---------- | :------------------ |
-| `GeneralSequence{DNAAlphabet{4}}`      | `DNA`       | `DNASequence`       |
-| `GeneralSequence{RNAAlphabet{4}}`      | `RNA`       | `RNASequence`       |
-| `GeneralSequence{AminoAcidAlphabet}`   | `AminoAcid` | `AminoAcidSequence` |
-| `GeneralSequence{CharAlphabet}`        | `Char`      | `CharSequence`      |
+| `GeneralSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
+| `GeneralSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
+| `GeneralSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
+| `GeneralSequence{CharAlphabet}`        | `Char`      | `LongCharSeq`      |
 
 Parameterized definition of the `GeneralSequence{A}` type is for the purpose of
 unifying the data structure and operations of any symbol type. In most cases,
@@ -206,15 +206,15 @@ the bodies of things like for loops. And if you use them and are unsure, use the
 or amino acid symbols using constructors or the `convert` function:
 
 ```jldoctest
-julia> DNASequence("TTANC")
+julia> LongDNASeq("TTANC")
 5nt DNA Sequence:
 TTANC
 
-julia> DNASequence([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+julia> LongDNASeq([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
 5nt DNA Sequence:
 TTANC
 
-julia> convert(DNASequence, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+julia> convert(LongDNASeq, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
 5nt DNA Sequence:
 TTANC
 
@@ -240,7 +240,7 @@ julia> convert(Vector{DNA}, dna"TTANGTA")
 
 Sequences can also be concatenated into longer sequences:
 ```jldoctest
-julia> DNASequence(dna"ACGT", dna"NNNN", dna"TGCA")
+julia> LongDNASeq(dna"ACGT", dna"NNNN", dna"TGCA")
 12nt DNA Sequence:
 ACGTNNNNTGCA
 
@@ -258,14 +258,14 @@ TATATATATATATATATATA
 
 ```
 
-Despite being separate types, `DNASequence` and `RNASequence` can freely be
+Despite being separate types, `LongDNASeq` and `LongRNASeq` can freely be
 converted between efficiently without copying the underlying data:
 ```jldoctest
 julia> dna = dna"TTANGTAGACCG"
 12nt DNA Sequence:
 TTANGTAGACCG
 
-julia> rna = convert(RNASequence, dna)
+julia> rna = convert(LongRNASeq, dna)
 12nt RNA Sequence:
 UUANGUAGACCG
 
@@ -275,12 +275,12 @@ true
 ```
 
 A random sequence can be obtained by the `randdnaseq`, `randrnaseq` and
-`randaaseq` functions, which generate `DNASequence`, `RNASequence` and
-`AminoAcidSequence`, respectively. Generated sequences are composed of the
+`randaaseq` functions, which generate `LongDNASeq`, `LongRNASeq` and
+`LongAminoAcidSeq`, respectively. Generated sequences are composed of the
 standard symbols without ambiguity and gap. For example, `randdnaseq(6)` may
 generate `dna"TCATAG"` but never generates `dna"TNANAG"` or `dna"T-ATAG"`.
 
-A translatable `RNASequence` can also be converted to an `AminoAcidSequence`
+A translatable `LongRNASeq` can also be converted to an `LongAminoAcidSeq`
 using the [`translate`](@ref) function.
 
 
@@ -394,7 +394,7 @@ ACGT
 
 ```
 
-Recall that `DNASequence` is a type alias of `GeneralSequence{DNAAlphabet{4}}`,
+Recall that `LongDNASeq` is a type alias of `GeneralSequence{DNAAlphabet{4}}`,
 which uses four bits per base. That is, `GeneralSequence{DNAAlphabet{2}}` saves half
 of memory footprint compared to `GeneralSequence{DNAAlphabet{4}}`. If you need to
 handle reference genomes that are composed of five nucleotides, ACGTN,

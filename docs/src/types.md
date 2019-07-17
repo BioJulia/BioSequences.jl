@@ -10,7 +10,7 @@ end
 BioSequences exports an abstract [BioSequence](@ref) type, and several concrete sequence
 types which inherit from it.
 
-## BioSequence
+## The abstract BioSequence
 
 BioSequences provides an abstract type called a `BioSequence{A<:Alphabet}`.
 This abstract type, and the methods and traits is supports, allows for
@@ -26,9 +26,9 @@ define the range of symbols permitted in the sequence.
 Some aliases are also provided for your convenience:
 
 | Alias           | Type                                 |
-|:----------------|:-------------------------------------|
+| :-------------- | :----------------------------------- |
 | `NucleotideSeq` | `BioSequence{<:NucleicAcidAlphabet}` |
-| `ProteinSeq`    | `BioSequence{AminoAcidAlphabet}`     |
+| `AminoAcidSeq`  | `BioSequence{AminoAcidAlphabet}`     |
 
 Any concrete sequence type compatible with BioSequences must inherit from
 `BioSequence{A}`, where `A` is the alphabet of the concrete sequence type.
@@ -54,6 +54,30 @@ bits_per_symbol
 As a result, the vast majority of methods described in the rest of this manual
 should work out of the box for the concrete sequence type. But they can always
 be overloaded if needed.
+
+## Long Sequences
+
+Many genomics scripts and tools benefit from an efficient general purpose
+sequence type that allows you to create and edit sequences. In BioSequences,
+the `LongSequence` type fills this requirement.
+
+`LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
+[Alphabet](@ref) type `A` that defines the domain (or set) of biological symbols
+permitted.
+For example, `AminoAcidAlphabet` is associated with `AminoAcid` and hence an
+object of the `GeneralSequence{AminoAcidAlphabet}` type represents a sequence of
+amino acids.  Symbols from multiple alphabets can't be intermixed in one
+sequence type.
+
+The following table summarizes common LongSequence types that have been given
+aliases for convenience.
+
+| Type                                | Symbol type | Type alias         |
+| :---------------------------------- | :---------- | :----------------- |
+| `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
+| `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
+| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
+| `LongSequence{CharAlphabet}`        | `Char`      | `LongCharSeq`      |
 
 ## Kmers & Skipmers
 

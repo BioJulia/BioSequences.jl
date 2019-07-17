@@ -78,8 +78,8 @@ function ReferenceSequence(str::AbstractString)
     return encode([UInt8(char) for char in str], 1, length(str))
 end
 
-function DNASequence(seq::ReferenceSequence)
-    bioseq = DNASequence(length(seq))
+function LongDNASeq(seq::ReferenceSequence)
+    bioseq = LongDNASeq(length(seq))
     for i in 1:lastindex(seq)
         bioseq[i] = seq[i]
     end

@@ -82,13 +82,13 @@ end
 
 @testset "Length" begin
     for len in [0, 1, 2, 3, 10, 16, 32, 1000, 10000]
-        seq = DNASequence(random_dna(len))
+        seq = LongDNASeq(random_dna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = RNASequence(random_rna(len))
+        seq = LongRNASeq(random_rna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = AminoAcidSequence(random_aa(len))
+        seq = LongAminoAcidSeq(random_aa(len))
         @test length(seq) === lastindex(seq) === len
     end
 

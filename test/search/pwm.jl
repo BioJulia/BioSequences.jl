@@ -96,6 +96,6 @@
         @test findfirst(pwm, seq, 1.4) === 4
         @test findfirst(pwm, seq, 1.8) === 7
         @test findfirst(pwm, seq, 2.0) === nothing
-        @test_throws ArgumentError findfirst(pwm, RNASequence(seq), 1.0)
+        @test_throws ArgumentError findfirst(pwm, LongRNASeq(seq), 1.0)
     end
 end

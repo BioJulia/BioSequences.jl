@@ -18,16 +18,16 @@
     end
 
     # Subsequence from range
-    @test RNASequence(rna"AUCGAUCG", 5:8) == RNASequence("AUCG")
-    @test DNASequence(dna"ATCGATCG", 5:8) == DNASequence("ATCG")
+    @test LongRNASeq(rna"AUCGAUCG", 5:8) == LongRNASeq("AUCG")
+    @test LongDNASeq(dna"ATCGATCG", 5:8) == LongDNASeq("ATCG")
 
     # Invalid ranges
-    @test_throws Exception RNASequence(rna"AUCGAUCG", 5:10)
-    @test_throws Exception DNASequence(dna"ATCGATCG", 5:10)
+    @test_throws Exception LongRNASeq(rna"AUCGAUCG", 5:10)
+    @test_throws Exception LongDNASeq(dna"ATCGATCG", 5:10)
 
     # Empty ranges
-    @test RNASequence(rna"AUCGAUCG", 5:4) == RNASequence()
-    @test DNASequence(dna"ATCGATCG", 5:4) == DNASequence()
+    @test LongRNASeq(rna"AUCGAUCG", 5:4) == LongRNASeq()
+    @test LongDNASeq(dna"ATCGATCG", 5:4) == LongDNASeq()
 
     # Subsequence of subsequence
     @test dna"ACGTAG"[4:end][1:2] == dna"TA"

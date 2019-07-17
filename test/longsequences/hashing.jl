@@ -36,7 +36,7 @@
     @test hash(aa"MTTQAPMFTQPLQ"[5:10]) === hash(aa"APMFTQ")
 
     @testset "MinHash" begin
-        seq = DNASequence(random_dna(1000))
+        seq = LongDNASeq(random_dna(1000))
         h = minhash(seq, 10, 100)
 
         @test length(h) == 100
