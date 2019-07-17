@@ -10,10 +10,10 @@
     for len in 1:32, _ in 1:10
         a = random_dna_kmer(len)
         b = random_dna_kmer(len)
-        test_mismatches(DNAKmer(a), DNAKmer(b))
+        test_mismatches(DNAMer(a), DNAMer(b))
 
         a = random_rna_kmer(len)
         b = random_rna_kmer(len)
-        test_mismatches(RNAKmer(a), RNAKmer(b))
+        test_mismatches(RNAMer(a), RNAMer(b))
     end
 end

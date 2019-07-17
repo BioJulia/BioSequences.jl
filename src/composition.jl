@@ -33,7 +33,7 @@ function Composition(seq::ReferenceSequence)
     return Composition{DNA}(count_array2dict(counts, ACGTN))
 end
 
-function Composition(kmer::DNAKmer)
+function Composition(kmer::AbstractMer{DNAAlphabet{2}})
     counts = Dict{DNA,Int}()
     counts[DNA_A] = count_a(kmer)
     counts[DNA_C] = count_c(kmer)
@@ -42,7 +42,7 @@ function Composition(kmer::DNAKmer)
     return Composition(counts)
 end
 
-function Composition(kmer::RNAKmer)
+function Composition(kmer::AbstractMer{RNAAlphabet{2}})
     counts = Dict{RNA,Int}()
     counts[RNA_A] = count_a(kmer)
     counts[RNA_C] = count_c(kmer)
@@ -60,13 +60,13 @@ function Composition(seq::AminoAcidSequence)
     return Composition{AminoAcid}(count_array2dict(counts, symbols(AminoAcidAlphabet())))
 end
 
-function Composition(iter::AbstractKmerIterator{T}) where {T<:Kmer}
+function Composition(iter::AbstractMerIterator{T}) where {T<:AbstractMer}
     counts = Dict{T,Int}()
-    if kmersize(T) ≤ 8
+    if ksize(T) ≤ 8
         # This is faster for short k-mers.
-        counts′ = zeros(Int, 4 ^ kmersize(T))
+        counts′ = zeros(Int, 4 ^ ksize(T))
         for (_, x) in iter
-            @inbounds counts′[BioSequences.encoded_data(x) + 1] += 1
+            @inbounds counts′[encoded_data(x) + 1] += 1
         end
         for x in eachindex(counts′)
             @inbounds c = counts′[x]
@@ -87,7 +87,7 @@ end
 
 Calculate composition of biological symbols in `seq` or k-mers in `kmer_iter`.
 """
-function composition(iter::Union{BioSequence,AbstractKmerIterator})
+function composition(iter::Union{BioSequence,AbstractMerIterator})
     return Composition(iter)
 end
 

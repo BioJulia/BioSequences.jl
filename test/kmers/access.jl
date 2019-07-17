@@ -1,6 +1,6 @@
 @testset "Access and Iterations" begin
-    dna_kmer = DNAKmer("ACTG")
-    rna_kmer = RNAKmer("ACUG")
+    dna_kmer = mer"ACTG"dna
+    rna_kmer = mer"ACUG"rna
 
     @testset "Access DNA Kmer" begin
         @test dna_kmer[1] == DNA_A
@@ -18,15 +18,15 @@
     end
 
     @testset "Iteration through DNA Kmer" begin
-        @test iterate(DNAKmer("ACTG")) == (DNA_A, 2)
+        @test iterate(DNAMer("ACTG")) == (DNA_A, 2)
 
-        @test iterate(DNAKmer("ACTG"), 1) == (DNA_A, 2)
-        @test iterate(DNAKmer("ACTG"), 4) == (DNA_G, 5)
+        @test iterate(DNAMer("ACTG"), 1) == (DNA_A, 2)
+        @test iterate(DNAMer("ACTG"), 4) == (DNA_G, 5)
 
-        @test iterate(DNAKmer("ACTG"), 1)  !== nothing
-        @test iterate(DNAKmer("ACTG"), 4)  !== nothing
-        @test iterate(DNAKmer("ACTG"), 5)  === nothing
-        @test iterate(DNAKmer("ACTG"), -1) !== nothing
+        @test iterate(DNAMer("ACTG"), 1)  !== nothing
+        @test iterate(DNAMer("ACTG"), 4)  !== nothing
+        @test iterate(DNAMer("ACTG"), 5)  === nothing
+        @test iterate(DNAMer("ACTG"), -1) !== nothing
 
         dna_vec = [DNA_A, DNA_C, DNA_T, DNA_G]
         @test all([nt === dna_vec[i] for (i, nt) in enumerate(dna_kmer)])
@@ -48,15 +48,15 @@
     end
 
     @testset "Iteration through RNA Kmer" begin
-        @test iterate(RNAKmer("ACUG")) == (RNA_A, 2)
+        @test iterate(RNAMer("ACUG")) == (RNA_A, 2)
 
-        @test iterate(RNAKmer("ACUG"), 1) == (RNA_A, 2)
-        @test iterate(RNAKmer("ACUG"), 4) == (RNA_G, 5)
+        @test iterate(RNAMer("ACUG"), 1) == (RNA_A, 2)
+        @test iterate(RNAMer("ACUG"), 4) == (RNA_G, 5)
 
-        @test iterate(RNAKmer("ACUG"), 1)  !== nothing
-        @test iterate(RNAKmer("ACUG"), 4)  !== nothing
-        @test iterate(RNAKmer("ACUG"), 5)  === nothing
-        @test iterate(RNAKmer("ACUG"), -1) !== nothing
+        @test iterate(RNAMer("ACUG"), 1)  !== nothing
+        @test iterate(RNAMer("ACUG"), 4)  !== nothing
+        @test iterate(RNAMer("ACUG"), 5)  === nothing
+        @test iterate(RNAMer("ACUG"), -1) !== nothing
 
         rna_vec = [RNA_A, RNA_C, RNA_U, RNA_G]
         @test all([nt === rna_vec[i] for (i, nt) in enumerate(rna_kmer)])

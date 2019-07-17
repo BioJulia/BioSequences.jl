@@ -1,7 +1,7 @@
 @testset "Comparisons" begin
     @testset "Equality" begin
         function check_seq_kmer_equality(len)
-            a = DNAKmer(random_dna_kmer(len))
+            a = DNAMer(random_dna_kmer(len))
             b = DNASequence(a)
             return a == b && b == a
         end
@@ -11,40 +11,40 @@
         end
 
         # True negatives
-        @test DNAKmer("ACG") != RNAKmer("ACG")
-        @test DNAKmer("T")   != RNAKmer("U")
-        @test DNAKmer("AC")  != DNAKmer("AG")
-        @test RNAKmer("AC")  != RNAKmer("AG")
+        @test DNAMer("ACG") != RNAMer("ACG")
+        @test DNAMer("T")   != RNAMer("U")
+        @test DNAMer("AC")  != DNAMer("AG")
+        @test RNAMer("AC")  != RNAMer("AG")
 
-        @test DNAKmer("ACG") != rna"ACG"
-        @test DNAKmer("T")   != rna"U"
-        @test DNAKmer("AC")  != dna"AG"
-        @test RNAKmer("AC")  != rna"AG"
+        @test DNAMer("ACG") != rna"ACG"
+        @test DNAMer("T")   != rna"U"
+        @test DNAMer("AC")  != dna"AG"
+        @test RNAMer("AC")  != rna"AG"
 
-        @test rna"ACG" != DNAKmer("ACG")
-        @test rna"U"   != DNAKmer("T")
-        @test dna"AG"  != DNAKmer("AC")
-        @test rna"AG"  != RNAKmer("AC")
+        @test rna"ACG" != DNAMer("ACG")
+        @test rna"U"   != DNAMer("T")
+        @test dna"AG"  != DNAMer("AC")
+        @test rna"AG"  != RNAMer("AC")
     end
 
     @testset "Inequality" begin
         for len in [1, 10, 32]
-            @test  isless(DNAKmer{1}(UInt64(0)), DNAKmer{1}(UInt64(1)))
-            @test !isless(DNAKmer{1}(UInt64(0)), DNAKmer{1}(UInt64(0)))
-            @test !isless(DNAKmer{1}(UInt64(1)), DNAKmer{1}(UInt64(0)))
+            @test  isless(DNAMer{1}(UInt64(0)), DNAMer{1}(UInt64(1)))
+            @test !isless(DNAMer{1}(UInt64(0)), DNAMer{1}(UInt64(0)))
+            @test !isless(DNAMer{1}(UInt64(1)), DNAMer{1}(UInt64(0)))
 
-            @test  isless(RNAKmer{1}(UInt64(0)), RNAKmer{1}(UInt64(1)))
-            @test !isless(RNAKmer{1}(UInt64(0)), RNAKmer{1}(UInt64(0)))
-            @test !isless(RNAKmer{1}(UInt64(1)), RNAKmer{1}(UInt64(0)))
+            @test  isless(RNAMer{1}(UInt64(0)), RNAMer{1}(UInt64(1)))
+            @test !isless(RNAMer{1}(UInt64(0)), RNAMer{1}(UInt64(0)))
+            @test !isless(RNAMer{1}(UInt64(1)), RNAMer{1}(UInt64(0)))
         end
     end
 
     @testset "Hash" begin
-        kmers = map(DNAKmer, ["AAAA", "AACT", "ACGT", "TGCA"])
+        kmers = map(DNAMer, ["AAAA", "AACT", "ACGT", "TGCA"])
         for x in kmers, y in kmers
             @test (x == y) == (hash(x) == hash(y))
         end
-        kmers = map(RNAKmer, ["AAAA", "AACU", "ACGU", "UGCA"])
+        kmers = map(RNAMer, ["AAAA", "AACU", "ACGU", "UGCA"])
         for x in kmers, y in kmers
             @test (x == y) == (hash(x) == hash(y))
         end

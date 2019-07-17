@@ -28,12 +28,20 @@ mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,K}
     function SkipmerFactory(::Type{T},
                             seq::LongSequence{A},
                             bases_per_cycle::Int = 2,
-                            cycle_len::Int = 3) where {A<:NucleicAcidAlphabet,K,T<:AbstractMer{A,K}}
+                            cycle_len::Int = 3) where {A<:NucleicAcidAlphabet,T<:AbstractMer}
         
-        span = UInt(ceil(cycle_len * (K / bases_per_cycle - 1) + bases_per_cycle))
+        checkmer(T)
         
-        if span > length(seq)
-            throw(ArgumentError(string("The span of each skipmer (", span, ") is greater than the input sequence length (", length(seq), ").")))
+        span = UInt(ceil(cycle_len * (ksize(T) / bases_per_cycle - 1) + bases_per_cycle))
+        
+        if eltype(seq) ∉ (DNA, RNA)
+            throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
+        elseif bases_per_cycle > cycle_len
+            throw(ArgumentError("bases per cycle must not be greater than the cycle length"))
+        elseif span > length(seq)
+            throw(ArgumentError(string("span of each skipmer (", span, ") is greater than the input sequence length (", length(seq), ").")))
+        elseif eltype(seq) != eltype(T)
+            throw(ArgumentError(string("skipmer type chosen must have same element type as chosen sequence")))
         end
         
         # For each of the next N skipmers being build simultaneously by the iterator,
@@ -51,7 +59,7 @@ mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,K}
         fkmer = Vector{U}(undef, cycle_len)
         rkmer = Vector{U}(undef, cycle_len)
         
-        gen = new{LongSequence{A},U,K}(seq, cycle_pos, last_unknown, fkmer, rkmer, 0, 0, 0, cycle_len, bases_per_cycle, span)
+        gen = new{LongSequence{A},U,ksize(T)}(seq, cycle_pos, last_unknown, fkmer, rkmer, 0, 0, 0, cycle_len, bases_per_cycle, span)
         _init_generator!(gen)
         
         return gen
@@ -59,11 +67,11 @@ mutable struct SkipmerFactory{S<:LongNucleotideSequence,U<:Unsigned,K}
 end
 
 @inline function mertype(::Type{SkipmerFactory{S,UInt64,K}}) where {S<:LongNucleotideSequence,K}
-    return Mer{typeof(Alphabet(S)),K}
+    return Mer{minimal_alphabet(typeof(Alphabet(S))),K}
 end
 
 @inline function mertype(::Type{SkipmerFactory{S,UInt128,K}}) where {S<:LongNucleotideSequence,K}
-    return BigMer{typeof(Alphabet(S)),K}
+    return BigMer{minimal_alphabet(typeof(Alphabet(S))),K}
 end
 
 @inline mertype(gen::SkipmerFactory) = mertype(typeof(gen))
@@ -176,13 +184,13 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
     # Now we take the next skipmer that will now be complete. Get its canonical
     # form, and then return it.
     nextfinished = gen.finished + 1
-    nextfinished = ifelse(nextfinished > N, 1, nextfinished)
+    nextfinished = ifelse(nextfinished > gen.cycle_len, 1, nextfinished)
     gen.finished = nextfinished
     @inbounds fkmer = gen.fkmer[nextfinished]
     @inbounds rkmer = gen.rkmer[nextfinished]
     newn = gen.n + 1
     gen.n = newn
-    return (newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+    return SkipmerFactoryResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
 end
 
 function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcidAlphabet{4},U,K}
@@ -197,7 +205,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
         # If we are at pos, the skip-mer that started at pos-S is now done... 
         if gen.position >= span
             nextfinished = gen.finished + 1
-            gen.finished = ifelse(nextfinished > N, 1, nextfinished)
+            gen.finished = ifelse(nextfinished > gen.cycle_len, 1, nextfinished)
             # If the currently finished skipmer, does not contain an ambiguous
             # nucleotide, then get the canonical form of the skipmer and return it.
             newn = gen.n + 1
@@ -205,7 +213,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
             if gen.last_unknown[gen.finished] + span <= gen.position
                 fkmer = gen.fkmer[gen.finished]
                 rkmer = gen.rkmer[gen.finished]
-                return (newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+                return SkipmerFactoryResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
             end
         end
     end

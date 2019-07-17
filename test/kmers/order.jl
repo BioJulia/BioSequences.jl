@@ -1,4 +1,4 @@
 @testset "Order" begin
-    @test DNAKmer("AA") < DNAKmer("AC") < DNAKmer("AG") < DNAKmer("AT") < DNAKmer("CA")
-    @test RNAKmer("AA") < RNAKmer("AC") < RNAKmer("AG") < RNAKmer("AU") < RNAKmer("CA")
+    @test DNAMer("AA") < DNAMer("AC") < DNAMer("AG") < DNAMer("AT") < DNAMer("CA")
+    @test RNAMer("AA") < RNAMer("AC") < RNAMer("AG") < RNAMer("AU") < RNAMer("CA")
 end

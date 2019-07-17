@@ -4,8 +4,8 @@
 # Create a Mer from a sequence whose elements are convertible to a nucleotide.
 function (::Type{T})(seq) where {T<:AbstractMer}
     seqlen = length(seq)
-    if seqlen != K(T)
-        throw(ArgumentError("seq does not contain the correct number of nucleotides ($seqlen ≠ $K)"))
+    if seqlen != ksize(T)
+        throw(ArgumentError("seq does not contain the correct number of nucleotides ($seqlen ≠ $(ksize(T)))"))
     end
     if seqlen > capacity(T)
         throw(ArgumentError("Cannot build a mer longer than $(capacity(T))bp long"))
@@ -31,13 +31,19 @@ end
 function (::Type{T})(nts::Vararg{DNA,K}) where {K,T<:AbstractMer{DNAAlphabet{2},K}}
     return T(nts)
 end
+DNAMer(nts::Vararg{DNA,K}) where {K} = DNAMer{K}(nts)
+BigDNAMer(nts::Vararg{DNA,K}) where {K} = BigDNAKmer{K}(nts)
 
 function (::Type{T})(nts::Vararg{RNA,K}) where {K,T<:AbstractMer{RNAAlphabet{2},K}}
     return T(nts)
 end
+RNAMer(nts::Vararg{RNA,K}) where {K} = RNAMer{K}(nts)
+BigRNAMer(nts::Vararg{RNA,K}) where {K} = BigRNAKmer{K}(nts)
 
-LongSequence{A}(x::AbstractMer{A,K}) where {A<:DNAAlphabet,K} = LongSequence{A}([nt for nt in x])
-LongSequence{A}(x::AbstractMer{A,K}) where {A<:RNAAlphabet,K} = LongSequence{A}([nt for nt in x])
+(::Type{T})(i::Integer) where {T<:AbstractMer} = T(unsigned(i))
+
+LongSequence{A}(x::AbstractMer{DNAAlphabet{2},K}) where {A<:DNAAlphabet,K} = LongSequence{A}([nt for nt in x])
+LongSequence{A}(x::AbstractMer{RNAAlphabet{2},K}) where {A<:RNAAlphabet,K} = LongSequence{A}([nt for nt in x])
 LongSequence(x::AbstractMer{A,K}) where {A,K} = LongSequence{A}([nt for nt in x])
 
 Base.convert(::Type{U}, x::AbstractMer) where {U<:Unsigned} = convert(U, encoded_data(x))

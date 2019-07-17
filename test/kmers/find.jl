@@ -1,5 +1,5 @@
 @testset "Find" begin
-    kmer = DNAKmer("ACGAG")
+    kmer = DNAMer("ACGAG")
 
     @test findnext(DNA_A, kmer, 1) == 1
     @test findnext(DNA_C, kmer, 1) == 2

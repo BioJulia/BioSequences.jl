@@ -87,8 +87,10 @@ for (pos, codon) in each(DNAKmer{3}, dna"ATCCTANAGNTACT", 3)
 end
 ```
 """
-function each(::Type{T}, seq::BioSequence{A}, step::Integer = 1) where {A<:NucleicAcidAlphabet{2},K,T<:AbstractMer{A,K}}
-    if !(1 ≤ K ≤ capacity(T))
+function each(::Type{T}, seq::BioSequence, step::Integer = 1) where {T<:AbstractMer}
+    if eltype(seq) ∉ (DNA, RNA)
+        throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
+    elseif !(1 ≤ ksize(T) ≤ capacity(T))
         throw(ArgumentError("k-mer length must be between 0 and $(capacity(T))"))
     elseif step < 1
         throw(ArgumentError("step size must be positive"))
@@ -96,14 +98,16 @@ function each(::Type{T}, seq::BioSequence{A}, step::Integer = 1) where {A<:Nucle
     if step == 1
         return EveryMerIterator{T,typeof(seq),false}(seq, 1, lastindex(seq))
     else
-        filled = max(0, K - step)
-        increment = max(1, step - K + 1)
+        filled = max(0, ksize(T) - step)
+        increment = max(1, step - ksize(T) + 1)
         return SpacedMerIterator{T,typeof(seq), false}(seq, 1, step, lastindex(seq), filled, increment)
     end
 end
 
-function eachcanonical(::Type{T}, seq::BioSequence{A}, step::Integer = 1) where {A<:NucleicAcidAlphabet{2},K,T<:AbstractMer{A,K}}
-    if !(1 ≤ K ≤ capacity(T))
+function eachcanonical(::Type{T}, seq::BioSequence, step::Integer = 1) where {T<:AbstractMer}
+    if eltype(seq) ∉ (DNA, RNA)
+        throw(ArgumentError("element type must be either DNA or RNA nucleotide"))
+    elseif !(1 ≤ ksize(T) ≤ capacity(T))
         throw(ArgumentError("k-mer length must be between 0 and $(capacity(T))"))
     elseif step < 1
         throw(ArgumentError("step size must be positive"))
@@ -111,8 +115,8 @@ function eachcanonical(::Type{T}, seq::BioSequence{A}, step::Integer = 1) where 
     if step == 1
         return EveryMerIterator{T,typeof(seq),true}(seq, 1, lastindex(seq))
     else
-        filled = max(0, K - step)
-        increment = max(1, step - K + 1)
+        filled = max(0, ksize(T) - step)
+        increment = max(1, step - ksize(T) + 1)
         return SpacedMerIterator{T,typeof(seq),true}(seq, 1, step, lastindex(seq), filled, increment)
     end
 end
@@ -124,7 +128,7 @@ end
 ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}},C} = Base.HasLength()
 
 @inline function Base.length(it::AbstractMerIterator{T,S,C}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}},C}
-    return max(0, fld(it.stop - it.start + 1 - K(T), step(it)) + 1)
+    return max(0, fld(it.stop - it.start + 1 - ksize(T), step(it)) + 1)
 end
 
 Base.step(x::EveryMerIterator) = 1
@@ -146,7 +150,7 @@ const kmerbits = (0xff, 0x00, 0x01, 0xff,
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
         filled += 1
-        if filled == K(T)
+        if filled == ksize(T)
             return (1, T(kmer)), (i, kmer)
         end
         i += 1
@@ -166,7 +170,7 @@ end
         fwkmer = (fwkmer << 0x02 | fbits)
         rvkmer = (rvkmer >> 0x02) | (UT(rbits) << unsigned(offset(T, 1)))
         filled += 1
-        if filled == K(T)
+        if filled == ksize(T)
             return (1, min(T(fwkmer), T(rvkmer))), (i, fwkmer, rvkmer)
         end
         i += 1
@@ -185,13 +189,13 @@ end
         nt = reinterpret(Int8, inbounds_getindex(it.seq, i))
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
-        pos = i - kmersize(T) + 1
+        pos = i - ksize(T) + 1
         return (pos, T(kmer)), (i, kmer)
     end
 end
 
-@inline function Base.iterate(it::EveryMerIterator{T,S,true}, state) where {T, S<:LongSequence{<:NucleicAcidAlphabet{2}}}
-    UT = encoded_data_eltype(T)
+@inline function Base.iterate(it::EveryMerIterator{T,S,true}, state) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
+    UT = encoded_data_type(T)
     i, fwkmer, rvkmer = state
     i += 1
     
@@ -203,7 +207,7 @@ end
         rbits = ~fbits & typeof(fbits)(0x03)
         fwkmer = (fwkmer << 0x02 | fbits)
         rvkmer = (rvkmer >> 0x02) | (UT(rbits) << unsigned(offset(T, 1)))
-        pos = i - kmersize(T) + 1
+        pos = i - ksize(T) + 1
         
         return (pos, min(T(fwkmer), T(rvkmer))), (i, fwkmer, rvkmer)
     end    
@@ -220,8 +224,8 @@ end
         @inbounds val = kmerbits[nt + 1]
         kmer = kmer << 2 | val
         filled += 1
-        if filled == K(T)
-            pos = i - K(T) + 1
+        if filled == ksize(T)
+            pos = i - ksize(T) + 1
             return (pos, T(kmer)), (i, kmer)
         end
         i += 1
@@ -243,8 +247,8 @@ end
         fkmer = fkmer << 2 | val
         rkmer = rkmer >> 2 | (UT(rbits) << unsigned(offset(T, 1)))
         filled += 1
-        if filled == K(T)
-            pos = i - K(T) + 1
+        if filled == ksize(T)
+            pos = i - ksize(T) + 1
             return (pos, min(T(fkmer), T(rkmer))), (i, fkmer, rkmer)
         end
         i += 1
@@ -264,9 +268,9 @@ end
         kmer = kmer << 2 | val
         filled = ifelse(val == 0xff, 0, filled + 1)
 
-        if filled == K(T)
-            pos = i - K(T) + 1
-            return (pos, T(kmer)), (i, K(T), kmer)
+        if filled == ksize(T)
+            pos = i - ksize(T) + 1
+            return (pos, T(kmer)), (i, ksize(T), kmer)
         end
         i += 1
     end
@@ -288,9 +292,9 @@ end
         fkmer = fkmer << 0x02 | fbits
         rkmer = (rkmer >> 0x02) | (UT(rbits) << unsigned(offset(T, 1)))
         filled = ifelse(fbits == 0xff, 0, filled + 1)
-        if filled == K(T)
-            pos = i - K(T) + 1
-            return (pos, min(T(fkmer), T(rkmer))), (i, K(T), fkmer, rkmer)
+        if filled == ksize(T)
+            pos = i - ksize(T) + 1
+            return (pos, min(T(fkmer), T(rkmer))), (i, ksize(T), fkmer, rkmer)
         end
         i += 1
     end
@@ -314,8 +318,8 @@ end
             filled += 1
             kmer = kmer << 2 | val
         end
-        if filled == K(T)
-            state = (i, i - K(T) + 1 + it.step, it.filled, kmer)
+        if filled == ksize(T)
+            state = (i, i - ksize(T) + 1 + it.step, it.filled, kmer)
             return (pos, T(kmer)), state
         end
         i += 1
@@ -325,7 +329,7 @@ end
 
 @inline function Base.iterate(it::SpacedMerIterator{T,S,true}, state=(it.start-it.increment, 1, 0, zero(encoded_data_type(T)), zero(encoded_data_type(T)))
     ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
-    UT = encoded_data_eltype(T)
+    UT = encoded_data_type(T)
     i, pos, filled, fwkmer, rvkmer = state
     i += it.increment
 
@@ -343,8 +347,8 @@ end
             fwkmer = fwkmer << 2 | val
             rvkmer = (rvkmer >> 0x02) | UT(rbits) << unsigned(offset(T, 1))
         end
-        if filled == K(T)
-            state = (i, i - K(T) + 1 + it.step, it.filled, fwkmer, rvkmer)
+        if filled == ksize(T)
+            state = (i, i - ksize(T) + 1 + it.step, it.filled, fwkmer, rvkmer)
             return (pos, min(T(fwkmer), T(rvkmer))), state
         end
         i += 1

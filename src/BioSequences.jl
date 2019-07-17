@@ -1,16 +1,16 @@
-# BioSequences.jl
-# ===============
-#
-# A julia package for the representation and manipulation of biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+### BioSequences.jl
+###
+### A julia package for the representation and manipulation of biological sequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 module BioSequences
 
 export
-    # Symbols
-    # -------
+    ###
+    ### Symbols
+    ###
     
     # Types & aliases
     NucleicAcid,
@@ -135,16 +135,19 @@ export
     # --------
     
     # Type & aliases
-    Skipmer,
-    DNASkipmer,
-    RNASkipmer,
-    BigDNASkipmer,
-    BigRNASkipmer,
-    Kmer,
+    AbstractMer,
+    Mer,
+    DNAMer,
+    RNAMer,
     DNAKmer,
     RNAKmer,
+    
+    BigMer,
+    BigDNAMer,
+    BigRNAMer,
     BigDNAKmer,
     BigRNAKmer,
+    
     DNACodon,
     RNACodon,
     
@@ -165,7 +168,8 @@ export
     @char_str,
     @biore_str,
     @prosite_str,
-    @kmer_str,
+    @mer_str,
+    @bigmer_str,
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
