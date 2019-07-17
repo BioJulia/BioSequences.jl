@@ -1,15 +1,18 @@
-# BioSequences.jl
-# =======
-#
-# A julia package for the representation and manipulation of biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+### BioSequences.jl
+###
+### A julia package for the representation and manipulation of biological sequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 module BioSequences
 
 export
-    # Symbols
+    ###
+    ### Symbols
+    ###
+    
+    # Types & aliases
     NucleicAcid,
     DNA,
     RNA,
@@ -49,13 +52,6 @@ export
     RNA_Gap,
     ACGU,
     ACGUN,
-    isGC,
-    iscompatible,
-    isambiguous,
-    iscertain,
-    isgap,
-    ispurine,
-    ispyrimidine,
     AminoAcid,
     AA_A,
     AA_R,
@@ -85,15 +81,82 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-
-    # BioSequences
+    
+    # Predicates
+    isGC,
+    iscompatible,
+    isambiguous,
+    iscertain,
+    isgap,
+    ispurine,
+    ispyrimidine,
+    
+    ###
+    ### Alphabets
+    ###
+    
+    # Types & aliases
+    Alphabet,
+    NucleicAcidAlphabet,
+    DNAAlphabet,
+    RNAAlphabet,
+    AminoAcidAlphabet,
+    CharAlphabet,
+    
+    ###
+    ### BioSequences
+    ###
+    
+    # Type & aliases
     BioSequence,
     NucleotideSeq,
+    
+    # Indexing
+    unsafe_setindex!,
+    
+    # Predicates
+    ispalindromic,
+    hasambiguity,
+    isrepetitive,
+    
+    ###
+    ### LongSequence
+    ###
+    
+    # Type & aliases
     LongSequence,
     DNASequence,
     RNASequence,
     AminoAcidSequence,
     CharSequence,
+    
+    ###
+    ### Mers
+    ###
+    
+    # Type & aliases
+    AbstractMer,
+    Mer,
+    DNAMer,
+    RNAMer,
+    DNAKmer,
+    RNAKmer,
+    
+    BigMer,
+    BigDNAMer,
+    BigRNAMer,
+    BigDNAKmer,
+    BigRNAKmer,
+    
+    DNACodon,
+    RNACodon,
+    
+    # Transformations
+    canonical,
+    
+    # Iteration
+    neighbors,
+    
     seqname,
     hasseqname,
     sequence,
@@ -105,16 +168,15 @@ export
     @char_str,
     @biore_str,
     @prosite_str,
-    @kmer_str,
+    @mer_str,
+    @bigmer_str,
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
     symbols,
     gap,
     mismatches,
-    ispalindromic,
-    hasambiguity,
-    isrepetitive,
+    
     ambiguous_positions,
     gc_content,
     SamplerUniform,
@@ -123,27 +185,15 @@ export
     randdnaseq,
     randrnaseq,
     randaaseq,
-    canonical,
-    neighbors,
-    eachkmer,
     each,
+    eachcanonical,
     Composition,
     composition,
     NucleicAcidCounts,
-    Skipmer,
-    Kmer,
-    DNAKmer,
-    RNAKmer,
-    BigDNAKmer,
-    BigRNAKmer,
-    DNACodon,
-    RNACodon,
+    
     translate,
     ncbi_trans_table,
     ABIF,
-    
-    # Indexing
-    unsafe_setindex!,
     
     # Transformations
     complement,
@@ -152,15 +202,8 @@ export
     reverse_complement!,
     ungap,
     ungap!,
-
-    # Alphabets
-    Alphabet,
-    NucleicAcidAlphabet,
-    DNAAlphabet,
-    RNAAlphabet,
-    AminoAcidAlphabet,
-    CharAlphabet,
-
+    
+    
     # search
     ExactSearchQuery,
     ApproximateSearchQuery,
@@ -172,7 +215,7 @@ export
     PWM,
     maxscore,
     scoreat,
-
+    
     ReferenceSequence,
     Demultiplexer,
     demultiplex,
@@ -211,19 +254,33 @@ using Random
 
 BioSymbols.gap(::Type{Char}) = '-'
 
-include("trait_definitions/alphabet.jl")
+include("alphabet.jl")
+
+# Load the bit-twiddling internals that optimised BioSequences methods depend on.
 include("bit-manipulation/bit-manipulation.jl")
-include("biosequences/biosequence.jl")
+
+# The generic, abstract BioSequence type
+include("biosequence/biosequence.jl")
+
+# The definition of the LongSequence concrete type, and its method overloads...
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
-#include("shortsequence/shortsequence.jl")
-include("skipmers/skipmer.jl")
+
+# The definition of the Skipmer concrete type, and its method overloads...
+include("mers/mer.jl")
+
+# The definition of the ReferenceSequence concrete type, and its method overloads...
 include("nmask.jl")
 include("refseq/refseq.jl")
+
+# The generic iterators for any BioSequence...
 include("iterators/ambiguous.jl")
 include("iterators/eachkmer.jl")
+include("iterators/skipmerfactory.jl")
+
 include("composition.jl")
+
 include("geneticcode.jl")
 include("demultiplexer.jl")
 

@@ -58,7 +58,8 @@ end
 
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
-@inline function extract_encoded_symbol(bidx::BitIndex, data)
+"Extract the element stored in a packed bitarray referred to by bidx."
+@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::AbstractArray{W}) where {N,W}
     @inbounds chunk = data[index(bidx)]
     offchunk = chunk >> offset(bidx)
     return offchunk & bitmask(bidx)
@@ -66,10 +67,15 @@ end
 
 # Create a bit mask that fills least significant `n` bits (`n` must be a
 # non-negative integer).
+"Create a bit mask covering the least significant `n` bits."
 bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
+
+# Create a bit mask filling least significant N bits.
+# This is used in the extract_encoded_element function.
+bitmask(bidx::BitIndex{N, W}) where {N, W} = bitmask(W, N)
 bitmask(n::Integer) = bitmask(UInt64, n)
 bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
-bitmask(bidx::BitIndex{N, W}) where {N, W} = bitmask(W, N)
+
 
 # TODO: Work out places this is used and see if it is really nessecery given the
 # bitmask methods above.

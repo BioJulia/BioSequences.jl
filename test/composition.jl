@@ -47,7 +47,7 @@
 
     function check_kmer_nucleotide_count(::Type{DNA}, seq::AbstractString)
         string_counts = string_nucleotide_count(DNA, seq)
-        kmer_counts = composition(DNAKmer(seq))
+        kmer_counts = composition(DNAMer(seq))
         return string_counts[DNA_A] == kmer_counts[DNA_A] &&
                string_counts[DNA_C] == kmer_counts[DNA_C] &&
                string_counts[DNA_G] == kmer_counts[DNA_G] &&
@@ -57,7 +57,7 @@
 
     function check_kmer_nucleotide_count(::Type{RNA}, seq::AbstractString)
         string_counts = string_nucleotide_count(RNA, seq)
-        kmer_counts = composition(RNAKmer(seq))
+        kmer_counts = composition(RNAMer(seq))
         return string_counts[RNA_A] == kmer_counts[RNA_A] &&
                string_counts[RNA_C] == kmer_counts[RNA_C] &&
                string_counts[RNA_G] == kmer_counts[RNA_G] &&
@@ -100,19 +100,19 @@
         @test composition(seq1 * seq2) == merge(composition(seq1), composition(seq2))
     end
 
-    comp = composition(each(DNAKmer{2}, dna"ACGTACGT"))
-    @test comp[DNAKmer("AC")] == 2
-    @test comp[DNAKmer("CG")] == 2
-    @test comp[DNAKmer("GT")] == 2
-    @test comp[DNAKmer("TA")] == 1
-    @test comp[DNAKmer("AA")] == 0
+    comp = composition(each(DNAMer{2}, dna"ACGTACGT"))
+    @test comp[mer"AC"dna] == 2
+    @test comp[mer"CG"dna] == 2
+    @test comp[mer"GT"dna] == 2
+    @test comp[mer"TA"dna] == 1
+    @test comp[mer"AA"dna] == 0
 
-    comp = composition(each(DNAKmer{3}, dna"ACGTACGT"))
-    @test comp[DNAKmer("ACG")] == 2
-    @test comp[DNAKmer("CGT")] == 2
-    @test comp[DNAKmer("GTA")] == 1
-    @test comp[DNAKmer("TAC")] == 1
-    @test comp[DNAKmer("AAA")] == 0
+    comp = composition(each(DNAMer{3}, dna"ACGTACGT"))
+    @test comp[mer"ACG"dna] == 2
+    @test comp[mer"CGT"dna] == 2
+    @test comp[mer"GTA"dna] == 1
+    @test comp[mer"TAC"dna] == 1
+    @test comp[mer"AAA"dna] == 0
 
     comp = composition(DNASequence[dna"ATCG", dna"GCTA", dna"ATCGG",
                                    dna"ATCG", dna"ATCG", dna"GCTA"])

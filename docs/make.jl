@@ -10,9 +10,9 @@ makedocs(
             "Biological Symbols" => "user_manual/symbols.md",
             "Sequence types" => [
                 "Overview" => "user_manual/sequences/biosequence.md",
-                "General Sequence" => "user_manual/sequences/generalseq.md",
+                "Long Sequence" => "user_manual/sequences/generalseq.md",
                 "Reference Sequences" => "user_manual/sequences/refseq.md",
-                "Nucleic acid k-mers" => "user_manual/sequences/kmer.md"
+                "Skipmers and kmers" => "user_manual/sequences/skipmers.md"
             ],
             "Indexing sequences" => "user_manual/indexing.md",
             "Searching" => "user_manual/search.md",

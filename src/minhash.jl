@@ -37,9 +37,9 @@ function Base.:(==)(a::MinHashSketch, b::MinHashSketch)
 end
 
 
-function kmerminhash!(::Type{DNAKmer{k}}, seq::LongSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
+function kmerminhash!(::Type{DNAMer{k}}, seq::LongSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
     # generate first `s` kmers
-    iter = each(DNAKmer{k}, seq)
+    iter = each(DNAMer{k}, seq)
     iter_value = iterate(iter)
     while length(kmerhashes) < s && iter_value !== nothing
         (_, kmer), state = iter_value
@@ -78,7 +78,7 @@ end
 Generate a MinHash sketch of size `s` for kmers of length `k`.
 """
 function minhash(seq::LongSequence, k::Integer, s::Integer)
-    kmerhashes = kmerminhash!(DNAKmer{k}, seq, s, UInt64[])
+    kmerhashes = kmerminhash!(DNAMer{k}, seq, s, UInt64[])
     length(kmerhashes) < s && error("failed to generate enough hashes")
 
     return MinHashSketch(kmerhashes, k)
@@ -87,7 +87,7 @@ end
 function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:LongSequence}
     kmerhashes = UInt64[]
     for seq in seqs
-        kmerminhash!(DNAKmer{k}, seq, s, kmerhashes)
+        kmerminhash!(DNAMer{k}, seq, s, kmerhashes)
     end
 
     length(kmerhashes) < s && error("failed to generate enough hashes")
@@ -97,7 +97,7 @@ end
 function minhash(seqs::BioGenerics.IO.AbstractReader, k::Integer, s::Integer)
     kmerhashes = UInt64[]
     for seq in seqs
-        kmerminhash!(DNAKmer{k}, sequence(seq), s, kmerhashes)
+        kmerminhash!(DNAMer{k}, sequence(seq), s, kmerhashes)
     end
 
     length(kmerhashes) < s && error("failed to generate enough hashes")

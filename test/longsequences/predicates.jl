@@ -11,8 +11,8 @@
     @test  ispalindromic(dna"ACGT")
     @test !ispalindromic(dna"ACNT")
 
-    @test  ispalindromic(DNAKmer("ACGT"))
-    @test !ispalindromic(DNAKmer("CACG"))
+    @test  ispalindromic(mer"ACGT"dna)
+    @test !ispalindromic(mer"CACG"dna)
 
     @test  ispalindromic(rna"")
     @test !ispalindromic(rna"A")
@@ -25,8 +25,8 @@
     @test  ispalindromic(rna"ACGU")
     @test !ispalindromic(rna"ACNU")
 
-    @test  ispalindromic(RNAKmer("ACGU"))
-    @test !ispalindromic(RNAKmer("CACG"))
+    @test  ispalindromic(mer"ACGU"rna)
+    @test !ispalindromic(mer"CACG"rna)
 
     @test_throws Exception ispalindromic(aa"PQ")
 
@@ -37,7 +37,7 @@
     @test !hasambiguity(dna"ACGT")
     @test  hasambiguity(dna"ANGT")
 
-    @test !hasambiguity(DNAKmer("ACGT"))
+    @test !hasambiguity(mer"ACGT"dna)
 
     @test !hasambiguity(rna"")
     @test !hasambiguity(rna"A")
@@ -45,7 +45,7 @@
     @test !hasambiguity(rna"ACGU")
     @test  hasambiguity(rna"ANGU")
 
-    @test !hasambiguity(RNAKmer("ACGU"))
+    @test !hasambiguity(mer"ACGU"rna)
 
     @test !hasambiguity(aa"")
     @test !hasambiguity(aa"A")
@@ -68,11 +68,11 @@
     @test !isrepetitive(dna"ACGTCCGT", 3)
     @test  isrepetitive(dna"ACGCCCGT", 3)
 
-    @test !isrepetitive(DNAKmer("ACGT"), 2)
-    @test  isrepetitive(DNAKmer("ACCT"), 2)
-    @test !isrepetitive(DNAKmer("ACCT"), 3)
-    @test  isrepetitive(DNAKmer("ACCCT"), 2)
-    @test  isrepetitive(DNAKmer("ACCCT"), 3)
+    @test !isrepetitive(mer"ACGT"dna, 2)
+    @test  isrepetitive(mer"ACCT"dna, 2)
+    @test !isrepetitive(mer"ACCT"dna, 3)
+    @test  isrepetitive(mer"ACCCT"dna, 2)
+    @test  isrepetitive(mer"ACCCT"dna, 3)
 
     @test  isrepetitive(rna"")
     @test !isrepetitive(rna"", 1)
@@ -86,11 +86,11 @@
     @test !isrepetitive(rna"ACGUCCGU", 3)
     @test  isrepetitive(rna"ACGCCCGU", 3)
 
-    @test !isrepetitive(RNAKmer("ACGU"), 2)
-    @test  isrepetitive(RNAKmer("ACCU"), 2)
-    @test !isrepetitive(RNAKmer("ACCU"), 3)
-    @test  isrepetitive(RNAKmer("ACCCU"), 2)
-    @test  isrepetitive(RNAKmer("ACCCU"), 3)
+    @test !isrepetitive(mer"ACGU"rna, 2)
+    @test  isrepetitive(mer"ACCU"rna, 2)
+    @test !isrepetitive(mer"ACCU"rna, 3)
+    @test  isrepetitive(mer"ACCCU"rna, 2)
+    @test  isrepetitive(mer"ACCCU"rna, 3)
 
     @test  isrepetitive(aa"")
     @test !isrepetitive(aa"PGQQ")

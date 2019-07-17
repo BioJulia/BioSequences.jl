@@ -186,21 +186,22 @@ end
 
 include("composition.jl")
 
-@testset "Kmers" begin
-    include("kmers/conversion.jl")
-    include("kmers/comparisons.jl")
-    include("kmers/length.jl")
-    include("kmers/arithmetic.jl")
-    include("kmers/access.jl")
-    include("kmers/random.jl")
-    include("kmers/find.jl")
-    include("kmers/print.jl")
-    include("kmers/transformations.jl")
-    include("kmers/mismatches.jl")
-    include("kmers/eachkmer.jl")
-    include("kmers/debruijn_neighbors.jl")
-    include("kmers/shuffle.jl")
+@testset "Mers" begin
+    include("mers/conversion.jl")
+    include("mers/comparisons.jl")
+    include("mers/length.jl")
+    include("mers/arithmetic.jl")
+    include("mers/access.jl")
+    include("mers/random.jl")
+    include("mers/find.jl")
+    include("mers/print.jl")
+    include("mers/transformations.jl")
+    include("mers/mismatches.jl")
+    include("mers/debruijn_neighbors.jl")
+    include("mers/shuffle.jl")
 end
+
+include("iterators/eachskipmer.jl")
 
 @testset "Search" begin
     include("search/exact.jl")

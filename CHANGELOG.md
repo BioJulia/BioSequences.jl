@@ -12,14 +12,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - All random `LongSequence` generator methods take an optional AbstractRNG argument.
 - Add methods to `randseq` to optimize random generation of `NucleicAcid` or `AminoAcid` `LongSequence`s.
 - BioGenerics is now a dependency - replaces BioCore.
+- A `SkipmerFactory` iterator that allows iteration over the Skipmers in a 
+  nucleotide sequence. A Skipmer is a `Mer` (see changed below), that is
+  generated using a certain cyclic nucleotide sampling pattern.
+  See [this paper](https://www.biorxiv.org/content/early/2017/09/19/179960.full.pdf+html)
+  for more details.
+- A `BigMer` parametric primitive type has been added, that has the same
+  functionality as `Mer` (see changed section), but uses 128 bits instead of 64.
+- An abstract parametric type called `AbstractMer` has been added to unify `Mer`
+  and `BigMer`.
 
 ### Changed
 - The abstract `Sequence` type is now called `BioSequence{A}`.
 - The type previously called `BioSequence{A}` is now `LongSequence{A}`.
-- `Kmers` are now a parametric type: `Skipmer{U<:Unsigned, A<:Alphabet, M, N, K}`.
-   A `Skipmer` is a more generic type of `Kmer`, where in addition to `K`, you have two other numeric parameters `M` and `N`. They are more fully described here: https://www.biorxiv.org/content/early/2017/09/19/179960.full.pdf+html
+- `Kmers` are now a parametric primitive type: `Mer{A<:NucleicAcidAlphabet{2},K}`.
 - `unsafe_setindex!` has been made systematic for all `setindex` methods as a 
-  way of bypassing all boundschecks and `orphan!` calls.
+  way of bypassing all bound checking and `orphan!` calls.
+- Kmer string literals have been updated, they are now `mer""` string literals,
+  and they have a flag to enforce the type of `Mer` e.g.: `mer"ATCG"dna`, `mer"AUCG"rna`
 
 ### Removed
 - The FASTQ module.
