@@ -5,10 +5,55 @@ DocTestSetup = quote
 end
 ```
 
-# BioSequences Types
+# Sequence Types
 
-BioSequences supports an abstract `BioSequence` type, and three concrete
-biological sequence types for 
+BioSequences exports an abstract [BioSequence](@ref) type, and several concrete sequence
+types which inherit from it.
+
+## BioSequence
+
+BioSequences provides an abstract type called a `BioSequence{A<:Alphabet}`.
+This abstract type, and the methods and traits is supports, allows for
+many algorithms in BioSequences to be written as generically as possible,
+thus reducing the amount of code to read and understand, whilst maintaining high
+performance when such code is compiled for a concrete BioSequence subtype.
+Additionally, it allows new types to be implemented that are fully compatible
+with the rest of BioSequences, providing that key methods or traits are defined).
+
+This abstract type is parametric over concrete types of [Alphabet](@ref), which
+define the range of symbols permitted in the sequence.
+
+Some aliases are also provided for your convenience:
+
+| Alias           | Type                                 |
+|:----------------|:-------------------------------------|
+| `NucleotideSeq` | `BioSequence{<:NucleicAcidAlphabet}` |
+| `ProteinSeq`    | `BioSequence{AminoAcidAlphabet}`     |
+
+Any concrete sequence type compatible with BioSequences must inherit from
+`BioSequence{A}`, where `A` is the alphabet of the concrete sequence type.
+It must also have the following methods defined for it:
+
+```@docs
+encoded_data
+Base.length(::BioSequence)
+```
+
+If these requirements are satisfied, the following key traits and methods backing
+the BioSequences interface, should be defined for the sequence type.
+
+```@docs
+encoded_data_type
+encoded_data_eltype
+Alphabet
+BioSymbols.alphabet(::BioSequence)
+BitsPerSymbol
+bits_per_symbol
+```
+
+As a result, the vast majority of methods described in the rest of this manual
+should work out of the box for the concrete sequence type. But they can always
+be overloaded if needed.
 
 ## Kmers & Skipmers
 
@@ -22,7 +67,8 @@ This concept popularised by short read assemblers.
 Analyses within the kmer space benefit from a simple formulation of the sampling
 problem and direct in-hash comparisons.
 
-BioSequences provides the following types to represent Kmers.
+BioSequences provides the following types to represent Kmers, unlike some
+sequence types, they are immutable.
 
 #### `Mer{A<:NucleicAcidAlphabet{2},K}`
 
@@ -70,7 +116,7 @@ represented using `Mer` and `BigMer` as their representation as a short immutabl
 sequence encoded in an unsigned integer is the same.
 The distinction lies in how they are generated.
 
-#### Generating skipmers
+#### Skipmer generation
 
 A skipmer is a simple cyclic q-gram that includes _m_ out of every _n_ bases
 until a total of _k_ bases is reached. 

@@ -1,16 +1,27 @@
-abstract type BioSequence{A <: Alphabet} end
+abstract type BioSequence{A<:Alphabet} end
 
 # Aliases and shorthands for describing subsets of the BioSequence type...
 const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}
 const ProteinSeq = BioSequence{AminoAcidAlphabet}
 
-
-# Required traits and methods
-# ---------------------------
+###
+### Required traits and methods
+###
 
 # Base.length must be defined for every T<:BioSequence.
 
 # As must the following...
+
+"Get the length of a biological sequence."
+@inline function Base.length(seq::BioSequence)
+    error(
+        string(
+            "Base.length has not been defined for BioSequence type: ",
+            typeof(seq),
+            ". Any compatible concrete BioSequence subtype must have this method implemented."
+        )
+    )
+end
 
 """
 Return the data member of `seq` that stores the encoded sequence data.
@@ -20,22 +31,23 @@ Return the data member of `seq` that stores the encoded sequence data.
         string(
             "encoded_data has not been defined for BioSequence type: ",
             typeof(seq),
-            ". It is required for any BioSequence subtype."
+            ". Any compatible concrete BioSequence subtype must have this method implemented."
         )
     )
 end
 
-
-# Provided traits and methods
-# ---------------------------
+###
+### Provided traits and methods
+###
 
 # These traits and methods are defined automatically for any subtype of BioSequence{A}.
 # They may be overloaded for your concrete BioSequence sub-type if it is nessecery.
 
-@inline encoded_data_eltype(seq::BioSequence) = eltype(encoded_data(seq))
+@inline encoded_data_type(seq::BioSequence) = typeof(encoded_data(seq))
+@inline encoded_data_eltype(seq::BioSequence) = eltype(encoded_data_type(seq))
 
 """
-Return the `Alpahbet` type defining the possible biological symbols
+Return the `Alpahbet` defining the possible biological symbols
 and their encoding for a given biological sequence.
 """
 @inline function Alphabet(::Type{<:BioSequence{A}}) where {A <: Alphabet}
