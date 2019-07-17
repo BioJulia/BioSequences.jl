@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New subtypes of Random.Sampler, SamplerUniform and SamplerWeighted.
 - Random `LongSequence`s can now be created with `randseq`,
   optionally using a sampler to specify element distribution.
-- All random `LongSequence` generator methods take an optional AbstractRNG argument.
-- Add methods to `randseq` to optimize random generation of `NucleicAcid` or `AminoAcid` `LongSequence`s.
+- All random `LongSequence` generator methods take an optional AbstractRNG
+  argument.
+- Add methods to `randseq` to optimize random generation of `NucleicAcid` or
+  `AminoAcid` `LongSequence`s.
 - BioGenerics is now a dependency - replaces BioCore.
 - A `SkipmerFactory` iterator that allows iteration over the Skipmers in a 
   nucleotide sequence. A Skipmer is a `Mer` (see changed below), that is
@@ -29,7 +31,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `unsafe_setindex!` has been made systematic for all `setindex` methods as a 
   way of bypassing all bound checking and `orphan!` calls.
 - Kmer string literals have been updated, they are now `mer""` string literals,
-  and they have a flag to enforce the type of `Mer` e.g.: `mer"ATCG"dna`, `mer"AUCG"rna`
+  and they have a flag to enforce the type of `Mer` e.g.: `mer"ATCG"dna`,
+  `mer"AUCG"rna`
 
 ### Removed
 - The FASTQ module.
@@ -41,7 +44,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.0]
 ### Changed
-- Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
+- Automatic conversion of `DNASequence` to `RNASequence` when translating
+  sequences.
 - Add `alternative_start` keyword argument to translate().
 - Add abstract type for kmer iterators.
 - :racehorse: Faster kmer iteration.
@@ -64,8 +68,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.8.2] - 2018-02-19
 ### Changed
-- A bug fix for `FASTA.Record` writing where the width parameter of a `FASTA.Writer`
-is less than or equal to zero.
+- A bug fix for `FASTA.Record` writing where the width parameter of a
+  `FASTA.Writer` is less than or equal to zero.
 
 ## [0.8.1] - 2017-11-10
 ### Changed
