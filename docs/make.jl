@@ -7,7 +7,8 @@ makedocs(
         "Home"                   => "index.md",
         "Biological Symbols"     => "symbols.md",
         "BioSequences Types"     => "types.md",
-        "Constructing sequences" => "constructing.md"
+        "Constructing sequences" => "construction.md",
+        "Random sequences"       => "random.md"
 
         #"User Manual" => [
         #    "Sequence types" => [

@@ -1,17 +1,18 @@
-# Random Sequence Generator
-# =========================
-#
-# Random sequence generator.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Random Sequence Generator
+###
+###
+### Random sequence generator.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 import Random: Sampler, GLOBAL_RNG
 
 """
     SamplerUniform{T}
 
-Weighted sampler of type T. Instantiate with a collection of eltype T containing
+Uniform sampler of type T. Instantiate with a collection of eltype T containing
 the elements to sample.
 
 # Examples
@@ -115,6 +116,7 @@ function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
     return seq
 end
 randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(GLOBAL_RNG, A, sp, len)
+
 """
     randseq([rng::AbstractRNG], A::Alphabet, len::Integer)
 

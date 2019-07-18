@@ -40,79 +40,7 @@ This is described in [Defining a new alphabet](@ref) section.
 
 
 
-### Other constructors and conversion
 
-`LongSequences`s can also be constructed from strings or arrays of nucleotide
-or amino acid symbols using constructors or the `convert` function:
-
-```jldoctest
-julia> LongDNASeq("TTANC")
-5nt DNA Sequence:
-TTANC
-
-julia> LongDNASeq([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
-5nt DNA Sequence:
-TTANC
-
-julia> convert(LongDNASeq, [DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
-5nt DNA Sequence:
-TTANC
-
-```
-
-Using `convert`, these operations are reversible: sequences can be converted to
-strings or arrays:
-```jldoctest
-julia> convert(String, dna"TTANGTA")
-"TTANGTA"
-
-julia> convert(Vector{DNA}, dna"TTANGTA")
-7-element Array{BioSymbols.DNA,1}:
- DNA_T
- DNA_T
- DNA_A
- DNA_N
- DNA_G
- DNA_T
- DNA_A
-
-```
-
-Sequences can also be concatenated into longer sequences:
-```jldoctest
-julia> LongDNASeq(dna"ACGT", dna"NNNN", dna"TGCA")
-12nt DNA Sequence:
-ACGTNNNNTGCA
-
-julia> dna"ACGT" * dna"TGCA"
-8nt DNA Sequence:
-ACGTTGCA
-
-julia> repeat(dna"TA", 10)
-20nt DNA Sequence:
-TATATATATATATATATATA
-
-julia> dna"TA" ^ 10
-20nt DNA Sequence:
-TATATATATATATATATATA
-
-```
-
-Despite being separate types, `LongDNASeq` and `LongRNASeq` can freely be
-converted between efficiently without copying the underlying data:
-```jldoctest
-julia> dna = dna"TTANGTAGACCG"
-12nt DNA Sequence:
-TTANGTAGACCG
-
-julia> rna = convert(LongRNASeq, dna)
-12nt RNA Sequence:
-UUANGUAGACCG
-
-julia> dna.data === rna.data  # underlying data are same
-true
-
-```
 
 A random sequence can be obtained by the `randdnaseq`, `randrnaseq` and
 `randaaseq` functions, which generate `LongDNASeq`, `LongRNASeq` and
