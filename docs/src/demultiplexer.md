@@ -10,9 +10,9 @@ end
 
 Multiplex sequencing is a technology to sequence multiple samples at the same
 time on a high-throughput DNA sequencer. Samples are distinguished by the short
-prefix of a DNA sequence called DNA barcode. The `BioSequences` offers the
+prefix of a DNA sequence called DNA barcode. `BioSequences` offers the
 `Demultiplexer` type and the `demultiplex` function to identify the DNA barcode
-of a longer DNA sequence allowing small errors.
+of a longer DNA sequence, whilst allowing small errors.
 
 In the following example, four kinds of DNA sequences of length 4 are used as
 DNA barcodes. `Demultiplexer` takes these barcodes as its first argument with

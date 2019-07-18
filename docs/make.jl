@@ -10,7 +10,8 @@ makedocs(
         "Constructing sequences"         => "construction.md",
         "Indexing & modifying sequences" => "transforms.md",
         "Random sequences"               => "random.md",
-        "Pattern matching and searching" => "search.md"
+        "Pattern matching and searching" => "search.md",
+        "Sequence Demultipllexing"       => "demultiplexer.md"
 
         #"User Manual" => [
         #    "Sequence types" => [
