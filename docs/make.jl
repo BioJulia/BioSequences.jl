@@ -11,7 +11,8 @@ makedocs(
         "Indexing & modifying sequences" => "transforms.md",
         "Random sequences"               => "random.md",
         "Pattern matching and searching" => "search.md",
-        "Sequence Demultipllexing"       => "demultiplexer.md"
+        "Sequence Demultipllexing"       => "demultiplexer.md",
+        "Sequence composition"           => "composition.md"
 
         #"User Manual" => [
         #    "Sequence types" => [
