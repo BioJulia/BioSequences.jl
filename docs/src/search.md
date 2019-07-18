@@ -75,7 +75,6 @@ julia> findlast(query, dna"ATTTATT")
 
 ```
 
-
 ## Approximate search
 
 The approximate search is similar to the exact search but allows a specific
@@ -89,7 +88,7 @@ julia> seq = dna"ACAGCGTAGCT";
 julia> approxsearch(seq, dna"AGGG", 0)  # nothing matches with no errors
 0:-1
 
-julia> approxsearch(seq, dna"AGGG", 1)  # seq[3:5] matches with one error
+julia> approxsearch(seq, dna"AGGG", 1)  # seq[3:6] matches with one error
 3:6
 
 julia> approxsearch(seq, dna"AGGG", 2)  # seq[1:4] matches with two errors
@@ -155,8 +154,8 @@ false
 
 ```
 
-`match` always returns a `Nullable` object and it should be null if no match is
-found.
+`match` will return a `RegexMatch` if a match is found, otherwise it will return
+`nothing` if no match is found.
 
 The table below summarizes available syntax elements.
 

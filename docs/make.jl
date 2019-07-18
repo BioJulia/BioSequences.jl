@@ -9,7 +9,8 @@ makedocs(
         "BioSequences Types"             => "types.md",
         "Constructing sequences"         => "construction.md",
         "Indexing & modifying sequences" => "transforms.md",
-        "Random sequences"               => "random.md"
+        "Random sequences"               => "random.md",
+        "Pattern matching and searching" => "search.md"
 
         #"User Manual" => [
         #    "Sequence types" => [
