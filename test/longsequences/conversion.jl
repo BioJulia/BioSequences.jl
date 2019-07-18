@@ -89,7 +89,7 @@ end
 
 @testset "Conversion between 2-bit and 4-bit encodings" begin
     function test_conversion(A1, A2, seq)
-        @test convert(LongSequence{A1}, LongSequence{A2}(seq)) == convert(LongSequence{A1}, seq)
+        @test convert(LongSequence{A1}, LongSequence{A2}(seq)) == LongSequence{A1}(seq)
     end
 
     test_conversion(DNAAlphabet{2}, DNAAlphabet{4}, "")

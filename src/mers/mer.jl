@@ -10,8 +10,8 @@ primitive type BigMer{A<:NucleicAcidAlphabet{2},K} <: AbstractMer{A,K} 128 end
 # Aliases
 const DNAMer{K} = Mer{DNAAlphabet{2},K}
 const RNAMer{K} = Mer{RNAAlphabet{2},K}
-const DNAKmer   = DNAMer{27}
-const RNAKmer   = RNAMer{27}
+const DNAKmer   = DNAMer{31}
+const RNAKmer   = RNAMer{31}
 
 const BigDNAMer{K} = BigMer{DNAAlphabet{2},K}
 const BigRNAMer{K} = BigMer{RNAAlphabet{2},K}

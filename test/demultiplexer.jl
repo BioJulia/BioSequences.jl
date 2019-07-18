@@ -27,7 +27,7 @@
     end
 
     @testset "Hamming distance" begin
-        barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"]
+        barcodes = [dna"ATGG", dna"CAGA", dna"GGAA", dna"TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)
 
         for i in 1:lastindex(barcodes)
@@ -66,7 +66,7 @@
     end
 
     @testset "Levenshtein distance" begin
-        barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"]
+        barcodes = [dna"ATGG", dna"CAGA", dna"GGAA", dna"TACG"]
         dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:levenshtein)
 
         for i in 1:lastindex(barcodes)

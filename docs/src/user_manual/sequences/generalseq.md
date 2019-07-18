@@ -37,172 +37,12 @@ This is described in [Defining a new alphabet](@ref) section.
 
 ## Constructing `GeneralSequence`s
 
-### Using string literals
 
-Most immediately, sequence literals can be constructed using the string macros
-`dna`, `rna`, `aa`, and `char`:
-
-```jldoctest
-julia> dna"TACGTANNATC"
-11nt DNA Sequence:
-TACGTANNATC
-
-julia> rna"AUUUGNCCANU"
-11nt RNA Sequence:
-AUUUGNCCANU
-
-julia> aa"ARNDCQEGHILKMFPSTWYVX"
-21aa Amino Acid Sequence:
-ARNDCQEGHILKMFPSTWYVX
-
-julia> char"αβγδϵ"
-5char Char Sequence:
-αβγδϵ
-
-```
-
-However it should be noted that by default these sequence literals
-allocate the `GeneralSequence` object before the code containing the sequence
-literal is run.
-This means there may be occasions where your program does not behave as you
-first expect.
-For example consider the following code:
-
-```jldoctest
-julia> function foo()
-           s = dna"CTT"
-           push!(s, DNA_A)
-       end
-foo (generic function with 1 method)
-
-```
-
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"d
-        push!(s, DNA_A)
-    end
-end
-```
-
-You might expect that every time you call `foo`, that a DNA sequence `CTTA` would
-be returned. You might expect that this is because every time `foo` is called,
-a new DNA sequence variable `CTT` is created, and and `A` nucleotide is pushed
-to it, and the result, `CTTA` is returned.
-In other words you might expect the following output:
-
-```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-```
-
-However, this is not what happens, instead the following happens:
-
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"s
-        push!(s, DNA_A)
-    end
-end
-```
-
-```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-5nt DNA Sequence:
-CTTAA
-
-julia> foo()
-6nt DNA Sequence:
-CTTAAA
-
-```
-
-The reason for this is because the sequence literal is allocated only once
-before the first time the function `foo` is called and run. Therefore, `s` in
-`foo` is always a reference to that one sequence that was allocated.
-So one sequence is created before `foo` is called, and then it is pushed to
-every time `foo` is called. Thus, that one allocated sequence grows with every
-call of `foo`.
-
-If you wanted `foo` to create a new sequence each time it is called,
-then you can add a flag to the end of the sequence literal to dictate behaviour:
-A flag of 's' means 'static': the sequence will be allocated before code is run,
-as is the default behaviour described above.
-However providing 'd' flag changes the behaviour: 'd' means 'dynamic':
-the sequence will be allocated at whilst the code is running, and not before.
-So to change `foo` so as it creates a new sequence
-each time it is called, simply add the 'd' flag to the sequence literal:
-```@meta
-DocTestSetup = quote
-    using BioSequences
-end
-```
-
-```jldoctest
-julia> function foo()
-           s = dna"CTT"d     # 'd' flag appended to the string literal.
-           push!(s, DNA_A)
-       end
-foo (generic function with 1 method)
-
-```
-
-Now every time `foo` is called, a new sequence `CTT` is created, and an `A`
-nucleotide is pushed to it:
-
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"d
-        push!(s, DNA_A)
-    end
-end
-```
-
-```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-```
-
-So the take home message of sequence literals is this:
-
-Be careful when you are using sequence literals inside of functions, and inside
-the bodies of things like for loops. And if you use them and are unsure, use the
- 's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
 
 
 ### Other constructors and conversion
 
-`GeneralSequence`s can also be constructed from strings or arrays of nucleotide
+`LongSequences`s can also be constructed from strings or arrays of nucleotide
 or amino acid symbols using constructors or the `convert` function:
 
 ```jldoctest
@@ -375,24 +215,7 @@ julia> n
 ```
 
 
-## Using a more compact sequence representation
 
-As we saw above, DNA and RNA sequences can store any ambiguous nucleotides like
-'N'.
-If you are sure that nucleotide sequences store unambiguous nucleotides
-only, you can save the memory space of sequences by using a slightly different
-type:
-`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
-unambiguous nucleotide symbols (ACGT in DNA and ACGU in RNA).
-To create a sequence of this alphabet, you need to explicitly pass
-`DNAAlphabet{2}` to `BioSequence` as its type parameter:
-
-```jldoctest
-julia> seq = GeneralSequence{DNAAlphabet{2}}("ACGT")
-4nt DNA Sequence:
-ACGT
-
-```
 
 Recall that `LongDNASeq` is a type alias of `GeneralSequence{DNAAlphabet{4}}`,
 which uses four bits per base. That is, `GeneralSequence{DNAAlphabet{2}}` saves half

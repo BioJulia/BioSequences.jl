@@ -87,7 +87,7 @@ function LongDNASeq(seq::ReferenceSequence)
 end
 
 function Base.convert(::Type{S}, seq::ReferenceSequence) where {S<:AbstractString}
-    return S([Char(nt) for nt in seq])
+    return S([Char(nt) for nt in seq])#
 end
 Base.String(seq::ReferenceSequence) = convert(String, seq)
 

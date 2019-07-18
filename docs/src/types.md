@@ -25,7 +25,7 @@ define the range of symbols permitted in the sequence.
 
 Some aliases are also provided for your convenience:
 
-| Alias           | Type                                 |
+| Type alias      | Type                                 |
 | :-------------- | :----------------------------------- |
 | `NucleotideSeq` | `BioSequence{<:NucleicAcidAlphabet}` |
 | `AminoAcidSeq`  | `BioSequence{AminoAcidAlphabet}`     |
@@ -79,6 +79,17 @@ aliases for convenience.
 | `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
 | `LongSequence{CharAlphabet}`        | `Char`      | `LongCharSeq`      |
 
+The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}, which means the
+sequence may store ambiguous nucleotides.
+If you are sure that nucleotide sequences store unambiguous nucleotides
+only, you can reduce the memory required by sequences by using a slightly
+different parameter:
+`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
+unambiguous nucleotide symbols (ACGT in DNA and ACGU in RNA).
+Replacing `LongSequence{DNAAlphabet{4}}` in your code with
+`LongSequence{DNAAlphabet{2}}` is all you need to do in order to benefit.
+Some computations that use bitwise operations will also be dramatically faster.
+
 ## Kmers & Skipmers
 
 ### Kmers
@@ -114,6 +125,21 @@ palindromic mers which can be problematic for some algorithms.
 
 This abstract type is just a type that unifies the `Mer` and `BigMer` types for
 the purposes of writing generalised methods of functions.
+
+Several aliases are provided for convenience:
+
+| Type alias     | Type                        |
+| :------------- | :-------------------------- |
+| `DNAMer{K}`    | `Mer{DNAAlphabet{2},K}`     |
+| `RNAMer{K}`    | `Mer{RNAAlphabet{2},K}`     |
+| `DNAKmer`      | `DNAMer{31}`                |
+| `RNAKmer`      | `RNAMer{31}`                |
+| `BigDNAMer{K}` | `BigMer{DNAAlphabet{2},K}`  |
+| `BigRNAMer{K}` | `BigMer{RNAAlphabet{2},K}`  |
+| `BigDNAKmer`   | `BigMer{DNAAlphabet{2},63}` |
+| `BigRNAKmer`   | `BigMer{RNAAlphabet{2},63}` |
+| `DNACodon`     | `DNAMer{3}`                 |
+| `RNACodon`     | `RNAMer{3}`                 |
 
 ### Skipmers
 

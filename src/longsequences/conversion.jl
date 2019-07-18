@@ -41,5 +41,5 @@ function Base.convert(::Type{LongSequence{A}}, seq::Vector) where A<:Alphabet
     return LongSequence{A}(seq)
 end
 
-Base.convert(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
+Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
 

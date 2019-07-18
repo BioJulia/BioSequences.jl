@@ -138,7 +138,7 @@ julia> rnaseq = rna"AUCGAUCG"
 8nt RNA Sequence:
 AUCGAUCG
 
-julia> RNAKmer{8}(rnaseq)
+julia> RNAKmer{8}("AUCGAUCG")
 RNA 8-mer:
 AUCGAUCG
 

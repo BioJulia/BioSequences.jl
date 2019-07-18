@@ -1,17 +1,18 @@
-# LongSequence
-# ============
-#
-# A general purpose biological sequence representation.
-#
-# It is cheap to create a subsequence from a sequence because sequences can
-# share underlying data: creating a subsequence is just allocating a new
-# sequence object defining a part of the original sequence without copy.
-# Destructive operations create a copy of the underlying data if and only if it
-# is shared between (sub)sequences. This is often called as copy-on-write
-# strategy in computer science and should be transparent to the user.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### LongSequence
+###
+###
+### A general purpose biological sequence representation.
+###
+### It is cheap to create a subsequence from a sequence because sequences can
+### share underlying data: creating a subsequence is just allocating a new
+### sequence object defining a part of the original sequence without copy.
+### Destructive operations create a copy of the underlying data if and only if it
+### is shared between (sub)sequences. This is often called as copy-on-write
+### strategy in computer science and should be transparent to the user.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # About Internals
 # ---------------
@@ -60,9 +61,9 @@ const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
 const LongCharSeq      = LongSequence{CharAlphabet}
 
-
-# Required type traits and methods
-# ================================
+###
+### Required type traits and methods
+###
 
 "Gets the alphabet encoding of a given BioSequence."
 BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
