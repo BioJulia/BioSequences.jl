@@ -4,11 +4,12 @@ makedocs(
     format = Documenter.HTML(),
     sitename = "BioSequences.jl",
     pages = [
-        "Home"                   => "index.md",
-        "Biological Symbols"     => "symbols.md",
-        "BioSequences Types"     => "types.md",
-        "Constructing sequences" => "construction.md",
-        "Random sequences"       => "random.md"
+        "Home"                           => "index.md",
+        "Biological Symbols"             => "symbols.md",
+        "BioSequences Types"             => "types.md",
+        "Constructing sequences"         => "construction.md",
+        "Indexing & modifying sequences" => "transforms.md",
+        "Random sequences"               => "random.md"
 
         #"User Manual" => [
         #    "Sequence types" => [
