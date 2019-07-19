@@ -35,32 +35,6 @@ defining few numbers of methods.
 This is described in [Defining a new alphabet](@ref) section.
 
 
-## Constructing `GeneralSequence`s
-
-
-
-
-
-
-A random sequence can be obtained by the `randdnaseq`, `randrnaseq` and
-`randaaseq` functions, which generate `LongDNASeq`, `LongRNASeq` and
-`LongAminoAcidSeq`, respectively. Generated sequences are composed of the
-standard symbols without ambiguity and gap. For example, `randdnaseq(6)` may
-generate `dna"TCATAG"` but never generates `dna"TNANAG"` or `dna"T-ATAG"`.
-
-A translatable `LongRNASeq` can also be converted to an `LongAminoAcidSeq`
-using the [`translate`](@ref) function.
-
-
-
-
-
-
-### Setindex and modifying DNA sequences
-
-
-
-
 
 ## Site counting
 
@@ -121,25 +95,6 @@ julia> count_pairwise(Match, dna"ATCGCCA-", dna"ATCGCCTA", dna"ATCGCCT-", dna"GT
  6  0  7  7
  7  7  0  6
  5  7  6  0
-```
-
-## Iteration
-
-Sequences also work as iterators over symbols:
-
-```jldoctest
-julia> n = 0
-0
-
-julia> for nt in dna"ATNGNNT"
-           if nt == DNA_N
-               n += 1
-           end
-       end
-
-julia> n
-3
-
 ```
 
 

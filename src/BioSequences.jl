@@ -276,7 +276,7 @@ include("nmask.jl")
 include("refseq/refseq.jl")
 
 # The generic iterators for any BioSequence...
-include("iterators/ambiguous.jl")
+include("iterators/condition.jl")
 include("iterators/eachkmer.jl")
 include("iterators/skipmerfactory.jl")
 
@@ -285,6 +285,7 @@ include("composition.jl")
 include("geneticcode.jl")
 include("demultiplexer.jl")
 
+# Pattern searching in sequences...
 include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")

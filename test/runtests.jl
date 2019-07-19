@@ -171,7 +171,6 @@ end
     include("longsequences/find.jl")
     include("longsequences/counting.jl")
     include("longsequences/gc_content.jl")
-    include("longsequences/ambiguous.jl")
     include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
 end
@@ -202,6 +201,10 @@ include("composition.jl")
 end
 
 include("iterators/eachskipmer.jl")
+
+@testset "Iterators" begin
+    include("iterators/condition.jl")
+end
 
 @testset "Search" begin
     include("search/exact.jl")

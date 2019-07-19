@@ -179,7 +179,7 @@ end
 
 Construct a sequence that is a consensus of a vector of sequences.
 
-The consensus is established by a simple majority vote rule, where amiguous
+The consensus is established by a simple majority vote rule, where ambiguous
 nucleotides cast an equal vote for each of their possible states.
 For each site a winner(s) out of A, T(U), C, or G is determined, in the cases
 of ties the ambiguity symbol that unifies all the winners is returned.
