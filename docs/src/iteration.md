@@ -15,7 +15,7 @@ julia> n = 0
 
 julia> for nt in dna"ATNGNNT"
            if nt == DNA_N
-               n += 1
+               global n += 1
            end
        end
 
