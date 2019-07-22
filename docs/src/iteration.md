@@ -32,7 +32,7 @@ they are described in the following sections.
 To iterate every kmer in a longer DNA or RNA sequence, use the `each` method:
 
 ```@docs
-each(::Type{Kmer{T,K}}, ::BioSequence, ::Integer)
+each(::Type{T}, seq::BioSequence, step::Integer = 1) where {T<:AbstractMer}
 ```
 
 

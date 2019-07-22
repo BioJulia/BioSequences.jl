@@ -24,17 +24,8 @@ SamplerWeighted
 
 You can make random `Mer` quite simply using `Base.rand`:
 
-```jldoctest
-julia> rand(DNAMer{7})
-DNA 7-mer:
-GAATTGC
-
-julia> rand(RNAMer{8})
-RNA 8-mer:
-UUUCAGUA
-
-julia> rand(BigDNAMer{63})
-DNA 63-mer:
-TAGATTATCCAGGGCCTTTGACTGGCTCGTATCGACGTAAGTGCCCCGCGGGACATAGGCTGC
-
+```@repl
+rand(DNAMer{7})
+rand(RNAMer{8})
+rand(BigDNAMer{63})
 ```

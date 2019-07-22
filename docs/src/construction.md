@@ -26,11 +26,11 @@ julia> LongSequence{DNAAlphabet{2}}("TTAGC")
 TTAGC
 
 julia> LongRNASeq("UUANC")
-5nt DNA Sequence:
+5nt RNA Sequence:
 UUANC
 
 julia> LongSequence{RNAAlphabet{2}}("UUAGC")
-5nt DNA Sequence:
+5nt RNA Sequence:
 UUAGC
 
 julia> DNAMer{8}("ATCGATCG")
@@ -49,7 +49,7 @@ AUCGAUCG
 
 julia> # The following works, but is not type-stable...
 
-julia> RNAMer(rnaseq)
+julia> RNAMer(LongRNASeq("AUCGAUCG"))
 RNA 8-mer:
 AUCGAUCG
 
@@ -89,14 +89,14 @@ TTANC
 
 julia> LongSequence{DNAAlphabet{2}}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
 5nt DNA Sequence:
-TTANC
+TTAGC
 
 julia> DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
 DNA 5-mer:
 TTAGC
 
 julia> RNAMer{5}([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
-5nt RNA Sequence:
+RNA 5-mer:
 UUAGC
 
 julia> # Works, but is not type-stable

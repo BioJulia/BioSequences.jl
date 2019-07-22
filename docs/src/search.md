@@ -176,14 +176,14 @@ The table below summarizes available syntax elements.
 
 ```jldoctest
 julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap
-4-element Array{BioSequence{DNAAlphabet{4}},1}:
+4-element Array{LongSequence{DNAAlphabet{4}},1}:
  TAT  
  TAT
  TATA
  TATAA
 
 julia> collect(matched(x) for x in eachmatch(biore"TATA*"d, dna"TATTATAATTA", false)) # no overlap
-2-element Array{BioSequence{DNAAlphabet{4}},1}:
+2-element Array{LongSequence{DNAAlphabet{4}},1}:
  TAT  
  TATAA
 

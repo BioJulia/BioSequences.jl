@@ -17,10 +17,10 @@ In the following example, four kinds of DNA sequences of length 4 are used as
 DNA barcodes. `Demultiplexer` takes these barcodes as its first argument with
 a few options:
 ```jldoctest
-julia> barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"];
+julia> barcodes = LongDNASeq.(["ATGG", "CAGA", "GGAA", "TACG"]);
 
 julia> dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming)
-Demultiplexer{BioSequence{DNAAlphabet{4}}}:
+Demultiplexer{LongSequence{DNAAlphabet{4}}}:
   distance: hamming
   number of barcodes: 4
   number of correctable errors: 1
@@ -29,7 +29,7 @@ Demultiplexer{BioSequence{DNAAlphabet{4}}}:
 ```@meta
 DocTestSetup = quote
     using BioSequences
-    barcodes = LongDNASeq["ATGG", "CAGA", "GGAA", "TACG"];
+    barcodes = LongDNASeq.(["ATGG", "CAGA", "GGAA", "TACG"]);
     dplxr = Demultiplexer(barcodes, n_max_errors=1, distance=:hamming);
 end
 ```

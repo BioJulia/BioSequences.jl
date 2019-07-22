@@ -29,16 +29,16 @@ The gap symbol is always `0000`.
 
 The next few examples demonstrate some of the bit operations of DNA to illustrate:
 ```jldoctest
-julia> bits(reinterpret(UInt8, DNA_A))
+julia> bitstring(reinterpret(UInt8, DNA_A))
 "00000001"
 
-julia> bits(reinterpret(UInt8, DNA_G))
+julia> bitstring(reinterpret(UInt8, DNA_G))
 "00000100"
 
-julia> bits(reinterpret(UInt8, DNA_R))
+julia> bitstring(reinterpret(UInt8, DNA_R))
 "00000101"
 
-julia> bits(reinterpret(UInt8, DNA_B))
+julia> bitstring(reinterpret(UInt8, DNA_B))
 "00001110"
 
 julia> ~DNA_A

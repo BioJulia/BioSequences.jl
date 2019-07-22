@@ -4,11 +4,6 @@ DocTestSetup = quote
     using BioSequences
 end
 ```
-# [The abstract `BioSequence` type: Developer Information](@id biosequence_dev)
-
-docs@```
-BioSequence
-```
 
 ### On concrete biological sequence types...
 
@@ -29,21 +24,13 @@ memory efficient and allows us to speed up many common operations and
 transformations, like nucleotide composition, reverse complement, and *k*-mer
 enumeration.
 
-
-# [Alphabet traits](@id alphabets)
-
-docs@```
-Alphabet
-```
-
-
 ## Defining a new alphabet
 
 The alphabet type parameter `A` of `BioSequence{A}` enables a user to extend
 functionality of `BioSequence` with minimum effort. As an example, definition of
 a new alphabet type representing a sequence of boolean values is shown below:
 
-```jldoctest
+```
 julia> immutable BoolAlphabet <: Alphabet end
 
 julia> BioSequences.bitsof(::Type{BoolAlphabet}) = 1

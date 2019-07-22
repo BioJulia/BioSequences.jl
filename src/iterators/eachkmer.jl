@@ -69,7 +69,7 @@ end
 =#
 
 """
-    each(::Type{Kmer{T,k}}, seq::BioSequence[, step=1])
+    each(::Type{T}, seq::BioSequence, step::Integer = 1) where {T<:AbstractMer}
 
 Initialize an iterator over all k-mers in a sequence `seq` skipping ambiguous
 nucleotides without changing the reading frame.
