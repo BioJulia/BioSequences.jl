@@ -240,8 +240,8 @@ position. You can create a `PFM` from a set of sequences with the same length
 and then create a `PWM` from the `PFM` object.
 
 ```jldoctest
-julia> kmers = DNAKmer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
-5-element Array{Kmer{DNA,3},1}:
+julia> kmers = DNAMer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
+5-element Array{Mer{DNAAlphabet{2},3},1}:
  TTA
  CTA
  ACA

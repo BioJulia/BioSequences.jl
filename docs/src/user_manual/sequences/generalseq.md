@@ -1,46 +1,3 @@
-```@meta
-CurrentModule = BioSequences
-DocTestSetup = quote
-    using BioSequences
-end
-```
-# General-purpose sequences
-
-`GeneralSequence{A}` is a generic sequence type parameterized by an
-[alphabet](@ref alphabet) type `A` that defines the domain (or set) of
-biological symbols, and each alphabet has an associated symbol type.
-For example, `AminoAcidAlphabet` is associated with `AminoAcid` and hence an
-object of the `GeneralSequence{AminoAcidAlphabet}` type represents a sequence of
-amino acids.  Symbols from multiple alphabets can't be intermixed in one
-sequence type.
-
-The following table summarizes common sequence types that are defined in the
-`BioSequences` module:
-
-| Type                                   | Symbol type | Type alias          |
-| :------------------------------------- | :---------- | :------------------ |
-| `GeneralSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
-| `GeneralSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
-| `GeneralSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
-| `GeneralSequence{CharAlphabet}`        | `Char`      | `LongCharSeq`      |
-
-Parameterized definition of the `GeneralSequence{A}` type is for the purpose of
-unifying the data structure and operations of any symbol type. In most cases,
-users don't have to care about it and can use *type aliases* listed above.
-However, the alphabet type fixes the internal memory encoding and plays an
-important role when optimizing performance of a program
-(see [Using a more compact sequence representation](@ref) section for low-memory
-encodings).  It also enables a developer to define their own alphabet only by
-defining few numbers of methods.
-This is described in [Defining a new alphabet](@ref) section.
-
-
-
-## Site counting
-
-BioSequences extends the `Base.count` method to provide some useful utilities for
-counting the number of sites in biological sequences.
-
 ### Site types
 
 Different types of site can be counted. Each of these types is a concrete
@@ -59,7 +16,7 @@ Mismatch
 The count method can be used with two sequences and a concrete subtype of
 `Site`:
 
-```jldoctest
+```
 julia> count(Match, dna"ATCGATCG", dna"AAGGTTCG")
 5
 ```
@@ -67,7 +24,7 @@ julia> count(Match, dna"ATCGATCG", dna"AAGGTTCG")
 By providing a `window` and `step` size, counting can be done from within
 a sliding window:
 
-```jldoctest
+```
 julia> count(Match, dna"ATCGATCG", dna"AAGGTTCG", 3, 1)
 6-element Array{IntervalTrees.IntervalValue{Int64,Int64},1}:
  IntervalTrees.IntervalValue{Int64,Int64}
@@ -88,7 +45,7 @@ julia> count(Match, dna"ATCGATCG", dna"AAGGTTCG", 3, 1)
 Counting can also be done on a set of sequences in a pairwise manner with the
 `count_pairwise` function:
 
-```jldoctest
+```
 julia> count_pairwise(Match, dna"ATCGCCA-", dna"ATCGCCTA", dna"ATCGCCT-", dna"GTCGCCTA")
 4×4 Array{Int64,2}:
  0  6  7  5

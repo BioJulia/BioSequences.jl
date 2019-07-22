@@ -1,3 +1,9 @@
+```@meta
+CurrentModule = BioSequences
+DocTestSetup = quote
+    using BioSequences
+end
+```
 # Generating random sequences
 
 ## Long sequences

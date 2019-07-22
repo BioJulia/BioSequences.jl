@@ -120,13 +120,14 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     return seq
 end
 
-# Shuffle
-# -------
+###
+### Shuffle
+###
 
 function Random.shuffle!(seq::LongSequence)
-    orphan!(seq)
+    orphan!(seq) # TODO: Is this call to orphan nessecery, given setindex should call `orphan!` for us?
     # Fisher-Yates shuffle
-    for i in 1:lastindex(seq)-1
+    for i in 1:lastindex(seq) - 1
         j = rand(i:lastindex(seq))
         seq[i], seq[j] = seq[j], seq[i]
     end
