@@ -9,10 +9,12 @@ makedocs(
         "BioSequences Types"             => "types.md",
         "Constructing sequences"         => "construction.md",
         "Indexing & modifying sequences" => "transforms.md",
+        "Predicates"                     => "predicates.md",
         "Random sequences"               => "random.md",
         "Pattern matching and searching" => "search.md",
         "Sequence Demultipllexing"       => "demultiplexer.md",
-        "Sequence composition"           => "composition.md"
+        "Sequence composition"           => "composition.md",
+        "Iteration"                      => "iteration.md"
 
         #"User Manual" => [
         #    "Sequence types" => [

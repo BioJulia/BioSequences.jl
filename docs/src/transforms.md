@@ -97,6 +97,7 @@ insert!
 deleteat!(::BioSequences.BioSequence, ::Integer)
 append!
 resize!
+empty!
 ```
 
 Here are some examples:
@@ -132,9 +133,13 @@ that are common in bioinformatics are also provided.
 ```@docs
 reverse!(::BioSequences.BioSequence)
 complement!
+complement
 reverse_complement!
+reverse_complement
 ungap!
-empty!
+ungap
+canonical!
+canonical
 ```
 
 Some examples:

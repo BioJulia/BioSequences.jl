@@ -29,7 +29,7 @@ they are described in the following sections.
 
 ## Kmers and Skipmers
 
-To iterate every kmer in a longer DNA or RNA sequence, call the `each` method:
+To iterate every kmer in a longer DNA or RNA sequence, use the `each` method:
 
 ```@docs
 each(::Type{Kmer{T,K}}, ::BioSequence, ::Integer)

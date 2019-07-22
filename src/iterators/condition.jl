@@ -27,11 +27,22 @@ Base.IteratorSize(::ConditionIterator) = Base.SizeUnknown()
 ### Generic iteration for any sequence
 ###
 
-Base.iterate(it::ConditionIterator) = iterate(it, findnext(it.f, it.seq, firstindex(it.seq)))
+function Base.iterate(it::ConditionIterator)
+    return iterate(it, find_next_site(it.f, it.seq, firstindex(it.seq)))
+end
 function Base.iterate(it::ConditionIterator, nextpos::Int)
-    if isnothing(nextpos)
+    if nextpos == 0
         return nothing
     else
-        return (nextpos, inbounds_getindex(it.seq, nextpos)), find_next_position(it.f, it.seq, nextpos + 1)
+        return (nextpos, inbounds_getindex(it.seq, nextpos)), find_next_site(it.f, it.seq, nextpos + 1)
     end
+end
+
+function find_next_site(f::Function, seq::BioSequence, start::Integer)
+    for i in max(1, start):lastindex(seq)
+        if f(inbounds_getindex(seq, i))
+            return i
+        end
+    end
+    return 0
 end

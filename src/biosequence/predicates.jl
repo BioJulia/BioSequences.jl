@@ -1,5 +1,10 @@
-# Predicates & comparisons
-# ------------------------
+###
+### Predicates & comparisons
+###
+### Generalised operations on biological sequence types.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function Base.cmp(seq1::BioSequence, seq2::BioSequence)
     m = lastindex(seq1)
@@ -63,13 +68,9 @@ end
 
 Return `true` if `seq` is a palindromic sequence; otherwise return `false`.
 """
-function ispalindromic(seq::BioSequence)
-    if !(eltype(seq) <: NucleicAcid)
-        throw(ArgumentError("Not a nucleic acid sequence"))
-    end
-
+function ispalindromic(seq::BioSequence{<:NucleicAcidAlphabet})
     for i in 1:cld(length(seq), 2)
-        if seq[i] != complement(seq[end-i+1])
+        if seq[i] != complement(seq[end - i + 1])
             return false
         end
     end
@@ -81,7 +82,7 @@ end
 """
     hasambiguity(seq::BioSequence)
 
-    Return `true` if `seq` has an ambiguous symbol; otherwise return `false`.
+Returns `true` if `seq` has an ambiguous symbol; otherwise return `false`.
 """
 function hasambiguity(seq::BioSequence)
     for x in seq
@@ -91,4 +92,41 @@ function hasambiguity(seq::BioSequence)
     end
     return false
 end
+# 2 Bit specialization:
 @inline hasambiguity(seq::BioSequence{<:NucleicAcidAlphabet{2}}) = false
+
+"""
+    iscanonical(seq::NucleotideSeq)
+
+Returns `true` if `seq` is canonical.
+
+For any sequence, there is a reverse complement, which is the same sequence, but
+on the complimentary strand of DNA:
+
+```
+------->
+ATCGATCG
+CGATCGAT
+<-------
+```
+
+!!! note
+    Using the [`reverse_complement`](@ref) of a DNA sequence will give give this
+    reverse complement.
+
+Of the two sequences, the *canonical* of the two sequences is the lesser of the
+two i.e. `canonical_seq < other_seq`.
+"""
+function iscanonical(seq::NucleotideSeq)
+    i = 1
+    j = lastindex(seq)
+    @inbounds while i <= j
+        f = seq[i]
+        r = complement(seq[j])
+        f < r && return true
+        r < f && return false
+        i += 1
+        j -= 1
+    end
+    return true
+end

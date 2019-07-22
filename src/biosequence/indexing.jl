@@ -1,13 +1,13 @@
-# Indexing
-# ========
-#
-# Indexing methods for mutable biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Indexing
+###
+###
+### Indexing methods for mutable biological sequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 #=
-
 Indexing into BioSequences works as follows:
 
 A `Base.getindex` method is provided for `BioSequence`.
@@ -17,9 +17,9 @@ It is the task of `inbounds_getindex` to extract from a sequence, the
 appropriate element of the sequence.
 =#
 
-
-# BioSequences.jl specific
-# ------------------------
+###
+### BioSequences.jl specific
+###
 
 @inline function symbols_per_data_element(seq::BioSequence)
     return div(8 * sizeof(encoded_data_eltype(seq)), bits_per_symbol(seq))
@@ -78,9 +78,9 @@ function checkdimension(seq::BioSequence, locs::AbstractVector{Bool})
     return checkdimension(length(seq), sum(locs))
 end
 
-
-# Base methods
-# -------------
+###
+### Base methods
+###
 
 # Provided Base methods for indexing any BioSequence type. May be overloaded if
 # needed but it is unlikely.
@@ -134,7 +134,3 @@ end
         return inbounds_getindex(seq, i), i + 1
     end
 end
-    
-    
-    
-    

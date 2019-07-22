@@ -152,14 +152,55 @@ function reverse_complement(seq::NucleotideSeq)
     return complement!(reverse(seq))
 end
 
+"""
+    canonical!(seq::NucleotideSeq)
+
+Transforms the `seq` into its canonical form, if it is not already canonical.
+Modifies the input sequence inplace.
+
+For any sequence, there is a reverse complement, which is the same sequence, but
+on the complimentary strand of DNA:
+
+```
+------->
+ATCGATCG
+CGATCGAT
+<-------
+```
+
+!!! note
+    Using the [`reverse_complement`](@ref) of a DNA sequence will give give this
+    reverse complement.
+
+Of the two sequences, the *canonical* of the two sequences is the lesser of the
+two i.e. `canonical_seq < other_seq`.
+
+Using this function on a `seq` will ensure it is the canonical version.
+"""
+function canonical!(seq::NucleotideSeq)
+    if !iscanonical(seq)
+        reverse_complement!(seq)
+    end
+    return seq
+end
+
+"""
+    canonical(seq::NucleotideSeq)
+
+Create the canonical sequence of `seq`.
+
+"""
+canonical(seq::NucleotideSeq) = canonical!(copy(seq))
+
 "Create a copy of a sequence with gap characters removed."
 ungap(seq::BioSequence)  =  filter(!isgap, seq)
 
 "Remove gap characters from an input sequence."
 ungap!(seq::BioSequence) = filter!(!isgap, seq)
 
-# Shuffle
-# -------
+###
+### Shuffle
+###
 
 function Random.shuffle(seq::BioSequence)
     return shuffle!(copy(seq))
