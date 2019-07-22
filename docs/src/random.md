@@ -12,7 +12,7 @@ You can generate random long sequences using the `randdna` function and the
 `Sampler`'s implemented in BioSequences:
 
 ```@docs
-randdna
+randseq
 randdnaseq
 randrnaseq
 randaaseq

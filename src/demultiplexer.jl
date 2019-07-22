@@ -121,8 +121,8 @@ end
 
 """
     Demultiplexer(barcodes::Vector{LongDNASeq};
-                  n_max_errors::Integer=1,
-                  distance::Symbol=:hamming)
+                  n_max_errors::Integer = 1,
+                  distance::Symbol = :hamming)
 
 Create a demultiplexer object from `barcodes`.
 
@@ -132,8 +132,8 @@ Create a demultiplexer object from `barcodes`.
 * `distance=:hamming`: the distance metric (`:hamming` or `:levenshtein`).
 """
 function Demultiplexer(barcodes::Vector{LongDNASeq};
-                       n_max_errors::Integer=1,
-                       distance::Symbol=:hamming)
+                       n_max_errors::Integer = 1,
+                       distance::Symbol = :hamming)
     if n_max_errors < 0
         error("n_max_errors must be non-negative")
     elseif distance ∉ (:hamming, :levenshtein)

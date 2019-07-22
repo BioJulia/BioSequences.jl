@@ -54,12 +54,12 @@ function Base.map!(f::Function, seq::LongSequence)
 end
 
 """
-    reverse!(seq)
+    reverse!(seq::LongSequence)
 
 Reverse a biological sequence `seq` in place.
 """
 function Base.reverse!(seq::LongSequence)
-    orphan!(seq)
+    orphan!(seq) # TODO: Is the orphan call really nessecery given the indexing calls will also call orphan?
     @inbounds for i in 1:div(lastindex(seq), 2)
 	    x = seq[i]
         i′ = lastindex(seq) - i + 1 

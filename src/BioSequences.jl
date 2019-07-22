@@ -119,6 +119,20 @@ export
     ispalindromic,
     hasambiguity,
     isrepetitive,
+    iscanonical,
+    
+    # Transformations
+    canonical,
+    canonical!,
+    complement,
+    complement!,
+    reverse_complement,
+    reverse_complement!,
+    ungap,
+    ungap!,
+    
+    # Iteration
+    each,
     
     ###
     ### LongSequence
@@ -130,6 +144,14 @@ export
     LongRNASeq,
     LongAminoAcidSeq,
     LongCharSeq,
+    
+    # Random
+    SamplerUniform,
+    SamplerWeighted,
+    randseq,
+    randdnaseq,
+    randrnaseq,
+    randaaseq,
     
     ###
     ### Mers
@@ -152,17 +174,13 @@ export
     DNACodon,
     RNACodon,
     
-    # Transformations
-    canonical,
-    
     # Iteration
     neighbors,
     
-    seqname,
-    hasseqname,
-    sequence,
-    hassequence,
-    metadata,
+    ###
+    ### Sequence literals
+    ###
+    
     @dna_str,
     @rna_str,
     @aa_str,
@@ -171,6 +189,7 @@ export
     @prosite_str,
     @mer_str,
     @bigmer_str,
+    
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
@@ -178,34 +197,22 @@ export
     gap,
     mismatches,
     
-    ambiguous_positions,
     gc_content,
-    SamplerUniform,
-    SamplerWeighted,
-    randseq,
-    randdnaseq,
-    randrnaseq,
-    randaaseq,
-    each,
+    
     eachcanonical,
+    
+    ###
+    ### Composition
+    ###
     Composition,
     composition,
     NucleicAcidCounts,
     
     translate,
     ncbi_trans_table,
-    ABIF,
-    
-    # Transformations
-    complement,
-    complement!,
-    reverse_complement,
-    reverse_complement!,
-    ungap,
-    ungap!,
     
     
-    # search
+    # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
@@ -218,13 +225,15 @@ export
     scoreat,
     
     ReferenceSequence,
+    
+    ###
+    ### Demultiplexing
+    ###
     Demultiplexer,
     demultiplex,
+    
     seqmatrix,
     majorityvote,
-    tryread!,
-    isfilled,
-    MissingFieldException,
     MinHashSketch,
     minhash,
     Site,

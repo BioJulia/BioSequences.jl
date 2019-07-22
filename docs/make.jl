@@ -41,7 +41,6 @@ makedocs(
 
 deploydocs(
     repo = "github.com/BioJulia/BioSequences.jl.git",
-    julia = "1.0",
     osname = "linux",
     target = "build",
     deps = nothing,

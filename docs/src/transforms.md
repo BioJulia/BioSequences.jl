@@ -91,8 +91,8 @@ familiar to anyone used to editing arrays.
 ```@docs
 push!
 pop!
-shift!
-unshift!
+pushfirst!
+popfirst!
 insert!
 deleteat!(::BioSequences.BioSequence, ::Integer)
 append!
@@ -131,7 +131,8 @@ In addition to these basic modifying functions, other sequence transformations
 that are common in bioinformatics are also provided.
 
 ```@docs
-reverse!(::BioSequences.BioSequence)
+reverse!(::BioSequences.LongSequence)
+reverse(::BioSequences.LongSequence)
 complement!
 complement
 reverse_complement!
