@@ -1,5 +1,6 @@
 
 include("bitindex.jl")
+include("bitpar-compiler.jl")
 
 @inline function reversebits(x::UInt64, ::BitsPerSymbol{2})
      x =  ((x >> 2) & 0x3333333333333333) | ((x & 0x3333333333333333) << 2)
@@ -26,14 +27,14 @@ end
     )
 end
 
-function gc_bitcount(x::UInt64, ::BitsPerSymbol{2})
+@inline function gc_bitcount(x::UInt64, ::BitsPerSymbol{2})
     msk = 0x5555555555555555
     c = x & msk
     g = (x >> 1) & msk
     return count_ones(c ⊻ g)
 end
 
-function gc_bitcount(x::UInt64, ::BitsPerSymbol{4})
+@inline function gc_bitcount(x::UInt64, ::BitsPerSymbol{4})
     a =  x & 0x1111111111111111
     c = (x & 0x2222222222222222) >> 1
     g = (x & 0x4444444444444444) >> 2
@@ -41,7 +42,7 @@ function gc_bitcount(x::UInt64, ::BitsPerSymbol{4})
     return count_ones((c | g) & ~(a | t))
 end
 
-count_a(x::UInt64) = count_00_bitpairs(x)
-count_c(x::UInt64) = count_01_bitpairs(x)
-count_g(x::UInt64) = count_10_bitpairs(x)
-count_t(x::UInt64) = count_11_bitpairs(x)
+@inline count_a(x::UInt64) = count_00_bitpairs(x)
+@inline count_c(x::UInt64) = count_01_bitpairs(x)
+@inline count_g(x::UInt64) = count_10_bitpairs(x)
+@inline count_t(x::UInt64) = count_11_bitpairs(x)

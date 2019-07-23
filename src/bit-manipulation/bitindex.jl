@@ -15,10 +15,10 @@ struct BitIndex{N, W}
     val::Int64
 end
 
-BitsPerSymbol(::BitIndex{N, W}) where {N, W} = BitsPerSymbol{N}()
-bits_per_symbol(::BitIndex{N, W}) where {N, W} = N
+BitsPerSymbol(::BitIndex{N, W}) where {N,W} = BitsPerSymbol{N}()
+bits_per_symbol(::BitIndex{N, W}) where {N,W} = N
 
-@inline function bitindex(::BitsPerSymbol{N}, ::Type{W}, i) where {N, W}
+@inline function bitindex(::BitsPerSymbol{N}, ::Type{W}, i) where {N,W}
     return BitIndex{N, W}((i - 1) << trailing_zeros(N))
 end
 
@@ -31,18 +31,18 @@ offset_mask(i::BitIndex{N, W}) where {N, W} = UInt8(8 * sizeof(W)) - 0x01
 index(i::BitIndex) = (i.val >> index_shift(i)) + 1
 offset(i::BitIndex) = i.val & offset_mask(i)
 
-Base.:+(i::BitIndex{N, W}, n::Int) where {N, W} = BitIndex{N, W}(i.val + n)
-Base.:-(i::BitIndex{N, W}, n::Int) where {N, W} = BitIndex{N, W}(i.val - n)
+Base.:+(i::BitIndex{N,W}, n::Int) where {N,W} = BitIndex{N,W}(i.val + n)
+Base.:-(i::BitIndex{N,W}, n::Int) where {N,W} = BitIndex{N,W}(i.val - n)
 Base.:-(i1::BitIndex, i2::BitIndex) = i1.val - i2.val
 Base.:(==)(i1::BitIndex, i2::BitIndex) = i1.val == i2.val
 Base.isless(i1::BitIndex, i2::BitIndex) = isless(i1.val, i2.val)
 Base.cmp(i1::BitIndex, i2::BitIndex) = cmp(i1.val, i2.val)
 
-@inline function nextposition(i::BitIndex{N, W}) where {N, W}
+@inline function nextposition(i::BitIndex{N,W}) where {N,W}
     return i + N
 end
 
-@inline function prevposition(i::BitIndex{N, W}) where {N, W}
+@inline function prevposition(i::BitIndex{N,W}) where {N,W}
     return i - N
 end
 
@@ -72,7 +72,7 @@ bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
 
 # Create a bit mask filling least significant N bits.
 # This is used in the extract_encoded_element function.
-bitmask(bidx::BitIndex{N, W}) where {N, W} = bitmask(W, N)
+bitmask(bidx::BitIndex{N,W}) where {N, W} = bitmask(W, N)
 bitmask(n::Integer) = bitmask(UInt64, n)
 bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
 
@@ -80,4 +80,4 @@ bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
 # TODO: Work out places this is used and see if it is really nessecery given the
 # bitmask methods above.
 # TODO: Resolve this use of bits_per_symbol and A().
-bitmask(::A) where {A <: Alphabet} = bitmask(bits_per_symbol(A()))
+bitmask(::A) where {A<:Alphabet} = bitmask(bits_per_symbol(A()))

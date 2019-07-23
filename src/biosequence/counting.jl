@@ -10,12 +10,10 @@
 ### Naive counting
 ###
 
-function count_naive(f::Function, seq::BioSequence, args...)
+function count_naive(pred, seq::BioSequence)
     n = 0
-    @inbounds for x in seq
-        if f(x, args...)
-            n += 1
-        end
+    @inbounds for i in eachindex(seq)
+        n += pred(seq[i])::Bool
     end
     return n
 end
@@ -26,7 +24,7 @@ Count how many positions in a sequence satisfy a condition (i.e. f(seq[i]) -> tr
 The first argument should be a function which accepts an element of the sequence
 as its first parameter, additional arguments may be passed with `args...`.
 """
-Base.count(f::Function, seq::BioSequence, args...) = count_naive(f, seq, args...)
+Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
 
 ###
 ### GC content
@@ -37,8 +35,4 @@ Base.count(f::Function, seq::BioSequence, args...) = count_naive(f, seq, args...
 
 Calculate GC content of `seq`.
 """
-gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count_gc(seq) / length(seq)
-
-function count_gc(seq::BioSequence)
-    return count(isGC, seq)
-end
+gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(seq)

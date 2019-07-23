@@ -19,21 +19,19 @@ julia> count(isambiguous, dna"ATCGM")
 
 ```
 
-## Bit-parallel operations
+## Bit-parallel optimisations
 
-For the vast majority of `count(f, seq)` methods, a naive counting is done:
+For the vast majority of `Base.count(f, seq)` methods, a naive counting is done:
 the internal `count_naive` function is called, which simply loops over each
 element of the sequence, applies `f`, and accumulates the result.
 
 However, for some combinations of `f` and `seq`, it is possible to implement
 highly efficient methods that use bit-parallelism to check many elements at
 one time, which is made possible by the succinct encoding of BioSequences.
+Usually `f` is one of the functions provided by BioSymbols.jl or by BioSequences.jl
 
-Some of these methods have been specialised to take advantage of bit-parallel
-operations that process many nucleotides at once.
-
-For such sequence and function combinations, `count(f, seq)` is overloaded to
-call the internal `count_bitpar` function, which is passed the sequence, and 
+For such sequence and function combinations, `Base.count(f, seq)` is overloaded
+to call the internal `count_bitpar` function, which is passed the sequence, and 
 a bit-parallel version of `f`. If you want to force BioSequences to use naive
 counting for the purposes of testing or debugging for example, then you can
-call `BioSequences.count_naive` directly. 
+call `BioSequences.count_naive` directly.
