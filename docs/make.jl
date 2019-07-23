@@ -14,7 +14,8 @@ makedocs(
         "Pattern matching and searching" => "search.md",
         "Sequence Demultipllexing"       => "demultiplexer.md",
         "Sequence composition"           => "composition.md",
-        "Iteration"                      => "iteration.md"
+        "Iteration"                      => "iteration.md",
+        "Counting"                       => "counting.md"
 
         #"User Manual" => [
         #    "Sequence types" => [

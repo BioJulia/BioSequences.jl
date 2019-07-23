@@ -6,13 +6,11 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-"""
-Count how many positions in a sequence satisfy a condition (i.e. f(seq[i]) -> true).
+###
+### Naive counting
+###
 
-The first argument should be a function which accepts an element of the sequence
-as its first parameter, additional arguments may be passed with `args...`.
-"""
-function Base.count(f::Function, seq::BioSequence, args...)
+function count_naive(f::Function, seq::BioSequence, args...)
     n = 0
     @inbounds for x in seq
         if f(x, args...)
@@ -21,6 +19,14 @@ function Base.count(f::Function, seq::BioSequence, args...)
     end
     return n
 end
+
+"""
+Count how many positions in a sequence satisfy a condition (i.e. f(seq[i]) -> true).
+
+The first argument should be a function which accepts an element of the sequence
+as its first parameter, additional arguments may be passed with `args...`.
+"""
+Base.count(f::Function, seq::BioSequence, args...) = count_naive(f, seq, args...)
 
 ###
 ### GC content

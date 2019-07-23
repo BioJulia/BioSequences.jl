@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.0]
 ### Changed
-- Automatic conversion of `DNASeq` to `RNASequence` when translating
+- Automatic conversion of `LongDNASeq` to `LongRNASeq` when translating
   sequences.
 - Add `alternative_start` keyword argument to translate().
 - Add abstract type for kmer iterators.
