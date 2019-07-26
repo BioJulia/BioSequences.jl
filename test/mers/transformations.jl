@@ -1,33 +1,37 @@
 @testset "Transformations" begin
-    function test_reverse(A, seq)
-        revseq = reverse(Mer{A, length(seq)}(seq))
+    function test_reverse(T, seq)
+        revseq = reverse(T(seq))
         @test String(revseq) == reverse(seq)
     end
 
-    function test_dna_complement(seq)
-        comp = complement(DNAMer{length(seq)}(seq))
+    function test_dna_complement(T, seq)
+        comp = complement(T(seq))
         @test String(comp) == dna_complement(seq)
     end
 
-    function test_rna_complement(seq)
-        comp = complement(RNAMer{length(seq)}(seq))
+    function test_rna_complement(T, seq)
+        comp = complement(T(seq))
         @test String(comp) == rna_complement(seq)
     end
 
-    function test_dna_revcomp(seq)
-        revcomp = reverse_complement(DNAMer{length(seq)}(seq))
+    function test_dna_revcomp(T, seq)
+        revcomp = reverse_complement(T(seq))
         @test String(revcomp) == reverse(dna_complement(seq))
     end
 
-    function test_rna_revcomp(seq)
-        revcomp = reverse_complement(RNAMer{length(seq)}(seq))
+    function test_rna_revcomp(T, seq)
+        revcomp = reverse_complement(T(seq))
         @test String(revcomp) == reverse(rna_complement(seq))
     end
 
     @testset "Reverse" begin
-        for len in 1:32, _ in 1:10
-            test_reverse(DNAAlphabet{2}, random_dna_kmer(len))
-            test_reverse(RNAAlphabet{2}, random_rna_kmer(len))
+        for len in 1:64, _ in 1:10
+            if len <= 32
+                test_reverse(DNAMer{len}, random_dna_kmer(len))
+                test_reverse(RNAMer{len}, random_rna_kmer(len))
+            end
+            test_reverse(BigDNAMer{len}, random_dna_kmer(len))
+            test_reverse(BigRNAMer{len}, random_rna_kmer(len))
         end
 
         seq = dna"AAAAAAAAAAAAAAAAAAAAAAAAAAAAGATAC"
@@ -35,16 +39,24 @@
     end
 
     @testset "Complement" begin
-        for len in 1:32, _ in 1:10
-            test_dna_complement(random_dna_kmer(len))
-            test_rna_complement(random_rna_kmer(len))
+        for len in 1:64, _ in 1:10
+            if len <= 32
+                test_dna_complement(DNAMer{len}, random_dna_kmer(len))
+                test_rna_complement(RNAMer{len}, random_rna_kmer(len))
+            end
+            test_dna_complement(BigDNAMer{len}, random_dna_kmer(len))
+            test_rna_complement(BigRNAMer{len}, random_rna_kmer(len))
         end
     end
 
     @testset "Reverse Complement" begin
-        for len in 1:32, _ in 1:10
-            test_dna_revcomp(random_dna_kmer(len))
-            test_rna_revcomp(random_rna_kmer(len))
+        for len in 1:64, _ in 1:10
+            if len <= 32
+                test_dna_revcomp(DNAMer{len}, random_dna_kmer(len))
+                test_rna_revcomp(RNAMer{len}, random_rna_kmer(len))
+            end
+            test_dna_revcomp(BigDNAMer{len}, random_dna_kmer(len))
+            test_rna_revcomp(BigRNAMer{len}, random_rna_kmer(len))
         end
     end
 end

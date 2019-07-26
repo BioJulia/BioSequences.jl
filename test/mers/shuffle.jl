@@ -1,7 +1,9 @@
 @testset "Shuffle" begin
     for s in ["A", "C", "G", "T"]
         kmer = DNAMer(s)
+        bigkmer = BigDNAMer(s)
         @test kmer === shuffle(kmer)
+        @test bigkmer === shuffle(bigkmer)
     end
 
     function count(kmer)
@@ -15,8 +17,15 @@
         return a, c, g, t
     end
 
-    for k in 1:32, _ in 1:10
-        kmer = rand(DNAMer{k})
+    for k in 1:64, _ in 1:10
+        if k <= 32
+            kmer = rand(DNAMer{k})
+            @test count(kmer) == count(shuffle(kmer))
+            if k ≥ 30
+                @test kmer != shuffle(kmer)
+            end
+        end
+        kmer = rand(BigDNAMer{k})
         @test count(kmer) == count(shuffle(kmer))
         if k ≥ 30
             @test kmer != shuffle(kmer)

@@ -114,7 +114,7 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     seqdata = seq.data
     @inbounds while next < stop
         x = seqdata[index(next)]
-        seqdata[index(next)] = complementbits(x, Alphabet(seq))
+        seqdata[index(next)] = complement_bitpar(x, Alphabet(seq))
         next += 64
     end
     return seq

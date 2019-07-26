@@ -8,9 +8,8 @@
 Return the complement of a short sequence type `x`.
 """
 function BioSymbols.complement(x::T) where {T<:AbstractMer}
-    return T(~encoded_data(x))
+    return T(complement_bitpar(encoded_data(x), Alphabet(x)))
 end
-
 
 """
     reverse(x::T) where {T <: Skipmer}
@@ -54,7 +53,7 @@ end
 
 
 function Random.shuffle(x::T) where {T<:AbstractMer}
-    # Fisher-Yates shuffle
+    # Fisher-Yates shuffle for mers.
     j = lastindex(x)
     for i in firstindex(x):(j - 1)
         j′ = rand(i:j)

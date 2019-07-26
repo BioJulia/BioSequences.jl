@@ -33,13 +33,13 @@ function (::Type{T})(nts::Vararg{DNA,K}) where {K,T<:AbstractMer{DNAAlphabet{2},
     return T(nts)
 end
 DNAMer(nts::Vararg{DNA,K}) where {K} = DNAMer{K}(nts)
-BigDNAMer(nts::Vararg{DNA,K}) where {K} = BigDNAKmer{K}(nts)
+BigDNAMer(nts::Vararg{DNA,K}) where {K} = BigDNAMer{K}(nts)
 
 function (::Type{T})(nts::Vararg{RNA,K}) where {K,T<:AbstractMer{RNAAlphabet{2},K}}
     return T(nts)
 end
 RNAMer(nts::Vararg{RNA,K}) where {K} = RNAMer{K}(nts)
-BigRNAMer(nts::Vararg{RNA,K}) where {K} = BigRNAKmer{K}(nts)
+BigRNAMer(nts::Vararg{RNA,K}) where {K} = BigRNAMer{K}(nts)
 
 (::Type{T})(i::Integer) where {T<:AbstractMer} = T(unsigned(i))
 
