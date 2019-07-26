@@ -107,6 +107,7 @@ export
     RNAKmer,
     DNACodon,
     RNACodon,
+    AminoAcidKmer,
     translate,
     ncbi_trans_table,
     AminoAcid,

@@ -29,7 +29,17 @@
 #   64-bit: 0b 00 00 … 00 11 00 01 10
 #    4-mer:                T  A  C  G
 
-primitive type Kmer{T<:NucleicAcid, K} <: Sequence 64 end
+abstract type AbstractKmer{T, K} <: Sequence end
+
+kmersize(::Type{<:AbstractKmer{T, K}}) where {T, K} = K
+kmersize(kmer::AbstractKmer) = kmersize(typeof(kmer))
+Base.length(x::AbstractKmer) = kmersize(x)
+Base.eltype(x::AbstractKmer{T, K}) where {T,K} = T
+Base.eltype(::Type{<:AbstractKmer{T, K}}) where {T,K} = T
+Base.String(seq::AbstractKmer) = convert(String, seq)
+Base.summary(x::AbstractKmer{T, K}) where {T,K} = string(T, " ", K, "-mer")
+
+primitive type Kmer{T<:NucleicAcid, K} <: AbstractKmer{T, K} 64 end
 
 const DNAKmer{K} = Kmer{DNA, K}
 const RNAKmer{K} = Kmer{RNA, K}
@@ -52,7 +62,7 @@ end
 # Conversion
 # ----------
 
-function Kmer{T, K}(x::UInt64) where {T, K}
+function Kmer{T, K}(x::UInt64) where {T<:NucleicAcid, K}
     checkkmer(Kmer{T,K})
     mask = ~UInt64(0) >> (64 - 2K)
     return reinterpret(Kmer{T, K}, x & mask)
@@ -113,28 +123,18 @@ BioSequence(x::RNAKmer{K}) where {K} = RNASequence(x)
 BioSequence{A}(x::DNAKmer{K}) where {A<:DNAAlphabet,K} = BioSequence{A}([nt for nt in x])
 BioSequence{A}(x::RNAKmer{K}) where {A<:RNAAlphabet,K} = BioSequence{A}([nt for nt in x])
 Base.convert(::Type{S}, seq::Kmer) where {S<:AbstractString} = S([Char(x) for x in seq])
-Base.String(seq::Kmer) = convert(String, seq)
-
 
 # Basic Functions
 # ---------------
 
-BioSymbols.alphabet(::Type{DNAKmer{k}}) where {k} = (DNA_A, DNA_C, DNA_G, DNA_T)
-BioSymbols.alphabet(::Type{RNAKmer{k}}) where {k} = (RNA_A, RNA_C, RNA_G, RNA_U)
+BioSymbols.alphabet(::Type{DNAKmer{k}}) where {k} = ACGT
+BioSymbols.alphabet(::Type{RNAKmer{k}}) where {k} = ACGU
 
 Base.hash(x::Kmer, h::UInt) = hash(UInt64(x), h)
-
-kmersize(::Type{Kmer{T,k}}) where {T,k} = k
-kmersize(kmer::Kmer) = kmersize(typeof(kmer))
-Base.length(x::Kmer{T, K}) where {T,K} = kmersize(x)
-Base.eltype(::Type{Kmer{T,k}}) where {T,k} = T
 
 @inline function inbounds_getindex(x::Kmer{T,K}, i::Integer) where {T,K}
     return reinterpret(T, 0x01 << ((UInt64(x) >> 2(K - i)) & 0b11))
 end
-
-Base.summary(x::DNAKmer{k}) where {k} = string("DNA ", k, "-mer")
-Base.summary(x::RNAKmer{k}) where {k} = string("RNA ", k, "-mer")
 
 Base.:-(x::Kmer{T,K}, y::Integer) where {T,K} = Kmer{T,K}(UInt64(x) - y % UInt64)
 Base.:+(x::Kmer{T,K}, y::Integer) where {T,K} = Kmer{T,K}(UInt64(x) + y % UInt64)
@@ -305,4 +305,58 @@ end
 
 macro kmer_str(seq)
     return DNAKmer(remove_newlines(seq))
+end
+
+# AminoAcid k-mers
+# --------------
+
+struct AminoAcidKmer{K} <: AbstractKmer{AminoAcid,K}
+    kmer::AminoAcidSequence
+end
+
+AminoAcidKmer{K}(x::AminoAcidKmer{K}) where {K} = x
+AminoAcidKmer(x::AminoAcidKmer) = x
+AminoAcidKmer(x::AbstractString) = AminoAcidKmer(AminoAcidSequence(x))
+AminoAcidKmer(x::AminoAcidSequence) = AminoAcidKmer{length(x)}(x)
+Kmer(x::AminoAcidSequence) = AminoAcidKmer(x)
+
+function make_kmer(::Type{AminoAcidKmer{K}}, seq::AminoAcidSequence) where {K}
+    seqlen = length(seq)
+    if seqlen != K
+        throw(ArgumentError("cannot create a $(K)-mer from a sequence of length $(seqlen)"))
+    end
+    return AminoAcidKmer(seq)
+end
+
+function make_kmer(::Type{AminoAcidKmer{K}}, seq::AbstractString) where {K}
+    make_kmer(Type{AminoAcidKmer{K}}, AminoAcidSequence(seq))
+end
+
+BioSequence(x::AminoAcidKmer) = AminoAcidSequence(x)
+Base.convert(::Type{S}, x::AminoAcidKmer) where {S<:AbstractString} = S([Char(y) for y in x.kmer])
+
+BioSymbols.alphabet(x::AminoAcidKmer) = alphabet(AminoAcidAlphabet)
+
+Base.hash(x::AminoAcidKmer, h::UInt) = hash(x.kmer, h)
+
+@inline function inbounds_getindex(x::AminoAcidKmer{K}, i::Integer) where {K}
+    return inbounds_getindex(x.kmer, i)
+end
+
+Base.reverse(x::AminoAcidKmer) = AminoAcidKmer(reverse(x.kmer))
+
+canonical(x::AminoAcidKmer) = x
+
+Base.rand(::Type{AminoAcidKmer{K}}) where {K} = AminoAcidKmer(randaaseq(K))
+
+function Base.rand(::Type{AminoAcidKmer{K}}, size::Integer) where {K}
+    return [rand(AminoAcidKmer{K}) for _ in 1:size]
+end
+
+function swap(x::AminoAcidKmer, i::Integer, j::Integer)
+    kmer = x.kmer
+    ith = kmer[i]
+    kmer[i] = kmer[j]
+    kmer[j] = ith
+    return AminoAcidKmer(kmer)
 end

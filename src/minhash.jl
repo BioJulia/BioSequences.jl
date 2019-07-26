@@ -36,10 +36,9 @@ function Base.:(==)(a::MinHashSketch, b::MinHashSketch)
     return a.kmersize == b.kmersize && a.sketch == b.sketch
 end
 
-
-function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
+function kmerminhash!(::Type{AK}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64}) where {AK}
     # generate first `s` kmers
-    iter = each(DNAKmer{k}, seq)
+    iter = each(AK, seq)
     iter_value = iterate(iter)
     while length(kmerhashes) < s && iter_value !== nothing
         (_, kmer), state = iter_value
@@ -77,12 +76,15 @@ end
 
 Generate a MinHash sketch of size `s` for kmers of length `k`.
 """
-function minhash(seq::BioSequence, k::Integer, s::Integer)
-    kmerhashes = kmerminhash!(DNAKmer{k}, seq, s, UInt64[])
+function minhash(AK::Type{<:AbstractKmer{T,K}}, seq::BioSequence, s::Integer) where {T,K}
+    kmerhashes = kmerminhash!(AK, seq, s, UInt64[])
     length(kmerhashes) < s && error("failed to generate enough hashes")
-
-    return MinHashSketch(kmerhashes, k)
+    return MinHashSketch(kmerhashes, K)
 end
+
+minhash(seq::DNASequence, k::Integer, s::Integer) = minhash(Kmer{DNA,k}, seq, s)
+minhash(seq::RNASequence, k::Integer, s::Integer) = minhash(Kmer{RNA,k}, seq, s)
+minhash(seq::AminoAcidSequence, k::Integer, s::Integer) = minhash(AminoAcidKmer{k}, seq, s)
 
 function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
     kmerhashes = UInt64[]

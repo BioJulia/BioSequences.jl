@@ -30,7 +30,7 @@
 
 abstract type AbstractKmerIterator{T,S} end
 
-struct EveryKmerIterator{T<:Kmer,S<:Sequence} <: AbstractKmerIterator{T,S}
+struct EveryKmerIterator{T<:AbstractKmer,S<:Sequence} <: AbstractKmerIterator{T,S}
     seq::S
     start::Int
     stop::Int
@@ -97,10 +97,11 @@ end
 Base.eltype(::Type{<:AbstractKmerIterator{T,S}}) where {T,S} = Tuple{Int,T}
 Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
 ) where {T,S<:Union{ReferenceSequence, BioSequence{<:FourBitNucs}}} = Base.SizeUnknown()
-Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
-) where {T,S<:BioSequence{<:TwoBitNucs}} = Base.HasLength()
+# Base.IteratorSize(::Type{<:AbstractKmerIterator{T,S}}
+# ) where {T,S<:BioSequence{<:TwoBitNucs}} = Base.HasLength()
+Base.IteratorSize(::Type{<:AbstractKmerIterator}) = Base.HasLength()
 
-function Base.length(it::AbstractKmerIterator{T,S}) where {T,S<:BioSequence{<:TwoBitNucs}}
+function Base.length(it::AbstractKmerIterator{T,S}) where {T,S}
     return max(0, fld(it.stop - it.start + 1 - kmersize(T), step(it)) + 1)
 end
 
@@ -212,4 +213,26 @@ end
         i += 1
     end
     return nothing
+end
+
+# AminoAcidKmer iterator
+
+function each(::Type{AminoAcidKmer{K}}, seq::AminoAcidSequence, step::Integer=1) where {K}
+    if step < 1
+        throw(ArgumentError("step size must be positive"))
+    end
+    if step == 1
+        return EveryKmerIterator{AminoAcidKmer{K},typeof(seq)}(seq, 1, lastindex(seq))
+        # TODO implement SpacedKmerIterator
+    end
+end
+
+function Base.iterate(it::EveryKmerIterator{T,S}, state=(it.start,)) where {T,S<:AminoAcidSequence}
+    start = state[1]
+    stop = start + kmersize(T) - 1
+    if stop > it.stop
+        return nothing
+    end
+    kmer = it.seq[start:stop]
+    return (start, T(kmer)), (start+1,)
 end
