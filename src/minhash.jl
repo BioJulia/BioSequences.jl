@@ -78,14 +78,14 @@ end
 Generate a MinHash sketch of size `s` for kmers of length `k`.
 """
 function minhash(seq::BioSequence, k::Integer, s::Integer)
-    kmerhashes = kmerminhash!(DNAKmer{k}, seq, s, UInt64[])
+    kmerhashes = kmerminhash!(DNAKmer{k}, seq, s, sizehint!(UInt64[], s))
     length(kmerhashes) < s && error("failed to generate enough hashes")
 
     return MinHashSketch(kmerhashes, k)
 end
 
 function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
-    kmerhashes = UInt64[]
+    kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
         kmerminhash!(DNAKmer{k}, seq, s, kmerhashes)
     end
@@ -95,7 +95,7 @@ function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
 end
 
 function minhash(seqs::BioCore.IO.AbstractReader, k::Integer, s::Integer)
-    kmerhashes = UInt64[]
+    kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
         kmerminhash!(DNAKmer{k}, sequence(seq), s, kmerhashes)
     end
