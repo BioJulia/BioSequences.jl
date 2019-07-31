@@ -48,3 +48,4 @@ Calculate GC content of `seq`.
 gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(seq)
 
 mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)
+matches(seqa::BioSequence, seqb::BioSequence) = count(==, seqa, seqb)

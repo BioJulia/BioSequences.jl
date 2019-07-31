@@ -196,6 +196,7 @@ export
     symbols,
     gap,
     mismatches,
+    matches,
     
     gc_content,
     

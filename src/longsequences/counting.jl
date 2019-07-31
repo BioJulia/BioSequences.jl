@@ -22,7 +22,9 @@ Base.count(::typeof(isGC), seq::LongSequence{<:NucleicAcidAlphabet}) = count_gc_
 # Counting mismatches
 let
     @info "Compiling bit-parallel mismatch counter for LongSequence{<:NucleicAcidAlphabet}"
+    
     counter = :(count += mismatch_bitcount(x, y, A()))
+    
     compile_2seq_bitpar(
         :count_mismatches_bitpar,
         arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
@@ -37,3 +39,30 @@ end
 count_mismatches_bitpar(seqa::LongSequence, seqb::LongSequence) = count_mismatches_bitpar(promote(seqa, seqb)...)
 
 Base.count(::typeof(!=), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_mismatches_bitpar(seqa, seqb)
+
+# Counting matches
+let
+    @info "Compiling bit-parallel match counter for LongSequence{<:NucleicAcidAlphabet}"
+    
+    counter = :(count += match_bitcount(x, y, A()))
+    
+    count_empty = quote
+        count += match_bitcount(x, y, A())
+        nempty = div(64, bits_per_symbol(A())) - div(offs, bits_per_symbol(A()))
+        count -= nempty
+    end
+    
+    compile_2seq_bitpar(
+        :count_matches_bitpar,
+        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        parameters = (:(A<:NucleicAcidAlphabet),),
+        init_code = :(count = 0),
+        head_code = count_empty,
+        body_code = counter,
+        tail_code = count_empty,
+        return_code = :(return count)
+    ) |> eval
+end
+
+Base.count(::typeof(==), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_matches_bitpar(seqa, seqb)
+

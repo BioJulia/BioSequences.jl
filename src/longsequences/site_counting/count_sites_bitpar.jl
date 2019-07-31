@@ -99,9 +99,9 @@
             println("64 - offset based mask: ", hex(mask(64 - offset(nexta))))
             =#
 
-            k = ifelse(64 - offset(nexta) > stopa - nexta, stopa - nexta, 64 - offset(nexta))
+            offs = ifelse(64 - offset(nexta) > stopa - nexta, stopa - nexta, 64 - offset(nexta))
             #println("k: ", k)
-            m = bitmask(k)
+            m = bitmask(offs)
             #=
             println("mask used: ", hex(m))
             println("masked x: ", hex(x & m))
@@ -110,7 +110,7 @@
             counts = bp_update_counter(counts, bp_chunk_count(S, A, x & m, y & m))
             if bp_correct_emptyspace(S, A)
                 #println("Correcting for emptyspace...")
-                nempty = $n_elems - div(k, $n)
+                nempty = $n_elems - div(offs, $n)
                 #println("nempty: ", nempty)
                 counts = bp_emptyspace_correction(nempty, counts)
                 #println("counts: ", counts)
@@ -118,8 +118,8 @@
             # Here we move our current position markers by k, meaning they move
             # to either, A). The next integer, or B). The end of the sequence if
             # it is in the current integer.
-            nexta += k
-            nextb += k
+            nexta += offs
+            nextb += offs
             #=
             println("Index A: ", index(nexta), ", Offset A: ", offset(nexta))
             println("Index B: ", index(nextb), ", Offset B: ", offset(nextb))

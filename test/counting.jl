@@ -70,9 +70,6 @@
     end
     
     @testset "Mismatches" begin
-        #counter_random_tests(!=, mismatches, DNAAlphabet{2}, DNAAlphabet{2}, false)
-        #counter_random_tests(!=, mismatches, DNAAlphabet{4}, DNAAlphabet{4}, false)
-        #counter_random_tests(!=, mismatches, DNAAlphabet{2}, DNAAlphabet{2}, true)
         for a in (DNAAlphabet, RNAAlphabet)
             for sub in (true, false)
                 for n in (4, 2)
@@ -80,6 +77,18 @@
                 end
                 counter_random_tests(!=, mismatches, a{4}, a{2}, sub)
                 counter_random_tests(!=, mismatches, a{2}, a{4}, sub)
+            end
+        end
+    end
+    
+    @testset "Matches" begin
+        for a in (DNAAlphabet, RNAAlphabet)
+            for sub in (true, false)
+                for n in (4, 2)
+                    counter_random_tests(==, matches, a{n}, a{n}, sub)
+                end
+                counter_random_tests(==, matches, a{4}, a{2}, sub)
+                counter_random_tests(==, matches, a{2}, a{4}, sub)
             end
         end
     end

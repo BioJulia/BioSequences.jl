@@ -65,6 +65,22 @@ end
     return count_nonzero_bitpairs(a ⊻ b)
 end
 
+@inline function match_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    return count_0000_nibbles(a ⊻ b)
+end
+
+@inline function match_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{2}}
+    return count_00_bitpairs(a ⊻ b)
+end
+
+@inline function ambiguous_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    return count_nonzero_nibbles(enumerate_nibbles(x) & 0xEEEEEEEEEEEEEEEE)
+end
+
+@inline function ambiguous_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    return count_nonzero_nibbles((enumerate_nibbles(a) | enumerate_nibbles(b)) & 0xEEEEEEEEEEEEEEEE)
+end
+
 @inline count_a(x::Unsigned) = count_00_bitpairs(x)
 @inline count_c(x::Unsigned) = count_01_bitpairs(x)
 @inline count_g(x::Unsigned) = count_10_bitpairs(x)

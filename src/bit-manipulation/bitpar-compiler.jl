@@ -168,8 +168,8 @@ function compile_2seq_bitpar(funcname::Symbol;
             #
             # This edge case was found and accounted for by Ben Ward @Ward9250.
             # Ask this maintainer for more information.
-            k = ifelse(64 - offset(nexta) > stopa - nexta, stopa - nexta, 64 - offset(nexta))
-            m = bitmask(k)
+            offs = ifelse(64 - offset(nexta) > stopa - nexta, stopa - nexta, 64 - offset(nexta))
+            m = bitmask(offs)
             
             x &= m
             y &= m
@@ -179,8 +179,8 @@ function compile_2seq_bitpar(funcname::Symbol;
             # Here we move our current position markers by k, meaning they move
             # to either, A). The next integer, or B). The end of the sequence if
             # it is in the current integer.
-            nexta += k
-            nextb += k
+            nexta += offs
+            nextb += offs
         end
         
         if offset(nextb) == 0  # data are aligned with each other
