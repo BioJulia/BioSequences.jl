@@ -81,6 +81,15 @@ end
     return count_nonzero_nibbles((enumerate_nibbles(a) | enumerate_nibbles(b)) & 0xEEEEEEEEEEEEEEEE)
 end
 
+@inline function gap_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    return count_zero_nibbles(x)
+end
+
+@inline function gap_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    # Count the gaps in a, count the gaps in b, subtract the number of shared gaps.
+    return count_0000_nibbles(a) + count_0000_nibbles(b) - count_0000_nibbles(a | b)
+end
+
 @inline count_a(x::Unsigned) = count_00_bitpairs(x)
 @inline count_c(x::Unsigned) = count_01_bitpairs(x)
 @inline count_g(x::Unsigned) = count_10_bitpairs(x)

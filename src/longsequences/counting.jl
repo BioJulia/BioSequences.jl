@@ -85,3 +85,30 @@ end
 Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
+
+# Counting gap sites
+let
+    @info "Compiling bit-parallel gap counter for LongSequence{<:NucleicAcidAlphabet}"
+    
+    counter = :(count += gap_bitcount(x, y, A()))
+    
+    count_empty = quote
+        count += gap_bitcount(x, y, A())
+        nempty = div(64, bits_per_symbol(A())) - div(offs, bits_per_symbol(A()))
+        count -= nempty
+    end
+    
+    compile_2seq_bitpar(
+        :count_gap_bitpar,
+        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        parameters = (:(A<:NucleicAcidAlphabet),),
+        init_code = :(count = 0),
+        head_code = count_empty,
+        body_code = counter,
+        tail_code = count_empty,
+        return_code = :(return count)
+    ) |> eval
+end
+Base.count(::typeof(isgap), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_gap_bitpar(seqa, seqb)
+Base.count(::typeof(isgap), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isgap, promote(seqa, seqb)...)
+Base.count(::typeof(isgap), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isgap, promote(seqa, seqb)...)

@@ -105,4 +105,16 @@
         end
     end
     
+    @testset "Gap" begin
+        for a in (DNAAlphabet, RNAAlphabet)
+            for sub in (true, false)
+                for n in (4, 2)
+                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub)
+                end
+                counter_random_tests(isgap, n_gaps, a{4}, a{2}, sub)
+                counter_random_tests(isgap, n_gaps, a{2}, a{4}, sub)
+            end
+        end
+    end
+    
 end
