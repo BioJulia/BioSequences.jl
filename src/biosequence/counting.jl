@@ -18,6 +18,14 @@ function count_naive(pred, seq::BioSequence)
     return n
 end
 
+function count_naive(pred, seqa::BioSequence, seqb::BioSequence)
+    n = 0
+    @inbounds for i in 1:min(length(seqa), length(seqb))
+        n += pred(seqa[i], seqb[i])::Bool
+    end
+    return n
+end
+
 """
 Count how many positions in a sequence satisfy a condition (i.e. f(seq[i]) -> true).
 
@@ -26,8 +34,10 @@ as its first parameter, additional arguments may be passed with `args...`.
 """
 Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
 
+Base.count(pred, seqa::BioSequence, seqb::BioSequence) = count_naive(pred, seqa, seqb)
+
 ###
-### GC content
+### Aliases for various uses of `count`.
 ###
 
 """
@@ -36,3 +46,5 @@ Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
 Calculate GC content of `seq`.
 """
 gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(seq)
+
+mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)

@@ -57,6 +57,14 @@ end
     return count_ones((c | g) & ~(a | t))
 end
 
+@inline function mismatch_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    return count_nonzero_nibbles(a ⊻ b)
+end
+
+@inline function mismatch_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{2}}
+    return count_nonzero_bitpairs(a ⊻ b)
+end
+
 @inline count_a(x::Unsigned) = count_00_bitpairs(x)
 @inline count_c(x::Unsigned) = count_01_bitpairs(x)
 @inline count_g(x::Unsigned) = count_10_bitpairs(x)

@@ -147,7 +147,7 @@ end
 
 include("symbols.jl")
 
-@testset "Sequences" begin
+@testset "BioSequences" begin
     a = dna"A-CG-G"; b = rna"A-CG-G"; c = aa"AK-MV-";
     @test ungap(a) == dna"ACGG"
     @test ungap(b) == rna"ACGG"
@@ -170,7 +170,6 @@ end
     include("longsequences/predicates.jl")
     include("longsequences/find.jl")
     include("longsequences/counting.jl")
-    include("longsequences/gc_content.jl")
     include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
 end
@@ -213,6 +212,7 @@ end
     include("search/pwm.jl")
 end
 
+include("counting.jl")
 include("translation.jl")
 include("demultiplexer.jl")
 
