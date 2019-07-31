@@ -197,6 +197,7 @@ export
     gap,
     mismatches,
     matches,
+    n_ambiguous,
     
     gc_content,
     

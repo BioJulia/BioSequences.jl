@@ -36,9 +36,8 @@ let
         return_code = :(return count)
     ) |> eval
 end
-count_mismatches_bitpar(seqa::LongSequence, seqb::LongSequence) = count_mismatches_bitpar(promote(seqa, seqb)...)
-
 Base.count(::typeof(!=), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_mismatches_bitpar(seqa, seqb)
+Base.count(::typeof(!=), seqa::LongNucleotideSequence, seqb::LongNucleotideSequence) = count(!=, promote(seqa, seqb)...)
 
 # Counting matches
 let
@@ -63,6 +62,26 @@ let
         return_code = :(return count)
     ) |> eval
 end
-
 Base.count(::typeof(==), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_matches_bitpar(seqa, seqb)
+Base.count(::typeof(==), seqa::LongNucleotideSequence, seqb::LongNucleotideSequence) = count(==, promote(seqa, seqb)...)
 
+# Counting ambiguous sites
+let
+    @info "Compiling bit-parallel ambiguity counter for LongSequence{<:NucleicAcidAlphabet}"
+    
+    counter = :(count += ambiguous_bitcount(x, y, A()))
+    
+    compile_2seq_bitpar(
+        :count_ambiguous_bitpar,
+        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        parameters = (:(A<:NucleicAcidAlphabet),),
+        init_code = :(count = 0),
+        head_code = counter,
+        body_code = counter,
+        tail_code = counter,
+        return_code = :(return count)
+    ) |> eval
+end
+Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
+Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
+Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
