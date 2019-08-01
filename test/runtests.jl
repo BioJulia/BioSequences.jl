@@ -169,7 +169,6 @@ end
     include("longsequences/mutability.jl")
     include("longsequences/predicates.jl")
     include("longsequences/find.jl")
-    include("longsequences/counting.jl")
     include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
 end

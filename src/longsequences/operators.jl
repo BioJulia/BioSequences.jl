@@ -25,13 +25,6 @@ function count_gc(seq::LongSequence{A}) where A <: NucleicAcidAlphabet
     return n
 end
 
-
-# Site counting
-# -------------
-
-include("site_counting/site_counting.jl")
-
-
 # Sequences to Matrix
 # -------------------
 
