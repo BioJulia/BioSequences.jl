@@ -36,11 +36,13 @@ Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
 
 Base.count(pred, seqa::BioSequence, seqb::BioSequence) = count_naive(pred, seqa, seqb)
 
-BioSymbols.isambiguous(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) || isambiguous(y)
-BioSymbols.isgap(x::T, y::T) where {T<:NucleicAcid} = isgap(x) || isgap(y)
+BioSymbols.isambiguous(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) | isambiguous(y)
+BioSymbols.isgap(x::T, y::T) where {T<:NucleicAcid} = isgap(x) | isgap(y)
+BioSymbols.iscertain(x::T, y::T) where {T<:NucleicAcid} = iscertain(x) & iscertain(y)
 
 Base.count(::typeof(isambiguous), seqa::S, seqb::S) where {S<:BioSequence{<:NucleicAcidAlphabet{2}}} = 0
 Base.count(::typeof(isgap), seqa::S, seqb::S) where {S<:BioSequence{<:NucleicAcidAlphabet{2}}} = 0
+Base.count(::typeof(iscertain), seqa::S, seqb::S) where {S<:BioSequence{<:NucleicAcidAlphabet{2}}} = min(length(seqa), length(seqb))
 
 ###
 ### Aliases for various uses of `count`.
@@ -56,4 +58,5 @@ gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(
 mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)
 matches(seqa::BioSequence, seqb::BioSequence) = count(==, seqa, seqb)
 n_ambiguous(seqa::BioSequence, seqb::BioSequence) = count(isambiguous, seqa, seqb)
+n_certain(seqa::BioSequence, seqb::BioSequence) = count(iscertain, seqa, seqb)
 n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap, seqa, seqb)

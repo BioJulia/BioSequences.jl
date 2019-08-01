@@ -86,6 +86,27 @@ Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) 
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
 
+# Counting certain sites
+let
+    @info "Compiling bit-parallel certainty counter for LongSequence{<:NucleicAcidAlphabet}"
+    
+    counter = :(count += certain_bitcount(x, y, A()))
+    
+    compile_2seq_bitpar(
+        :count_certain_bitpar,
+        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        parameters = (:(A<:NucleicAcidAlphabet),),
+        init_code = :(count = 0),
+        head_code = counter,
+        body_code = counter,
+        tail_code = counter,
+        return_code = :(return count)
+    ) |> eval
+end
+Base.count(::typeof(iscertain), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_certain_bitpar(seqa, seqb)
+Base.count(::typeof(iscertain), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(iscertain, promote(seqa, seqb)...)
+Base.count(::typeof(iscertain), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(iscertain, promote(seqa, seqb)...)
+
 # Counting gap sites
 let
     @info "Compiling bit-parallel gap counter for LongSequence{<:NucleicAcidAlphabet}"

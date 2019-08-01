@@ -199,6 +199,7 @@ export
     matches,
     n_ambiguous,
     n_gaps,
+    n_certain,
     
     gc_content,
     

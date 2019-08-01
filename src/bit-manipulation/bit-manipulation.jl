@@ -90,6 +90,18 @@ end
     return count_0000_nibbles(a) + count_0000_nibbles(b) - count_0000_nibbles(a | b)
 end
 
+@inline function certain_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    x = enumerate_nibbles(x)
+    x = x ⊻ 0x1111111111111111
+    return count_0000_nibbles(x)
+end
+
+@inline function certain_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
+    x = enumerate_nibbles(a) ⊻ 0x1111111111111111
+    y = enumerate_nibbles(b) ⊻ 0x1111111111111111
+    return count_0000_nibbles(x | y)
+end
+
 @inline count_a(x::Unsigned) = count_00_bitpairs(x)
 @inline count_c(x::Unsigned) = count_01_bitpairs(x)
 @inline count_g(x::Unsigned) = count_10_bitpairs(x)
