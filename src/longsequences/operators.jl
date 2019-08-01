@@ -1,29 +1,3 @@
-# Basic Operators
-# ---------------
-
-function count_gc(seq::LongSequence{A}) where A <: NucleicAcidAlphabet
-    n = 0
-    i = bitindex(seq, 1)
-    stop = bitindex(seq, lastindex(seq) + 1)
-    @inbounds begin
-        if offset(i) != 0 && i < stop
-            # align the bit index to the beginning of a block boundary
-            o = offset(i)
-            chunk = (seq.data[index(i)] >> o) & bitmask(stop - i)
-            n += gc_bitcount(chunk, BitsPerSymbol(seq))
-            i += 64 - o
-            @assert offset(i) == 0
-        end
-        while i ≤ stop - 64
-            n += gc_bitcount(seq.data[index(i)], BitsPerSymbol(seq))
-            i += 64
-        end
-        if i < stop
-            n += gc_bitcount(seq.data[index(i)] & bitmask(offset(stop)), BitsPerSymbol(seq))
-        end
-    end
-    return n
-end
 
 # Sequences to Matrix
 # -------------------
