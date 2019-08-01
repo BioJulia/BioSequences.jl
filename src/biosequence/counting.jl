@@ -55,8 +55,15 @@ Calculate GC content of `seq`.
 """
 gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(seq)
 
+n_ambiguous(seq) = count(isambiguous, seq)
+n_ambiguous(seqa::BioSequence, seqb::BioSequence) = count(isambiguous, seqa, seqb)
+
+n_certain(seq) = count(iscertain, seq)
+n_certain(seqa::BioSequence, seqb::BioSequence) = count(iscertain, seqa, seqb)
+
+n_gaps(seq::BioSequence) = count(isgap, seq)
+n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap, seqa, seqb)
+
 mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)
 matches(seqa::BioSequence, seqb::BioSequence) = count(==, seqa, seqb)
-n_ambiguous(seqa::BioSequence, seqb::BioSequence) = count(isambiguous, seqa, seqb)
-n_certain(seqa::BioSequence, seqb::BioSequence) = count(iscertain, seqa, seqb)
-n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap, seqa, seqb)
+
