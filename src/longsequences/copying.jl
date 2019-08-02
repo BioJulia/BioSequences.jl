@@ -61,9 +61,9 @@ function Base.copy(seq::LongSequence{A}) where {A}
     return newseq
 end
 
-
-# Encoded copying
-# ---------------
+###
+### Encoded copying
+###
 
 function encode_copy!(dst::LongSequence{A},
                       src::Union{AbstractVector,AbstractString}) where {A}
