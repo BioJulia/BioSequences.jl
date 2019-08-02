@@ -42,9 +42,9 @@ function kmerminhash!(::Type{DNAMer{k}}, seq::LongSequence, s::Integer, kmerhash
     iter = each(DNAMer{k}, seq)
     iter_value = iterate(iter)
     while length(kmerhashes) < s && iter_value !== nothing
-        (_, kmer), state = iter_value
+        res, state = iter_value
         iter_value = iterate(iter, state)
-        h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
+        h = hash(canonical(res)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h ∉ kmerhashes
             push!(kmerhashes, h)
         end
@@ -54,9 +54,9 @@ function kmerminhash!(::Type{DNAMer{k}}, seq::LongSequence, s::Integer, kmerhash
 
     # scan `seq` to make a minhash
     while iter_value !== nothing
-        (_, kmer), state = iter_value
+        res, state = iter_value
         iter_value = iterate(iter, state)
-        h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
+        h = hash(canonical(res)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h < kmerhashes[end]
             i = searchsortedlast(kmerhashes, h)
             if i == 0 && h != kmerhashes[1]

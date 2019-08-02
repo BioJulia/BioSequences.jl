@@ -190,5 +190,5 @@ given by:
 S = n * (\frac{k}{m} - 1) + m
 ```
 
-To see how to iterate over skipmers cf. kmers, see the iteration section of the
-manual.
+To see how to iterate over skipmers cf. kmers, see the [iteration](@ref) section
+of the manual.

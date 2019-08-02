@@ -29,13 +29,43 @@ they are described in the following sections.
 
 ## Kmers and Skipmers
 
-To iterate every kmer in a longer DNA or RNA sequence, use the `each` method:
+### Kmers
+
+To iterate over every overlapping kmer in a longer DNA or RNA sequence, use the
+`each` method:
 
 ```@docs
-each(::Type{T}, seq::BioSequence, step::Integer = 1) where {T<:AbstractMer}
+each(::Type{T}, seq::BioSequence) where {T<:AbstractMer}
 ```
 
+Each iteration yields a `MerIterResult` struct that has the following fields:
 
+- `position`: the position in the sequence at which the mer began.
+- `fw`: the mer in the same orientation as the sequence from which it was generated.
+- `bw`: the reverse complement of the `fw` mer.
+
+Iterating over mers in a sequence builds both a mer and it's reverse complement
+at the same time, as it is more efficient, and it is a common requirement; for
+example during mapping or constructing assemblies it is often useful to know
+if the mer your are processing is a canonical mer or not.
+
+### Kmers with jumps
+
+You can also iterate over non-overlapping kmers using a `step` parameter.
+
+```jlcon
+each(DNAMer{27}, seq, 10)
+```
+
+### Skipmers
+
+To iterate over Mers using the Skipmer method of selecting nucleotides, then
+you provide a `bases_per_cycle` and a `cycle_len` parameter. For example, where
+`bases_per_cycle = 2` and `cycle_len = 3`.
+
+```jlcon
+each(DNAMer{27}, seq, 2, 3)
+```
 
 ## Positions
 

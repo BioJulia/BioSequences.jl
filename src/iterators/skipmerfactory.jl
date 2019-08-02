@@ -77,10 +77,8 @@ end
 @inline mertype(gen::SkipmerFactory) = mertype(typeof(gen))
 
 @inline function Base.eltype(::Type{S}) where {S<:SkipmerFactory}
-    return SkipmerFactoryResult{mertype(S)}
+    return MerIterResult{mertype(S)}
 end
-
-
 
 @inline Base.IteratorSize(::Type{T}) where T <: SkipmerFactory = Base.HasLength()
 
@@ -190,7 +188,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
     @inbounds rkmer = gen.rkmer[nextfinished]
     newn = gen.n + 1
     gen.n = newn
-    return SkipmerFactoryResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+    return MerIterResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
 end
 
 function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcidAlphabet{4},U,K}
@@ -213,7 +211,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
             if gen.last_unknown[gen.finished] + span <= gen.position
                 fkmer = gen.fkmer[gen.finished]
                 rkmer = gen.rkmer[gen.finished]
-                return SkipmerFactoryResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+                return MerIterResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
             end
         end
     end
@@ -235,6 +233,16 @@ end
     end
 end
 
+"""
+    each(::Type{T}, seq::BioSequence, bases_per_cycle::Int, cycle_len::Int) where {T<:AbstractMer}
+
+Initialize an iterator over all overlapping skipmers in a sequence `seq`,
+skipping ambiguous nucleotides without changing the reading frame.
+
+!!! note
+    Please see the BioSequences user manual for more details of how a skipmer is
+    constructed.
+"""
 @inline function each(::Type{T}, seq::BioSequence, bases_per_cycle::Int, cycle_len::Int) where {T<:AbstractMer}
     return SkipmerFactory(T, seq, bases_per_cycle, cycle_len)
 end

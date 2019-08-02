@@ -198,10 +198,9 @@ include("composition.jl")
     include("mers/shuffle.jl")
 end
 
-include("iterators/eachskipmer.jl")
-
 @testset "Iterators" begin
     include("iterators/condition.jl")
+    include("iterators/eachmer.jl")
 end
 
 @testset "Search" begin

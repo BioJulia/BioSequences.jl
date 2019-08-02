@@ -133,6 +133,8 @@ export
     
     # Iteration
     each,
+    fwmer,
+    bwmer,
     
     ###
     ### LongSequence
@@ -290,7 +292,7 @@ include("refseq/refseq.jl")
 
 # The generic iterators for any BioSequence...
 include("iterators/condition.jl")
-include("iterators/eachkmer.jl")
+include("iterators/eachmer.jl")
 include("iterators/skipmerfactory.jl")
 
 include("composition.jl")
