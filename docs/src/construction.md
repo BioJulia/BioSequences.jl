@@ -73,10 +73,10 @@ NNCGTATTTTCN
     represent the same basic kind of thing, like different representations of
     numbers. It is also usually lossless. Not all strings are valid sequences,
     and depending on the sequence type, not all vectors of BioSymbols are valid
-    sequences either. A string only represents the "Same kind of thing" as a
-    biological sequence in some cases, so implicitly `convert` ing things to a
+    sequences either. A string only represents the "same kind of thing" as a
+    biological sequence in some cases, so implicitly `convert`ing them to a
     sequence type was never safe or unsurprising. These `convert` methods have
-    been changed to `Base.parse` methods.
+    been renamed to `Base.parse` methods.
 
 ### Constructing sequences from arrays of BioSymbols
 

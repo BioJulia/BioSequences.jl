@@ -24,7 +24,7 @@ function Base.findnext(f::Function, seq::BioSequence, start::Integer)
 end
 
 # No ambiguous sites can exist in a nucleic acid sequence using the two-bit alphabet.
-Base.findnext(f::typeof(isambiguous), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Integer) = nothing
+Base.findnext(::typeof(isambiguous), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Integer) = nothing
 
 function Base.findprev(val, seq::BioSequence, start::Integer)
     checkbounds(seq, start)

@@ -1,5 +1,5 @@
 ###
-### Mer: Predicates & comparisons
+### Mer specific specializations of src/biosequence/predicates.jl
 ###
 
 Base.cmp(seq1::T, seq2::T) where {T<:AbstractMer} = cmp(encoded_data(seq1), encoded_data(seq2))

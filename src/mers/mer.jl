@@ -93,7 +93,7 @@ end
 include("conversion.jl")
 include("indexing.jl")
 include("predicates.jl")
-include("operations.jl")
+include("counting.jl")
 include("transformations.jl")
 
 ###

@@ -1,8 +1,10 @@
 ###
-### Mer: Counters
+### Mer specific specializations of src/biosequence/counting.jl
 ###
 
-count_gc(x::AbstractMer) = gc_bitcount(encoded_data(x), BitsPerSymbol{2}())
+@inline function count_gc(::typeof(isGC), x::AbstractMer)
+    return gc_bitcount(encoded_data(x), BitsPerSymbol{2}())
+end
 
 function count_a(x::AbstractMer)
     # Have to take into account 00 bitpairs that are part of the unused bit of
@@ -22,11 +24,10 @@ function count_t(x::AbstractMer)
     return count_t(encoded_data(x))
 end
 
-"""
-    mismatches(a::AbstractMer, b::AbstractMer)
-
-Return the number of mismatches between `a` and `b`.
-"""
-function mismatches(a::T, b::T) where {T<:AbstractMer}
+@inline function Base.count(::typeof(!=), a::T, b::T) where {T<:AbstractMer}
     return count_nonzero_bitpairs(encoded_data(a) ⊻ encoded_data(b))
+end
+
+@inline function Base.count(::typeof(==), a::T, b::T) where {T<:AbstractMer}
+    return count_00_bitpairs(encoded_data(a) ⊻ encoded_data(b))
 end

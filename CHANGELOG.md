@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   functionality as `Mer` (see changed section), but uses 128 bits instead of 64.
 - An abstract parametric type called `AbstractMer` has been added to unify `Mer`
   and `BigMer`.
+- Generators of bit-parallel iteration code have been introduced to help
+  developers write bitparallel implementations of some methods. Counting GC
+  content, matches and mismatches have been migrated to use these generators.
 
 ### Changed
 - The abstract `Sequence` type is now called `BioSequence{A}`.
@@ -33,6 +36,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Kmer string literals have been updated, they are now `mer""` string literals,
   and they have a flag to enforce the type of `Mer` e.g.: `mer"ATCG"dna`,
   `mer"AUCG"rna`
+- No longer use an old version of Twiddle and deprecated functions.
+- Using `Base.count` with certain functions and sequence combinations dispatches
+  to highly optimized bit-parallel implementations, falling back to a default
+  naive counting loop by default for all other predicate-sequence combinations.
+- No more implicit conversion from strings to biological sequences. The `Base.convert`
+  methods have been renamed to `Base.parse` methods.
 
 ### Removed
 - The FASTQ module.
