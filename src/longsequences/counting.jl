@@ -1,6 +1,8 @@
 ###
 ### LongSequence specific specializations of src/biosequence/counting.jl
 ###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Counting GC positions
 let

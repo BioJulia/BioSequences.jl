@@ -17,10 +17,6 @@ It is the task of `inbounds_getindex` to extract from a sequence, the
 appropriate element of the sequence.
 =#
 
-###
-### BioSequences.jl specific
-###
-
 @inline function symbols_per_data_element(seq::BioSequence)
     return div(8 * sizeof(encoded_data_eltype(seq)), bits_per_symbol(seq))
 end

@@ -1,5 +1,6 @@
-# Transformations
-# ---------------
+###
+### LongSequence specific specializations of src/biosequence/transformations.jl
+###
 
 """
     resize!(seq, size)

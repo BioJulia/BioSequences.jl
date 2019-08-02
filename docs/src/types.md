@@ -224,3 +224,13 @@ ERROR: ArgumentError: invalid symbol M ∉ {A,C,G,T,N} at 4
  in call at essentials.jl:56
 
 ```
+
+# Alphabet types
+
+```@docs
+Alphabet
+```
+
+Alphabets control how biological symbols are encoded and decoded.
+They also confer many of the automatic traits and methods that any subtype
+of `T<:BioSequence{A<:Alphabet}` will get.
