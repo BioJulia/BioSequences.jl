@@ -5,7 +5,6 @@ using Random
 using LinearAlgebra: normalize
 import BioSymbols
 using BioSequences
-using IntervalTrees: IntervalValue
 using StatsBase
 using YAML
 using BioGenerics

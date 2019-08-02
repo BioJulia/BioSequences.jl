@@ -254,7 +254,6 @@ using BioGenerics
 using BioSymbols
 import Combinatorics
 import IndexableBitVectors
-import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
     count_0000_nibbles,
