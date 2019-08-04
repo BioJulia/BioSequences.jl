@@ -12,8 +12,6 @@
 
 BioSequences provides data types and methods for common operations with 
 biological sequences, including DNA, RNA, and amino acid sequences.
-It also provides I/O for common sequence file formats including FASTA, FASTQ,
-2bit and more. 
 
 
 ## Installation
@@ -47,7 +45,7 @@ BioSequences is tested against Julia `1.X` on Linux, OS X, and Windows.
 
 [![](https://travis-ci.org/BioJulia/BioSequences.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioSequences.jl)
 [![](https://ci.appveyor.com/api/projects/status/1vdxlfv7yk9c1kfb/branch/master?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequences-jl/branch/master)
-[![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)|
+[![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)
 
 
 ## Contributing

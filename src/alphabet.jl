@@ -8,8 +8,6 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
-# Alphabets of biological symbols.
-
 `Alphabet` is perhaps the most important type trait for biological sequences in
 BioSequences.jl.
 

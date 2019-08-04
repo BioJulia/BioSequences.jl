@@ -14,7 +14,7 @@ end
 
 Return an iterator over each element in `seq` that satisfies some function `f`.
 
-This is similar to the [`Iterators.filter`](@ref) iterator, except that every
+This is similar to the `Iterators.filter` iterator, except that every
 iteration yields a tuple of the position of the residue that satisfied `f`, and
 the residue itself.
 """

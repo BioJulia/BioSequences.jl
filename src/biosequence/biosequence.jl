@@ -49,7 +49,10 @@ end
 # These traits and methods are defined automatically for any subtype of BioSequence{A}.
 # They may be overloaded for your concrete BioSequence sub-type if it is nessecery.
 
+"Get the vector of bits storing a sequences packed encoded elements."
 @inline encoded_data_type(seq::BioSequence) = typeof(encoded_data(seq))
+
+"Get the element type of the vector of bits storing a sequences packed encoded elements."
 @inline encoded_data_eltype(seq::BioSequence) = eltype(encoded_data_type(seq))
 
 """
@@ -68,6 +71,8 @@ end
 BioSymbols.alphabet(::Type{BioSequence{A}}) where {A<:Alphabet} = alphabet(A)
 
 BitsPerSymbol(seq::BioSequence) = BitsPerSymbol(Alphabet(seq))
+
+"Get the number of bits each symbol packed into a BioSequence uses, as an integer value."
 bits_per_symbol(seq::BioSequence) = bits_per_symbol(Alphabet(seq))
 
 # The generic functions for any BioSequence...

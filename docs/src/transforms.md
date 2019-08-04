@@ -132,7 +132,7 @@ that are common in bioinformatics are also provided.
 
 ```@docs
 reverse!(::BioSequences.LongSequence)
-reverse(::BioSequences.LongSequence)
+reverse(::BioSequences.LongSequence{<:NucleicAcidAlphabet})
 complement!
 complement
 reverse_complement!

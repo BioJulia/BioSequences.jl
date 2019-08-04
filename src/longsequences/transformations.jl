@@ -70,6 +70,14 @@ function Base.reverse!(seq::LongSequence)
     return seq
 end
 
+"""
+    Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
+
+Create a reversed copy of a LongSequence representing a DNA or RNA sequence.
+
+This version of the reverse method is optimized for speed, taking advantage of
+bit-parallel operations.
+"""
 function Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
     i = 1

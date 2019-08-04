@@ -17,7 +17,7 @@ that are provided by [BioSymbols.jl:](https://biojulia.net/BioSymbols.jl/)
 
 These symbols are elements of biological sequences, just as characters are
 elements of strings. See sections beginning from
-[Introduction to the sequence data-types](@ref) section for details.
+[Sequence Types](@ref) section for details.
 
 
 ## DNA and RNA nucleotides

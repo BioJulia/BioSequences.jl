@@ -7,7 +7,7 @@ end
 
 # Sequence Types
 
-BioSequences exports an abstract [BioSequence](@ref) type, and several concrete sequence
+BioSequences exports an abstract `BioSequence` type, and several concrete sequence
 types which inherit from it.
 
 ## The abstract BioSequence
@@ -20,7 +20,7 @@ performance when such code is compiled for a concrete BioSequence subtype.
 Additionally, it allows new types to be implemented that are fully compatible
 with the rest of BioSequences, providing that key methods or traits are defined).
 
-This abstract type is parametric over concrete types of [Alphabet](@ref), which
+This abstract type is parametric over concrete types of `Alphabet`, which
 define the range of symbols permitted in the sequence.
 
 Some aliases are also provided for your convenience:
@@ -40,12 +40,12 @@ Base.length(::BioSequence)
 ```
 
 If these requirements are satisfied, the following key traits and methods backing
-the BioSequences interface, should be defined for the sequence type.
+the BioSequences interface, should be defined already for the sequence type.
 
 ```@docs
 encoded_data_type
 encoded_data_eltype
-Alphabet
+Alphabet(::BioSequence)
 BioSymbols.alphabet(::BioSequence)
 BitsPerSymbol
 bits_per_symbol
@@ -62,10 +62,10 @@ sequence type that allows you to create and edit sequences. In BioSequences,
 the `LongSequence` type fills this requirement.
 
 `LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
-[Alphabet](@ref) type `A` that defines the domain (or set) of biological symbols
+`Alphabet` type `A` that defines the domain (or set) of biological symbols
 permitted.
 For example, `AminoAcidAlphabet` is associated with `AminoAcid` and hence an
-object of the `GeneralSequence{AminoAcidAlphabet}` type represents a sequence of
+object of the `LongSequence{AminoAcidAlphabet}` type represents a sequence of
 amino acids.  Symbols from multiple alphabets can't be intermixed in one
 sequence type.
 
@@ -190,7 +190,7 @@ given by:
 S = n * (\frac{k}{m} - 1) + m
 ```
 
-To see how to iterate over skipmers cf. kmers, see the [iteration](@ref) section
+To see how to iterate over skipmers cf. kmers, see the Iteration section
 of the manual.
 
 ## Reference sequences
@@ -228,7 +228,7 @@ ERROR: ArgumentError: invalid symbol M ∉ {A,C,G,T,N} at 4
 # Alphabet types
 
 ```@docs
-Alphabet
+BioSequences.Alphabet
 ```
 
 Alphabets control how biological symbols are encoded and decoded.
