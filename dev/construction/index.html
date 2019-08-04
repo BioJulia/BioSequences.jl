@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Constructing sequences · BioSequences.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="../"><img class="logo" src="../assets/logo.png" alt="BioSequences.jl logo"/></a><h1>BioSequences.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Home</a></li><li><a class="toctext" href="../symbols/">Biological Symbols</a></li><li><a class="toctext" href="../types/">BioSequences Types</a></li><li class="current"><a class="toctext" href>Constructing sequences</a><ul class="internal"><li><a class="toctext" href="#Constructing-sequences-1">Constructing sequences</a></li><li><a class="toctext" href="#Conversion-of-sequence-types-1">Conversion of sequence types</a></li><li><a class="toctext" href="#String-literals-1">String literals</a></li></ul></li><li><a class="toctext" href="../transforms/">Indexing &amp; modifying sequences</a></li><li><a class="toctext" href="../predicates/">Predicates</a></li><li><a class="toctext" href="../random/">Random sequences</a></li><li><a class="toctext" href="../search/">Pattern matching and searching</a></li><li><a class="toctext" href="../demultiplexer/">Sequence Demultipllexing</a></li><li><a class="toctext" href="../composition/">Sequence composition</a></li><li><a class="toctext" href="../iteration/">Iteration</a></li><li><a class="toctext" href="../counting/">Counting</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Constructing sequences</a></li></ul><a class="edit-page" href="https://github.com/BioJulia/BioSequences.jl/blob/master/docs/src/construction.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Constructing sequences</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Construction-and-conversion-1" href="#Construction-and-conversion-1">Construction &amp; conversion</a></h1><p>Here we will showcase the various ways you can construct the various sequence types in BioSequences.</p><h2><a class="nav-anchor" id="Constructing-sequences-1" href="#Constructing-sequences-1">Constructing sequences</a></h2><h3><a class="nav-anchor" id="From-strings-1" href="#From-strings-1">From strings</a></h3><p>Sequences can be constructed from strings using their constructors:</p><pre><code class="language-julia-repl">julia&gt; LongDNASeq(&quot;TTANC&quot;)
+5nt DNA Sequence:
+TTANC
+
+julia&gt; LongSequence{DNAAlphabet{2}}(&quot;TTAGC&quot;)
+5nt DNA Sequence:
+TTAGC
+
+julia&gt; LongRNASeq(&quot;UUANC&quot;)
+5nt RNA Sequence:
+UUANC
+
+julia&gt; LongSequence{RNAAlphabet{2}}(&quot;UUAGC&quot;)
+5nt RNA Sequence:
+UUAGC
+
+julia&gt; DNAMer{8}(&quot;ATCGATCG&quot;)
+DNA 8-mer:
+ATCGATCG
+
+julia&gt; # The following works, but is not type-stable...
+
+julia&gt; DNAMer(&quot;ATCGATCG&quot;)
+DNA 8-mer:
+ATCGATCG
+
+julia&gt; RNAMer{8}(&quot;AUCGAUCG&quot;)
+RNA 8-mer:
+AUCGAUCG
+
+julia&gt; # The following works, but is not type-stable...
+
+julia&gt; RNAMer(LongRNASeq(&quot;AUCGAUCG&quot;))
+RNA 8-mer:
+AUCGAUCG
+
+julia&gt; seq = ReferenceSequence(&quot;NNCGTATTTTCN&quot;)
+12nt Reference Sequence:
+NNCGTATTTTCN
+</code></pre><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>From version 2.0 onwards, the <code>convert</code> methods for converting a string or vector of symbols into a sequence type have been removed. These convert methods did nothing but pass their arguments to the appropriate constructor.</p><p>These specific <code>convert</code> methods have been removed due to the semantics of <code>convert</code>: Even though <code>convert(LongDNASeq, &quot;ATCG&quot;)</code> was previously the same as <code>LongDNASeq(&quot;ATCG&quot;)</code>, unlike constructors, <code>convert</code> is sometimes implicitly called. So it&#39;s methods should be restricted to cases that are considered safe or unsurprising. <code>convert</code> should convert between types that represent the same basic kind of thing, like different representations of numbers. It is also usually lossless. Not all strings are valid sequences, and depending on the sequence type, not all vectors of BioSymbols are valid sequences either. A string only represents the &quot;same kind of thing&quot; as a biological sequence in some cases, so implicitly <code>convert</code>ing them to a sequence type was never safe or unsurprising. These <code>convert</code> methods have been renamed to <code>Base.parse</code> methods.</p></div></div><h3><a class="nav-anchor" id="Constructing-sequences-from-arrays-of-BioSymbols-1" href="#Constructing-sequences-from-arrays-of-BioSymbols-1">Constructing sequences from arrays of BioSymbols</a></h3><p>Sequences can be constructed using vectors or arrays of a <code>BioSymbol</code> type:</p><pre><code class="language-julia-repl">julia&gt; LongDNASeq([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+5nt DNA Sequence:
+TTANC
+
+julia&gt; LongSequence{DNAAlphabet{2}}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
+5nt DNA Sequence:
+TTAGC
+
+julia&gt; DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
+DNA 5-mer:
+TTAGC
+
+julia&gt; RNAMer{5}([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
+RNA 5-mer:
+UUAGC
+
+julia&gt; # Works, but is not type-stable
+
+julia&gt; DNAMer([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
+DNA 5-mer:
+TTAGC
+
+julia&gt; RNAMer([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
+RNA 5-mer:
+UUAGC</code></pre><h3><a class="nav-anchor" id="Constructing-sequences-from-other-sequences-1" href="#Constructing-sequences-from-other-sequences-1">Constructing sequences from other sequences</a></h3><p>You can create sequences, by concatenating other sequences together:</p><pre><code class="language-julia-repl">julia&gt; LongDNASeq(LongDNASeq(&quot;ACGT&quot;), LongDNASeq(&quot;NNNN&quot;), LongDNASeq(&quot;TGCA&quot;))
+12nt DNA Sequence:
+ACGTNNNNTGCA
+
+julia&gt; LongDNASeq(&quot;ACGT&quot;) * LongDNASeq(&quot;TGCA&quot;)
+8nt DNA Sequence:
+ACGTTGCA
+
+julia&gt; repeat(LongDNASeq(&quot;TA&quot;), 10)
+20nt DNA Sequence:
+TATATATATATATATATATA
+
+julia&gt; LongDNASeq(&quot;TA&quot;) ^ 10
+20nt DNA Sequence:
+TATATATATATATATATATA
+</code></pre><p>You can also construct long sequences from kmer sequences, and vice versa:</p><pre><code class="language-julia-repl">julia&gt; m = DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
+DNA 5-mer:
+TTAGC
+
+julia&gt; LongSequence(m)
+5nt DNA Sequence:
+TTAGC
+
+julia&gt; # round trip from mer to long sequence back to mer.
+
+julia&gt; DNAMer(LongSequence(m))
+DNA 5-mer:
+TTAGC</code></pre><h2><a class="nav-anchor" id="Conversion-of-sequence-types-1" href="#Conversion-of-sequence-types-1">Conversion of sequence types</a></h2><p>Sometimes you can convert between sequence types without construction / having to copy data. for example, despite being separate types, <code>LongDNASeq</code> and <code>LongRNASeq</code> can freely be converted between efficiently, without copying the underlying data:</p><pre><code class="language-julia-repl">julia&gt; dna = dna&quot;TTANGTAGACCG&quot;
+12nt DNA Sequence:
+TTANGTAGACCG
+
+julia&gt; rna = convert(LongRNASeq, dna)
+12nt RNA Sequence:
+UUANGUAGACCG
+
+julia&gt; dna.data === rna.data  # underlying data are same
+true
+</code></pre><p>Sequences can be converted explicitly and implicitly, into arrays and strings:</p><pre><code class="language-julia-repl">julia&gt; dna = dna&quot;TTANGTAGACCG&quot;
+12nt DNA Sequence:
+TTANGTAGACCG
+
+julia&gt; dnastr = convert(String, dna)
+&quot;TTANGTAGACCG&quot;
+
+julia&gt; # Implicit conversion to string - putting dna sequence in String vector 
+
+julia&gt; arr = String[dna]
+1-element Array{String,1}:
+ &quot;TTANGTAGACCG&quot;
+ </code></pre><h2><a class="nav-anchor" id="String-literals-1" href="#String-literals-1">String literals</a></h2><p>BioSequences provides several string literal macros for creating sequences.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>When you use literals you may mix the case of characters.</p></div></div><h3><a class="nav-anchor" id="Long-sequence-literals-1" href="#Long-sequence-literals-1">Long sequence literals</a></h3><pre><code class="language-julia-repl">julia&gt; dna&quot;TACGTANNATC&quot;
+11nt DNA Sequence:
+TACGTANNATC
+
+julia&gt; rna&quot;AUUUGNCCANU&quot;
+11nt RNA Sequence:
+AUUUGNCCANU
+
+julia&gt; aa&quot;ARNDCQEGHILKMFPSTWYVX&quot;
+21aa Amino Acid Sequence:
+ARNDCQEGHILKMFPSTWYVX
+
+julia&gt; char&quot;αβγδϵ&quot;
+5char Char Sequence:
+αβγδϵ
+</code></pre><p>However, it should be noted that by default these sequence literals allocate the <code>LongSequence</code> object before the code containing the sequence literal is run. This means there may be occasions where your program does not behave as you first expect. For example consider the following code:</p><pre><code class="language-julia-repl">julia&gt; function foo()
+           s = dna&quot;CTT&quot;
+           push!(s, DNA_A)
+       end
+foo (generic function with 1 method)
+</code></pre><p>You might expect that every time you call <code>foo</code>, that a DNA sequence <code>CTTA</code> would be returned. You might expect that this is because every time <code>foo</code> is called, a new DNA sequence variable <code>CTT</code> is created, and the <code>A</code> nucleotide is pushed to it, and the result, <code>CTTA</code> is returned. In other words you might expect the following output:</p><pre><code class="language-julia-repl">julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+</code></pre><p>However, this is not what happens, instead the following happens:</p><pre><code class="language-julia-repl">julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+5nt DNA Sequence:
+CTTAA
+
+julia&gt; foo()
+6nt DNA Sequence:
+CTTAAA
+</code></pre><p>The reason for this is because the sequence literal is allocated only once before the first time the function <code>foo</code> is called and run. Therefore, <code>s</code> in <code>foo</code> is always a reference to that one sequence that was allocated. So one sequence is created before <code>foo</code> is called, and then it is pushed to every time <code>foo</code> is called. Thus, that one allocated sequence grows with every call of <code>foo</code>.</p><p>If you wanted <code>foo</code> to create a new sequence each time it is called, then you can add a flag to the end of the sequence literal to dictate behaviour: A flag of &#39;s&#39; means &#39;static&#39;: the sequence will be allocated before code is run, as is the default behaviour described above. However providing &#39;d&#39; flag changes the behaviour: &#39;d&#39; means &#39;dynamic&#39;: the sequence will be allocated whilst the code is running, and not before. So to change <code>foo</code> so as it creates a new sequence each time it is called, simply add the &#39;d&#39; flag to the sequence literal:</p><pre><code class="language-julia-repl">julia&gt; function foo()
+           s = dna&quot;CTT&quot;d     # &#39;d&#39; flag appended to the string literal.
+           push!(s, DNA_A)
+       end
+foo (generic function with 1 method)
+</code></pre><p>Now every time <code>foo</code> is called, a new sequence <code>CTT</code> is created, and an <code>A</code> nucleotide is pushed to it:</p><pre><code class="language-julia-repl">julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+
+julia&gt; foo()
+4nt DNA Sequence:
+CTTA
+</code></pre><p>So the take home message of sequence literals is this:</p><p>Be careful when you are using sequence literals inside of functions, and inside the bodies of things like for loops. And if you use them and are unsure, use the  &#39;s&#39; and &#39;d&#39; flags to ensure the behaviour you get is the behaviour you intend.</p><h3><a class="nav-anchor" id="Kmer-literals-1" href="#Kmer-literals-1">Kmer literals</a></h3><p>You can create literals for <code>Mer</code>s and <code>BigMer</code>s as well:</p><pre><code class="language-julia-repl">julia&gt; mer&quot;ATCG&quot;
+DNA 4-mer:
+ATCG
+
+julia&gt; mer&quot;ATCG&quot;dna
+DNA 4-mer:
+ATCG
+
+julia&gt; mer&quot;AUCG&quot;rna
+RNA 4-mer:
+AUCG
+</code></pre><p>By using a flag at the end of the literal, you can set whether the kmer should be a DNA kmer or an RNA kmer. If you don&#39;t set the flag, then by default it will try to make a dna kmer from the string.</p><p>Literals for <code>BigMer</code>s are also available:</p><pre><code class="language-julia-repl">julia&gt; bigmer&quot;ATCG&quot;
+DNA 4-mer:
+ATCG
+
+julia&gt; bigmer&quot;ATCG&quot;dna
+DNA 4-mer:
+ATCG
+
+julia&gt; bigmer&quot;AUCG&quot;rna
+RNA 4-mer:
+AUCG
+</code></pre><footer><hr/><a class="previous" href="../types/"><span class="direction">Previous</span><span class="title">BioSequences Types</span></a><a class="next" href="../transforms/"><span class="direction">Next</span><span class="title">Indexing &amp; modifying sequences</span></a></footer></article></body></html>
