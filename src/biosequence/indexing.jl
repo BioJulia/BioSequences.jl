@@ -14,7 +14,7 @@ A `Base.getindex` method is provided for `BioSequence`.
 It's job is to, do boundschecking. And to then call `inbounds_getindex`.
 
 It is the task of `inbounds_getindex` to extract from a sequence, the 
-appropriate element of the sequence.
+appropriate bits, and pass them to an appropriate `decode` method.
 =#
 
 @inline function symbols_per_data_element(seq::BioSequence)
