@@ -67,12 +67,12 @@ foldl((x, y) -> merge(x, composition(y)), composition(dna""), seqs)
 
 `composition` is also applicable to a *k*-mer iterator:
 ```jldoctest
-julia> comp = composition(each(DNAKmer{4}, dna"ACGT"^100));
+julia> comp = composition(each(DNAMer{4}, dna"ACGT"^100));
 
-julia> comp[DNAKmer("ACGT")]
+julia> comp[DNAMer("ACGT")]
 100
 
-julia> comp[DNAKmer("CGTA")]
+julia> comp[DNAMer("CGTA")]
 99
 
 ```

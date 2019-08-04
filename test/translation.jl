@@ -33,7 +33,7 @@
     end
 
     function check_translate(seq::AbstractString)
-        return string_translate(seq) == String(translate(RNASequence(seq)))
+        return string_translate(seq) == String(translate(LongRNASeq(seq)))
     end
 
     global reps = 10
@@ -46,10 +46,10 @@
     @test translate(rna"GAYGARGAM") == aa"DEX"
 
     # BioSequences{RNAAlphabet{2}}
-    @test translate(BioSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
-    @test translate(BioSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
+    @test translate(LongSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
+    @test translate(LongSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
 
-    # DNASequence
+    # LongDNASeq
     @test translate(dna"ATGTAA") == aa"M*"
 
     # Alternative start codons

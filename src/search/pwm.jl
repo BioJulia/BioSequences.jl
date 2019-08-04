@@ -244,11 +244,11 @@ function make_maxscore(pwm)
 end
 
 """
-    scoreat(seq::Sequence, pwm::PWM, start::Integer)
+    scoreat(seq::BioSequence, pwm::PWM, start::Integer)
 
 Calculate the PWM score starting from `seq[start]`.
 """
-function scoreat(seq::Sequence, pwm::PWM, start::Integer)
+function scoreat(seq::BioSequence, pwm::PWM, start::Integer)
     check_pwm(seq, pwm)
     pwmlen = size(pwm, 2)
     checkbounds(seq, start:start+pwmlen-1)
@@ -260,7 +260,7 @@ function scoreat(seq::Sequence, pwm::PWM, start::Integer)
     return score
 end
 
-function Base.findfirst(pwm::PWM, seq::Sequence, threshold::Real, start=1, stop=lastindex(seq))
+function Base.findfirst(pwm::PWM, seq::BioSequence, threshold::Real, start = 1, stop=lastindex(seq))
     if eltype(seq) == DNA || eltype(seq) == RNA
         return search_nuc(seq, start:stop, pwm, convert(eltype(pwm), threshold))
     else
@@ -276,7 +276,7 @@ function check_pwm(seq, pwm::PWM{S}) where S <: Union{DNA,RNA}
     end
 end
 
-function search_nuc(seq::Sequence, range::UnitRange{Int}, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
+function search_nuc(seq::BioSequence, range::UnitRange{Int}, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
     checkbounds(seq, range)
     pwmlen = size(pwm, 2)

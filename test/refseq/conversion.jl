@@ -7,8 +7,8 @@
 end
 
 @testset "Conversion" begin
-    seq = DNASequence(random_dna(100))
+    seq = LongDNASeq(random_dna(100))
     refseq = ReferenceSequence(seq)
     @test refseq == seq
-    @test DNASequence(refseq) == seq
+    @test LongDNASeq(refseq) == seq
 end

@@ -5,10 +5,56 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- New subtypes of Random.Sampler, SamplerUniform and SamplerWeighted.
+- Random `LongSequence`s can now be created with `randseq`,
+  optionally using a sampler to specify element distribution.
+- All random `LongSequence` generator methods take an optional AbstractRNG
+  argument.
+- Add methods to `randseq` to optimize random generation of `NucleicAcid` or
+  `AminoAcid` `LongSequence`s.
+- BioGenerics is now a dependency - replaces BioCore.
+- A `SkipmerFactory` iterator that allows iteration over the Skipmers in a 
+  nucleotide sequence. A Skipmer is a `Mer` (see changed below), that is
+  generated using a certain cyclic nucleotide sampling pattern.
+  See [this paper](https://www.biorxiv.org/content/early/2017/09/19/179960.full.pdf+html)
+  for more details.
+- A `BigMer` parametric primitive type has been added, that has the same
+  functionality as `Mer` (see changed section), but uses 128 bits instead of 64.
+- An abstract parametric type called `AbstractMer` has been added to unify `Mer`
+  and `BigMer`.
+- Generators of bit-parallel iteration code have been introduced to help
+  developers write bitparallel implementations of some methods. Counting GC
+  content, matches and mismatches have been migrated to use these generators.
+
+### Changed
+- The abstract `Sequence` type is now called `BioSequence{A}`.
+- The type previously called `BioSequence{A}` is now `LongSequence{A}`.
+- `Kmers` are now a parametric primitive type: `Mer{A<:NucleicAcidAlphabet{2},K}`.
+- `unsafe_setindex!` has been made systematic for all `setindex` methods as a 
+  way of bypassing all bound checking and `orphan!` calls.
+- Kmer string literals have been updated, they are now `mer""` string literals,
+  and they have a flag to enforce the type of `Mer` e.g.: `mer"ATCG"dna`,
+  `mer"AUCG"rna`
+- No longer use an old version of Twiddle and deprecated functions.
+- Using `Base.count` with certain functions and sequence combinations dispatches
+  to highly optimized bit-parallel implementations, falling back to a default
+  naive counting loop by default for all other predicate-sequence combinations.
+- No more implicit conversion from strings to biological sequences. The `Base.convert`
+  methods have been renamed to `Base.parse` methods.
+
+### Removed
+- The FASTQ module.
+- The FASTA module.
+- The TwoBit module.
+- The ABIF module.
+- BioCore is no longer a dependency.
+- Automa is no longer a dependency.
 
 ## [1.1.0]
 ### Changed
-- Automatic conversion of `DNASequence` to `RNASequence` when translating sequences.
+- Automatic conversion of `LongDNASeq` to `LongRNASeq` when translating
+  sequences.
 - Add `alternative_start` keyword argument to translate().
 - Add abstract type for kmer iterators.
 - :racehorse: Faster kmer iteration.
@@ -31,8 +77,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.8.2] - 2018-02-19
 ### Changed
-- A bug fix for `FASTA.Record` writing where the width parameter of a `FASTA.Writer`
-is less than or equal to zero.
+- A bug fix for `FASTA.Record` writing where the width parameter of a
+  `FASTA.Writer` is less than or equal to zero.
 
 ## [0.8.1] - 2017-11-10
 ### Changed
@@ -44,7 +90,7 @@ is less than or equal to zero.
 ### Added
 - Position weight matrix search functionality.
 - A generalised composition method.
-- `typemin` and `typemax` methods for `Kmer` types. 
+- `typemin` and `typemax` methods for `Kmer` types.
 
 ### Changed
 - `MinHash` function now generalised to `Reader` types.
@@ -52,7 +98,7 @@ is less than or equal to zero.
 
 ## [0.7.0] - 2017-07-28
 ### Added
-- Support for julia v0.6 only. 
+- Support for julia v0.6 only.
 
 ### Removed
 - :exclamation: Dropped support for julia v0.5.
