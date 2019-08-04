@@ -41,18 +41,38 @@ function eachbitindex(seq::BioSequence, from = firstindex(seq), to = lastindex(s
     return bitindex(seq, from):bits_per_symbol(seq):bitindex(seq, to)
 end
 
+
 """
-    inbounds_getindex(seq::BioSequence, i::Integer)
-    
-The inbounds_getindex method defined by default for all BioSequences.
+    inbounds_getindex(seq::BioSequence, i::BitIndex)
+
+An inbounds_getindex method defined by default for all BioSequences.
+
+It is the job of this method to take a sequence and a bitindex, extract the
+encoded bits and decode them into a symbol.
 
 !!! note
-    It might need to be overloaded for specialised subtypes of BioSequence.
+    This method might be overloaded for specialised subtypes of BioSequence.
+"""
+@inline function inbounds_getindex(seq::BioSequence, bidx::BitIndex)
+    encoded_symbol = extract_encoded_element(bidx, encoded_data(seq))
+    return decode(Alphabet(seq), encoded_symbol)
+end
+
+"""
+    inbounds_getindex(seq::BioSequence, i::Integer)
+
+An inbounds_getindex method defined by default for all BioSequences.
+    
+It is the job of this method to convert the integer index to a `BitIndex`, and
+call the method of inbounds_getindex, for the sequence and `BitIndex`
+combination.
+
+!!! note
+    This method might be overloaded for specialised subtypes of BioSequence.
 """
 @inline function inbounds_getindex(seq::BioSequence, i::Integer)
     bidx = bitindex(seq, i)
-    encoded_symbol = extract_encoded_element(bidx, encoded_data(seq))
-    return decode(Alphabet(seq), encoded_symbol)
+    return inbounds_getindex(seq::BioSequence, bidx)
 end
 
 function checkdimension(from::Integer, to::Integer)
