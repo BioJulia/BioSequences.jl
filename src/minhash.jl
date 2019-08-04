@@ -1,10 +1,11 @@
-# MinHash
-# ========
-#
-# Functions to generate MinHash sketches of biological sequences
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### MinHash
+###
+###
+### Functions to generate MinHash sketches of biological sequences
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
 MinHash Sketch type

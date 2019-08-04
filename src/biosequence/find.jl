@@ -1,6 +1,11 @@
 ###
 ### Finders
 ###
+###
+### Finding positions meeting predicates in biological sequence types.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function Base.findnext(val, seq::BioSequence, start::Integer)
     checkbounds(seq, start)

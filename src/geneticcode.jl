@@ -1,10 +1,11 @@
-# Genetic Code
-# ============
-#
-# Genetic code table and translator from RNA to amino acid sequence.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Genetic Code
+###
+###
+### Genetic code table and translator from RNA to amino acid sequence.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # A genetic code is a table mapping RNA 3-mers (i.e. RNAKmer{3}) to AminoAcids.
 "Type representing a Genetic Code"
@@ -13,9 +14,9 @@ struct GeneticCode <: AbstractDict{RNACodon, AminoAcid}
     tbl::Vector{AminoAcid}
 end
 
-
-# Basic Functions
-# ---------------
+###
+### Basic Functions
+###
 
 function Base.getindex(code::GeneticCode, idx::Union{DNACodon,RNACodon})
     return code.tbl[convert(UInt64, idx) + 1]
@@ -47,9 +48,9 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
     end
 end
 
-
-# Iterating through genetic code
-# ------------------------------
+###
+### Iterating through genetic code
+###
 
 
 function Base.iterate(code::GeneticCode, x=UInt64(0))
@@ -61,9 +62,9 @@ function Base.iterate(code::GeneticCode, x=UInt64(0))
     end
 end
 
-
-# Default genetic codes
-# ---------------------
+###
+### Default genetic codes
+###
 
 struct TransTables
     tables::Dict{Int,GeneticCode}
@@ -305,9 +306,9 @@ Base2  = TTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGGTTTTCCCCAAAAGGGG
 Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 """
 
-
-# Translation
-# -----------
+###
+### Translation
+###
 
 """
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)

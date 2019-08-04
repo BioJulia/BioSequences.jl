@@ -1,21 +1,24 @@
-# Conversion & Promotion
-# ======================
-#
-# Conversion methods for biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Conversion & Promotion
+###
+###
+### Conversion methods for LongSequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-# Promotion
-# ---------
+###
+### Promotion
+###
 for alph in (DNAAlphabet, RNAAlphabet)
     @eval function Base.promote_rule(::Type{LongSequence{A}}, ::Type{LongSequence{B}}) where {A<:$alph,B<:$alph}
         return LongSequence{promote_rule(A, B)}
     end
 end
 
-# Conversion
-# ----------
+###
+### Conversion
+###
 
 # Create a 4 bit DNA/RNA sequence from a 2 bit DNA/RNA sequence, and vice-versa.
 for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA

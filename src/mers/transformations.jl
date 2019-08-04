@@ -1,5 +1,5 @@
 ###
-### Mer: Transformations
+### Mer specific specializations of src/biosequence/transformations.jl
 ###
 
 """

@@ -1,5 +1,5 @@
 ###
-### Mer: Indexing
+### Mer specific specializations of src/biosequence/indexing.jl
 ###
 
 @inline _offset(K, i) = 2(K - i)

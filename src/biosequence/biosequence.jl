@@ -1,3 +1,9 @@
+###
+### An abstract biological sequence type.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+
 abstract type BioSequence{A<:Alphabet} end
 
 # Aliases and shorthands for describing subsets of the BioSequence type...

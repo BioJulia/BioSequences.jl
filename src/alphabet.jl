@@ -1,10 +1,11 @@
-# Alphabet
-# ========
-#
-# Alphabets of biological symbols.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Alphabet
+###
+###
+### Alphabets of biological symbols.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
 # Alphabets of biological symbols.
@@ -43,9 +44,9 @@ struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
 bits_per_symbol(::A) where A <: Alphabet = bits_per_symbol(BitsPerSymbol(A()))
 
-
-# Nucleic acid alphabets
-# ====================== 
+###
+### Nucleic acid alphabets
+###
 
 """
 Alphabet of nucleic acids.
@@ -87,9 +88,9 @@ RNA nucleotide alphabet.
 struct RNAAlphabet{n} <: NucleicAcidAlphabet{n} end
 Base.eltype(::Type{A}) where A <: RNAAlphabet = RNA
 
-
-# Promotion of Alphabets
-# ----------------------
+###
+### Promotion of Alphabets
+###
 
 for alph in (DNAAlphabet, RNAAlphabet)
     @eval function Base.promote_rule(::Type{A}, ::Type{B}) where {A<:$alph,B<:$alph}
@@ -102,8 +103,9 @@ minimal_alphabet(::Type{A}) where A <: DNAAlphabet = DNAAlphabet{2}
 minimal_alphabet(::Type{A}) where A <: RNAAlphabet = RNAAlphabet{2} 
 minimal_alphabet(x::A) where A <: NucleicAcidAlphabet = minimal_alphabet(typeof(x))
 
-# Amino acid alphabet
-# ===================
+###
+### Amino acid alphabet
+###
 
 """
 Amino acid alphabet.
@@ -121,9 +123,9 @@ end
     return reinterpret(AminoAcid, UInt8(i - 1))
 end
 
-
-# Generic character alphabet
-# ==========================
+###
+### Generic character alphabet
+###
 
 """
 General character alphabet.
@@ -141,9 +143,9 @@ end
     return reinterpret(Char, i - 1)
 end
 
-
-# The void alphabet
-# =================
+###
+### The void alphabet
+###
 
 """
 Void alphabet (internal use only).
@@ -153,9 +155,9 @@ BitsPerSymbol(::VoidAlphabet) = BitsPerSymbol{0}()
 Base.eltype(::Type{VoidAlphabet}) = Nothing
 symbols(::VoidAlphabet) = nothing
 
-
-# Encoders & Decoders
-# ===================
+###
+### Encoders & Decoders
+###
 
 """
 Encode biological symbols to binary representation.
@@ -187,9 +189,9 @@ function Base.showerror(io::IO, err::DecodeError{A}) where {A}
     print(io, "cannot decode ", err.val, " in ", A)
 end
 
-
-# DNA and RNA alphabets
-# ---------------------
+###
+### DNA and RNA alphabets
+###
 
 # A nucleotide with bitvalue B has kmer-bitvalue kmerbits[B+1].
 # ambiguous nucleotides have no kmervalue, here set to 0xff
@@ -240,9 +242,9 @@ for A in (DNAAlphabet, RNAAlphabet)
     end
 end
 
-
-# AminoAcidAlphabet
-# -----------------
+###
+### AminoAcidAlphabet
+###
 
 @inline function encode(::AminoAcidAlphabet, aa::AminoAcid)
     if aa > AA_Gap
@@ -262,9 +264,9 @@ end
     return decode(AminoAcidAlphabet(), UInt8(x))
 end
 
-
-# CharAlphabet
-# ------------
+###
+### CharAlphabet
+###
 
 @inline function encode(::CharAlphabet, char::Char)
     if char > '\U10ffff'

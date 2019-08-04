@@ -1,10 +1,11 @@
-# Copying
-# =======
-#
-# Copying methods for biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Copying
+###
+###
+### Copying methods for biological sequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function Base.copyto!(dst::LongSequence{A}, src::LongSequence{A}) where {A}
     return copyto!(dst, 1, src, 1)

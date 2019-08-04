@@ -1,5 +1,11 @@
-# String Decorators
-# -----------------
+###
+### String Decorators
+###
+###
+### String literals for LongSequences
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 remove_newlines(s) = replace(s, r"\r|\n" => "")
 

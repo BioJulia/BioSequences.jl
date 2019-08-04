@@ -1,10 +1,11 @@
-# Constructors
-# ============
-#
-# Constructor methods for Biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Constructors
+### 
+###
+### Constructor methods for LongSequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function LongSequence{A}(len::Integer) where {A<:Alphabet}
     if len < 0

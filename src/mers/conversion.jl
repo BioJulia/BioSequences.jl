@@ -1,6 +1,11 @@
 ###
 ### Conversion & Construction
 ###
+###
+### Conversion methods for Mers.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Create a Mer from a sequence whose elements are convertible to a nucleotide.
 function (::Type{T})(seq) where {T<:AbstractMer}

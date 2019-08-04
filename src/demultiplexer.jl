@@ -1,10 +1,11 @@
-# Demultiplexer
-# =============
-#
-# Sequence demultiplexer based on DNA barcodes.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Demultiplexer
+###
+###
+### Sequence demultiplexer based on DNA barcodes.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Trie-like data structure for DNA barcodes.
 struct BarcodeTrie
