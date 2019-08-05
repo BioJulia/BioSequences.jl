@@ -36,7 +36,7 @@ module RE
 
 using Printf: @sprintf
 
-import BioCore, BioSequences
+import BioGenerics, BioSequences
 
 # Syntax tree
 # -----------

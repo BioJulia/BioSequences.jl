@@ -1,10 +1,11 @@
-# Demultiplexer
-# =============
-#
-# Sequence demultiplexer based on DNA barcodes.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### Demultiplexer
+###
+###
+### Sequence demultiplexer based on DNA barcodes.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Trie-like data structure for DNA barcodes.
 struct BarcodeTrie
@@ -120,9 +121,9 @@ function Base.show(io::IO, demultiplexer::Demultiplexer)
 end
 
 """
-    Demultiplexer(barcodes::Vector{DNASequence};
-                  n_max_errors::Integer=1,
-                  distance::Symbol=:hamming)
+    Demultiplexer(barcodes::Vector{LongDNASeq};
+                  n_max_errors::Integer = 1,
+                  distance::Symbol = :hamming)
 
 Create a demultiplexer object from `barcodes`.
 
@@ -131,9 +132,9 @@ Create a demultiplexer object from `barcodes`.
 * `n_max_errors=1`: the number of maximum correctable errors.
 * `distance=:hamming`: the distance metric (`:hamming` or `:levenshtein`).
 """
-function Demultiplexer(barcodes::Vector{DNASequence};
-                       n_max_errors::Integer=1,
-                       distance::Symbol=:hamming)
+function Demultiplexer(barcodes::Vector{LongDNASeq};
+                       n_max_errors::Integer = 1,
+                       distance::Symbol = :hamming)
     if n_max_errors < 0
         error("n_max_errors must be non-negative")
     elseif distance ∉ (:hamming, :levenshtein)
@@ -151,7 +152,7 @@ function Demultiplexer(barcodes::Vector{DNASequence};
     tries = BarcodeTrie[]
     for m in 0:n_max_errors
         # generate "erroneous" barcodes
-        mutated_barcodes = DNASequence[]
+        mutated_barcodes = LongDNASeq[]
         ids = Int[]
         for (i, barcode) in enumerate(barcodes)
             if distance == :hamming
@@ -172,7 +173,7 @@ end
 
 """
     demultiplex(demultiplexer::Demultiplexer,
-                seq::Sequence,
+                seq::BioSequence,
                 linear_search_fallback::Bool=false) -> (index, distance)
 
 Return a barcode index that matches `seq` with least errors and its distance.
@@ -182,7 +183,8 @@ parameter of `demultiplexer`. When `linear_search_fallback` is `true`, this
 function tries to find the best matching barcodes using linear search and
 returns one of them at random.
 """
-function demultiplex(demultiplexer::Demultiplexer, seq::Sequence, linear_search_fallback::Bool=false)
+function demultiplex(demultiplexer::Demultiplexer, seq::BioSequence, linear_search_fallback::Bool=false)
+
     if eltype(seq) != DNA
         error("sequence must be a DNA sequence")
     end
@@ -202,7 +204,7 @@ function demultiplex(demultiplexer::Demultiplexer, seq::Sequence, linear_search_
     dist_min = typemax(Int)
     for (i, barcode) in enumerate(demultiplexer.barcodes)
         if demultiplexer.distance == :hamming
-            dist = count(Mismatch, barcode, seq[1:length(barcode)])
+            dist = count(!=, barcode, seq[1:length(barcode)])
         elseif demultiplexer.distance == :levenshtein
             dist = sequencelevenshtein_distance(barcode, seq)
         else
@@ -225,12 +227,12 @@ function Base.getindex(demultiplexer::Demultiplexer, i::Integer)
     return demultiplexer.barcodes[i]
 end
 
-# Generate a list of sequences s.t. `count(Mismatch, seq, seq′) == m`.
+# Generate a list of sequences s.t. `count(!=, seq, seq′) == m`.
 function hamming_circle(seq, m)
     if m == 0
         return [seq]
     end
-    ret = DNASequence[]
+    ret = LongDNASeq[]
     for ps in Combinatorics.combinations(1:lastindex(seq), m)
         for rs in Iterators.product(fill(1:4, m)...)
             seq′ = copy(seq)
@@ -252,7 +254,7 @@ function levenshtein_circle(seq, m)
         return [seq]
     end
     @assert m > 0
-    seqs = DNASequence[]
+    seqs = LongDNASeq[]
     # substitution
     append!(seqs, hamming_circle(seq, 1))
     # deletion
@@ -270,7 +272,7 @@ function levenshtein_circle(seq, m)
         append!(ball, levenshtein_circle(seq′, m - 1))
     end
     ball = sort!(unique(ball))
-    ret = DNASequence[]
+    ret = LongDNASeq[]
     for seq′ in ball
         if levenshtein_distance(seq, seq′) == m
             push!(ret, seq′)

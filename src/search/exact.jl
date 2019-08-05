@@ -53,14 +53,14 @@ end
 """
 Query type for exact sequence search.
 """
-struct ExactSearchQuery{S<:Sequence}
+struct ExactSearchQuery{S<:BioSequence}
     seq::S         # query sequence
     cbits::UInt32  # compatibility bits
     fshift::Int    # shift length for forward search
     bshift::Int    # shift length for backward search
 end
 
-function ExactSearchQuery(query::Sequence)
+function ExactSearchQuery(query::BioSequence)
     cbits, fshift, bshift = preprocess(query)
     return ExactSearchQuery(query, cbits, fshift, bshift)
 end
@@ -101,17 +101,17 @@ end
 # -------
 
 """
-    findfirst(pat, seq::Sequence, [, start=1[, stop=lastindex(seq)]])
+    findfirst(pat, seq::BioSequence, [, start=1[, stop=lastindex(seq)]])
 
 Return the index of the first occurrence of `pat` in `seq[start:stop]`; symbol
 comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findfirst(pat::Sequence, seq::Sequence,
+function Base.findfirst(pat::BioSequence, seq::BioSequence,
                         start::Integer=1, stop::Integer=lastindex(seq))
     return findfirst(ExactSearchQuery(pat), seq, start, stop)
 end
 
-function Base.findfirst(query::ExactSearchQuery, seq::Sequence, 
+function Base.findfirst(query::ExactSearchQuery, seq::BioSequence, 
                         start::Integer=1, stop::Integer=lastindex(seq))
     checkeltype(seq, query.seq)
     i = quicksearch(query, seq, start, stop)
@@ -172,17 +172,17 @@ end
 # --------
 
 """
-    findlast(pat, seq::Sequence, [, start=1[, stop=lastindex(seq)]])
+    findlast(pat, seq::BioSequence, [, start=1[, stop=lastindex(seq)]])
 
 Return the index of the last occurrence of `pat` in `seq[start:stop]`; symbol
 comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findlast(pat::Sequence, seq::Sequence, 
+function Base.findlast(pat::BioSequence, seq::BioSequence, 
                        start::Integer=lastindex(seq), stop::Integer=1)
     return findlast(ExactSearchQuery(pat), seq, start, stop)
 end
 
-function Base.findlast(query::ExactSearchQuery, seq::Sequence,
+function Base.findlast(query::ExactSearchQuery, seq::BioSequence,
                        start::Integer=lastindex(seq), stop::Integer=1)
     checkeltype(seq, query.seq)
     i = quickrsearch(seq, query, start, stop)

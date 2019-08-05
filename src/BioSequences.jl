@@ -1,14 +1,18 @@
-# BioSequences.jl
-# =======
-#
-# A julia package for the representation and manipulation of biological sequences.
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+### BioSequences.jl
+###
+### A julia package for the representation and manipulation of biological sequences.
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 module BioSequences
 
 export
+    ###
+    ### Symbols
+    ###
+    
+    # Types & aliases
     NucleicAcid,
     DNA,
     RNA,
@@ -48,67 +52,6 @@ export
     RNA_Gap,
     ACGU,
     ACGUN,
-    isGC,
-    iscompatible,
-    isambiguous,
-    iscertain,
-    isgap,
-    ispurine,
-    ispyrimidine,
-    Sequence,
-    BioSequence,
-    DNASequence,
-    RNASequence,
-    AminoAcidSequence,
-    CharSequence,
-    NucleicAcidSequence,
-    SeqRecord,
-    seqname,
-    hasseqname,
-    sequence,
-    hassequence,
-    metadata,
-    @dna_str,
-    @rna_str,
-    @aa_str,
-    @char_str,
-    @biore_str,
-    @prosite_str,
-    @kmer_str,
-    matched,
-    captured,
-    alphabet,
-    gap,
-    complement,
-    complement!,
-    reverse_complement,
-    reverse_complement!,
-    ungap,
-    ungap!,
-    mismatches,
-    ispalindromic,
-    hasambiguity,
-    isrepetitive,
-    ambiguous_positions,
-    gc_content,
-    SequenceGenerator,
-    randdnaseq,
-    randrnaseq,
-    randaaseq,
-    canonical,
-    neighbors,
-    eachkmer,
-    each,
-    Composition,
-    composition,
-    NucleicAcidCounts,
-    Kmer,
-    DNAKmer,
-    RNAKmer,
-    DNACodon,
-    RNACodon,
-    translate,
-    ncbi_trans_table,
     AminoAcid,
     AA_A,
     AA_R,
@@ -138,20 +81,144 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-    FASTA,
-    FASTQ,
-    TwoBit,
-    ABIF,
-
-    # Alphabets
+    
+    # Predicates
+    isGC,
+    iscompatible,
+    isambiguous,
+    iscertain,
+    isgap,
+    ispurine,
+    ispyrimidine,
+    
+    ###
+    ### Alphabets
+    ###
+    
+    # Types & aliases
     Alphabet,
+    NucleicAcidAlphabet,
     DNAAlphabet,
     RNAAlphabet,
-    NucAlphs,
     AminoAcidAlphabet,
     CharAlphabet,
-
-    # search
+    
+    ###
+    ### BioSequences
+    ###
+    
+    # Type & aliases
+    BioSequence,
+    NucleotideSeq,
+    AminoAcidSeq,
+    
+    # Indexing
+    unsafe_setindex!,
+    
+    # Predicates
+    ispalindromic,
+    hasambiguity,
+    isrepetitive,
+    iscanonical,
+    
+    # Transformations
+    canonical,
+    canonical!,
+    complement,
+    complement!,
+    reverse_complement,
+    reverse_complement!,
+    ungap,
+    ungap!,
+    
+    # Iteration
+    each,
+    fwmer,
+    bwmer,
+    
+    ###
+    ### LongSequence
+    ###
+    
+    # Type & aliases
+    LongSequence,
+    LongDNASeq,
+    LongRNASeq,
+    LongAminoAcidSeq,
+    LongCharSeq,
+    
+    # Random
+    SamplerUniform,
+    SamplerWeighted,
+    randseq,
+    randdnaseq,
+    randrnaseq,
+    randaaseq,
+    
+    ###
+    ### Mers
+    ###
+    
+    # Type & aliases
+    AbstractMer,
+    Mer,
+    DNAMer,
+    RNAMer,
+    DNAKmer,
+    RNAKmer,
+    
+    BigMer,
+    BigDNAMer,
+    BigRNAMer,
+    BigDNAKmer,
+    BigRNAKmer,
+    
+    DNACodon,
+    RNACodon,
+    
+    # Iteration
+    neighbors,
+    
+    ###
+    ### Sequence literals
+    ###
+    
+    @dna_str,
+    @rna_str,
+    @aa_str,
+    @char_str,
+    @biore_str,
+    @prosite_str,
+    @mer_str,
+    @bigmer_str,
+    
+    matched,
+    captured,
+    alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
+    symbols,
+    gap,
+    mismatches,
+    matches,
+    n_ambiguous,
+    n_gaps,
+    n_certain,
+    
+    gc_content,
+    
+    eachcanonical,
+    
+    ###
+    ### Composition
+    ###
+    Composition,
+    composition,
+    NucleicAcidCounts,
+    
+    translate,
+    ncbi_trans_table,
+    
+    
+    # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
@@ -162,15 +229,17 @@ export
     PWM,
     maxscore,
     scoreat,
-
+    
     ReferenceSequence,
+    
+    ###
+    ### Demultiplexing
+    ###
     Demultiplexer,
     demultiplex,
+    
     seqmatrix,
     majorityvote,
-    tryread!,
-    isfilled,
-    MissingFieldException,
     MinHashSketch,
     minhash,
     Site,
@@ -181,45 +250,56 @@ export
     Mismatch,
     count_pairwise
 
-import Automa
-import Automa.RegExp: @re_str
-
-using BioCore
+using BioGenerics
 using BioSymbols
-using BufferedStreams: BufferedStreams, BufferedInputStream, BufferedOutputStream
 import Combinatorics
 import IndexableBitVectors
-import IntervalTrees: IntervalValue
 import Twiddle: enumerate_nibbles,
     nibble_mask,
-    count_zero_nibbles,
+    count_0000_nibbles,
+    count_1111_nibbles,
     count_nonzero_nibbles,
-    count_zero_bitpairs,
-    count_nonzero_bitpairs
+    count_00_bitpairs,
+    count_01_bitpairs,
+    count_10_bitpairs,
+    count_11_bitpairs,
+    count_nonzero_bitpairs,
+    repeatpattern
 using Random
 
 BioSymbols.gap(::Type{Char}) = '-'
 
 include("alphabet.jl")
-include("bitindex.jl")
-include("sequence.jl")
-include("bioseq/bioseq.jl")
-include("bioseq/hash.jl")
-include("bioseq/randseq.jl")
-include("kmer.jl")
+
+# Load the bit-twiddling internals that optimised BioSequences methods depend on.
+include("bit-manipulation/bit-manipulation.jl")
+
+# The generic, abstract BioSequence type
+include("biosequence/biosequence.jl")
+
+# The definition of the LongSequence concrete type, and its method overloads...
+include("longsequences/longsequence.jl")
+include("longsequences/hash.jl")
+include("longsequences/randseq.jl")
+
+# The definition of the Skipmer concrete type, and its method overloads...
+include("mers/mer.jl")
+
+# The definition of the ReferenceSequence concrete type, and its method overloads...
 include("nmask.jl")
-include("refseq.jl")
-include("eachkmer.jl")
+include("refseq/refseq.jl")
+
+# The generic iterators for any BioSequence...
+include("iterators/condition.jl")
+include("iterators/eachmer.jl")
+include("iterators/skipmerfactory.jl")
+
 include("composition.jl")
+
 include("geneticcode.jl")
 include("demultiplexer.jl")
 
-# Parsing file types
-include("fasta/fasta.jl")
-include("fastq/fastq.jl")
-include("twobit/twobit.jl")
-include("abif/abif.jl")
-
+# Pattern searching in sequences...
 include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")

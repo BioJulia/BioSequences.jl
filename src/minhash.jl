@@ -1,10 +1,11 @@
-# MinHash
-# ========
-#
-# Functions to generate MinHash sketches of biological sequences
-#
-# This file is a part of BioJulia.
-# License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
+###
+### MinHash
+###
+###
+### Functions to generate MinHash sketches of biological sequences
+###
+### This file is a part of BioJulia.
+### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
 MinHash Sketch type
@@ -37,14 +38,14 @@ function Base.:(==)(a::MinHashSketch, b::MinHashSketch)
 end
 
 
-function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
+function kmerminhash!(::Type{DNAMer{k}}, seq::LongSequence, s::Integer, kmerhashes::Vector{UInt64}) where {k}
     # generate first `s` kmers
-    iter = each(DNAKmer{k}, seq)
+    iter = each(DNAMer{k}, seq)
     iter_value = iterate(iter)
     while length(kmerhashes) < s && iter_value !== nothing
-        (_, kmer), state = iter_value
+        res, state = iter_value
         iter_value = iterate(iter, state)
-        h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
+        h = hash(canonical(res)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h ∉ kmerhashes
             push!(kmerhashes, h)
         end
@@ -54,9 +55,9 @@ function kmerminhash!(::Type{DNAKmer{k}}, seq::BioSequence, s::Integer, kmerhash
 
     # scan `seq` to make a minhash
     while iter_value !== nothing
-        (_, kmer), state = iter_value
+        res, state = iter_value
         iter_value = iterate(iter, state)
-        h = hash(canonical(kmer)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
+        h = hash(canonical(res)) # hash lexigraphic minimum of kmer and reverse compliment of kmer
         if h < kmerhashes[end]
             i = searchsortedlast(kmerhashes, h)
             if i == 0 && h != kmerhashes[1]
@@ -77,29 +78,29 @@ end
 
 Generate a MinHash sketch of size `s` for kmers of length `k`.
 """
-function minhash(seq::BioSequence, k::Integer, s::Integer)
-    kmerhashes = kmerminhash!(DNAKmer{k}, seq, s, sizehint!(UInt64[], s))
+function minhash(seq::LongSequence, k::Integer, s::Integer)
+    kmerhashes = kmerminhash!(DNAMer{k}, seq, s, sizehint!(UInt64[], s))
     length(kmerhashes) < s && error("failed to generate enough hashes")
 
     return MinHashSketch(kmerhashes, k)
 end
 
-function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:BioSequence}
+
+function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:LongSequence}
     kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
-        kmerminhash!(DNAKmer{k}, seq, s, kmerhashes)
+        kmerminhash!(DNAMer{k}, seq, s, kmerhashes)
     end
 
     length(kmerhashes) < s && error("failed to generate enough hashes")
     return MinHashSketch(kmerhashes, k)
 end
 
-function minhash(seqs::BioCore.IO.AbstractReader, k::Integer, s::Integer)
+function minhash(seqs::BioGenerics.IO.AbstractReader, k::Integer, s::Integer)
     kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
-        kmerminhash!(DNAKmer{k}, sequence(seq), s, kmerhashes)
+        kmerminhash!(DNAMer{k}, sequence(seq), s, kmerhashes)
     end
-
     length(kmerhashes) < s && error("failed to generate enough hashes")
     return MinHashSketch(kmerhashes, k)
 end

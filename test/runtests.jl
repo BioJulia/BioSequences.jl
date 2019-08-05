@@ -5,10 +5,9 @@ using Random
 using LinearAlgebra: normalize
 import BioSymbols
 using BioSequences
-using IntervalTrees: IntervalValue
 using StatsBase
 using YAML
-using BioCore
+using BioGenerics
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
@@ -72,11 +71,12 @@ function random_seq(n::Integer, nts, probs)
     return String(x)
 end
 
-function random_seq(::Type{A}, n::Integer) where A<:Alphabet
-    nts = BioSymbols.alphabet(A)
+function random_seq(::Type{A}, n::Integer) where {A<:Alphabet}
+    # TODO: Resolve the use of symbols(A()).
+    nts = symbols(A())
     probs = Vector{Float64}(undef, length(nts))
     fill!(probs, 1 / length(nts))
-    return BioSequence{A}(random_seq(n, nts, probs))
+    return LongSequence{A}(random_seq(n, nts, probs))
 end
 
 function random_dna(n, probs=[0.24, 0.24, 0.24, 0.24, 0.04])
@@ -146,7 +146,7 @@ end
 
 include("symbols.jl")
 
-@testset "Sequences" begin
+@testset "BioSequences" begin
     a = dna"A-CG-G"; b = rna"A-CG-G"; c = aa"AK-MV-";
     @test ungap(a) == dna"ACGG"
     @test ungap(b) == rna"ACGG"
@@ -157,21 +157,19 @@ include("symbols.jl")
 end
 
 @testset "BioSequences" begin
-    include("bioseq/conversion.jl")
-    include("bioseq/basics.jl")
-    include("bioseq/hashing.jl")
-    include("bioseq/iteration.jl")
-    include("bioseq/subseq.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/print.jl")
-    include("bioseq/transformations.jl")
-    include("bioseq/mutability.jl")
-    include("bioseq/predicates.jl")
-    include("bioseq/find.jl")
-    include("bioseq/counting.jl")
-    include("bioseq/gc_content.jl")
-    include("bioseq/ambiguous.jl")
-    include("bioseq/shuffle.jl")
+    include("longsequences/conversion.jl")
+    include("longsequences/basics.jl")
+    include("longsequences/hashing.jl")
+    include("longsequences/iteration.jl")
+    include("longsequences/subseq.jl")
+    include("longsequences/mutability.jl")
+    include("longsequences/print.jl")
+    include("longsequences/transformations.jl")
+    include("longsequences/mutability.jl")
+    include("longsequences/predicates.jl")
+    include("longsequences/find.jl")
+    include("longsequences/randseq.jl")
+    include("longsequences/shuffle.jl")
 end
 
 @testset "ReferenceSequences" begin
@@ -184,20 +182,24 @@ end
 
 include("composition.jl")
 
-@testset "Kmers" begin
-    include("kmers/conversion.jl")
-    include("kmers/comparisons.jl")
-    include("kmers/length.jl")
-    include("kmers/arithmetic.jl")
-    include("kmers/access.jl")
-    include("kmers/random.jl")
-    include("kmers/find.jl")
-    include("kmers/print.jl")
-    include("kmers/transformations.jl")
-    include("kmers/mismatches.jl")
-    include("kmers/eachkmer.jl")
-    include("kmers/debruijn_neighbors.jl")
-    include("kmers/shuffle.jl")
+@testset "Mers" begin
+    include("mers/conversion.jl")
+    include("mers/comparisons.jl")
+    include("mers/length.jl")
+    include("mers/arithmetic.jl")
+    include("mers/access.jl")
+    include("mers/random.jl")
+    include("mers/find.jl")
+    include("mers/print.jl")
+    include("mers/transformations.jl")
+    include("mers/mismatches.jl")
+    include("mers/debruijn_neighbors.jl")
+    include("mers/shuffle.jl")
+end
+
+@testset "Iterators" begin
+    include("iterators/condition.jl")
+    include("iterators/eachmer.jl")
 end
 
 @testset "Search" begin
@@ -207,15 +209,8 @@ end
     include("search/pwm.jl")
 end
 
+include("counting.jl")
 include("translation.jl")
-
 include("demultiplexer.jl")
-
-@testset "Reading and Writing" begin
-    include("io/FASTA.jl")
-    include("io/FASTQ.jl")
-    include("io/twobit.jl")
-    include("io/abif.jl")
-end
 
 end

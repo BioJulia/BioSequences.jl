@@ -1,31 +1,38 @@
 # <img src="./sticker.svg" width="30%" align="right" /> BioSequences
 
-[![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
-[![MIT license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE) 
-[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/stable)
-[![Latest documentation](https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square)](https://biojulia.github.io/BioSequences.jl/latest/)
-![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg?style=flat-square)
-[![Chat on Discord](https://img.shields.io/badge/discord-chat-blue.svg?style=flat-square&logo=discord&colorB=%237289DA)](https://discord.gg/z73YNFz)
+[![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
+[![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE) 
+[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioSequences.jl/stable)
+[![Latest documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://biojulia.github.io/BioSequences.jl/latest/)
+![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)
+[![Chat](https://img.shields.io/gitter/room/BioJulia/BioSequences.svg)](https://gitter.im/BioJulia/BioSequences.jl)
 
 
 ## Description
 
 BioSequences provides data types and methods for common operations with 
 biological sequences, including DNA, RNA, and amino acid sequences.
-It also provides I/O for common sequence file formats including FASTA, FASTQ,
-2bit and more. 
 
 
 ## Installation
 
-BioSequences is bundled into the [Bio.jl](https://github.com/BioJulia/Bio.jl)
-package, so you may not need to install this package explicitly.
-However, if you do, you can install BioSequences from the Julia REPL:
+Releases of BioSequences version 2.0 and above are registered and made available
+to install through BioJulia's package registry. Julia's package manager only
+monitors the "General" package repository by default. So before you start, you
+should tell julia about the existence of the BioJulia package registry.
+
+Start a julia terminal, hit the `]` key to enter pkg mode (you should see the
+prompt change from `julia>` to `pkg>` ), then enter the following command:
 
 ```julia
-using Pkg
-add("BioSequences")
-#Pkg.add("BioSequences") for julia prior to v0.7
+registry add https://github.com/BioJulia/BioJuliaRegistry.git
+```
+
+After you've added the registry, you can install BioSequences from the julia
+REPL. Press `]` to enter pkg mode again, and enter the following:
+
+```julia
+add BioSequences
 ```
 
 If you are interested in the cutting edge of the development, please check out
@@ -34,12 +41,11 @@ the master branch to try new features before release.
 
 ## Testing
 
-BioSequences is tested against Julia `0.7` and current `1.X` on
-Linux, OS X, and Windows.
+BioSequences is tested against Julia `1.X` on Linux, OS X, and Windows.
 
-| **Latest release** | **Latest build status** |
-|:------------------:|:-----------------------:|
-|[![](https://pkg.julialang.org/badges/BioSequences_0.7.svg)](https://pkg.julialang.org/?pkg=BioSequences) [![](http://pkg.julialang.org/badges/BioSequences_1.0.svg)](http://pkg.julialang.org/?pkg=BioSequences) | [![](https://travis-ci.org/BioJulia/BioSequences.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioSequences.jl) [![](https://ci.appveyor.com/api/projects/status/1vdxlfv7yk9c1kfb/branch/master?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequences-jl/branch/master) [![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)|
+[![](https://travis-ci.org/BioJulia/BioSequences.jl.svg?branch=master)](https://travis-ci.org/BioJulia/BioSequences.jl)
+[![](https://ci.appveyor.com/api/projects/status/1vdxlfv7yk9c1kfb/branch/master?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequences-jl/branch/master)
+[![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)
 
 
 ## Contributing
@@ -47,9 +53,9 @@ Linux, OS X, and Windows.
 We appreciate contributions from users including reporting bugs, fixing
 issues, improving performance and adding new features.
 
-Take a look at the [CONTRIBUTING](CONTRIBUTING.md) file provided with
-every BioJulia package package for detailed contributor and maintainer
-guidelines.
+Take a look at the [contributing files](https://github.com/BioJulia/Contributing)
+detailed contributor and maintainer guidelines, and code of conduct.
+
 
 
 ### Financial contributions
@@ -88,5 +94,5 @@ Your logo will show up here with a link to your website.
 ## Questions?
 
 If you have a question about contributing or using BioJulia software, come
-on over and chat to us on [Discord](https://discord.gg/z73YNFz), or you can try the
+on over and chat to us on [Gitter](https://gitter.im/BioJulia/General), or you can try the
 [Bio category of the Julia discourse site](https://discourse.julialang.org/c/domain/bio).
