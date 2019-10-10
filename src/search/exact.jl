@@ -235,3 +235,12 @@ function quickrsearch(seq, query, start, stop)
 
     return 0  # not found
 end
+
+"""
+occursin(x:BioSequence, y::BioSequence)
+occursin(x:ExactSearchQuery, y::BioSequence)
+
+Return Bool indicating presence of exact match of x in y.
+"""
+Base.occursin(x::BioSequence, y::BioSequence) = occursin(ExactSearchQuery(x), y)
+Base.occursin(x::ExactSearchQuery, y::BioSequence) = quicksearch(x, y, 1, length(y)) != 0
