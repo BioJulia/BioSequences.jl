@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Generators of bit-parallel iteration code have been introduced to help
   developers write bitparallel implementations of some methods. Counting GC
   content, matches and mismatches have been migrated to use these generators.
+- Added `occursin` methods for exact matching.
 
 ### Changed
 - The abstract `Sequence` type is now called `BioSequence{A}`.

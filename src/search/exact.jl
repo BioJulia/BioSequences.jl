@@ -111,7 +111,7 @@ function Base.findfirst(pat::BioSequence, seq::BioSequence,
     return findfirst(ExactSearchQuery(pat), seq, start, stop)
 end
 
-function Base.findfirst(query::ExactSearchQuery, seq::BioSequence, 
+function Base.findfirst(query::ExactSearchQuery, seq::BioSequence,
                         start::Integer=1, stop::Integer=lastindex(seq))
     checkeltype(seq, query.seq)
     i = quicksearch(query, seq, start, stop)
@@ -177,7 +177,7 @@ end
 Return the index of the last occurrence of `pat` in `seq[start:stop]`; symbol
 comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findlast(pat::BioSequence, seq::BioSequence, 
+function Base.findlast(pat::BioSequence, seq::BioSequence,
                        start::Integer=lastindex(seq), stop::Integer=1)
     return findlast(ExactSearchQuery(pat), seq, start, stop)
 end

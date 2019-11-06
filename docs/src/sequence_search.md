@@ -34,6 +34,8 @@ julia> findfirst(query, seq)
 julia> findlast(query, seq)
 8:10
 
+julia> occursin(query, seq)
+true
 ```
 
 These search functions take ambiguous symbols into account.
@@ -48,6 +50,8 @@ julia> findfirst(dna"CGT", dna"ACNT")  # 'N' matches 'G'
 julia> findfirst(dna"CNT", dna"ACGT")  # 'G' matches 'N'
 2:4
 
+julia> occursin(dna"CNT", dna"ACNT")
+true
 ```
 
 The exception to this behaviour is if you are finding a single 'character',
@@ -73,6 +77,8 @@ julia> findfirst(query, dna"ATTTATT")
 julia> findlast(query, dna"ATTTATT")
 5:7
 
+julia> occursin(query, dna"ATTTATT")
+true
 ```
 
 ## Approximate search
