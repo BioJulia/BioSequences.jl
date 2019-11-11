@@ -11,12 +11,16 @@ julia&gt; findfirst(query, seq)
 
 julia&gt; findlast(query, seq)
 8:10
-</code></pre><p>These search functions take ambiguous symbols into account. That is, if two symbols are compatible (e.g. <code>DNA_A</code> and <code>DNA_N</code>), they match when searching an occurrence. In the following example, &#39;N&#39; is a wild card that matches any symbols.</p><pre><code class="language-julia-repl">julia&gt; findfirst(dna&quot;CGT&quot;, dna&quot;ACNT&quot;)  # &#39;N&#39; matches &#39;G&#39;
+
+julia&gt; occursin(query, seq)
+true</code></pre><p>These search functions take ambiguous symbols into account. That is, if two symbols are compatible (e.g. <code>DNA_A</code> and <code>DNA_N</code>), they match when searching an occurrence. In the following example, &#39;N&#39; is a wild card that matches any symbols.</p><pre><code class="language-julia-repl">julia&gt; findfirst(dna&quot;CGT&quot;, dna&quot;ACNT&quot;)  # &#39;N&#39; matches &#39;G&#39;
 2:4
 
 julia&gt; findfirst(dna&quot;CNT&quot;, dna&quot;ACGT&quot;)  # &#39;G&#39; matches &#39;N&#39;
 2:4
-</code></pre><p>The exception to this behaviour is if you are finding a single &#39;character&#39;, in which case an ambiguous symbol is matched exactly:</p><pre><code class="language-julia-repl">julia&gt; findfirst(DNA_N, dna&quot;ACNT&quot;)
+
+julia&gt; occursin(dna&quot;CNT&quot;, dna&quot;ACNT&quot;)
+true</code></pre><p>The exception to this behaviour is if you are finding a single &#39;character&#39;, in which case an ambiguous symbol is matched exactly:</p><pre><code class="language-julia-repl">julia&gt; findfirst(DNA_N, dna&quot;ACNT&quot;)
 3
 </code></pre><p>The exact sequence search needs a preprocessing phase of query sequence before the searching phase. This would be fast enough for most search applications. But when searching a query sequence to many target sequences, caching the result of preprocessing may save time. You can do this by creating an <code>ExactSearchQuery</code> object and re-use it for each search:</p><pre><code class="language-julia-repl">julia&gt; query = ExactSearchQuery(dna&quot;ATT&quot;);
 
@@ -25,7 +29,9 @@ julia&gt; findfirst(query, dna&quot;ATTTATT&quot;)
 
 julia&gt; findlast(query, dna&quot;ATTTATT&quot;)
 5:7
-</code></pre><h2><a class="nav-anchor" id="Approximate-search-1" href="#Approximate-search-1">Approximate search</a></h2><p>The approximate search is similar to the exact search but allows a specific number of errors. That is, it tries to find a subsequence of the target sequence within a specific <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> of the query sequence:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACAGCGTAGCT&quot;;
+
+julia&gt; occursin(query, dna&quot;ATTTATT&quot;)
+true</code></pre><h2><a class="nav-anchor" id="Approximate-search-1" href="#Approximate-search-1">Approximate search</a></h2><p>The approximate search is similar to the exact search but allows a specific number of errors. That is, it tries to find a subsequence of the target sequence within a specific <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> of the query sequence:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACAGCGTAGCT&quot;;
 
 julia&gt; approxsearch(seq, dna&quot;AGGG&quot;, 0)  # nothing matches with no errors
 0:-1
