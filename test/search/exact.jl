@@ -58,4 +58,12 @@
         @test first(findlast(query, seq, 6)) === 1
         @test findlast(query, seq, 6, 2) === nothing
     end
+
+    @testset "occursin" begin
+        @test occursin(dna"ACG", dna"GGGTACACGTTT") == true
+        @test occursin(dna"TGT", dna"GGGTACACGTGT") == true
+        @test occursin(dna"GGG", dna"GGGTACACGTGT") == true
+        @test occursin(dna"AAA", dna"GGGTACACGTGT") == false
+    end
+
 end
