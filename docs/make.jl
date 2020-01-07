@@ -23,6 +23,7 @@ makedocs(
 
 deploydocs(
     repo = "github.com/BioJulia/BioSequences.jl.git",
+    push_preview = true,
     deps = nothing,
     make = nothing
 )
