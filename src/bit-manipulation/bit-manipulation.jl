@@ -2,33 +2,16 @@
 include("bitindex.jl")
 include("bitpar-compiler.jl")
 
-@inline function reversebits(x::UInt64, ::BitsPerSymbol{2})
-     x =  ((x >> 2) & 0x3333333333333333) | ((x & 0x3333333333333333) << 2)
-     x = reversebits(x, BitsPerSymbol{4}())
-     return x
+@inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: Base.BitUnsigned
+     mask = 0x33333333333333333333333333333333 % T
+     x = ((x >> 2) & mask) | ((x & mask) << 2)
+     return reversebits(x, BitsPerSymbol{4}())
 end
 
-@inline function reversebits(x::UInt64, ::BitsPerSymbol{4})
-     x = ((x >> 4 ) & 0x0F0F0F0F0F0F0F0F) | ((x & 0x0F0F0F0F0F0F0F0F) << 4 )
-     x = ((x >> 8 ) & 0x00FF00FF00FF00FF) | ((x & 0x00FF00FF00FF00FF) << 8 )
-     x = ((x >> 16) & 0x0000FFFF0000FFFF) | ((x & 0x0000FFFF0000FFFF) << 16)
-     x = ((x >> 32) & 0x00000000FFFFFFFF) | ((x & 0x00000000FFFFFFFF) << 32)
-     return x
-end
-
-@inline function reversebits(x::UInt128, ::BitsPerSymbol{2})
-     x =  ((x >> 2) & 0x33333333333333333333333333333333) | ((x & 0x33333333333333333333333333333333) << 2)
-     x = reversebits(x, BitsPerSymbol{4}())
-     return x
-end
-
-@inline function reversebits(x::UInt128, ::BitsPerSymbol{4})
-     x = ((x >> 4 ) & 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F) | ((x & 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F) << 4 )
-     x = ((x >> 8 ) & 0x00FF00FF00FF00FF00FF00FF00FF00FF) | ((x & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8 )
-     x = ((x >> 16) & 0x0000FFFF0000FFFF0000FFFF0000FFFF) | ((x & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16)
-     x = ((x >> 32) & 0x00000000FFFFFFFF00000000FFFFFFFF) | ((x & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32)
-     x = ((x >> 64) & 0x0000000000000000FFFFFFFFFFFFFFFF) | ((x & 0x0000000000000000FFFFFFFFFFFFFFFF) << 64)
-     return x
+@inline function reversebits(x::T, ::BitsPerSymbol{4}) where T <: Base.BitUnsigned
+     mask = 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F % T
+     x = ((x >> 4) & mask) | ((x & mask) << 4)
+     return bswap(x)
 end
 
 @inline function complement_bitpar(x::Unsigned, ::T) where {T<:NucleicAcidAlphabet{2}}
