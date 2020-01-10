@@ -24,7 +24,7 @@ end
     if dst.shared || (dst === src && doff > soff)
         orphan!(dst, length(dst), true)
     end
-    
+
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
     #TODO: Resolve this use of bits_per_symbol
@@ -50,7 +50,7 @@ end
         is += k
         rest -= k
     end
-    
+
     return dst
 end
 
@@ -71,6 +71,18 @@ function encode_copy!(dst::LongSequence{A},
     return encode_copy!(dst, 1, src, 1)
 end
 
+# If it's an ASCII string, choose fast path
+function encode_copy!(dst::LongSequence{A},
+                      doff::Integer,
+                      src::String,
+                      soff::Integer) where {A}
+    if isascii(src)
+        return GC.@preserve src encode_copy!(dst, doff, unsafe_wrap(Vector{UInt8}, src), soff)
+    else
+        return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
+    end
+end
+
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
@@ -78,12 +90,15 @@ function encode_copy!(dst::LongSequence{A},
     return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
 end
 
+# if is a string
+
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer,
                       len::Integer) where {A}
-    if soff != 1 && isa(src, AbstractString) && !isascii(src)
+    #  Dispatch should not call this method for ASCII strings
+    if isa(src, AbstractString) && soff != 1
         throw(ArgumentError("source offset ≠ 1 is not supported for non-ASCII string"))
     end
 

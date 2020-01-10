@@ -1,6 +1,6 @@
 ###
 ### Constructors
-### 
+###
 ###
 ### Constructor methods for LongSequences.
 ###
@@ -21,6 +21,18 @@ LongSequence(::Type{Char}) = LongCharSeq()
 
 function LongSequence()
     return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
+end
+
+# Specific method to avoid calculating length of ASCII seq
+function LongSequence{A}(src::String) where {A<:Alphabet}
+    if isascii(src)
+        v = unsafe_wrap(Vector{UInt8}, src)
+        return LongSequence{A}(v)
+    else
+        len = length(src)
+        seq = LongSequence{A}(len)
+        return encode_copy!(seq, 1, src, 1, len)
+    end
 end
 
 function LongSequence{A}(
