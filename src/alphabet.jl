@@ -8,6 +8,8 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
+# Alphabets of biological symbols.
+
 `Alphabet` is perhaps the most important type trait for biological sequences in
 BioSequences.jl.
 
@@ -98,7 +100,7 @@ for alph in (DNAAlphabet, RNAAlphabet)
 end
 
 minimal_alphabet(::Type{A}) where A <: DNAAlphabet = DNAAlphabet{2}
-minimal_alphabet(::Type{A}) where A <: RNAAlphabet = RNAAlphabet{2} 
+minimal_alphabet(::Type{A}) where A <: RNAAlphabet = RNAAlphabet{2}
 minimal_alphabet(x::A) where A <: NucleicAcidAlphabet = minimal_alphabet(typeof(x))
 
 ###
@@ -284,3 +286,37 @@ end
 @inline function decode(::CharAlphabet, x::Unsigned)
     return decode(CharAlphabet(), UInt32(x))
 end
+
+# AsciiAlphabet trait - add to user defined type to use speedups.
+# Must define methods codetype, stringbyte,
+abstract type AlphabetCode end
+struct AsciiAlphabet <: AlphabetCode end
+struct UnicodeAlphabet <: AlphabetCode end
+
+function codetype(::A) where {A <: Union{DNAAlphabet{2}, DNAAlphabet{4},
+                                         RNAAlphabet{2}, RNAAlphabet{4},
+                                         AminoAcidAlphabet}}
+    return AsciiAlphabet()
+end
+codetype(::Alphabet) = UnicodeAlphabet()
+
+# Create a lookup table from biosymbol to the UInt8 for the character that would
+# represent it in a string, e.g. DNA_G -> UInt8('G')
+for alphabettype in ("DNA", "RNA", "AminoAcid")
+    tablename = Symbol(uppercase(alphabettype), "_TO_BYTE")
+    typ = Symbol(alphabettype)
+    @eval begin
+        const $(tablename) = let
+            alph = alphabet($(typ))
+            bytes = zeros(UInt8, length(alph))
+            @inbounds for letter in alph
+                bytes[reinterpret(UInt8, letter) + 1] = UInt8(Char(letter))
+            end
+            Tuple(bytes)
+        end
+        stringbyte(x::$(typ)) = @inbounds $(tablename)[reinterpret(UInt8, x) + 1]
+    end
+end
+
+# Less efficient fallback. Should only be called for symbols of AsciiAlphabet
+stringbyte(x::BioSymbol) = UInt8(Char(x))
