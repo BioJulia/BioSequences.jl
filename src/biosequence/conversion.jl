@@ -17,7 +17,7 @@ end
     return S([Char(x) for x in seq])
 end
 
-@inline function Base.convert(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
+function Base.convert(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
     len = length(seq)
     str = Base._string_n(len)
     GC.@preserve str begin
