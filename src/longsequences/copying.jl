@@ -24,7 +24,7 @@ end
     if dst.shared || (dst === src && doff > soff)
         orphan!(dst, length(dst), true)
     end
-    
+
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
     #TODO: Resolve this use of bits_per_symbol
@@ -50,7 +50,7 @@ end
         is += k
         rest -= k
     end
-    
+
     return dst
 end
 
@@ -67,22 +67,37 @@ end
 ###
 
 function encode_copy!(dst::LongSequence{A},
-                      src::Union{AbstractVector,AbstractString}) where {A}
+                      src::Union{AbstractVector,AbstractString}) where {A  <: Alphabet}
     return encode_copy!(dst, 1, src, 1)
 end
 
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
-                      soff::Integer) where {A}
-    return encode_copy!(dst, doff, src, soff, length(src) - soff + 1)
+                      soff::Integer) where {A <: Alphabet}
+    return encode_copy!(dst, doff, src, soff, codetype(A()))
+end
+
+function encode_copy!(dst::LongSequence{A},
+                      doff::Integer,
+                      src::String,
+                      soff::Integer, ::AsciiAlphabet) where {A <: Alphabet}
+    v = unsafe_wrap(Vector{UInt8}, src)
+    return encode_copy!(dst, doff, v, soff, length(v) - soff + 1, C)
+end
+
+function encode_copy!(dst::LongSequence{A},
+                      doff::Integer,
+                      src::Union{AbstractVector,AbstractString},
+                      soff::Integer, C::AlphabetCode) where {A <: Alphabet}
+    return encode_copy!(dst, doff, src, soff, length(src) - soff + 1, C)
 end
 
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
                       src::Union{AbstractVector,AbstractString},
                       soff::Integer,
-                      len::Integer) where {A}
+                      len::Integer, ::AlphabetCode) where {A}
     if soff != 1 && isa(src, AbstractString) && !isascii(src)
         throw(ArgumentError("source offset ≠ 1 is not supported for non-ASCII string"))
     end
@@ -113,54 +128,89 @@ function encode_copy!(dst::LongSequence{A},
     return dst
 end
 
-function encode_copy!(dst::LongSequence{A}, doff::Integer,
-                      src::AbstractVector{UInt8}, soff::Integer, len::Integer) where {A<:Union{DNAAlphabet{4},RNAAlphabet{4}}}
-    checkbounds(dst, doff:doff+len-1)
-    if length(src) < soff + len - 1
-        throw(ArgumentError("source string does not contain $len elements from $soff"))
+for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
+    RNAAlphabet{2}, AminoAcidAlphabet))
+    tablename = Symbol("BYTE_TO_ALPHABET_CHAR" * string(anum))
+    @eval begin
+        alph = $(atype)()
+        syms = symbols(alph)
+        const $(tablename) = let
+            bytes = fill(0x80, 256)
+            for symbol in syms
+                bytes[UInt8(Char(symbol)) + 1] = encode(alph, symbol)
+                bytes[UInt8(lowercase(Char(symbol))) + 1] = encode(alph, symbol)
+            end
+            Tuple(bytes)
+        end
+        stringbyte(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
+    end
+end
+
+@noinline function throw_encode_error(A::Alphabet, src::AbstractArray, soff::Integer)
+    for i in 1:div(64, bits_per_symbol(A))
+        sym = src[soff+i-1]
+        stringbyte(A, sym) & 0x80 == 0x80 && error("Cannot encode $sym to $A")
+    end
+end
+
+@inline function encode_chunk(::A, src, soff::Int, N::Int) where {A <: Alphabet}
+    chunk = zero(UInt64)
+    check = 0x00
+    @inbounds for i in 1:N
+        enc = stringbyte(A(), src[soff+i-1])
+        check |= enc
+        chunk |= UInt64(enc) << (bits_per_symbol(A()) * (i-1))
+    end
+    check & 0x80 == 0x00 || throw_encode_error(A(), src, soff)
+    return chunk
+end
+
+# Use this for AsiiAlphabet alphabets only, internal use only, no boundschecks
+function encode_chunks!(dst::LongSequence{A}, chunkid::Integer, src::AbstractVector{UInt8},
+                        soff::Integer, N::Integer) where {A <: Alphabet}
+    syms_per_chunk = div(64, bits_per_symbol(A()))
+    nchunks, rest = divrem(N, syms_per_chunk)
+
+    @inbounds for chunki in 1:nchunks
+        chunk = encode_chunk(A(), src, soff, syms_per_chunk)
+        dst.data[chunkid+chunki-1] = chunk
+        soff += syms_per_chunk
+    end
+    @inbounds if !iszero(rest)
+        chunk = encode_chunk(A(), src, soff, rest)
+        dst.data[chunkid+nchunks] = chunk
+    end
+    return dst
+end
+
+function encode_copy!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{UInt8},
+                      soff::Integer, N::Integer, ::AsciiAlphabet) where {A<:Alphabet}
+    checkbounds(dst, doff:doff+N-1)
+    if length(src) < soff + N - 1
+        throw(ArgumentError("source does not contain $len elements from $soff"))
     end
 
     orphan!(dst)
-    charmap = A <: DNAAlphabet ? BioSymbols.char_to_dna : BioSymbols.char_to_rna
-    i = soff
-    next = bitindex(dst, doff)
-    stop = bitindex(dst, doff + len)
+    bitind = bitindex(dst, doff)
+    remaining = N
 
-    # head
-    if offset(next) != 0
-        for d in 0:div(64 - offset(next), 4)-1
-            dst[doff+d] = charmap[src[i+d]+1]
-        end
-        i += div(64 - offset(next), 4)
-        next += 64 - offset(next)
+    # Get first non whole chunk
+    @inbounds while offset(bitind) != 0
+        dst[doff] = eltype(A)(Char(src[soff]))
+        bitind += bits_per_symbol(A())
+        remaining -= 1
+        soff += 1
+        doff += 1
     end
 
-    # body
-    D = 16
-    while next < (stop - offset(stop))
-        x::UInt64 = 0
-        check = 0x00
-        @inbounds for d in 0:D-1
-            y = reinterpret(UInt8, charmap[src[i+d]+1])
-            x |= UInt64(y) << 4d
-            check |= y
-        end
-        if check & 0x80 != 0
-            # invalid byte(s) is detected
-            for d in 0:D-1
-                if !isvalid(charmap[src[i+d]+1])
-                    error("cannot encode $(src[i+d])")
-                end
-            end
-        end
-        dst.data[index(next)] = x
-        i += D
-        next += 64
-    end
+    # Fill in chunks
+    syms_per_chunk = div(64, bits_per_symbol(A()))
+    n = syms_per_chunk * div(remaining, syms_per_chunk)
+    encode_chunks!(dst, index(bitind), src, soff, n)
 
-    # tail
-    for d in 0:div(stop - next, 4)-1
-        dst[doff+i-soff+d] = charmap[src[i+d]+1]
+    # Fill in last non-whole chunk
+    @inbounds for i in 1:remaining-n
+        dst[doff+n+i-1] = eltype(A)(Char(src[soff+n+i-1]))
     end
 
     return dst
