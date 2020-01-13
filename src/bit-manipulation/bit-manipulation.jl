@@ -14,6 +14,8 @@ end
      return bswap(x)
 end
 
+reversebits(x::T, ::BitsPerSymbol{8}) where T <: Base.BitUnsigned = bswap(x)
+
 @inline function complement_bitpar(x::Unsigned, ::T) where {T<:NucleicAcidAlphabet{2}}
     return ~x
 end

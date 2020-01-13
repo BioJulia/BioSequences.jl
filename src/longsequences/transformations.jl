@@ -59,22 +59,62 @@ end
 
 Reverse a biological sequence `seq` in place.
 """
-function Base.reverse!(seq::LongSequence)
-    orphan!(seq) # TODO: Is the orphan call really nessecery given the indexing calls will also call orphan?
-    @inbounds for i in 1:div(lastindex(seq), 2)
-	    x = seq[i]
-        i′ = lastindex(seq) - i + 1 
-	    seq[i] = seq[i′]
-	    seq[i′] = x
+Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(orphan!(seq), BitsPerSymbol(seq))
+
+function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
+    i, j = 1, lastindex(seq)
+    while i < j
+        seq[i], seq[j] = seq[j], seq[i]
+        i += 1
+        j -= 1
     end
     return seq
 end
 
+function _reverse!(seq::LongSequence{A}, ::B) where {A <: Alphabet,
+    B <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+
+    # Reverse order of chunks and bits in chunks in one pass
+    data = seq.data
+    len = length(data)
+    bps = BitsPerSymbol(seq)
+    @inbounds for i in 1:len >>> 1
+        data[i], data[len-i+1] = reversebits(data[len-i+1], bps), reversebits(data[i], bps)
+    end
+    @inbounds if isodd(len)
+        data[len >>> 1 + 1] = reversebits(data[len >>> 1 + 1], bps)
+    end
+
+    # Reversion of chunk bits may have left-shifted data in chunks, so we must
+    # shift them back to an offset of zero
+    lshift = offset(lastbitindex(seq) + bits_per_symbol(A()))
+    rshift = 64 - lshift
+    if !iszero(lshift)
+        @inbounds for i in 1:len-1
+            left = seq.data[i] >>> (rshift & 63)
+            right = seq.data[i+1] << (lshift & 63)
+            seq.data[i] = left | right
+        end
+        @inbounds seq.data[len] >>>= rshift
+    end
+
+    return seq
+end
+
+"""
+    reverse!(seq::LongSequence)
+
+Reverse a biological sequence.
+"""
+function Base.reverse(seq::LongSequence{A}) where {A<:Alphabet}
+    copy = typeof(seq)(seq.data, seq.part, seq.shared)
+    orphan!(copy, length(seq), true)
+    return _reverse!(copy, BitsPerSymbol(copy))
+end
+
 """
     Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-
 Create a reversed copy of a LongSequence representing a DNA or RNA sequence.
-
 This version of the reverse method is optimized for speed, taking advantage of
 bit-parallel operations.
 """
@@ -110,6 +150,7 @@ function Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     end
     return LongSequence{A}(data, 1:length(seq), false)
 end
+
 
 """
     complement!(seq)
