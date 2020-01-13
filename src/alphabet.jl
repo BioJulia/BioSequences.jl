@@ -289,8 +289,16 @@ end
 
 # AsciiAlphabet trait - add to user defined type to use speedups.
 # Must define methods codetype, stringbyte,
+"Abstract trait for ASCII/Unicode dispatch. See `AsciiAlphabet`"
 abstract type AlphabetCode end
+
+"""Trait for alphabet using ASCII characters as String representation.
+Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` A to gain speed.
+Methods needed: `stringbyte(::eltype(A))` and `stringbyte(A, ::UInt8)`.
+"""
 struct AsciiAlphabet <: AlphabetCode end
+
+"Trait for alphabet using Unicode. See `AsciiAlphabet`"
 struct UnicodeAlphabet <: AlphabetCode end
 
 function codetype(::A) where {A <: Union{DNAAlphabet{2}, DNAAlphabet{4},

@@ -159,27 +159,22 @@ end
     @inbounds for i in 1:N
         enc = stringbyte(A, src[soff+i-1])
         check |= enc
-        chunk |= UInt64(enc) << (bits_per_symbol(A)* (i-1))
+        chunk |= UInt64(enc) << (bits_per_symbol(A) * (i-1))
     end
     check & 0x80 == 0x00 || throw_encode_error(A, src, soff)
     return chunk
 end
 
 # Use this for AsiiAlphabet alphabets only, internal use only, no boundschecks
-function encode_chunks!(dst::LongSequence{A}, chunkid::Integer, src::AbstractVector{UInt8},
+function encode_chunks!(dst::LongSequence{A}, startindex::Integer, src::AbstractVector{UInt8},
                         soff::Integer, N::Integer) where {A <: Alphabet}
-    syms_per_chunk = div(64, bits_per_symbol(A()))
-    nchunks, rest = divrem(N, syms_per_chunk)
-
-    @inbounds for chunki in 1:nchunks
-        chunk = encode_chunk(A(), src, soff, syms_per_chunk)
-        dst.data[chunkid+chunki-1] = chunk
-        soff += syms_per_chunk
+    chunks, rest = divrem(N, symbols_per_data_element(dst))
+    @inbounds for i in startindex:startindex+chunks-1
+        dst.data[i] = encode_chunk(A(), src, soff, symbols_per_data_element(dst))
+        soff += symbols_per_data_element(dst)
     end
-    # Last chunk
     @inbounds if !iszero(rest)
-        chunk = encode_chunk(A(), src, soff, rest)
-        dst.data[chunkid+nchunks] = chunk
+        dst.data[startindex+chunks] = encode_chunk(A(), src, soff, rest)
     end
     return dst
 end
@@ -209,8 +204,7 @@ function encode_copy!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{U
     end
 
     # Fill in middle
-    syms_per_chunk = div(64, bits_per_symbol(A()))
-    n = remaining - rem(remaining, syms_per_chunk)
+    n = remaining - rem(remaining, symbols_per_data_element(dst))
     encode_chunks!(dst, index(bitind), src, soff, n)
     remaining -= n
     soff += n
