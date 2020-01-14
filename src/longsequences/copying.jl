@@ -24,7 +24,7 @@ end
     if dst.shared || (dst === src && doff > soff)
         orphan!(dst, length(dst), true)
     end
-    
+
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
     #TODO: Resolve this use of bits_per_symbol
@@ -50,15 +50,18 @@ end
         is += k
         rest -= k
     end
-    
+
     return dst
 end
 
 # Actually, users don't need to create a copy of a sequence.
-function Base.copy(seq::LongSequence{A}) where {A}
-    newseq = LongSequence{A}(seq, 1:lastindex(seq))
-    orphan!(newseq, length(seq), true)  # force orphan!
-    @assert newseq.data !== seq.data
+function Base.copy(seq::LongSequence)
+    if seq.shared
+        newseq = typeof(seq)(seq.data, seq.part, true)
+        orphan!(newseq, length(seq), true)
+    else
+        newseq = typeof(seq)(copy(seq.data), seq.part, false)
+    end
     return newseq
 end
 
