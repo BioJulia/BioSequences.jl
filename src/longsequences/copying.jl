@@ -80,8 +80,17 @@ end
 
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
+                      src::Union{AbstractVector,AbstractString},
+                      soff::Integer,
+                      N::Integer) where {A <: Alphabet}
+    return encode_copy!(dst, doff, src, soff, N, codetype(A()))
+end
+
+
+function encode_copy!(dst::LongSequence{A},
+                      doff::Integer,
                       src::String,
-                      soff::Integer, ::AsciiAlphabet) where {A <: Alphabet}
+                      soff::Integer, C::AsciiAlphabet) where {A <: Alphabet}
     v = unsafe_wrap(Vector{UInt8}, src)
     return encode_copy!(dst, doff, v, soff, length(v) - soff + 1, C)
 end
@@ -103,9 +112,7 @@ function encode_copy!(dst::LongSequence{A},
     end
 
     checkbounds(dst, doff:doff+len-1)
-    if length(src) < soff + len - 1
-        throw(ArgumentError("source string does not contain $len elements from $soff"))
-    end
+    length(src) < soff + len - 1 && throw_enc_indexerr(len, length(src), soff)
 
     orphan!(dst)
 
@@ -179,28 +186,27 @@ function encode_chunks!(dst::LongSequence{A}, startindex::Integer, src::Abstract
     return dst
 end
 
-@noinline function throw_enc_indexerr(len::Integer, soff::Integer)
-    throw(ArgumentError("source does not contain $len elements from $soff"))
+@noinline function throw_enc_indexerr(N::Integer, len::Integer, soff::Integer)
+    throw(ArgumentError("source of length $len does not contain $N elements from $soff"))
 end
 
 function encode_copy!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{UInt8},
                       soff::Integer, N::Integer, ::AsciiAlphabet) where {A<:Alphabet}
     checkbounds(dst, doff:doff+N-1)
-    length(src) < soff + N - 1 || throw_enc_indexerr(N, soff)
+    length(src) < soff + N - 1 && throw_enc_indexerr(N, length(src), soff)
     orphan!(dst)
     bitind = bitindex(dst, doff)
     remaining = N
 
-    # Fill in first chunk
-    @inbounds if offset(bitind) != 0
-        n = div(64-offset(bitind), bits_per_symbol(A()))
-        chunk = encode_chunk(A(), src, soff, n)
-        before = dst.data[index(bitind)] & (typemax(UInt) >>> offset(bitind))
-        chunk = (chunk << offset(bitind)) | before
-        dst.data[index(bitind)] = chunk
-        remaining -= n
-        soff += n
-        bitind += n * bits_per_symbol(A())
+    # Fill in first chunk. Since it may be only partially filled from both ends,
+    # bit-tricks are harder and we do it the old-fashined way.
+    # Maybe this can be optimized but eeehhh...
+    @inbounds while (!iszero(offset(bitind)) & !iszero(remaining))
+        dst[doff] = eltype(dst)(reinterpret(Char, (src[soff] % UInt32) << 24))
+        doff += 1
+        soff += 1
+        remaining -= 1
+        bitind += bits_per_symbol(A())
     end
 
     # Fill in middle
