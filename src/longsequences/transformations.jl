@@ -63,7 +63,7 @@ Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(orphan!(seq), BitsPerSy
 
 function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
     i, j = 1, lastindex(seq)
-    while i < j
+    @inbounds while i < j
         seq[i], seq[j] = seq[j], seq[i]
         i += 1
         j -= 1
@@ -71,18 +71,18 @@ function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
     return seq
 end
 
-function _reverse!(seq::LongSequence{A}, ::B) where {A <: Alphabet,
-    B <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+function _reverse!(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
 
     # Reverse order of chunks and bits in chunks in one pass
     data = seq.data
     len = length(data)
-    bps = BitsPerSymbol(seq)
+    B = BitsPerSymbol(seq)
     @inbounds for i in 1:len >>> 1
-        data[i], data[len-i+1] = reversebits(data[len-i+1], bps), reversebits(data[i], bps)
+        data[i], data[len-i+1] = reversebits(data[len-i+1], B), reversebits(data[i], B)
     end
     @inbounds if isodd(len)
-        data[len >>> 1 + 1] = reversebits(data[len >>> 1 + 1], bps)
+        data[len >>> 1 + 1] = reversebits(data[len >>> 1 + 1], B)
     end
 
     # Reversion of chunk bits may have left-shifted data in chunks, so we must
@@ -106,16 +106,12 @@ end
 
 Reverse a biological sequence.
 """
-function Base.reverse(seq::LongSequence{A}) where {A<:Alphabet}
-    copy = typeof(seq)(seq.data, seq.part, seq.shared)
-    orphan!(copy, length(seq), true)
-    return _reverse!(copy, BitsPerSymbol(copy))
-end
+Base.reverse(seq::LongSequence{A}) where {A<:Alphabet} = _reverse!(copy(seq), BitsPerSymbol(seq))
 
 """
     Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
 Create a reversed copy of a LongSequence representing a DNA or RNA sequence.
-This version of the reverse method is optimized for speed, taking advantage of
+This version of the copying reverse method is optimized for speed, taking advantage of
 bit-parallel operations.
 """
 function Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
