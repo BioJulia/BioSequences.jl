@@ -71,7 +71,8 @@ function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
     return seq
 end
 
-function _reverse!(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
+# Inline this large function because it is only called by wrapper functions
+@inline function _reverse!(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
 
     # Reverse order of chunks and bits in chunks in one pass
@@ -87,15 +88,17 @@ function _reverse!(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
 
     # Reversion of chunk bits may have left-shifted data in chunks, so we must
     # shift them back to an offset of zero
-    lshift = offset(lastbitindex(seq) + bits_per_symbol(A()))
+    # This is written so it SIMD parallelizes - careful with changes
+    lshift = offset(bitindex(seq, last(seq.part)) + bits_per_symbol(A()))
     rshift = 64 - lshift
-    if !iszero(lshift)
-        @inbounds for i in 1:len-1
-            left = seq.data[i] >>> (rshift & 63)
-            right = seq.data[i+1] << (lshift & 63)
-            seq.data[i] = left | right
+    @inbounds if !iszero(lshift)
+        this = seq.data[1]
+        for i in 1:len-1
+            next = seq.data[i+1]
+            seq.data[i] = (this >>> (unsigned(rshift) & 63)) | (next << (unsigned(lshift) & 63))
+            this = next
         end
-        @inbounds seq.data[len] >>>= rshift
+        seq.data[len] >>>= (unsigned(rshift) & 63)
     end
 
     return seq
@@ -107,46 +110,6 @@ end
 Reverse a biological sequence.
 """
 Base.reverse(seq::LongSequence{A}) where {A<:Alphabet} = _reverse!(copy(seq), BitsPerSymbol(seq))
-
-"""
-    Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-Create a reversed copy of a LongSequence representing a DNA or RNA sequence.
-This version of the copying reverse method is optimized for speed, taking advantage of
-bit-parallel operations.
-"""
-function Base.reverse(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    data = Vector{UInt64}(undef, seq_data_len(A, length(seq)))
-    i = 1
-    next = lastbitindex(seq)
-    stop = bitindex(seq, 0)
-    r = rem(offset(next) + bits_per_symbol(seq), 64)
-    if r == 0
-        @inbounds while next - stop > 0
-            x = seq.data[index(next)]
-            data[i] = reversebits(x, BitsPerSymbol(seq))
-            i += 1
-            next -= 64
-        end
-    else
-        @inbounds while next - stop > 64
-            j = index(next)
-            x = (seq.data[j] << (64 - r)) | (seq.data[j - 1] >> r)
-            data[i] = reversebits(x, BitsPerSymbol(seq))
-            i += 1
-            next -= 64
-        end
-        if next - stop > 0
-            j = index(next)
-            x = seq.data[j] << (64 - r)
-            if r < next - stop
-                x |= seq.data[j - 1] >> r
-            end
-            data[i] = reversebits(x, BitsPerSymbol(seq))
-        end
-    end
-    return LongSequence{A}(data, 1:length(seq), false)
-end
-
 
 """
     complement!(seq)
