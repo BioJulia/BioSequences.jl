@@ -87,6 +87,46 @@ end
     end
 end
 
+@testset "Encode_copy!" begin
+    # Note: Other packages use this function, so we need to test it
+    # Even though this is NOT exported or part of the API in a normal sense
+    function test_encode_copy(dst::LongSequence{}, doff, src, soff, N)
+        BioSequences.encode_copy!(dst, doff, src, soff, N)
+        @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
+    end
+    function test_encode_copy(dst::LongSequence{}, doff, src, soff)
+        BioSequences.encode_copy!(dst, doff, src, soff)
+        @test String(dst[doff:end]) == String(src[soff:end])
+    end
+
+    probs = [0.25, 0.25, 0.25, 0.25]
+    for len in [0, 1, 2, 10, 100]
+        for f in [identity, Vector{Char}, Vector{UInt8}]
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
+            test_encode_copy(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
+            test_encode_copy(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
+            test_encode_copy(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_encode_copy(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
+        end
+    end
+
+    for len in [10, 32, 100]
+        for f in [identity, Vector{Char}, Vector{UInt8}]
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
+            test_encode_copy(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
+            test_encode_copy(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
+            test_encode_copy(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_encode_copy(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+
+            # Test some specific methods only used in dispatch
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+5, probs)), 3)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+5)), 3)
+        end
+    end
+end
+
 @testset "Conversion between 2-bit and 4-bit encodings" begin
     function test_conversion(A1, A2, seq)
         @test convert(LongSequence{A1}, LongSequence{A2}(seq)) == LongSequence{A1}(seq)
