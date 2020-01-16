@@ -8,13 +8,13 @@
 Resize a biological sequence `seq`, to a given `size`.
 """
 function Base.resize!(seq::LongSequence{A}, size::Integer) where {A}
-    if size < 0
+    if size == length(seq)
+        return seq
+    elseif size < 0
         throw(ArgumentError("size must be non-negative"))
+    else
+        return _orphan!(seq, size)
     end
-    orphan!(seq, size)
-    resize!(seq.data, seq_data_len(A, size + seq.part.start - 1))
-    seq.part = seq.part.start:seq.part.start+size-1
-    return seq
 end
 
 function Base.filter!(f::Function, seq::LongSequence{A}) where {A}
