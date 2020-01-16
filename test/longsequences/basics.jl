@@ -18,6 +18,35 @@
     @test copy(subseq) == dna"GTAC"
 end
 
+@testset "Copy!" begin
+    function test_copy!(seq, src)
+        @test String(src) == String(copy!(copy(seq), src))
+    end
+    # Needed because conversion to String truncates vector.
+    function test_copy!(seq, src::Vector)
+        @test String(copy(src)) == String(copy!(copy(seq), src))
+    end
+
+    probs = [0.25, 0.25, 0.25, 0.25, 0.00]
+    dna2 = LongSequence{DNAAlphabet{2}}(6)
+    dna4 = LongSequence{DNAAlphabet{4}}(6)
+    rna2 = LongSequence{RNAAlphabet{2}}(6)
+    rna4 = LongSequence{RNAAlphabet{4}}(6)
+    aa = LongSequence{AminoAcidAlphabet}(6)
+    charseq = LongSequence{CharAlphabet}(6)
+    for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
+        for len in [0, 1, 10, 16, 32, 100, 5]
+            test_copy!(dna2, dtype(random_dna(len, probs)))
+            test_copy!(dna4, dtype(random_dna(len)))
+            test_copy!(rna2, dtype(random_rna(len, probs)))
+            test_copy!(rna4, dtype(random_rna(len)))
+            test_copy!(aa, dtype(random_aa(len)))
+            test_copy!(charseq, dtype(random_aa(len)))
+        end
+    end
+    test_copy!(charseq, "ϐʌ⨝W")
+end
+
 @testset "Concatenation" begin
     function test_concatenation(A, chunks)
         parts = UnitRange{Int}[]
