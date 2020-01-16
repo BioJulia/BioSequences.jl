@@ -29,6 +29,7 @@
             test_reverse(DNAAlphabet{4}, random_dna(len))
             test_reverse(RNAAlphabet{4}, random_rna(len))
             test_reverse(AminoAcidAlphabet, random_aa(len))
+            test_reverse(CharAlphabet, random_aa(len))
 
             probs = [0.25, 0.25, 0.25, 0.25, 0.00]
             test_reverse(DNAAlphabet{2}, random_dna(len, probs))
