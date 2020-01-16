@@ -90,12 +90,11 @@ function orphan!(seq::LongSequence,
 	if !seq.shared & !force
 	    return seq
 	end
-	return _orphan!(seq, size, force)
+	return _orphan!(seq, size)
 end
 
 function _orphan!(seq::LongSequence{A},
-		 size::Integer = length(seq),
-		 force::Bool = false) where {A}
+		 size::Integer = length(seq)) where {A}
 
     j, r = bitindex(seq, 1)
     data = Vector{UInt64}(undef, seq_data_len(A, size))
