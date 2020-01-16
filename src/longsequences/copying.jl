@@ -54,6 +54,31 @@ end
     return dst
 end
 
+function Base.copy!(dst::LongSequence{A}, src::LongSequence{A}) where {A <: Alphabet}
+    len = length(src)
+    resize!(dst, len)
+    @inbounds copyto!(dst, 1, src, 1, len)
+end
+
+# Dispatch to alphabet type
+function Base.copy!(seq::LongSequence{A}, src) where {A<:Alphabet}
+   return copy!(seq, src, codetype(A()))
+end
+
+# Fast path for String + ASCII
+function Base.copy!(seq::LongSequence, src::String, ::AsciiAlphabet)
+   v = unsafe_wrap(Vector{UInt8}, src)
+   resize!(seq, length(v))
+   return encode_chunks!(seq, 1, v, 1, length(v))
+end
+
+# Generic method, cache len 'cause may be O(n) to calculate
+function Base.copy!(seq::LongSequence, src, ::AlphabetCode)
+   len = length(src)
+   resize!(seq, len)
+   return encode_copy!(seq, 1, src, 1, len)
+end
+
 # Actually, users don't need to create a copy of a sequence.
 function Base.copy(seq::LongSequence)
     if seq.shared
