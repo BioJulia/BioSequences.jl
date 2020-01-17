@@ -3,17 +3,24 @@
 ###
 
 """
-    resize!(seq, size)
+    resize!(seq, size, [force::Bool])
 
-Resize a biological sequence `seq`, to a given `size`.
+Resize a biological sequence `seq`, to a given `size`. Does not resize the underlying data
+array unless the new size does not fit. If `force`, always resize underlying data array.
 """
-function Base.resize!(seq::LongSequence{A}, size::Integer) where {A}
-    if size == length(seq)
-        return seq
-    elseif size < 0
+function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) where {A}
+    if size < 0
         throw(ArgumentError("size must be non-negative"))
-    else
+    elseif seq.shared
+        # May seem wasteful to orphan here, but if you resize! a shared seq,
+        # you're probably going to write to it anyway.
         return _orphan!(seq, size)
+    else
+        if force | (seq_data_len(A, size) > seq_data_len(A, length(seq)))
+            resize!(seq.data, seq_data_len(A, size))
+        end
+        seq.part = 1:size
+        return seq
     end
 end
 

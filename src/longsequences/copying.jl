@@ -54,9 +54,26 @@ end
     return dst
 end
 
+"""
+    copy!(seq, src)
+
+In-place copy content of `src` to biological sequence `seq`, resizing `seq` to fit.
+`src` may be any sequence-like object that can be encoded to `seq`.
+
+# Examples
+```
+julia> seq = copy!(dna"TAG", "AACGTM")
+4nt DNA Sequence:
+AACGTM
+
+julia> copy!(seq, [0x61, 0x43, 0x54])
+3nt DNA Sequence:
+ACT
+```
+"""
 function Base.copy!(dst::LongSequence{A}, src::LongSequence{A}) where {A <: Alphabet}
     len = length(src)
-    resize!(dst, len)
+    resize!(dst, len, false)
     @inbounds copyto!(dst, 1, src, 1, len)
 end
 
@@ -68,14 +85,14 @@ end
 # Fast path for String + ASCII
 function Base.copy!(seq::LongSequence, src::String, ::AsciiAlphabet)
    v = unsafe_wrap(Vector{UInt8}, src)
-   resize!(seq, length(v))
+   resize!(seq, length(v), false)
    return encode_chunks!(seq, 1, v, 1, length(v))
 end
 
 # Generic method, cache len 'cause may be O(n) to calculate
 function Base.copy!(seq::LongSequence, src, ::AlphabetCode)
    len = length(src)
-   resize!(seq, len)
+   resize!(seq, len, false)
    return encode_copy!(seq, 1, src, 1, len)
 end
 
