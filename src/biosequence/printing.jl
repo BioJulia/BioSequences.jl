@@ -6,16 +6,74 @@ Base.summary(seq::BioSequence{<:RNAAlphabet}) = string(length(seq), "nt ", "RNA 
 Base.summary(seq::BioSequence{<:AminoAcidAlphabet}) = string(length(seq), "aa ", "Amino Acid Sequence")
 Base.summary(seq::BioSequence{<:CharAlphabet}) = string(length(seq), "char ", "Char Sequence")
 
-function Base.print(io::IO, seq::BioSequence; width::Integer = 0)
-    col = 1
+# Buffer type. Not exposed to user, so code should be kept simple and performant.
+# B is true if it is buffered and false if it is not
+mutable struct SimpleBuffer{B, T} <: IO
+    len::UInt
+    arr::Vector{UInt8}
+    io::T
+end
+
+SimpleBuffer(io::IO) = SimpleBuffer{true, typeof(io)}(0, Vector{UInt8}(undef, 1024), io)
+SimpleBuffer(io::IO, len) = SimpleBuffer{false, typeof(io)}(0, Vector{UInt8}(undef, len), io)
+
+function Base.write(sb::SimpleBuffer{true}, byte::UInt8)
+    sb.len ≥ 1024 && flush(sb)
+    sb.len += 1
+    @inbounds sb.arr[sb.len] = byte
+end
+
+function Base.write(sb::SimpleBuffer{false}, byte::UInt8)
+    len = sb.len + 1
+    sb.len = len
+    @inbounds sb.arr[len] = byte
+end
+
+# Flush entire buffer to its io
+@noinline function Base.flush(sb::SimpleBuffer{true})
+    arr = sb.arr
+    GC.@preserve arr unsafe_write(sb.io, pointer(arr), UInt(1024))
+    sb.len = 0
+end
+
+# Flush all unflushed bytes to its io. Does not close source or make buffer unwritable
+function Base.close(sb::SimpleBuffer)
+    iszero(sb.len) && return 0
+    arr = sb.arr
+    GC.@preserve arr unsafe_write(sb.io, pointer(arr), sb.len)
+    sb.len = 0
+end
+
+Base.print(io::IO, seq::BioSequence; width::Integer = 0) = _print(io, seq, width)
+
+function padded_length(len::Integer, width::Integer)
+    den = ifelse(width < 1, typemax(Int), width)
+    return len + div(len-1, den)
+end
+
+# Generic method. The different name allows subtypes of BioSequence to
+# selectively call the generic print despite being more specific type
+function _print(io::IO, seq::BioSequence, width::Integer)
+    if length(seq) < 4096
+        buffer = SimpleBuffer(io, padded_length(length(seq), width))
+    else
+        buffer = SimpleBuffer(io)
+    end
+    return _print(buffer, seq, width)
+end
+
+function _print(buffer::SimpleBuffer, seq::BioSequence, width::Integer)
+    col = 0
     for x in seq
-        if width > 0 && col > width
-            write(io, '\n')
+        col += 1
+        if (width > 0) & (col > width)
+            write(buffer, '\n')
             col = 1
         end
-        print(io, x)
-        col += 1
+        print(buffer, x)
     end
+    close(buffer)
+    return nothing
 end
 
 Base.show(io::IO, seq::BioSequence) = showcompact(io, seq)

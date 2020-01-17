@@ -124,6 +124,7 @@ end
 
 include("indexing.jl")
 include("constructors.jl")
+include("printing.jl")
 include("copying.jl")
 include("conversion.jl")
 include("stringliterals.jl")
