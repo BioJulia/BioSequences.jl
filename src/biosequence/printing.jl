@@ -44,7 +44,7 @@ function Base.close(sb::SimpleBuffer)
     sb.len = 0
 end
 
-Base.print(io::IO, seq::BioSequence; width::Integer = 0) = _print(io, seq, width)
+Base.print(io::IO, seq::BioSequence; width::Integer = 0) = _print(SimpleBuffer(io), seq, width)
 
 function padded_length(len::Integer, width::Integer)
     den = ifelse(width < 1, typemax(Int), width)
@@ -53,15 +53,6 @@ end
 
 # Generic method. The different name allows subtypes of BioSequence to
 # selectively call the generic print despite being more specific type
-function _print(io::IO, seq::BioSequence, width::Integer)
-    if length(seq) < 4096
-        buffer = SimpleBuffer(io, padded_length(length(seq), width))
-    else
-        buffer = SimpleBuffer(io)
-    end
-    return _print(buffer, seq, width)
-end
-
 function _print(buffer::SimpleBuffer, seq::BioSequence, width::Integer)
     col = 0
     for x in seq

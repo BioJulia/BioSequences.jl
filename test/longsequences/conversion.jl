@@ -32,6 +32,7 @@ end
 
     for len in [0, 1, 2, 3, 10, 32, 1000, 10000]
         test_string_construction(DNAAlphabet{4}, random_dna(len))
+        test_string_construction(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_construction(DNAAlphabet{4}, lowercase(random_dna(len)))
         test_string_construction(RNAAlphabet{4}, lowercase(random_rna(len)))
         test_string_construction(RNAAlphabet{4}, random_rna(len))
@@ -39,6 +40,7 @@ end
         test_string_construction(AminoAcidAlphabet, lowercase(random_aa(len)))
 
         test_string_parse(DNAAlphabet{4}, random_dna(len))
+        test_string_parse(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_parse(DNAAlphabet{4}, lowercase(random_dna(len)))
         test_string_parse(RNAAlphabet{4}, lowercase(random_rna(len)))
         test_string_parse(RNAAlphabet{4}, random_rna(len))
