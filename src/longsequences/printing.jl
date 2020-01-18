@@ -7,21 +7,23 @@ end
 
 # Dispatch to generic method in biosequences/printing.jl
 function _print(io::IO, seq::LongSequence{<:Alphabet}, width::Integer, ::AlphabetCode)
-    return _print(io, seq, width)
+    return _print(SimpleBuffer(io), seq, width)
 end
 
 # Specialized method for ASCII alphabet
 function _print(io::IO, seq::LongSequence{<:Alphabet}, width::Integer, ::AsciiAlphabet)
-    # I don't like to have to do this, but in Julia 1.3, system buffers are IO-locked.
+    # If seq is large, always buffer for memory efficiency
+    if length(seq) ≥ 4096
+        return _print(SimpleBuffer(io), seq, width, AsciiAlphabet())
+    end
     if (width < 1) | (length(seq) ≤ width)
+        # Fastest option
         return print(io, String(seq))
-    end
-    if length(seq) < 4096
-        buffer = SimpleBuffer(io, padded_length(length(seq), width))
     else
-        buffer = SimpleBuffer(io)
+        # Second fastest option
+        buffer = SimpleBuffer(io, padded_length(length(seq), width))
+        return _print(buffer, seq, width, AsciiAlphabet())
     end
-    return _print(buffer, seq, width, AsciiAlphabet())
 end
 
 function _print(buffer::SimpleBuffer, seq::LongSequence{<:Alphabet}, width::Integer, ::AsciiAlphabet)

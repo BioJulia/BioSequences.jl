@@ -62,21 +62,22 @@ end
 
 # Dispatch to alphabet type
 function Base.copy!(seq::LongSequence{A}, src) where {A<:Alphabet}
-   return copy!(seq, src, codetype(A()))
+    return copy!(seq, src, codetype(A()))
 end
 
 # Fast path for String + ASCII
-function Base.copy!(seq::LongSequence, src::String, ::AsciiAlphabet)
-   v = unsafe_wrap(Vector{UInt8}, src)
-   resize!(seq, length(v))
-   return encode_chunks!(seq, 1, v, 1, length(v))
+function Base.copy!(seq::LongSequence, src::Union{String, SubString{String}}, ::AsciiAlphabet)
+    len = ncodeunits(src) - firstindex(src) + 1
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), len)
+    resize!(seq, length(v))
+    return encode_chunks!(seq, 1, v, 1, length(v))
 end
 
 # Generic method, cache len 'cause may be O(n) to calculate
 function Base.copy!(seq::LongSequence, src, ::AlphabetCode)
-   len = length(src)
-   resize!(seq, len)
-   return encode_copy!(seq, 1, src, 1, len)
+    len = length(src)
+    resize!(seq, len)
+    return encode_copy!(seq, 1, src, 1, len)
 end
 
 # Actually, users don't need to create a copy of a sequence.
@@ -117,9 +118,10 @@ end
 
 function encode_copy!(dst::LongSequence{A},
                       doff::Integer,
-                      src::String,
+                      src::Union{String, SubString{String}},
                       soff::Integer, C::AsciiAlphabet) where {A <: Alphabet}
-    v = unsafe_wrap(Vector{UInt8}, src)
+    len = ncodeunits(src) - firstindex(src) + 1
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), len)
     return encode_copy!(dst, doff, v, soff, length(v) - soff + 1, C)
 end
 
