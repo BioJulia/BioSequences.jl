@@ -171,7 +171,7 @@ end
 EncodeError(::A, val::T) where {A,T} = EncodeError{A,T}(val)
 
 function Base.showerror(io::IO, err::EncodeError{A}) where {A}
-    print(io, "cannot encode ", err.val, " in ", A)
+    print(io, "cannot encode ", repr(err.val), " in ", A)
 end
 
 """
@@ -186,7 +186,7 @@ end
 DecodeError(::A, val::T) where {A,T} = DecodeError{A,T}(val)
 
 function Base.showerror(io::IO, err::DecodeError{A}) where {A}
-    print(io, "cannot decode ", err.val, " in ", A)
+    print(io, "cannot decode ", repr(err.val), " in ", A)
 end
 
 ###

@@ -20,11 +20,11 @@ end
 Base.copy(nmask::NMask) = NMask(copy(nmask.blockmask), copy(nmask.blocks), nmask.len)
 
 function NMask(bv::BitVector)
-    n = length(bv.chunks)
+    chunks = bv.chunks
     blockmask = BitVector()
     blocks = Vector{UInt64}()
-    for i in 1:n
-        chunk = bv.chunks[i]
+    @inbounds for i in eachindex(chunks)
+        chunk = chunks[i]
         if chunk == 0
             # no N in this block
             push!(blockmask, false)
@@ -37,9 +37,9 @@ function NMask(bv::BitVector)
 end
 
 function Base.convert(::Type{BitVector}, nmask::NMask)
-    bv = BitVector()
-    for i in 1:length(nmask)
-        push!(bv, nmask[i])
+    bv = falses(length(nmask))
+    @inbounds for i in 1:length(nmask)
+        bv[i] = nmask[i]
     end
     return bv
 end
