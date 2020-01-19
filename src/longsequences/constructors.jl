@@ -23,18 +23,21 @@ function LongSequence()
     return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
 end
 
-function LongSequence{A}(s::String) where {A<:Alphabet}
+function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
     return LongSequence{A}(s, codetype(A()))
 end
 
-function LongSequence{A}(s::String, ::AsciiAlphabet) where {A<:Alphabet}
-    seq = LongSequence{A}(ncodeunits(s))
-    return encode_chunks!(seq, 1, unsafe_wrap(Vector{UInt8}, s), 1, ncodeunits(s))
+# Generic method for String/Substring
+function LongSequence{A}(s::Union{String, SubString{String}}, ::AlphabetCode) where {A<:Alphabet}
+    len = length(s)
+    seq = LongSequence{A}(len)
+    return encode_copyto!(seq, 1, s, 1, len)
 end
 
-function LongSequence{A}(s::String, ::AlphabetCode) where {A<:Alphabet}
-    seq = LongSequence{A}(length(s))
-    return encode_copy!(seq, 1, s, 1)
+function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) where {A<:Alphabet}
+    v = GC.@preserve s unsafe_wrap(Vector{UInt8}, pointer(s), ncodeunits(s))
+    seq = LongSequence{A}(length(v))
+    return encode_chunks!(seq, 1, v, 1, length(v))
 end
 
 function LongSequence{A}(
@@ -43,9 +46,7 @@ function LongSequence{A}(
         stoppos::Integer=length(src)) where {A<:Alphabet}
     len = stoppos - startpos + 1
     seq = LongSequence{A}(len)
-    #println("Made empty sequence ", seq)
-    #println("Making the encode_copy!")
-    return encode_copy!(seq, 1, src, startpos)
+    return encode_copyto!(seq, 1, src, startpos, len)
 end
 
 # create a subsequence
@@ -103,7 +104,7 @@ function LongSequence{A}(chunks::LongSequence{A}...) where {A}
     seq = LongSequence{A}(len)
     offset = 1
     for chunk in chunks
-        copyto!(seq, offset, chunk, 1)
+        copyto!(seq, offset, chunk, 1, length(chunk))
         offset += length(chunk)
     end
     return seq
@@ -113,7 +114,7 @@ function Base.repeat(chunk::LongSequence{A}, n::Integer) where {A}
     seq = LongSequence{A}(length(chunk) * n)
     offset = 1
     for _ in 1:n
-        copyto!(seq, offset, chunk, 1)
+        copyto!(seq, offset, chunk, 1, length(chunk))
         offset += length(chunk)
     end
     return seq

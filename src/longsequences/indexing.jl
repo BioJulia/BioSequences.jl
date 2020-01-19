@@ -60,7 +60,7 @@ function Base.setindex!(seq::LongSequence{A},
                         locs::UnitRange{<:Integer}) where {A}
     @boundscheck checkbounds(seq, locs)
     checkdimension(other, locs)
-    return copyto!(seq, locs.start, other, 1)
+    return copyto!(seq, locs.start, other, 1, length(locs))
 end
 
 function Base.setindex!(seq::LongSequence{A},
@@ -132,3 +132,15 @@ end
     @inbounds data[j] = (bin << r) | (data[j] & ~(bindata_mask(seq) << r))
     return seq
 end
+
+#=
+function Base.iterate(seq::LongSequence{A}, off::Int=first(seq.part)-1) where {A <: Alphabet}
+    off == last(seq.part) && return nothing
+    bps = bits_per_symbol(A())
+    @inbounds chunk = seq.data[(off >>> index_shift(BitsPerSymbol(A()))) + 1]
+    shift = (unsigned(off) * bps) & 63
+    encoding = (chunk >>> shift) & bitmask(A())
+    return decode(A(), encoding), off + 1
+end
+
+=#

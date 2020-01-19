@@ -91,12 +91,8 @@ end
     # Note: Other packages use this function, so we need to test it
     # Even though this is NOT exported or part of the API in a normal sense
     function test_encode_copy(dst::LongSequence{}, doff, src, soff, N)
-        BioSequences.encode_copy!(dst, doff, src, soff, N)
+        BioSequences.encode_copyto!(dst, doff, src, soff, N)
         @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
-    end
-    function test_encode_copy(dst::LongSequence{}, doff, src, soff)
-        BioSequences.encode_copy!(dst, doff, src, soff)
-        @test String(dst[doff:end]) == String(src[soff:end])
     end
 
     probs = [0.25, 0.25, 0.25, 0.25]
@@ -119,10 +115,6 @@ end
             test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
             test_encode_copy(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
             test_encode_copy(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
-
-            # Test some specific methods only used in dispatch
-            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+5, probs)), 3)
-            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+5)), 3)
         end
     end
 end

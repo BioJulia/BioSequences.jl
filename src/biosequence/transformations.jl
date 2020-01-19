@@ -1,4 +1,4 @@
-# Transformations 
+# Transformations
 # ===============
 #
 # Methods that manipulate and change a biological sequence.
@@ -90,7 +90,7 @@ Modifies and returns `seq`.
 """
 function Base.append!(seq::BioSequence, other::BioSequence)
     resize!(seq, length(seq) + length(other))
-    copyto!(seq, lastindex(seq) - length(other) + 1, other, 1)
+    copyto!(seq, lastindex(seq) - length(other) + 1, other, 1, length(other))
     return seq
 end
 
