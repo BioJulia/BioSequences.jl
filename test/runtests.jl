@@ -156,7 +156,7 @@ include("symbols.jl")
     @test ungap!(c) === c && c == aa"AKMV"
 end
 
-@testset "BioSequences" begin
+@testset "LongSequences" begin
     include("longsequences/conversion.jl")
     include("longsequences/basics.jl")
     include("longsequences/hashing.jl")
