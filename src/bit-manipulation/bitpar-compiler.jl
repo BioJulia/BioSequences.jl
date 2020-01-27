@@ -40,6 +40,7 @@ function compile_bitpar(funcname::Symbol;
             lastind = index(stop - bits_per_symbol(seq))
             lastind -= !iszero(offset(stop))
             for i in index(ind):lastind
+                chunk = data[i]
                 $(body_code)
                 ind += 64
             end
