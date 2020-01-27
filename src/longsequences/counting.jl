@@ -69,19 +69,23 @@ Base.count(::typeof(==), seqa::LongNucleotideSequence, seqb::LongNucleotideSeque
 
 # Counting ambiguous sites
 let
-    @info "Compiling bit-parallel ambiguity counter for LongSequence{<:NucleicAcidAlphabet}"
+    @info "Compiling bit-parallel ambiguity counter..."
+    @info "\tFor a single LongSequence{<:NucleicAcidAlphabet}"
     
     counter = :(count += ambiguous_bitcount(x, y, A()))
+    counterb = :(count += ambiguous_bitcount(chunk, Alphabet(seq)))
     
     compile_bitpar(
         :count_ambiguous_bitpar,
         arguments   = (:(seq::LongSequence{<:NucleicAcidAlphabet}),),
         init_code   = :(count = 0),
-        head_code   = counter,
-        body_code   = counter,
-        tail_code   = counter,
+        head_code   = counterb,
+        body_code   = counterb,
+        tail_code   = counterb,
         return_code = :(return count)
     ) |> eval
+    
+    @info "\tFor a pair of LongSequence{<:NucleicAcidAlphabet}s"
     
     compile_2seq_bitpar(
         :count_ambiguous_bitpar,
