@@ -28,7 +28,6 @@ function compile_bitpar(funcname::Symbol;
                 chunk = (data[index(ind)] >> o) & bitmask(stop - ind)
                 $(head_code)
                 ind += 64 - o
-                #@assert offset(ind) == 0
             end
             
             lastind = index(stop - bits_per_symbol(seq))

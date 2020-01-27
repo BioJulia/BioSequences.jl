@@ -73,6 +73,16 @@ let
     
     counter = :(count += ambiguous_bitcount(x, y, A()))
     
+    compile_bitpar(
+        :count_ambiguous_bitpar,
+        arguments   = (:(seq::LongSequence{<:NucleicAcidAlphabet}),),
+        init_code   = :(count = 0),
+        head_code   = counter,
+        body_code   = counter,
+        tail_code   = counter,
+        return_code = :(return count)
+    ) |> eval
+    
     compile_2seq_bitpar(
         :count_ambiguous_bitpar,
         arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
