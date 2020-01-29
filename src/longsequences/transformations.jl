@@ -78,6 +78,7 @@ end
 
 _reverse(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol) = reverse!(copy(seq))
 
+# Generic fallback
 function _reverse!(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol)
     i, j = 1, lastindex(seq)
     @inbounds while i < j
@@ -94,8 +95,8 @@ end
     return zero_offset!(seq)
 end
 
-# Reversion of chunk bits may have left-shifted data in chunks, so we must
-# shift them back to an offset of zero
+# Reversion of chunk bits may have left-shifted data in chunks, this function right shifts
+# all chunks by up to 63 bits. Only works on orphan sequences.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
     lshift = offset(bitindex(seq, last(seq.part)) + bits_per_symbol(A()))
@@ -113,10 +114,12 @@ end
     return seq
 end
 
+# Reverse chunks in data vector and each symbol within a chunk. Chunks may have nonzero
+# offset after use, so use zero_offset!
 @inline function reverse_data!(pred, data::Vector{UInt64}, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     len = length(data)
-    @inbounds for i in 1:len >>> 1
+    @inbounds @simd ivdep for i in 1:len >>> 1
         data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
     end
     @inbounds if isodd(len)
@@ -139,13 +142,11 @@ Make a complement sequence of `seq` in place.
 """
 function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     orphan!(seq)
-    next = firstbitindex(seq)
-    stop = bitindex(seq, lastindex(seq) + 1)
+    next = index(firstbitindex(seq))
+    stop = index(lastbitindex(seq))
     seqdata = seq.data
-    @inbounds while next < stop
-        x = seqdata[index(next)]
-        seqdata[index(next)] = complement_bitpar(x, Alphabet(seq))
-        next += 64
+    @inbounds for i in index(firstbitindex(seq)):index(lastbitindex(seq))
+        seqdata[i] = complement_bitpar(seqdata[i], Alphabet(seq))
     end
     return seq
 end
