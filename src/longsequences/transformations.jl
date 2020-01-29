@@ -61,7 +61,24 @@ Reverse a biological sequence `seq` in place.
 """
 Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(orphan!(seq), BitsPerSymbol(seq))
 
-function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
+"""
+    reverse(seq::LongSequence)
+
+Create reversed copy of a biological sequence.
+"""
+Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(orphan!(seq), BitsPerSymbol(seq))
+
+# Fast path for non-inplace reversion
+@inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    cp = LongSequence{A}(unsigned(length(seq)))
+    reverse_data_copy!(identity, cp.data, seq.data, B)
+    return zero_offset!(cp)
+end
+
+_reverse(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol) = reverse!(copy(seq))
+
+function _reverse!(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol)
     i, j = 1, lastindex(seq)
     @inbounds while i < j
         seq[i], seq[j] = seq[j], seq[i]
@@ -71,26 +88,19 @@ function _reverse!(seq::LongSequence{A}, ::BitsPerSymbol) where {A <: Alphabet}
     return seq
 end
 
-# Inline this large function because it is only called by wrapper functions
-@inline function _reverse!(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
+@inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    reverse_data!(identity, seq.data, B)
+    return zero_offset!(seq)
+end
 
-    # Reverse order of chunks and bits in chunks in one pass
-    data = seq.data
-    len = length(data)
-    B = BitsPerSymbol(seq)
-    @inbounds for i in 1:len >>> 1
-        data[i], data[len-i+1] = reversebits(data[len-i+1], B), reversebits(data[i], B)
-    end
-    @inbounds if isodd(len)
-        data[len >>> 1 + 1] = reversebits(data[len >>> 1 + 1], B)
-    end
-
-    # Reversion of chunk bits may have left-shifted data in chunks, so we must
-    # shift them back to an offset of zero
-    # This is written so it SIMD parallelizes - careful with changes
+# Reversion of chunk bits may have left-shifted data in chunks, so we must
+# shift them back to an offset of zero
+# This is written so it SIMD parallelizes - careful with changes
+@inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
     lshift = offset(bitindex(seq, last(seq.part)) + bits_per_symbol(A()))
     rshift = 64 - lshift
+    len = length(seq.data)
     @inbounds if !iszero(lshift)
         this = seq.data[1]
         for i in 1:len-1
@@ -100,16 +110,27 @@ end
         end
         seq.data[len] >>>= (unsigned(rshift) & 63)
     end
-
     return seq
 end
 
-"""
-    reverse!(seq::LongSequence)
+@inline function reverse_data!(pred, data::Vector{UInt64}, B::BT) where {
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    len = length(data)
+    @inbounds for i in 1:len >>> 1
+        data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
+    end
+    @inbounds if isodd(len)
+        data[len >>> 1 + 1] = pred(reversebits(data[len >>> 1 + 1], B))
+    end
+end
 
-Reverse a biological sequence.
-"""
-Base.reverse(seq::LongSequence{A}) where {A<:Alphabet} = _reverse!(copy(seq), BitsPerSymbol(seq))
+@inline function reverse_data_copy!(pred, dst::Vector{UInt64}, src::Vector{UInt64}, B::BT) where {
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    len = length(dst)
+    @inbounds @simd for i in eachindex(dst)
+        dst[i] = pred(reversebits(src[len - i + 1], B))
+    end
+end
 
 """
     complement!(seq)
@@ -127,6 +148,19 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
         next += 64
     end
     return seq
+end
+
+function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
+    pred = x -> complement_bitpar(x, Alphabet(seq))
+    reverse_data!(pred, seq.data, BitsPerSymbol(seq))
+    return zero_offset!(seq)
+end
+
+function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
+    cp = typeof(seq)(unsigned(length(seq)))
+    pred = x -> complement_bitpar(x, Alphabet(seq))
+    reverse_data_copy!(pred, cp.data, seq.data, BitsPerSymbol(seq))
+    return zero_offset!(cp)
 end
 
 ###
