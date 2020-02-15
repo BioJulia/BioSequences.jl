@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Fixed syntax errors where functions were marked with `@inbounds` instead of
   `@inline`.
-
+  
 ## [2.0]
 ### Added
 - New subtypes of Random.Sampler, SamplerUniform and SamplerWeighted.
@@ -131,7 +131,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.5.0] - 2017-06-07
 ### Added
 - All files pertaining to the old Bio.Seq module.
-
 
 [Unreleased]: https://github.com/BioJulia/BioSequences.jl/compare/v2.0.1...HEAD
 [2.0.1]: https://github.com/BioJulia/BioSequences.jl/compare/v2.0.0...v2.0.1

@@ -1,6 +1,6 @@
 ###
 ### Constructors
-### 
+###
 ###
 ### Constructor methods for LongSequences.
 ###
@@ -23,6 +23,22 @@ function LongSequence()
     return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
 end
 
+function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
+    return LongSequence{A}(s, codetype(A()))
+end
+
+function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) where {A<:Alphabet}
+    seq = LongSequence{A}(ncodeunits(s))
+    len = ncodeunits(s) - firstindex(s) + 1
+    v = GC.@preserve s unsafe_wrap(Vector{UInt8}, pointer(s), len)
+    return encode_chunks!(seq, 1, v, 1, ncodeunits(s))
+end
+
+function LongSequence{A}(s::Union{String, SubString{String}}, ::AlphabetCode) where {A<:Alphabet}
+    seq = LongSequence{A}(length(s))
+    return encode_copy!(seq, 1, s, 1)
+end
+
 function LongSequence{A}(
         src::Union{AbstractString,AbstractVector},
         startpos::Integer=1,
@@ -31,7 +47,7 @@ function LongSequence{A}(
     seq = LongSequence{A}(len)
     #println("Made empty sequence ", seq)
     #println("Making the encode_copy!")
-    return encode_copy!(seq, 1, src, startpos, len)
+    return encode_copy!(seq, 1, src, startpos)
 end
 
 # create a subsequence

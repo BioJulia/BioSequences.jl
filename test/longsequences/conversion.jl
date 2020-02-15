@@ -32,6 +32,7 @@ end
 
     for len in [0, 1, 2, 3, 10, 32, 1000, 10000]
         test_string_construction(DNAAlphabet{4}, random_dna(len))
+        test_string_construction(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_construction(DNAAlphabet{4}, lowercase(random_dna(len)))
         test_string_construction(RNAAlphabet{4}, lowercase(random_rna(len)))
         test_string_construction(RNAAlphabet{4}, random_rna(len))
@@ -39,6 +40,7 @@ end
         test_string_construction(AminoAcidAlphabet, lowercase(random_aa(len)))
 
         test_string_parse(DNAAlphabet{4}, random_dna(len))
+        test_string_parse(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_parse(DNAAlphabet{4}, lowercase(random_dna(len)))
         test_string_parse(RNAAlphabet{4}, lowercase(random_rna(len)))
         test_string_parse(RNAAlphabet{4}, random_rna(len))
@@ -84,6 +86,46 @@ end
         probs = [0.25, 0.25, 0.25, 0.25, 0.00]
         test_vector_construction(DNAAlphabet{2}, random_dna(len, probs))
         test_vector_construction(RNAAlphabet{2}, random_rna(len, probs))
+    end
+end
+
+@testset "Encode_copy!" begin
+    # Note: Other packages use this function, so we need to test it
+    # Even though this is NOT exported or part of the API in a normal sense
+    function test_encode_copy(dst::LongSequence{}, doff, src, soff, N)
+        BioSequences.encode_copy!(dst, doff, src, soff, N)
+        @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
+    end
+    function test_encode_copy(dst::LongSequence{}, doff, src, soff)
+        BioSequences.encode_copy!(dst, doff, src, soff)
+        @test String(dst[doff:end]) == String(src[soff:end])
+    end
+
+    probs = [0.25, 0.25, 0.25, 0.25]
+    for len in [0, 1, 2, 10, 100]
+        for f in [identity, Vector{Char}, Vector{UInt8}]
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
+            test_encode_copy(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
+            test_encode_copy(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
+            test_encode_copy(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_encode_copy(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
+        end
+    end
+
+    for len in [10, 32, 100]
+        for f in [identity, Vector{Char}, Vector{UInt8}]
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
+            test_encode_copy(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
+            test_encode_copy(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
+            test_encode_copy(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_encode_copy(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+
+            # Test some specific methods only used in dispatch
+            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+5, probs)), 3)
+            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+5)), 3)
+        end
     end
 end
 

@@ -68,8 +68,24 @@ Base.count(::typeof(==), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<
 Base.count(::typeof(==), seqa::LongNucleotideSequence, seqb::LongNucleotideSequence) = count(==, promote(seqa, seqb)...)
 
 # Counting ambiguous sites
+# ------------------------
 let
-    @info "Compiling bit-parallel ambiguity counter for LongSequence{<:NucleicAcidAlphabet}"
+    @info "Compiling bit-parallel ambiguity counter..."
+    @info "\tFor a single LongSequence{<:NucleicAcidAlphabet}"
+    
+    counter = :(count += ambiguous_bitcount(chunk, Alphabet(seq)))
+    
+    compile_bitpar(
+        :count_ambiguous_bitpar,
+        arguments   = (:(seq::LongSequence{<:NucleicAcidAlphabet}),),
+        init_code   = :(count = 0),
+        head_code   = counter,
+        body_code   = counter,
+        tail_code   = counter,
+        return_code = :(return count)
+    ) |> eval
+    
+    @info "\tFor a pair of LongSequence{<:NucleicAcidAlphabet}s"
     
     counter = :(count += ambiguous_bitcount(x, y, A()))
     
@@ -84,6 +100,16 @@ let
         return_code = :(return count)
     ) |> eval
 end
+
+
+## For a single sequence.
+# You can never have ambiguous bases in a 2-bit encoded nucleotide sequence.
+Base.count(::typeof(isambiguous), seq::LongSequence{<:NucleicAcidAlphabet{2}}) = 0
+Base.count(::typeof(isambiguous), seq::LongSequence{<:NucleicAcidAlphabet{4}}) = count_ambiguous_bitpar(seq)
+
+## For a pair of sequences.
+# A pair of 2-bit encoded sequences will never have ambiguous bases.
+Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{2}} = 0
 Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
 Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)

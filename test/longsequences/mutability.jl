@@ -161,5 +161,9 @@
         subseq = seq[16:17]
         BioSequences.orphan!(subseq)
         @test subseq == dna"TA"
+
+        subseq = seq[16:20]
+        BioSequences.orphan!(subseq, 3)
+        @test subseq == dna"TAC"
     end
 end

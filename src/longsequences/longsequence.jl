@@ -68,7 +68,7 @@ const LongCharSeq      = LongSequence{CharAlphabet}
 "Gets the alphabet encoding of a given BioSequence."
 BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
 Alphabet(::Type{LongSequence{A}}) where {A <: Alphabet} = A()
-Base.length(seq::LongSequence) = length(seq.part)
+Base.length(seq::LongSequence) = last(seq.part) - first(seq.part) + 1
 bindata(seq::LongSequence) = seq.data
 Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
 
@@ -84,25 +84,29 @@ end
 # Replace a LongSequence's data with a copy, copying only what's needed.
 # The user should never need to call this, as it has no outward effect on the
 # sequence.
-function orphan!(seq::LongSequence{A},
+function orphan!(seq::LongSequence,
 		 size::Integer = length(seq),
-		 force::Bool = false) where {A}
+		 force::Bool = false)
+	if !seq.shared & !force
+	    return seq
+	end
+	return _orphan!(seq, size)
+end
 
-    if !seq.shared && !force
-        return seq
-    end
+function _orphan!(seq::LongSequence{A},
+		 size::Integer = length(seq)) where {A}
 
     j, r = bitindex(seq, 1)
     data = Vector{UInt64}(undef, seq_data_len(A, size))
 
-    if !isempty(seq) && !isempty(data)
+    @inbounds if !isempty(seq) & !isempty(data)
         x = seq.data[j] >> r
         m = index(bitindex(seq, lastindex(seq))) - j + 1
         l = min(lastindex(data), m)
-        @inbounds @simd for i in 1:l-1
+        @simd for i in 1:l-1
             y = seq.data[j + i]
             data[i] = x | y << (64 - r)
-            x = y >> r
+            x = y >> (r & 63)
         end
         if m <= l
             data[l] = x
@@ -113,13 +117,14 @@ function orphan!(seq::LongSequence{A},
     end
 
     seq.data = data
-    seq.part = 1:length(seq)
+    seq.part = 1:size
     seq.shared = false
     return seq
 end
 
 include("indexing.jl")
 include("constructors.jl")
+include("printing.jl")
 include("copying.jl")
 include("conversion.jl")
 include("stringliterals.jl")

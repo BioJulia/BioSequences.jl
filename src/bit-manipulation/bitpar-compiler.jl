@@ -18,24 +18,28 @@ function compile_bitpar(funcname::Symbol;
     end
     functioncode.args[2] = quote
         $(init_code)
-        i = bitindex(seq, 1)
+        ind = bitindex(seq, 1)
         stop = bitindex(seq, lastindex(seq) + 1)
+        data = seq.data
         @inbounds begin
-            if offset(i) != 0 && i < stop
+            if !iszero(offset(ind)) & (ind < stop)
                 # align the bit index to the beginning of a block boundary
-                o = offset(i)
-                chunk = (seq.data[index(i)] >> o) & bitmask(stop - i)
+                o = offset(ind)
+                chunk = (data[index(ind)] >> o) & bitmask(stop - ind)
                 $(head_code)
-                i += 64 - o
-                @assert offset(i) == 0
+                ind += 64 - o
             end
-            while i ≤ stop - 64
-                chunk = seq.data[index(i)]
+            
+            lastind = index(stop - bits_per_symbol(seq))
+            lastind -= !iszero(offset(stop))
+            for i in index(ind):lastind
+                chunk = data[i]
                 $(body_code)
-                i += 64
+                ind += 64
             end
-            if i < stop
-                chunk = seq.data[index(i)] & bitmask(offset(stop))
+            
+            if ind < stop
+                chunk = data[index(ind)] & bitmask(offset(stop))
                 $(tail_code)
             end
         end
