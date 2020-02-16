@@ -1,7 +1,7 @@
 name = "BioSequences"
 uuid = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 authors = ["Ben J. Ward <benjward@protonmail.com"]
-version = "2.0.0"
+version = "2.0.1"
 
 [deps]
 BioGenerics = "47718e42-2ac5-11e9-14af-e5595289c2ea"
@@ -13,9 +13,9 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Twiddle = "7200193e-83a8-5a55-b20d-5d36d44a0795"
 
 [compat]
-BioGenerics = "0.1"
+BioGenerics = "0.1.0"
 BioSymbols = "4.0.0"
-Combinatorics = "1.0"
+Combinatorics = "1.0.0"
 IndexableBitVectors = "1.0.0"
 Twiddle = "1.1.1"
 julia = "1.1.0"
