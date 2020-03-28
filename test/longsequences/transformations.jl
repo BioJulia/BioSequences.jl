@@ -2,6 +2,8 @@
     function test_reverse(A, seq)
         revseq = reverse(LongSequence{A}(seq))
         @test convert(String, revseq) == reverse(seq)
+        revseq = reverse!(LongSequence{A}(seq))
+        @test convert(String, revseq) == reverse(seq)
     end
 
     function test_dna_complement(A, seq)
