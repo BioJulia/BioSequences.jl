@@ -90,31 +90,31 @@ end
 @testset "Encode_copy!" begin
     # Note: Other packages use this function, so we need to test it
     # Even though this is NOT exported or part of the API in a normal sense
-    function test_encode_copy(dst::LongSequence{}, doff, src, soff, N)
-        BioSequences.encode_copyto!(dst, doff, src, soff, N)
+    function test_copyto!(dst::LongSequence{}, doff, src, soff, N)
+        BioSequences.copyto!(dst, doff, src, soff, N)
         @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
     end
 
     probs = [0.25, 0.25, 0.25, 0.25]
     for len in [0, 1, 2, 10, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_encode_copy(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
-            test_encode_copy(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
-            test_encode_copy(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
-            test_encode_copy(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
-            test_encode_copy(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
-            test_encode_copy(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_copyto!(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
         end
     end
 
     for len in [10, 32, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_encode_copy(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
-            test_encode_copy(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
-            test_encode_copy(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
-            test_encode_copy(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
-            test_encode_copy(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
-            test_encode_copy(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_copyto!(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
         end
     end
 end

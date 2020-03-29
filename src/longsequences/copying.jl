@@ -27,19 +27,29 @@ TTAG
 ```
 """
 function Base.copy!(dst::LongSequence{A}, src::LongSequence{A}) where {A <: Alphabet}
-    resize!(dst, length(src))
-    @inbounds copyto!(dst, src)
-    return dst
+    return _copy!(dst, src)
 end
 
 function Base.copy!(dst::LongSequence{<:NucleicAcidAlphabet{N}},
                     src::LongSequence{<:NucleicAcidAlphabet{N}}) where N
-    resize!(dst, length(src))
-    @inbounds copyto!(dst, src)
+    return _copy!(dst, src)
+end
+
+function _copy!(dst::LongSequence, src::LongSequence)
+    orphan!(dst)
+    # Most efficient
+    if !src.shared
+        resize!(dst.data, length(src.data))
+        copyto!(dst.data, src.data)
+        dst.part = src.part
+    # Less efficient
+    else
+        resize!(dst, length(src))
+        @inbounds copyto!(dst, src)
+    end
     return dst
 end
 
-##########
 """
     copyto!(dst::LongSequence, src::BioSequence)
 
@@ -142,30 +152,46 @@ const SeqLike = Union{AbstractVector, AbstractString}
 const ASCIILike = Union{String, SubString{String}}
 
 """
-    encode_copy!(dst::LongSequence, src)
+    copy!(dst::LongSequence, src)
 
 In-place copy content of sequence-like object `src` to `dst`, resizing `dst` to fit.
 The content of `src` must be able to be encoded to the alphabet of `dst`.
 
 # Examples
 ```
-julia> seq = encode_copy!(dna"TAG", "AACGTM")
+julia> seq = copy!(dna"TAG", "AACGTM")
 6nt DNA Sequence:
 AACGTM
 
-julia> encode_copy!(seq, [0x61, 0x43, 0x54])
+julia> copy!(seq, [0x61, 0x43, 0x54])
 3nt DNA Sequence:
 ACT
 ```
 """
-function encode_copy!(dst::LongSequence{<:Alphabet}, src::SeqLike)
-    resize!(dst, length(src))
-    return encode_copyto!(dst, src)
+function Base.copy!(dst::LongSequence{A}, src::SeqLike) where {A <: Alphabet}
+    return copy!(dst, src, codetype(A()))
 end
+
+function Base.copy!(dst::LongSequence{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
+    return copy!(dst, v, C)
+end
+
+function Base.copy!(dst::LongSequence{<:Alphabet}, src::AbstractVector{UInt8}, ::AsciiAlphabet)
+    resize!(dst, length(src))
+    return encode_chunks!(dst, 1, src, 1, length(src))
+end
+
+function Base.copy!(dst::LongSequence{<:Alphabet}, src::SeqLike, ::AlphabetCode)
+    len = length(seq) # calculate only once
+    resize!(dst, len)
+    return copyto!(dst, 1, src, 1, len)
+end
+
 
 ########
 
-# Helper functions for encode_copy!
+# Helper functions for copy!
 @noinline function throw_enc_indexerr(N::Integer, len::Integer, soff::Integer)
     throw(ArgumentError("source of length $len does not contain $N elements from $soff"))
 end
@@ -209,7 +235,7 @@ end
 end
 
 # Use this for AsiiAlphabet alphabets only, internal use only, no boundschecks.
-# This is preferential to `encode_copyto!` if none of the sequence's original content
+# This is preferential to `copyto!` if none of the sequence's original content
 # needs to be kept, since this is faster.
 function encode_chunks!(dst::LongSequence{A}, startindex::Integer, src::AbstractVector{UInt8},
                         soff::Integer, N::Integer) where {A <: Alphabet}
@@ -224,31 +250,29 @@ function encode_chunks!(dst::LongSequence{A}, startindex::Integer, src::Abstract
     return dst
 end
 
-# encode_copyto!
 #########
 
 # Two-argument method
 """
-    encode_copyto!(dst::LongSequence, src)
+    copyto!(dst::LongSequence, src)
 
-Equivalent to `encode_copyto!(dst, 1, src, 1, length(src))`.
+Equivalent to `copyto!(dst, 1, src, 1, length(src))`.
 """
-function encode_copyto!(dst::LongSequence{A}, src::SeqLike) where {A <: Alphabet}
-    return encode_copyto!(dst, src, codetype(A()))
+function Base.copyto!(dst::LongSequence{A}, src::SeqLike) where {A <: Alphabet}
+    return copyto!(dst, src, codetype(A()))
 end
 
-function encode_copyto!(dst::LongSequence{<:Alphabet}, src::SeqLike, C::AlphabetCode)
-    return encode_copyto!(dst, 1, src, 1, length(src), C)
+# Specialized method to avoid O(N) length call for string-like src
+function Base.copyto!(dst::LongSequence{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
+    return copyto!(dst, 1, src, 1, ncodeunits(src), C)
 end
 
-function encode_copyto!(dst::LongSequence{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
-    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
-    return encode_copyto!(dst, 1, v, 1, length(v))
+function Base.copyto!(dst::LongSequence{<:Alphabet}, src::SeqLike, C::AlphabetCode)
+    return copyto!(dst, 1, src, 1, length(src), C)
 end
 
-# Five-argument method
 """
-    encode_copyto!(dst::LongSequence, soff, src, doff, N)
+    copyto!(dst::LongSequence, soff, src, doff, N)
 
 In-place encode `N` elements from `src` starting at `soff` to `dst`, starting at `doff`.
 The length of `dst` must be greater than or equal to `N + doff - 1`.
@@ -258,35 +282,35 @@ the alphabet of `dst`.
 
 # Examples
 ```
-julia> seq = encode_copyto!(dna"AACGTM", 1, "TAG", 1, 3)
+julia> seq = copyto!(dna"AACGTM", 1, "TAG", 1, 3)
 6nt DNA Sequence:
 TAGGTM
 
-julia> encode_copyto!(seq, 2, rna"UUUU", 1, 4)
+julia> copyto!(seq, 2, rna"UUUU", 1, 4)
 6nt DNA Sequence:
 TTTTTM
 ```
 """
-function encode_copyto!(dst::LongSequence{A}, doff::Integer,
+# Dispatch to codetype
+function Base.copyto!(dst::LongSequence{A}, doff::Integer,
                         src::SeqLike, soff::Integer, N::Integer) where {A <: Alphabet}
-    return encode_copyto!(dst, doff, src, soff, N, codetype(A()))
+    return copyto!(dst, doff, src, soff, N, codetype(A()))
 end
 
+# For ASCII seq and src, convert to byte vector and dispatch using that
+function Base.copyto!(dst::LongSequence{A}, doff::Integer,
+                      src::ASCIILike, soff::Integer,
+                      N::Integer, C::AsciiAlphabet) where {A <: Alphabet}
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
+    return Base.copyto!(dst, doff, v, soff, N, C)
+end
 
 @noinline function throw_enc_indexerr(N::Integer, len::Integer, soff::Integer)
     throw(ArgumentError("source of length $len does not contain $N elements from $soff"))
 end
 
-
-function encode_copyto!(dst::LongSequence{A}, doff::Integer,
-                      src::ASCIILike, soff::Integer,
-                      N::Integer, C::AsciiAlphabet) where {A <: Alphabet}
-    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
-    return encode_copyto!(dst, doff, v, soff, N, C)
-end
-
-# Generic method for encode_copyto!
-function encode_copyto!(dst::LongSequence{A}, doff::Integer,
+# Generic method for copyto!, i.e. NOT ASCII input
+function Base.copyto!(dst::LongSequence{A}, doff::Integer,
                       src::SeqLike, soff::Integer,
                       len::Integer, ::AlphabetCode) where {A <: Alphabet}
     if soff != 1 && isa(src, AbstractString) && !isascii(src)
@@ -318,7 +342,7 @@ function encode_copyto!(dst::LongSequence{A}, doff::Integer,
 end
 
 # Special method possible for ASCII alphabet and UInt8 array
-function encode_copyto!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{UInt8},
+function Base.copyto!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{UInt8},
                       soff::Integer, N::Integer, ::AsciiAlphabet) where {A<:Alphabet}
     checkbounds(dst, doff:doff+N-1)
     length(src) < soff + N - 1 && throw_enc_indexerr(N, length(src), soff)

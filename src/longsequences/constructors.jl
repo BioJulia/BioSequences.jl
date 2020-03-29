@@ -27,11 +27,11 @@ function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet
     return LongSequence{A}(s, codetype(A()))
 end
 
-# Generic method for String/Substring
+# Generic method for String/Substring.
 function LongSequence{A}(s::Union{String, SubString{String}}, ::AlphabetCode) where {A<:Alphabet}
     len = length(s)
     seq = LongSequence{A}(len)
-    return encode_copyto!(seq, 1, s, 1, len)
+    return copyto!(seq, 1, s, 1, len)
 end
 
 function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) where {A<:Alphabet}
@@ -46,7 +46,7 @@ function LongSequence{A}(
         stoppos::Integer=length(src)) where {A<:Alphabet}
     len = stoppos - startpos + 1
     seq = LongSequence{A}(len)
-    return encode_copyto!(seq, 1, src, startpos, len)
+    return copyto!(seq, 1, src, startpos, len)
 end
 
 # create a subsequence
