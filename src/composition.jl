@@ -66,8 +66,8 @@ function Composition(iter::AbstractMerIterator{T}) where {T<:AbstractMer}
     if ksize(T) ≤ 8
         # This is faster for short k-mers.
         counts′ = zeros(Int, 4 ^ ksize(T))
-        for (_, x) in iter
-            @inbounds counts′[encoded_data(x) + 1] += 1
+        for mer in iter
+            @inbounds counts′[encoded_data(mer.fw) + 1] += 1
         end
         for x in eachindex(counts′)
             @inbounds c = counts′[x]
@@ -76,8 +76,8 @@ function Composition(iter::AbstractMerIterator{T}) where {T<:AbstractMer}
             end
         end
     else
-        for (_, x) in iter
-            counts[x] = get(counts, x, 0) + 1
+        for mer in iter
+            counts[x] = get(counts, mer.fw, 0) + 1
         end
     end
     return Composition{T}(counts)

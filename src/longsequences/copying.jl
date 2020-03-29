@@ -135,8 +135,6 @@ function _copyto!(dst::LongSequence{A}, doff::Integer,
     return dst
 end
 
-#########
-
 function Base.copy(seq::LongSequence)
     if seq.shared
         newseq = typeof(seq)(seq.data, seq.part, true)

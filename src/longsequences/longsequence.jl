@@ -72,11 +72,11 @@ Base.length(seq::LongSequence) = last(seq.part) - first(seq.part) + 1
 bindata(seq::LongSequence) = seq.data
 Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
 
-@inbounds function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
+@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
     return cld(len, div(64, bits_per_symbol(A())))
 end
 
-@inbounds function encoded_data(seq::LongSequence)
+@inline function encoded_data(seq::LongSequence)
     return seq.data
 end
 

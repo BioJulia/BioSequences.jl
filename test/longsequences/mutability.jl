@@ -72,6 +72,9 @@
         @test length(seq) == 100
         resize!(seq, 200)
         @test length(seq) == 200
+        seq1 = seq[3:198]
+        resize!(seq1, 55)
+        @test length(seq1) == 55
         resize!(seq,  10)
         @test length(seq) == 10
         @test_throws ArgumentError resize!(seq, -1)
