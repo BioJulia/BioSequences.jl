@@ -181,18 +181,13 @@ function Base.copy!(dst::LongSequence{<:Alphabet}, src::AbstractVector{UInt8}, :
 end
 
 function Base.copy!(dst::LongSequence{<:Alphabet}, src::SeqLike, ::AlphabetCode)
-    len = length(seq) # calculate only once
+    len = length(src) # calculate only once
     resize!(dst, len)
     return copyto!(dst, 1, src, 1, len)
 end
 
 
 ########
-
-# Helper functions for copy!
-@noinline function throw_enc_indexerr(N::Integer, len::Integer, soff::Integer)
-    throw(ArgumentError("source of length $len does not contain $N elements from $soff"))
-end
 
 for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
     RNAAlphabet{2}, AminoAcidAlphabet))
