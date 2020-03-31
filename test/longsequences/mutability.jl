@@ -148,7 +148,7 @@
         @test copyto!(seq, dna"TTA") == dna"TTA"
 
         seq = dna"TCCC"
-        @test copyto!(seq, 2, dna"TT", 1) == dna"TTTC"
+        @test copyto!(seq, 2, dna"TT", 1, 2) == dna"TTTC"
         seq = dna"TCCC"
         @test copyto!(seq, 2, dna"TT", 1, 1) == dna"TTCC"
 
