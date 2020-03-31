@@ -79,6 +79,11 @@ end
     test_copyto2!(RNAAlphabet{4}, random_rna)
     test_copyto2!(AminoAcidAlphabet, random_aa)
     test_copyto2!(CharAlphabet, random_aa)
+
+    # Test bug when copying to self
+    src = LongDNASeq("A"^16 * "C"^16 * "A"^16)
+    copyto!(src, 17, src, 1, 32)
+    @test String(src) == "A"^32 * "C"^16
 end
 
 @testset "Copy! data" begin

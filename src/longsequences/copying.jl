@@ -45,7 +45,7 @@ function _copy!(dst::LongSequence, src::LongSequence)
     # Less efficient
     else
         resize!(dst, length(src))
-        @inbounds copyto!(dst, src)
+        copyto!(dst, src)
     end
     return dst
 end
@@ -101,14 +101,16 @@ function _copyto!(dst::LongSequence{A}, doff::Integer,
     @boundscheck checkbounds(dst, doff:doff+N-1)
     @boundscheck checkbounds(src, soff:soff+N-1)
 
-
-    if dst.shared | ((dst === src) & (doff > soff))
-        orphan!(dst, length(dst), true)
+    if dst.shared
+        orphan!(dst)
+    end
+    # This prevents a sequence from destructively overwriting its own data
+    if (dst === src) & (doff > soff)
+        return _copyto!(dst, doff, copy(src[soff:soff+N-1]), 1, N)
     end
 
     id = bitindex(dst, doff)
     is = bitindex(src, soff)
-    #TODO: Resolve this use of bits_per_symbol
     rest = N * bits_per_symbol(A())
     dstdata = dst.data
     srcdata = src.data
