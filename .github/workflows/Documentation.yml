@@ -1,12 +1,13 @@
 name: Documentation
 
 on:
-    push:
-        branches:
-            - 'master'
-            - 'release-'
-        tags: '*'
-    pull_request:
+  push:
+    branches:
+      - master
+      - develop
+      - release/.*
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
