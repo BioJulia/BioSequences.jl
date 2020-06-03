@@ -159,6 +159,7 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
 end
 
 function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
+    orphan!(seq)
     pred = x -> complement_bitpar(x, Alphabet(seq))
     reverse_data!(pred, seq.data, BitsPerSymbol(seq))
     return zero_offset!(seq)
