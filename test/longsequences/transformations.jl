@@ -76,7 +76,7 @@
 
         seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
         seq = reverse_complement!(LongSequence{DNAAlphabet{4}}(seq_string))
-        @test String(seq) == reverse(rna_complement(seq_string))
+        @test String(seq) == reverse(dna_complement(seq_string))
 
         seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
         seq = LongSequence{DNAAlphabet{4}}(seq_string)

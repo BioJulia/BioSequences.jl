@@ -11,7 +11,7 @@ export
     ###
     ### Symbols
     ###
-    
+
     # Types & aliases
     NucleicAcid,
     DNA,
@@ -81,7 +81,7 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-    
+
     # Predicates
     isGC,
     iscompatible,
@@ -90,11 +90,11 @@ export
     isgap,
     ispurine,
     ispyrimidine,
-    
+
     ###
     ### Alphabets
     ###
-    
+
     # Types & aliases
     Alphabet,
     NucleicAcidAlphabet,
@@ -102,25 +102,25 @@ export
     RNAAlphabet,
     AminoAcidAlphabet,
     CharAlphabet,
-    
+
     ###
     ### BioSequences
     ###
-    
+
     # Type & aliases
     BioSequence,
     NucleotideSeq,
     AminoAcidSeq,
-    
+
     # Indexing
     unsafe_setindex!,
-    
+
     # Predicates
     ispalindromic,
     hasambiguity,
     isrepetitive,
     iscanonical,
-    
+
     # Transformations
     canonical,
     canonical!,
@@ -130,23 +130,23 @@ export
     reverse_complement!,
     ungap,
     ungap!,
-    
+
     # Iteration
     each,
     fwmer,
     bwmer,
-    
+
     ###
     ### LongSequence
     ###
-    
+
     # Type & aliases
     LongSequence,
     LongDNASeq,
     LongRNASeq,
     LongAminoAcidSeq,
     LongCharSeq,
-    
+
     # Random
     SamplerUniform,
     SamplerWeighted,
@@ -154,11 +154,11 @@ export
     randdnaseq,
     randrnaseq,
     randaaseq,
-    
+
     ###
     ### Mers
     ###
-    
+
     # Type & aliases
     AbstractMer,
     Mer,
@@ -166,23 +166,23 @@ export
     RNAMer,
     DNAKmer,
     RNAKmer,
-    
+
     BigMer,
     BigDNAMer,
     BigRNAMer,
     BigDNAKmer,
     BigRNAKmer,
-    
+
     DNACodon,
     RNACodon,
-    
+
     # Iteration
     neighbors,
-    
+
     ###
     ### Sequence literals
     ###
-    
+
     @dna_str,
     @rna_str,
     @aa_str,
@@ -191,7 +191,7 @@ export
     @prosite_str,
     @mer_str,
     @bigmer_str,
-    
+
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
@@ -202,22 +202,22 @@ export
     n_ambiguous,
     n_gaps,
     n_certain,
-    
+
     gc_content,
-    
+
     eachcanonical,
-    
+
     ###
     ### Composition
     ###
     Composition,
     composition,
     NucleicAcidCounts,
-    
+
     translate,
     ncbi_trans_table,
-    
-    
+
+
     # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
@@ -229,15 +229,15 @@ export
     PWM,
     maxscore,
     scoreat,
-    
+
     ReferenceSequence,
-    
+
     ###
     ### Demultiplexing
     ###
     Demultiplexer,
     demultiplex,
-    
+
     seqmatrix,
     majorityvote,
     MinHashSketch,
@@ -266,6 +266,7 @@ import Twiddle: enumerate_nibbles,
     count_nonzero_bitpairs,
     repeatpattern
 using Random
+using StableRNGs
 
 BioSymbols.gap(::Type{Char}) = '-'
 

@@ -2,6 +2,7 @@ module TestBioSequences
 
 using Test
 using Random
+using StableRNGs
 using LinearAlgebra: normalize
 import BioSymbols
 using BioSequences
