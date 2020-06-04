@@ -266,6 +266,7 @@ import Twiddle: enumerate_nibbles,
     count_nonzero_bitpairs,
     repeatpattern
 using Random
+using StableRNGs
 
 BioSymbols.gap(::Type{Char}) = '-'
 

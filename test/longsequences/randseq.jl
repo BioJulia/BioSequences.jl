@@ -7,14 +7,14 @@ struct MyAlphabet <: Alphabet end
 
 @testset "Random LongSequences" begin
 function test_sampler(sampler, seed, elements, firstten, T)
-    rng = MersenneTwister(seed)
+    rng = StableRNG(seed)
     sampled1 = [rand(rng, sampler) for i in 1:1000]
-    sampled2 = rand(MersenneTwister(seed), sampler, 1000)
+    sampled2 = rand(StableRNG(seed), sampler, 1000)
     @test sampled1 == sampled2
     @test Set(sampled1) == Set(T[convert(T, i) for i in elements])
     @test eltype(sampler) == T
     @test eltype(firstten) == T
-    @test rand(MersenneTwister(seed), sampler, 10) == firstten
+    @test rand(StableRNG(seed), sampler, 10) == firstten
 end
 
 function test_isseq(seq, alphabettype, len)
@@ -28,11 +28,11 @@ end
 
     # DNA sampler with DNA array
     sampler = SamplerUniform{DNA}([DNA_A, DNA_C, DNA_G, DNA_W])
-    firstten = DNA[DNA_A, DNA_G, DNA_C, DNA_C, DNA_A, DNA_G, DNA_A, DNA_W, DNA_W, DNA_A]
+    firstten = DNA[DNA_C, DNA_W, DNA_G, DNA_C, DNA_C, DNA_C, DNA_C, DNA_A, DNA_A, DNA_A]
     test_sampler(sampler, SEED, sampler.elems, firstten, DNA)
     # Now RNA sampler from DNA array
     sampler = SamplerUniform{RNA}([DNA_A, DNA_C, DNA_G, DNA_W])
-    firstten = RNA[RNA_A, RNA_G, RNA_C, RNA_C, RNA_A, RNA_G, RNA_A, RNA_W, RNA_W, RNA_A]
+    firstten = RNA[RNA_C, RNA_W, RNA_G, RNA_C, RNA_C, RNA_C, RNA_C, RNA_A, RNA_A, RNA_A]
     test_sampler(sampler, SEED, sampler.elems, firstten, RNA)
 
     # Cannot make AA sampler from DNA
@@ -78,11 +78,11 @@ end # SamplerUniform
     @test sum(s.probs) == 1.0
 
     sampler = SamplerWeighted{DNA}([DNA_N, DNA_C, DNA_W, DNA_T], [0.1, 0.2, 0.3])
-    firstten = DNA[DNA_T, DNA_T, DNA_C, DNA_C, DNA_C, DNA_C, DNA_N, DNA_N, DNA_W, DNA_T]
+    firstten = DNA[DNA_C, DNA_N, DNA_T, DNA_T, DNA_T, DNA_N, DNA_W, DNA_C, DNA_W, DNA_N]
     test_sampler(sampler, 0, sampler.elems, firstten, DNA)
 
     sampler = SamplerWeighted{RNA}([DNA_N, DNA_C, DNA_W, DNA_T], [0.15, 0.5, 0.2])
-    firstten = RNA[RNA_W, RNA_U, RNA_C, RNA_C, RNA_C, RNA_C, RNA_N, RNA_N, RNA_C, RNA_U]
+    firstten = RNA[RNA_C, RNA_N, RNA_U, RNA_W, RNA_U, RNA_N, RNA_C, RNA_C, RNA_C, RNA_N]
     test_sampler(sampler, 0, sampler.elems, firstten, RNA)
 
     @test_throws MethodError s = SamplerWeighted{AminoAcid}([DNA_A, DNA_C], [0.1])
@@ -110,13 +110,13 @@ end # SamplerWeighted
 
     # A few samplings
     sampler = SamplerUniform(aa"TVVWYAEDK")
-    @test randseq(MersenneTwister(SEED), AminoAcidAlphabet(), sampler, 10) == aa"TVATTWKDAD"
+    @test randseq(StableRNG(SEED), AminoAcidAlphabet(), sampler, 10) == aa"VEVTKTTADY"
 
     sampler = SamplerUniform(dna"TGAWYKN")
-    @test randseq(MersenneTwister(SEED), DNAAlphabet{4}(), sampler, 10) == dna"TAGKTATWTK"
+    @test randseq(StableRNG(SEED), DNAAlphabet{4}(), sampler, 10) == dna"GWNGGGKTTT"
 
     sampler = SamplerWeighted(rna"UGCMKYN", [0.1, 0.05, 0.2, 0.15, 0.15, 0.2])
-    @test randseq(MersenneTwister(SEED), DNAAlphabet{4}(), sampler, 10) == dna"YNCCCCTTMN"
+    @test randseq(StableRNG(SEED), DNAAlphabet{4}(), sampler, 10) == dna"CTNYNTKCMT"
 
     # Casual tests to see that it can use the global RNG automatically
     sampler = SamplerUniform(aa"TVVWYAEDK")
@@ -134,16 +134,16 @@ end # randseq Sampler
 
 @testset "randseq" begin
     sampler = SamplerUniform(aa"ACDEFGHIKLMNPQRSTVWY")
-    automatic = randseq(MersenneTwister(SEED), AminoAcidAlphabet(), 1000)
-    manual = randseq(MersenneTwister(SEED), AminoAcidAlphabet(), sampler, 1000)
+    automatic = randseq(StableRNG(SEED), AminoAcidAlphabet(), 1000)
+    manual = randseq(StableRNG(SEED), AminoAcidAlphabet(), sampler, 1000)
     @test automatic == manual
     @test Set(automatic) == Set(aa"ACDEFGHIKLMNPQRSTVWY")
 
-    @test randseq(MersenneTwister(SEED), DNAAlphabet{4}(), 20) == dna"AAGATCGGTTCATCCTCAAA"
-    @test randseq(MersenneTwister(SEED), DNAAlphabet{2}(), 20) == dna"TTCGGGATGACTATCTCAGA"
+    @test randseq(StableRNG(SEED), DNAAlphabet{4}(), 20) == dna"CTCTTCGTATGCCGTACCGT"
+    @test randseq(StableRNG(SEED), DNAAlphabet{2}(), 20) == dna"CATCCGCTCCTAGGCCATTT"
 
-    @test randseq(MersenneTwister(SEED), RNAAlphabet{4}(), 20) == rna"AAGAUCGGUUCAUCCUCAAA"
-    @test randseq(MersenneTwister(SEED), RNAAlphabet{2}(), 20) == rna"UUCGGGAUGACUAUCUCAGA"
+    @test randseq(StableRNG(SEED), RNAAlphabet{4}(), 20) == rna"CUCUUCGUAUGCCGUACCGU"
+    @test randseq(StableRNG(SEED), RNAAlphabet{2}(), 20) == rna"CAUCCGCUCCUAGGCCAUUU"
 
     # Casual tests to see that it can use the global RNG automatically
     seq = randseq(DNAAlphabet{2}(), 100)
@@ -157,16 +157,16 @@ end # randseq Sampler
 end # randseq
 
 @testset "Simple constructors" begin
-    manual = randseq(MersenneTwister(SEED), AminoAcidAlphabet(), 100)
-    automatic = randaaseq(MersenneTwister(SEED), 100)
+    manual = randseq(StableRNG(SEED), AminoAcidAlphabet(), 100)
+    automatic = randaaseq(StableRNG(SEED), 100)
     @test automatic == manual
 
-    manual = randseq(MersenneTwister(SEED), DNAAlphabet{4}(), 100)
-    automatic = randdnaseq(MersenneTwister(SEED), 100)
+    manual = randseq(StableRNG(SEED), DNAAlphabet{4}(), 100)
+    automatic = randdnaseq(StableRNG(SEED), 100)
     @test automatic == manual
 
-    manual = randseq(MersenneTwister(SEED), RNAAlphabet{4}(), 100)
-    automatic = randrnaseq(MersenneTwister(SEED), 100)
+    manual = randseq(StableRNG(SEED), RNAAlphabet{4}(), 100)
+    automatic = randrnaseq(StableRNG(SEED), 100)
     @test automatic == manual
 
     # Casual tests to see that it can use the global RNG automatically
