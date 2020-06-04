@@ -226,11 +226,10 @@ end
 
 @inline function Base.iterate(gen::SkipmerFactory, ::Nothing)
     x = nextmer(gen)
-    if isnothing(x)
+    if x === nothing
         return nothing
-    else
-        return x, nothing
     end
+    return x, nothing
 end
 
 """
