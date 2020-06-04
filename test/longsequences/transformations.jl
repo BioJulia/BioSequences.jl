@@ -73,6 +73,18 @@
         seq_string = join(rand("-ACGUSWKMYRBDHVN", 1000))
         seq = reverse_complement(LongSequence{RNAAlphabet{4}}(seq_string))
         @test String(seq) == reverse(rna_complement(seq_string))
+
+        seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
+        seq = reverse_complement!(LongSequence{DNAAlphabet{4}}(seq_string))
+        @test String(seq) == reverse(dna_complement(seq_string))
+
+        seq_string = join(rand("-ACGTSWKMYRBDHVN", 1000))
+        seq = LongSequence{DNAAlphabet{4}}(seq_string)
+        seq2 = seq[100:200]
+        reverse_complement!(seq2)
+        @test String(seq) == seq_string
+        @test String(seq2) == reverse(dna_complement(seq_string[100:200]))
+
     end
 
     @testset "Map" begin
