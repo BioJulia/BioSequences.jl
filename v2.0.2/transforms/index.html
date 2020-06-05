@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Indexing &amp; modifying sequences · BioSequences.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="BioSequences.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">BioSequences.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../symbols/">Biological Symbols</a></li><li><a class="tocitem" href="../types/">BioSequences Types</a></li><li><a class="tocitem" href="../construction/">Constructing sequences</a></li><li class="is-active"><a class="tocitem" href>Indexing &amp; modifying sequences</a><ul class="internal"><li><a class="tocitem" href="#Indexing-1"><span>Indexing</span></a></li><li><a class="tocitem" href="#Modifying-sequences-1"><span>Modifying sequences</span></a></li></ul></li><li><a class="tocitem" href="../predicates/">Predicates</a></li><li><a class="tocitem" href="../random/">Random sequences</a></li><li><a class="tocitem" href="../sequence_search/">Pattern matching and searching</a></li><li><a class="tocitem" href="../demultiplexer/">Sequence Demultipllexing</a></li><li><a class="tocitem" href="../composition/">Sequence composition</a></li><li><a class="tocitem" href="../iteration/">Iteration</a></li><li><a class="tocitem" href="../counting/">Counting</a></li><li><a class="tocitem" href="../io/">I/O</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Indexing &amp; modifying sequences</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Indexing &amp; modifying sequences</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/BioJulia/BioSequences.jl/blob/master/docs/src/transforms.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Indexing-and-modifying-sequences-1"><a class="docs-heading-anchor" href="#Indexing-and-modifying-sequences-1">Indexing &amp; modifying sequences</a><a class="docs-heading-anchor-permalink" href="#Indexing-and-modifying-sequences-1" title="Permalink"></a></h1><h2 id="Indexing-1"><a class="docs-heading-anchor" href="#Indexing-1">Indexing</a><a class="docs-heading-anchor-permalink" href="#Indexing-1" title="Permalink"></a></h2><p>Most <code>BioSequence</code> concrete subtypes for the most part behave like other vector or string types. They can be indexed using integers or ranges:</p><p>For example, with <code>LongSequence</code>s:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACGTTTANAGTNNAGTACC&quot;
+19nt DNA Sequence:
+ACGTTTANAGTNNAGTACC
+
+julia&gt; seq[5]
+DNA_T
+
+julia&gt; seq[6:end]
+14nt DNA Sequence:
+TANAGTNNAGTACC
+</code></pre><p>The biological symbol at a given locus in a biological sequence can be set using setindex:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACGTTTANAGTNNAGTACC&quot;
+19nt DNA Sequence:
+ACGTTTANAGTNNAGTACC
+
+julia&gt; seq[5] = DNA_A
+DNA_A
+</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Some types such as <code>Kmer</code> can be indexed using integers but not using ranges.</p></div></div><p>For <code>LongSequence</code> types, indexing a sequence by range creates a subsequence of the original sequence. Unlike <code>Arrays</code> in the standard library, creating this subsequence is copy-free: the subsequence simply points to the original <code>LongSequence</code> data with its range. You may think that this is unsafe because modifying subsequences propagates to the original sequence, but this doesn&#39;t happen actually:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;AAAA&quot;    # create a sequence
+4nt DNA Sequence:
+AAAA
+
+julia&gt; subseq = seq[1:2]  # create a subsequence from `seq`
+2nt DNA Sequence:
+AA
+
+julia&gt; subseq[2] = DNA_T  # modify the second element of it
+DNA_T
+
+julia&gt; subseq             # the subsequence is modified
+2nt DNA Sequence:
+AT
+
+julia&gt; seq                # but the original sequence is not
+4nt DNA Sequence:
+AAAA
+</code></pre><p>This is because modifying a sequence checks whether its underlying data are shared with other sequences under the hood. If and only if the data are shared, the subsequence creates a copy of itself. Any modifying operation does this check. This is called <em>copy-on-write</em> strategy and users don&#39;t need to care about it because it is transparent: If the user modifies a sequence with or subsequence, the job of managing and protecting the underlying data of sequences is handled for them.</p><h2 id="Modifying-sequences-1"><a class="docs-heading-anchor" href="#Modifying-sequences-1">Modifying sequences</a><a class="docs-heading-anchor-permalink" href="#Modifying-sequences-1" title="Permalink"></a></h2><p>In addition to <code>setindex</code>, many other modifying operations are possible for biological sequences such as <code>push!</code>, <code>pop!</code>, and <code>insert!</code>, which should be familiar to anyone used to editing arrays.</p><article class="docstring"><header><a class="docstring-binding" id="Base.push!" href="#Base.push!"><code>Base.push!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">push!(collection, items...) -&gt; collection</code></pre><p>Insert one or more <code>items</code> in <code>collection</code>. If <code>collection</code> is an ordered container, the items are inserted at the end (in the given order).</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; push!([1, 2, 3], 4, 5, 6)
+6-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6</code></pre><p>If <code>collection</code> is ordered, use <a href="#Base.append!"><code>append!</code></a> to add all the elements of another collection to it. The result of the preceding example is equivalent to <code>append!([1, 2, 3], [4, 5, 6])</code>. For <code>AbstractSet</code> objects, <a href="@ref"><code>union!</code></a> can be used instead.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L887-L908">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.pop!" href="#Base.pop!"><code>Base.pop!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">pop!(collection) -&gt; item</code></pre><p>Remove an item in <code>collection</code> and return it. If <code>collection</code> is an ordered container, the last item is returned.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; A=[1, 2, 3]
+3-element Array{Int64,1}:
+ 1
+ 2
+ 3
+
+julia&gt; pop!(A)
+3
+
+julia&gt; A
+2-element Array{Int64,1}:
+ 1
+ 2
+
+julia&gt; S = Set([1, 2])
+Set{Int64} with 2 elements:
+  2
+  1
+
+julia&gt; pop!(S)
+2
+
+julia&gt; S
+Set{Int64} with 1 element:
+  1
+
+julia&gt; pop!(Dict(1=&gt;2))
+1 =&gt; 2</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L1086-L1123">source</a></section><section><div><pre><code class="language-none">pop!(collection, key[, default])</code></pre><p>Delete and return the mapping for <code>key</code> if it exists in <code>collection</code>, otherwise return <code>default</code>, or throw an error if <code>default</code> is not specified.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; d = Dict(&quot;a&quot;=&gt;1, &quot;b&quot;=&gt;2, &quot;c&quot;=&gt;3);
+
+julia&gt; pop!(d, &quot;a&quot;)
+1
+
+julia&gt; pop!(d, &quot;d&quot;)
+ERROR: KeyError: key &quot;d&quot; not found
+Stacktrace:
+[...]
+
+julia&gt; pop!(d, &quot;e&quot;, 4)
+4</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/dict.jl#L583-L604">source</a></section><section><div><pre><code class="language-none">pop!(q::Deque{T})</code></pre><p>Remove the element at the back</p></div></section><section><div><pre><code class="language-none">pop!(h::BinaryMinMaxHeap) = popmin!(h)</code></pre></div></section><section><div><pre><code class="language-none">pop!(sc, k[, default])</code></pre><p>Deletes the item with key <code>k</code> in SortedDict or SortedSet <code>sc</code> and returns the value that was associated with <code>k</code> in the case of SortedDict or <code>k</code> itself in the case of SortedSet. If <code>k</code> is not in <code>sc</code> return <code>default</code>, or throw a <code>KeyError</code> if <code>default</code> is not specified. Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">pop!(sc, k[, default])</code></pre><p>Deletes the item with key <code>k</code> in SortedDict or SortedSet <code>sc</code> and returns the value that was associated with <code>k</code> in the case of SortedDict or <code>k</code> itself in the case of SortedSet. If <code>k</code> is not in <code>sc</code> return <code>default</code>, or throw a <code>KeyError</code> if <code>default</code> is not specified. Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">pop!(ss)</code></pre><p>Deletes the item with first key in SortedSet <code>ss</code> and returns the key. A <code>BoundsError</code> results if <code>ss</code> is empty. Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">pop!(collection, key[, default])</code></pre><p>Delete and return the mapping for <code>key</code> if it exists in <code>collection</code>, otherwise return <code>default</code>, or throw an error if <code>default</code> is not specified.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; d = RobinDict(&quot;a&quot;=&gt;1, &quot;b&quot;=&gt;2, &quot;c&quot;=&gt;3);
+
+julia&gt; pop!(d, &quot;a&quot;)
+1
+
+julia&gt; pop!(d, &quot;d&quot;)
+ERROR: KeyError: key &quot;d&quot; not found
+Stacktrace:
+[...]
+
+julia&gt; pop!(d, &quot;e&quot;, 4)
+4</code></pre></div></section><section><div><pre><code class="language-none">pop!(cb::CircularBuffer)</code></pre><p>Remove the element at the back.</p></div></section><section><div><pre><code class="language-none">pop!(seq::BioSequence)</code></pre><p>Remove the symbol from the end of a biological sequence <code>seq</code> and return it. Returns a variable of <code>eltype(seq)</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L27-L32">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.pushfirst!" href="#Base.pushfirst!"><code>Base.pushfirst!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">pushfirst!(collection, items...) -&gt; collection</code></pre><p>Insert one or more <code>items</code> at the beginning of <code>collection</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; pushfirst!([1, 2, 3, 4], 5, 6)
+6-element Array{Int64,1}:
+ 5
+ 6
+ 1
+ 2
+ 3
+ 4</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L1133-L1149">source</a></section><section><div><pre><code class="language-none">pushfirst!(q::Deque{T}, x)</code></pre><p>Add an element to the front</p></div></section><section><div><pre><code class="language-none">pushfirst!(D::CircularDeque, v)</code></pre><p>Add an element to the front.</p></div></section><section><div><pre><code class="language-none">pushfirst!(cb::CircularBuffer, data)</code></pre><p>Insert one or more items at the beginning of CircularBuffer and overwrite back if full.</p></div></section><section><div><pre><code class="language-none">pushfirst!(seq, x)</code></pre><p>Insert a biological symbol <code>x</code> at the beginning of a biological sequence <code>seq</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L112-L116">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.popfirst!" href="#Base.popfirst!"><code>Base.popfirst!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">popfirst!(collection) -&gt; item</code></pre><p>Remove the first <code>item</code> from <code>collection</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; A = [1, 2, 3, 4, 5, 6]
+6-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+
+julia&gt; popfirst!(A)
+1
+
+julia&gt; A
+5-element Array{Int64,1}:
+ 2
+ 3
+ 4
+ 5
+ 6</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L1157-L1184">source</a></section><section><div><pre><code class="language-none">popfirst!(q::Deque{T})</code></pre><p>Remove the element at the front</p></div></section><section><div><pre><code class="language-none">popfirst!(D::CircularDeque)</code></pre><p>Remove the element at the front.</p></div></section><section><div><pre><code class="language-none">popfirst!(cb::CircularBuffer)</code></pre><p>Remove the element from the front of the <code>CircularBuffer</code>.</p></div></section><section><div><pre><code class="language-none">popfirst!(seq)</code></pre><p>Remove the symbol from the beginning of a biological sequence <code>seq</code> and return it. Returns a variable of <code>eltype(seq)</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L97-L102">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.insert!" href="#Base.insert!"><code>Base.insert!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">insert!(a::Vector, index::Integer, item)</code></pre><p>Insert an <code>item</code> into <code>a</code> at the given <code>index</code>. <code>index</code> is the index of <code>item</code> in the resulting <code>a</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; insert!([6, 5, 4, 2, 1], 4, 3)
+6-element Array{Int64,1}:
+ 6
+ 5
+ 4
+ 3
+ 2
+ 1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L1194-L1211">source</a></section><section><div><pre><code class="language-none">insert!(sc, k)</code></pre><p>Argument <code>sc</code> is a SortedDict or SortedMultiDict, <code>k</code> is a key and <code>v</code> is the corresponding value. This inserts the <code>(k,v)</code> pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">insert!(sc, k)</code></pre><p>Argument <code>sc</code> is a SortedDict or SortedMultiDict, <code>k</code> is a key and <code>v</code> is the corresponding value. This inserts the <code>(k,v)</code> pair into the container. If the key is already present in a SortedDict, this overwrites the old value. In the case of SortedMultiDict, no overwriting takes place (since SortedMultiDict allows the same key to associate with multiple values). In the case of SortedDict, the return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. In the case of SortedMultiDict, a semitoken is returned (but no boolean). Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">insert!(sc, k)</code></pre><p>Argument <code>sc</code> is a SortedSet and <code>k</code> is a key. This inserts the key into the container. If the key is already present, this overwrites the old value. (This is not necessarily a no-op; see below for remarks about the customizing the sort order.) The return value is a pair whose first entry is boolean and indicates whether the insertion was new (i.e., the key was not previously present) and the second entry is the semitoken of the new entry. Time: O(<em>c</em> log <em>n</em>)</p></div></section><section><div><pre><code class="language-none">insert!(seq::BioSequence, i, x)</code></pre><p>Insert a biological symbol <code>x</code> into a biological sequence <code>seq</code>, at the given index <code>i</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L42-L47">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.deleteat!-Tuple{BioSequence,Integer}" href="#Base.deleteat!-Tuple{BioSequence,Integer}"><code>Base.deleteat!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">deleteat!(seq::BioSequence, i::Integer)</code></pre><p>Delete a biological symbol at a single position <code>i</code> in a biological sequence <code>seq</code>.</p><p>Modifies the input sequence.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L70-L77">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.append!" href="#Base.append!"><code>Base.append!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">append!(collection, collection2) -&gt; collection.</code></pre><p>For an ordered container <code>collection</code>, add the elements of <code>collection2</code> to the end of it.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; append!([1],[2,3])
+3-element Array{Int64,1}:
+ 1
+ 2
+ 3
+
+julia&gt; append!([1, 2, 3], [4, 5, 6])
+6-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6</code></pre><p>Use <a href="#Base.push!"><code>push!</code></a> to add individual items to <code>collection</code> which are not already themselves in another collection. The result of the preceding example is equivalent to <code>push!([1, 2, 3], 4, 5, 6)</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L925-L951">source</a></section><section><div><pre><code class="language-none">append!(cb::CircularBuffer, datavec::AbstractVector)</code></pre><p>Push at most last <code>capacity</code> items.</p></div></section><section><div><pre><code class="language-none">append!(seq, other)</code></pre><p>Add a biological sequence <code>other</code> onto the end of biological sequence <code>seq</code>. Modifies and returns <code>seq</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L85-L90">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.resize!" href="#Base.resize!"><code>Base.resize!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">resize!(a::Vector, n::Integer) -&gt; Vector</code></pre><p>Resize <code>a</code> to contain <code>n</code> elements. If <code>n</code> is smaller than the current collection length, the first <code>n</code> elements will be retained. If <code>n</code> is larger, the new elements are not guaranteed to be initialized.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; resize!([6, 5, 4, 3, 2, 1], 3)
+3-element Array{Int64,1}:
+ 6
+ 5
+ 4
+
+julia&gt; a = resize!([6, 5, 4, 3, 2, 1], 8);
+
+julia&gt; length(a)
+8
+
+julia&gt; a[1:6]
+6-element Array{Int64,1}:
+ 6
+ 5
+ 4
+ 3
+ 2
+ 1</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/array.jl#L1031-L1060">source</a></section><section><div><pre><code class="language-none">resize!(seq, size, [force::Bool])</code></pre><p>Resize a biological sequence <code>seq</code>, to a given <code>size</code>. Does not resize the underlying data array unless the new size does not fit. If <code>force</code>, always resize underlying data array.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/longsequences/transformations.jl#L5-L10">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.empty!" href="#Base.empty!"><code>Base.empty!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">empty!(collection) -&gt; collection</code></pre><p>Remove all elements from a <code>collection</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; A = Dict(&quot;a&quot; =&gt; 1, &quot;b&quot; =&gt; 2)
+Dict{String,Int64} with 2 entries:
+  &quot;b&quot; =&gt; 2
+  &quot;a&quot; =&gt; 1
+
+julia&gt; empty!(A);
+
+julia&gt; A
+Dict{String,Int64} with 0 entries</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/dict.jl#L245-L262">source</a></section><section><div><pre><code class="language-none">empty!(q::Deque{T})</code></pre><p>Reset the deque.</p></div></section><section><div><pre><code class="language-none">empty!(collection) -&gt; collection</code></pre><p>Remove all elements from a <code>collection</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; A = RobinDict(&quot;a&quot; =&gt; 1, &quot;b&quot; =&gt; 2)
+RobinDict{String,Int64} with 2 entries:
+  &quot;b&quot; =&gt; 2
+  &quot;a&quot; =&gt; 1
+
+julia&gt; empty!(A);
+
+julia&gt; A
+RobinDict{String,Int64} with 0 entries</code></pre></div></section><section><div><pre><code class="language-none">empty!(cb::CircularBuffer)</code></pre><p>Reset the buffer.</p></div></section><section><div><pre><code class="language-none">empty!(seq::BioSequence)</code></pre><p>Completely empty a biological sequence <code>seq</code> of nucleotides.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L9-L13">source</a></section></article><p>Here are some examples:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACG&quot;
+3nt DNA Sequence:
+ACG
+
+julia&gt; push!(seq, DNA_T)
+4nt DNA Sequence:
+ACGT
+
+julia&gt; append!(seq, dna&quot;AT&quot;)
+6nt DNA Sequence:
+ACGTAT
+
+julia&gt; deleteat!(seq, 2)
+5nt DNA Sequence:
+AGTAT
+
+julia&gt; deleteat!(seq, 2:3)
+3nt DNA Sequence:
+AAT
+</code></pre><h3 id="Additional-transformations-1"><a class="docs-heading-anchor" href="#Additional-transformations-1">Additional transformations</a><a class="docs-heading-anchor-permalink" href="#Additional-transformations-1" title="Permalink"></a></h3><p>In addition to these basic modifying functions, other sequence transformations that are common in bioinformatics are also provided.</p><article class="docstring"><header><a class="docstring-binding" id="Base.reverse!-Tuple{LongSequence}" href="#Base.reverse!-Tuple{LongSequence}"><code>Base.reverse!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">reverse!(seq::LongSequence)</code></pre><p>Reverse a biological sequence <code>seq</code> in place.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/longsequences/transformations.jl#L64-L68">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="Base.reverse-Tuple{LongSequence{#s4} where #s4&lt;:NucleicAcidAlphabet}" href="#Base.reverse-Tuple{LongSequence{#s4} where #s4&lt;:NucleicAcidAlphabet}"><code>Base.reverse</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">reverse(seq::LongSequence)</code></pre><p>Create reversed copy of a biological sequence.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/longsequences/transformations.jl#L71-L75">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.complement!" href="#BioSequences.complement!"><code>BioSequences.complement!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">complement!(seq)</code></pre><p>Make a complement sequence of <code>seq</code> in place.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/longsequences/transformations.jl#L145-L149">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSymbols.complement" href="#BioSymbols.complement"><code>BioSymbols.complement</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">complement(nt::NucleicAcid)</code></pre><p>Return the complementary nucleotide of <code>nt</code>.</p><p>This function returns the union of all possible complementary nucleotides.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; complement(DNA_A)
+DNA_T
+
+julia&gt; complement(DNA_N)
+DNA_N
+
+julia&gt; complement(RNA_U)
+RNA_A
+</code></pre></div></section><section><div><pre><code class="language-none">complement(seq)</code></pre><p>Make a complement sequence of <code>seq</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L128-L132">source</a></section><section><div><pre><code class="language-none">complement(x::T) where {T &lt;: Skipmer}</code></pre><p>Return the complement of a short sequence type <code>x</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/mers/transformations.jl#L5-L9">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.reverse_complement!" href="#BioSequences.reverse_complement!"><code>BioSequences.reverse_complement!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">reverse_complement!(seq)</code></pre><p>Make a reversed complement sequence of <code>seq</code> in place.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L137-L141">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.reverse_complement" href="#BioSequences.reverse_complement"><code>BioSequences.reverse_complement</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">reverse_complement(seq)</code></pre><p>Make a reversed complement sequence of <code>seq</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L146-L150">source</a></section><section><div><pre><code class="language-none">reverse_complement(x::Skipmer)</code></pre><p>Return the reverse complement of <code>x</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/mers/transformations.jl#L26-L30">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.ungap!" href="#BioSequences.ungap!"><code>BioSequences.ungap!</code></a> — <span class="docstring-category">Function</span></header><section><div><p>Remove gap characters from an input sequence.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L198">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.ungap" href="#BioSequences.ungap"><code>BioSequences.ungap</code></a> — <span class="docstring-category">Function</span></header><section><div><p>Create a copy of a sequence with gap characters removed.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L195">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.canonical!" href="#BioSequences.canonical!"><code>BioSequences.canonical!</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">canonical!(seq::NucleotideSeq)</code></pre><p>Transforms the <code>seq</code> into its canonical form, if it is not already canonical. Modifies the input sequence inplace.</p><p>For any sequence, there is a reverse complement, which is the same sequence, but on the complimentary strand of DNA:</p><pre><code class="language-none">-------&gt;
+ATCGATCG
+CGATCGAT
+&lt;-------</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Using the <a href="#BioSequences.reverse_complement"><code>reverse_complement</code></a> of a DNA sequence will give give this reverse complement.</p></div></div><p>Of the two sequences, the <em>canonical</em> of the two sequences is the lesser of the two i.e. <code>canonical_seq &lt; other_seq</code>.</p><p>Using this function on a <code>seq</code> will ensure it is the canonical version.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L155-L179">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.canonical" href="#BioSequences.canonical"><code>BioSequences.canonical</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">canonical(seq::NucleotideSeq)</code></pre><p>Create the canonical sequence of <code>seq</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/biosequence/transformations.jl#L187-L192">source</a></section><section><div><pre><code class="language-none">canonical(kmer::Skipmer)</code></pre><p>Return the canonical sequence of <code>x</code>.</p><p>A canonical sequence is the numerical lesser of a k-mer and its reverse complement. This is useful in hashing/counting sequences in data that is not strand specific, and thus observing the short sequence is equivalent to observing its reverse complement.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/mers/transformations.jl#L34-L42">source</a></section></article><p>Some examples:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACGTAT&quot;
+6nt DNA Sequence:
+ACGTAT
+
+julia&gt; reverse!(seq)
+6nt DNA Sequence:
+TATGCA
+
+julia&gt; complement!(seq)
+6nt DNA Sequence:
+ATACGT
+
+julia&gt; reverse_complement!(seq)
+6nt DNA Sequence:
+ACGTAT
+</code></pre><p>Many of these methods also have a version which makes a copy of the input sequence, so you get a modified copy, and don&#39;t alter the original sequence. Such methods are named the same, but without the exclamation mark. E.g. <code>reverse</code> instead of <code>reverse!</code>, and <code>ungap</code> instead of <code>ungap!</code>.  </p><h4 id="Translation-1"><a class="docs-heading-anchor" href="#Translation-1">Translation</a><a class="docs-heading-anchor-permalink" href="#Translation-1" title="Permalink"></a></h4><p>Translation is a slightly more complex transformation for RNA Sequences and so we describe it here in more detail.</p><p>The <a href="#BioSequences.translate"><code>translate</code></a> function translates a sequence of codons in a RNA sequence to a amino acid sequence based on a genetic code. The <code>BioSequences</code> package provides all NCBI defined genetic codes and they are registered in <a href="#BioSequences.ncbi_trans_table"><code>ncbi_trans_table</code></a>.</p><article class="docstring"><header><a class="docstring-binding" id="BioSequences.translate" href="#BioSequences.translate"><code>BioSequences.translate</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)</code></pre><p>Translate an <code>LongRNASeq</code> or a <code>LongDNASeq</code> to an <code>LongAminoAcidSeq</code>.</p><p>Translation uses genetic code <code>code</code> to map codons to amino acids. See <code>ncbi_trans_table</code> for available genetic codes. If codons in the given sequence cannot determine a unique amino acid, they will be translated to <code>AA_X</code> if <code>allow_ambiguous_codons</code> is <code>true</code> and otherwise result in an error. For organisms that utilize alternative start codons, one can set <code>alternative_start=true</code>, in which case the first codon will always be converted to a methionine.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/geneticcode.jl#L313-L325">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BioSequences.ncbi_trans_table" href="#BioSequences.ncbi_trans_table"><code>BioSequences.ncbi_trans_table</code></a> — <span class="docstring-category">Constant</span></header><section><div><p>Genetic code list of NCBI.</p><p>The standard genetic code is <code>ncbi_trans_table[1]</code> and others can be shown by <code>show(ncbi_trans_table)</code>. For more details, consult the next link: http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/f8274b062999717042f1de9cc80b9fe1e46f7251/src/geneticcode.jl#L92-L99">source</a></section></article><pre><code class="language-julia-repl">julia&gt; ncbi_trans_table
+Translation Tables:
+  1. The Standard Code (standard_genetic_code)
+  2. The Vertebrate Mitochondrial Code (vertebrate_mitochondrial_genetic_code)
+  3. The Yeast Mitochondrial Code (yeast_mitochondrial_genetic_code)
+  4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code (mold_mitochondrial_genetic_code)
+  5. The Invertebrate Mitochondrial Code (invertebrate_mitochondrial_genetic_code)
+  6. The Ciliate, Dasycladacean and Hexamita Nuclear Code (ciliate_nuclear_genetic_code)
+  9. The Echinoderm and Flatworm Mitochondrial Code (echinoderm_mitochondrial_genetic_code)
+ 10. The Euplotid Nuclear Code (euplotid_nuclear_genetic_code)
+ 11. The Bacterial, Archaeal and Plant Plastid Code (bacterial_plastid_genetic_code)
+ 12. The Alternative Yeast Nuclear Code (alternative_yeast_nuclear_genetic_code)
+ 13. The Ascidian Mitochondrial Code (ascidian_mitochondrial_genetic_code)
+ 14. The Alternative Flatworm Mitochondrial Code (alternative_flatworm_mitochondrial_genetic_code)
+ 16. Chlorophycean Mitochondrial Code (chlorophycean_mitochondrial_genetic_code)
+ 21. Trematode Mitochondrial Code (trematode_mitochondrial_genetic_code)
+ 22. Scenedesmus obliquus Mitochondrial Code (scenedesmus_obliquus_mitochondrial_genetic_code)
+ 23. Thraustochytrium Mitochondrial Code (thraustochytrium_mitochondrial_genetic_code)
+ 24. Pterobranchia Mitochondrial Code (pterobrachia_mitochondrial_genetic_code)
+ 25. Candidate Division SR1 and Gracilibacteria Code (candidate_division_sr1_genetic_code)
+</code></pre><p><a href="https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes">https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes</a></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../construction/">« Constructing sequences</a><a class="docs-footer-nextpage" href="../predicates/">Predicates »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 5 June 2020 00:13">Friday 5 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
