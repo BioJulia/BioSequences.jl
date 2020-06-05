@@ -217,7 +217,7 @@ end
     end
 end
 
-@inline function encode_chunk(A::Alphabet, src::AbstractArray{UInt8}, soff::Int, N::Int)
+@inline function encode_chunk(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer, N::Integer)
     chunk = zero(UInt64)
     check = 0x00
     @inbounds for i in 1:N
