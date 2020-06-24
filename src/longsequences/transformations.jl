@@ -166,10 +166,7 @@ function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
-    cp = typeof(seq)(unsigned(length(seq)))
-    pred = x -> complement_bitpar(x, Alphabet(seq))
-    reverse_data_copy!(pred, cp.data, seq.data, BitsPerSymbol(seq))
-    return zero_offset!(cp)
+    return reverse_complement!(copy(seq))
 end
 
 ###
