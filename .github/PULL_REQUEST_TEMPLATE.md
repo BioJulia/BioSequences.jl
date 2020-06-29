@@ -37,8 +37,8 @@ _(Please tick any or all of the following that are applicable)_
 
 ## :ballot_box_with_check: Checklist
 
-- [ ] :art: The changes implemented is consistent with the [julia style guide](https://docs.julialang.org/en/stable/manual/style-guide/).
-- [ ] :blue_book: I have updated and added relevant docstrings, in a manner consistent with the [documentation styleguide](https://docs.julialang.org/en/stable/manual/documentation/).
+- [ ] :art: The changes implemented is consistent with the [julia style guide](https://docs.julialang.org/en/v1/manual/style-guide/).
+- [ ] :blue_book: I have updated and added relevant docstrings, in a manner consistent with the [documentation styleguide](https://docs.julialang.org/en/v1/manual/documentation/).
 - [ ] :blue_book: I have added or updated relevant user and developer manuals/documentation in `docs/src/`.
 - [ ] :ok: There are unit tests that cover the code changes I have made.
 - [ ] :ok: The unit tests cover my code changes AND they pass.
