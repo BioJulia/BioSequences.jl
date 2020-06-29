@@ -112,12 +112,11 @@
 	RNAMer("ACGU")[2:3] == RNAMer("CG")
 	BigRNAMer("ACGU")[2:3] == BigRNAMer("CG")
 
-	# ordinal range
 	DNAMer("ACGT")[2:1:3] == DNAMer("CG")
-	# empty range
-	@test_throws ArgumentError DNAMer("ACGT")[3:2]
-	# works if step is declared
+	DNAMer("ACGT")[1:2:end] == DNAMer("CG")
 	DNAMer("ACGT")[3:-1:2] == DNAMer("GC")
+
+	@test_throws ArgumentError DNAMer("ACGT")[3:2]
 	@test_throws BoundsError DNAMer("ACGT")[3:5]
     end
 end
