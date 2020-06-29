@@ -107,14 +107,14 @@
     end
 
     @testset "Take slices of Mers" begin
-	DNAMer("ACGT")[2:3] == DNAMer("CG")
-	BigDNAMer("ACGT")[2:3] == BigDNAMer("CG")
-	RNAMer("ACGU")[2:3] == RNAMer("CG")
-	BigRNAMer("ACGU")[2:3] == BigRNAMer("CG")
+	@test DNAMer("ACGT")[2:3] == DNAMer("CG")
+	@test BigDNAMer("ACGT")[2:3] == BigDNAMer("CG")
+	@test RNAMer("ACGU")[2:3] == RNAMer("CG")
+	@test BigRNAMer("ACGU")[2:3] == BigRNAMer("CG")
 
-	DNAMer("ACGT")[2:1:3] == DNAMer("CG")
-	DNAMer("ACGT")[1:2:end] == DNAMer("CG")
-	DNAMer("ACGT")[3:-1:2] == DNAMer("GC")
+	@test DNAMer("ACGT")[2:1:3] == DNAMer("CG")
+	@test DNAMer("ACGT")[1:2:end] == DNAMer("AG")
+	@test DNAMer("ACGT")[3:-1:2] == DNAMer("GC")
 
 	@test_throws ArgumentError DNAMer("ACGT")[3:2]
 	@test_throws BoundsError DNAMer("ACGT")[3:5]
