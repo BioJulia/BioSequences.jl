@@ -107,18 +107,17 @@
     end
 
     @testset "Take slices of Mers" begin
-	import BioSequences
-	BioSequences.DNAMer("ACGT")[2:3] == BioSequences.DNAMer("CG")
-	BioSequences.BigDNAMer("ACGT")[2:3] == BioSequences.BigDNAMer("CG")
-	BioSequences.RNAMer("ACGU")[2:3] == BioSequences.RNAMer("CG")
-	BioSequences.BigRNAMer("ACGU")[2:3] == BioSequences.BigRNAMer("CG")
+	DNAMer("ACGT")[2:3] == DNAMer("CG")
+	BigDNAMer("ACGT")[2:3] == BigDNAMer("CG")
+	RNAMer("ACGU")[2:3] == RNAMer("CG")
+	BigRNAMer("ACGU")[2:3] == BigRNAMer("CG")
 
 	# ordinal range
-	BioSequences.DNAMer("ACGT")[2:1:3] == BioSequences.DNAMer("CG")
+	DNAMer("ACGT")[2:1:3] == DNAMer("CG")
 	# empty range
-	Test.@test_throws ArgumentError BioSequences.DNAMer("ACGT")[3:2]
+	@test_throws ArgumentError DNAMer("ACGT")[3:2]
 	# works if step is declared
-	BioSequences.DNAMer("ACGT")[3:-1:2] == BioSequences.DNAMer("GC")
-	Test.@test_throws BoundsError BioSequences.DNAMer("ACGT")[3:5]
+	DNAMer("ACGT")[3:-1:2] == DNAMer("GC")
+	@test_throws BoundsError DNAMer("ACGT")[3:5]
     end
 end
