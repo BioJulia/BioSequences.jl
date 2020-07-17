@@ -19,8 +19,9 @@ Base.empty!(seq::BioSequence) = resize!(seq, 0)
 Append a biological symbol `x` to a biological sequence `seq`.
 """
 function Base.push!(seq::BioSequence, x)
+    x_ = convert(eltype(seq), x)
     resize!(seq, length(seq) + 1)
-    unsafe_setindex!(seq, x, lastindex(seq))
+    unsafe_setindex!(seq, x_, lastindex(seq))
     return seq
 end
 
