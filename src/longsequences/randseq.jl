@@ -173,7 +173,7 @@ randseq(A::Alphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
 
 function randseq_allbits(rng::AbstractRNG, A::Alphabet, len::Integer)
     vector = rand(rng, UInt64, seq_data_len(typeof(A), len))
-    return LongSequence{typeof(A)}(vector, 1:len, false)
+    return LongSequence{typeof(A)}(vector, len)
 end
 
 """

@@ -13,7 +13,7 @@ Indexing into BioSequences works as follows:
 A `Base.getindex` method is provided for `BioSequence`.
 It's job is to, do boundschecking. And to then call `inbounds_getindex`.
 
-It is the task of `inbounds_getindex` to extract from a sequence, the 
+It is the task of `inbounds_getindex` to extract from a sequence, the
 appropriate bits, and pass them to an appropriate `decode` method.
 =#
 
@@ -62,7 +62,7 @@ end
     inbounds_getindex(seq::BioSequence, i::Integer)
 
 An inbounds_getindex method defined by default for all BioSequences.
-    
+
 It is the job of this method to convert the integer index to a `BitIndex`, and
 call the method of inbounds_getindex, for the sequence and `BitIndex`
 combination.
@@ -92,6 +92,16 @@ end
 
 function checkdimension(seq::BioSequence, locs::AbstractVector{Bool})
     return checkdimension(length(seq), sum(locs))
+end
+
+@inline function unsafe_setindex!(s::BioSequence, v, i::Integer)
+    return unsafe_setindex!(s, v, bitindex(s, i))
+end
+
+@inline function unsafe_setindex!(s::BioSequence, v, i::BitIndex)
+    v_ = convert(eltype(s), v)
+    encoded = encode(Alphabet(s), v_)
+    return encoded_setindex!(s, encoded, i)
 end
 
 ###
@@ -141,6 +151,16 @@ end
 @inline function Base.getindex(seq::BioSequence, i::Integer)
     @boundscheck checkbounds(seq, i)
     return inbounds_getindex(seq, i)
+end
+
+@inline function Base.setindex!(s::BioSequence, v, i::Integer)
+    @boundscheck checkbounds(s, i)
+    return unsafe_setindex!(s, v, i)
+end
+
+function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{<:Integer})
+    @boundscheck checkbounds(seq, locs)
+    return unsafe_setindex!(seq, x, locs)
 end
 
 @inline function Base.iterate(seq::BioSequence, i::Int = firstindex(seq))

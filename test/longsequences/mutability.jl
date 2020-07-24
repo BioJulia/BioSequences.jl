@@ -158,15 +158,4 @@
         seq = dna"ACGT"
         @test copyto!(seq, 3, seq, 1, 2) == dna"ACAC"
     end
-
-    @testset "orphan!" begin
-        seq = repeat(dna"ACGT", 8)
-        subseq = seq[16:17]
-        BioSequences.orphan!(subseq)
-        @test subseq == dna"TA"
-
-        subseq = seq[16:20]
-        BioSequences.orphan!(subseq, 3)
-        @test subseq == dna"TAC"
-    end
 end

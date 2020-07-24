@@ -33,7 +33,7 @@ for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
                        (RNAAlphabet{2}, DNAAlphabet{4}),
                        (RNAAlphabet{2}, DNAAlphabet{2}),
                        (RNAAlphabet{4}, DNAAlphabet{4})]
-    
+
     @eval function Base.convert(::Type{LongSequence{$alpha}}, seq::LongSequence{$alphb})
         return LongSequence{$alpha}(seq)
     end
@@ -45,4 +45,3 @@ function Base.convert(::Type{LongSequence{A}}, seq::Vector) where A<:Alphabet
 end
 
 Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
-

@@ -11,7 +11,7 @@ function LongSequence{A}(len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
     end
-    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), 1:convert(Int, len), false)
+    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), convert(Int, len))
 end
 
 LongSequence(::Type{DNA}) = LongDNASeq()
@@ -20,7 +20,11 @@ LongSequence(::Type{AminoAcid}) = LongAminoAcidSeq()
 LongSequence(::Type{Char}) = LongCharSeq()
 
 function LongSequence()
-    return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0:-1, false)
+    return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0)
+end
+
+function LongSequence{A}(seq::LongSequence{A}, part::UnitRange) where A
+    return seq[part]
 end
 
 function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
@@ -50,17 +54,11 @@ function LongSequence{A}(
 end
 
 # create a subsequence
-function LongSequence(other::LongSequence{A}, part::UnitRange{<:Integer}) where {A}
+function LongSequence(other::LongSequence, part::UnitRange{<:Integer})
     checkbounds(other, part)
-    start = other.part.start + part.start - 1
-    stop = start + length(part) - 1
-    subseq = LongSequence{A}(other.data, start:stop, true)
-    other.shared = true
+    subseq = typeof(other)(length(part))
+    copyto!(subseq, 1, other, first(part), length(part))
     return subseq
-end
-
-function LongSequence{A}(other::LongSequence{A}, part::UnitRange) where {A}
-    return LongSequence(other, part)
 end
 
 # Create a 4 bit DNA/RNA sequences from a 2 bit DNA/RNA sequences, and vice-versa.
@@ -88,9 +86,7 @@ for (alpha, alphb) in [(DNAAlphabet{2}, RNAAlphabet{2}),
                        (RNAAlphabet{4}, DNAAlphabet{4})]
 
     @eval function (::Type{LongSequence{$alpha}})(seq::LongSequence{$alphb})
-        newseq = LongSequence{$alpha}(seq.data, seq.part, true)
-        seq.shared = true
-        return newseq
+        return  LongSequence{$alpha}(copy(seq.data), length(seq))
     end
 end
 
@@ -113,7 +109,7 @@ end
 function Base.repeat(chunk::LongSequence{A}, n::Integer) where {A}
     seq = LongSequence{A}(length(chunk) * n)
     offset = 1
-    for _ in 1:n
+    for i in 1:n
         copyto!(seq, offset, chunk, 1, length(chunk))
         offset += length(chunk)
     end

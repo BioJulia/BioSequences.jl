@@ -11,50 +11,40 @@ array unless the new size does not fit. If `force`, always resize underlying dat
 function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) where {A}
     if size < 0
         throw(ArgumentError("size must be non-negative"))
-    elseif seq.shared
-        # May seem wasteful to orphan here, but if you resize! a shared seq,
-        # you're probably going to write to it anyway.
-        return _orphan!(seq, size)
     else
         if force | (seq_data_len(A, size) > seq_data_len(A, length(seq)))
             resize!(seq.data, seq_data_len(A, size))
         end
-        seq.part = 1:size
+        seq.len = size
         return seq
     end
 end
 
-function Base.filter!(f::Function, seq::LongSequence{A}) where {A}
-    orphan!(seq)
-
-    len = 0
-    next = bitindex(seq, 1)
-    j = index(next)
-    datum::UInt64 = 0
-    for i in 1:lastindex(seq)
-        x = inbounds_getindex(seq, i)
-        if f(x)
-            datum |= enc64(seq, x) << offset(next)
-            len += 1
-            #TODO: Resolve use of bits_per_symbol.
-            next += bits_per_symbol(A())
-            if index(next) != j
-                seq.data[j] = datum
-                datum = 0
-                j = index(next)
+function Base.filter!(f, seq::LongSequence)
+    writeindex = bitindex(seq, 0)
+    chunk = zero(UInt64)
+    bps = bits_per_symbol(seq)
+    for i in eachindex(seq)
+        encoded_symbol = extract_encoded_element(bitindex(seq, i), encoded_data(seq))
+        symbol = decode(Alphabet(seq), encoded_symbol)
+        if f(symbol)
+            writeindex += bps
+            chunk |= encoded_symbol << offset(writeindex)
+            # If the offset is now zero, the chunk is full
+            if iszero(offset(writeindex + bps))
+                seq.data[index(writeindex)] = chunk
+                chunk = zero(UInt64)
             end
         end
     end
-    if offset(next) > 0
-        seq.data[j] = datum
+    # If it's not zero, we need to write the first chunk
+    if !iszero(offset(writeindex + bps))
+        seq.data[index(writeindex)] = chunk
     end
-    resize!(seq, len)
-
-    return seq
+    resize!(seq, div((writeindex + bps).val, bps))
 end
 
-function Base.map!(f::Function, seq::LongSequence)
-    orphan!(seq)
+function Base.map!(f, seq::LongSequence)
     for i in 1:lastindex(seq)
         unsafe_setindex!(seq, f(inbounds_getindex(seq, i)), i)
     end
@@ -66,14 +56,14 @@ end
 
 Reverse a biological sequence `seq` in place.
 """
-Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(orphan!(seq), BitsPerSymbol(seq))
+Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(seq, BitsPerSymbol(seq))
 
 """
     reverse(seq::LongSequence)
 
 Create reversed copy of a biological sequence.
 """
-Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(orphan!(seq), BitsPerSymbol(seq))
+Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(seq, BitsPerSymbol(seq))
 
 # Fast path for non-inplace reversion
 @inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
@@ -103,10 +93,10 @@ end
 end
 
 # Reversion of chunk bits may have left-shifted data in chunks, this function right shifts
-# all chunks by up to 63 bits. Only works on orphan sequences.
+# all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
-    lshift = offset(bitindex(seq, last(seq.part)) + bits_per_symbol(A()))
+    lshift = offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))
     rshift = 64 - lshift
     len = length(seq.data)
     @inbounds if !iszero(lshift)
@@ -148,7 +138,6 @@ end
 Make a complement sequence of `seq` in place.
 """
 function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    orphan!(seq)
     next = index(firstbitindex(seq))
     stop = index(lastbitindex(seq))
     seqdata = seq.data
@@ -159,24 +148,21 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
 end
 
 function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
-    orphan!(seq)
     pred = x -> complement_bitpar(x, Alphabet(seq))
     reverse_data!(pred, seq.data, BitsPerSymbol(seq))
     return zero_offset!(seq)
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
-    return reverse_complement!(copy(seq))
+    cp = typeof(seq)(unsigned(length(seq)))
+    pred = x -> complement_bitpar(x, Alphabet(seq))
+    reverse_data_copy!(pred, cp.data, seq.data, BitsPerSymbol(seq))
+    return zero_offset!(cp)
 end
 
-###
-### Shuffle
-###
-
 function Random.shuffle!(seq::LongSequence)
-    orphan!(seq) # TODO: Is this call to orphan nessecery, given setindex should call `orphan!` for us?
     # Fisher-Yates shuffle
-    for i in 1:lastindex(seq) - 1
+    @inbounds for i in 1:lastindex(seq) - 1
         j = rand(i:lastindex(seq))
         seq[i], seq[j] = seq[j], seq[i]
     end
