@@ -98,9 +98,10 @@ function unsafe_setindex!(seq::LongSequence{A},
 end
 
 @inline function encoded_setindex!(seq::LongSequence{A},
-				   bin::UInt64, i::Integer) where {A <: Alphabet}
+				   bin::Unsigned, i::Integer) where {A <: Alphabet}
     j, r = bitindex(seq, i)
+	bin_ = bin % encoded_data_eltype(seq)
     data = encoded_data(seq)
-    @inbounds data[j] = (bin << r) | (data[j] & ~(bindata_mask(seq) << r))
+    @inbounds data[j] = (bin_ << r) | (data[j] & ~(bindata_mask(seq) << r))
     return seq
 end
