@@ -138,10 +138,8 @@ end
 Make a complement sequence of `seq` in place.
 """
 function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
-    next = index(firstbitindex(seq))
-    stop = index(lastbitindex(seq))
     seqdata = seq.data
-    @inbounds for i in index(firstbitindex(seq)):index(lastbitindex(seq))
+    @inbounds for i in eachindex(seqdata)
         seqdata[i] = complement_bitpar(seqdata[i], Alphabet(seq))
     end
     return seq

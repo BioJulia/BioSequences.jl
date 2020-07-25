@@ -95,7 +95,7 @@ function _copyto!(dst::LongSequence{A}, doff::Integer,
 
     # This prevents a sequence from destructively overwriting its own data
     if (dst === src) & (doff > soff)
-        return _copyto!(dst, doff, copy(src[soff:soff+N-1]), 1, N)
+        return _copyto!(dst, doff, src[soff:soff+N-1], 1, N)
     end
 
     id = bitindex(dst, doff)
@@ -240,7 +240,11 @@ end
 
 # Specialized method to avoid O(N) length call for string-like src
 function Base.copyto!(dst::LongSequence{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
-    return copyto!(dst, 1, src, 1, ncodeunits(src), C)
+    len = ncodeunits(src)
+    @boundscheck checkbounds(dst, 1:len)
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
+    encode_chunks!(dst, 1, v, 1, len)
+    return dst
 end
 
 function Base.copyto!(dst::LongSequence{<:Alphabet}, src::SeqLike, C::AlphabetCode)

@@ -61,35 +61,22 @@ function LongSequence(other::LongSequence, part::UnitRange{<:Integer})
     return subseq
 end
 
-# Create a 4 bit DNA/RNA sequences from a 2 bit DNA/RNA sequences, and vice-versa.
-for (alpha, alphb) in [(DNAAlphabet{4}, DNAAlphabet{2}), # DNA to DNA
-                       (DNAAlphabet{2}, DNAAlphabet{4}),
-                       (RNAAlphabet{4}, RNAAlphabet{2}), # RNA to RNA
-                       (RNAAlphabet{2}, RNAAlphabet{4}),
-                       (DNAAlphabet{2}, RNAAlphabet{4}), # DNA to RNA
-                       (DNAAlphabet{4}, RNAAlphabet{2}),
-                       (RNAAlphabet{4}, DNAAlphabet{2}), # RNA to DNA
-                       (RNAAlphabet{2}, DNAAlphabet{4})]
-
-    @eval function (::Type{LongSequence{$alpha}})(seq::LongSequence{$alphb})
-        newseq = LongSequence{$alpha}(length(seq))
-        for (i, x) in enumerate(seq)
-            unsafe_setindex!(newseq, x, i)
-        end
-        return newseq
+function (::Type{T})(seq::BioSequence) where {T<:LongSequence}
+    newseq = T(length(seq))
+    @inbounds for i in eachindex(seq)
+        newseq[i] = seq[i]
     end
+    return newseq
 end
 
-for (alpha, alphb) in [(DNAAlphabet{2}, RNAAlphabet{2}),
-                       (RNAAlphabet{2}, DNAAlphabet{2}),
-                       (DNAAlphabet{4}, RNAAlphabet{4}),
-                       (RNAAlphabet{4}, DNAAlphabet{4})]
-
-    @eval function (::Type{LongSequence{$alpha}})(seq::LongSequence{$alphb})
-        return  LongSequence{$alpha}(copy(seq.data), length(seq))
-    end
+function LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet}
+    return LongSequence{A}(seq.data, seq.len)
 end
 
+function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
+         {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
+    return T(copy(seq.data), seq.len)
+end
 
 # Concatenate multiple sequences
 function LongSequence{A}(chunks::LongSequence{A}...) where {A}
