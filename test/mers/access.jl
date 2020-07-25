@@ -105,4 +105,18 @@
         @test all([nt === rna_vec[i] for (i, nt) in enumerate(rna_kmer)])
         @test all([nt === rna_vec[i] for (i, nt) in enumerate(big_rna_kmer)])
     end
+
+    @testset "Take slices of Mers" begin
+	@test DNAMer("ACGT")[2:3] == DNAMer("CG")
+	@test BigDNAMer("ACGT")[2:3] == BigDNAMer("CG")
+	@test RNAMer("ACGU")[2:3] == RNAMer("CG")
+	@test BigRNAMer("ACGU")[2:3] == BigRNAMer("CG")
+
+	@test DNAMer("ACGT")[2:1:3] == DNAMer("CG")
+	@test DNAMer("ACGT")[1:2:end] == DNAMer("AG")
+	@test DNAMer("ACGT")[3:-1:2] == DNAMer("GC")
+
+	@test_throws ArgumentError DNAMer("ACGT")[3:2]
+	@test_throws BoundsError DNAMer("ACGT")[3:5]
+    end
 end
