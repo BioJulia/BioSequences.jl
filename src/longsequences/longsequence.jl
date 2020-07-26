@@ -70,6 +70,7 @@ end
     return seq.data
 end
 
+include("seqview.jl")
 include("indexing.jl")
 include("constructors.jl")
 include("printing.jl")

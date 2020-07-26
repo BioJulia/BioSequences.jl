@@ -69,6 +69,10 @@ function (::Type{T})(seq::BioSequence) where {T<:LongSequence}
     return newseq
 end
 
+function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
+    return LongSequence{A}(seq)
+end
+
 function LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet}
     return LongSequence{A}(copy(seq.data), seq.len)
 end

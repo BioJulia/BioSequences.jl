@@ -10,7 +10,7 @@ let
     counter = :(n += gc_bitcount(chunk, BitsPerSymbol(seq)))
     compile_bitpar(
         :count_gc_bitpar,
-        arguments   = (:(seq::LongSequence{<:NucleicAcidAlphabet}),),
+        arguments   = (:(seq::SeqOrView{<:NucleicAcidAlphabet}),),
         init_code   = :(n = 0),
         head_code   = counter,
         body_code   = counter,
@@ -19,7 +19,7 @@ let
     ) |> eval
 end
 
-Base.count(::typeof(isGC), seq::LongSequence{<:NucleicAcidAlphabet}) = count_gc_bitpar(seq)
+Base.count(::typeof(isGC), seq::SeqOrView{<:NucleicAcidAlphabet}) = count_gc_bitpar(seq)
 
 # Counting mismatches
 let
@@ -29,7 +29,7 @@ let
     
     compile_2seq_bitpar(
         :count_mismatches_bitpar,
-        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        arguments = (:(seqa::SeqOrView{A}), :(seqb::SeqOrView{A})),
         parameters = (:(A<:NucleicAcidAlphabet),),
         init_code = :(count = 0),
         head_code = counter,
@@ -38,8 +38,8 @@ let
         return_code = :(return count)
     ) |> eval
 end
-Base.count(::typeof(!=), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_mismatches_bitpar(seqa, seqb)
-Base.count(::typeof(!=), seqa::LongNucleotideSequence, seqb::LongNucleotideSequence) = count(!=, promote(seqa, seqb)...)
+Base.count(::typeof(!=), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet} = count_mismatches_bitpar(seqa, seqb)
+Base.count(::typeof(!=), seqa::NucleicSeqOrView, seqb::NucleicSeqOrView) = count(!=, promote(seqa, seqb)...)
 
 # Counting matches
 let
@@ -55,7 +55,7 @@ let
     
     compile_2seq_bitpar(
         :count_matches_bitpar,
-        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        arguments = (:(seqa::SeqOrView{A}), :(seqb::SeqOrView{A})),
         parameters = (:(A<:NucleicAcidAlphabet),),
         init_code = :(count = 0),
         head_code = count_empty,
@@ -64,8 +64,8 @@ let
         return_code = :(return count)
     ) |> eval
 end
-Base.count(::typeof(==), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet} = count_matches_bitpar(seqa, seqb)
-Base.count(::typeof(==), seqa::LongNucleotideSequence, seqb::LongNucleotideSequence) = count(==, promote(seqa, seqb)...)
+Base.count(::typeof(==), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet} = count_matches_bitpar(seqa, seqb)
+Base.count(::typeof(==), seqa::NucleicSeqOrView, seqb::NucleicSeqOrView) = count(==, promote(seqa, seqb)...)
 
 # Counting ambiguous sites
 # ------------------------
@@ -77,7 +77,7 @@ let
     
     compile_bitpar(
         :count_ambiguous_bitpar,
-        arguments   = (:(seq::LongSequence{<:NucleicAcidAlphabet}),),
+        arguments   = (:(seq::SeqOrView{<:NucleicAcidAlphabet}),),
         init_code   = :(count = 0),
         head_code   = counter,
         body_code   = counter,
@@ -91,7 +91,7 @@ let
     
     compile_2seq_bitpar(
         :count_ambiguous_bitpar,
-        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        arguments = (:(seqa::SeqOrView{A}), :(seqb::SeqOrView{A})),
         parameters = (:(A<:NucleicAcidAlphabet),),
         init_code = :(count = 0),
         head_code = counter,
@@ -104,15 +104,15 @@ end
 
 ## For a single sequence.
 # You can never have ambiguous bases in a 2-bit encoded nucleotide sequence.
-Base.count(::typeof(isambiguous), seq::LongSequence{<:NucleicAcidAlphabet{2}}) = 0
-Base.count(::typeof(isambiguous), seq::LongSequence{<:NucleicAcidAlphabet{4}}) = count_ambiguous_bitpar(seq)
+Base.count(::typeof(isambiguous), seq::SeqOrView{<:NucleicAcidAlphabet{2}}) = 0
+Base.count(::typeof(isambiguous), seq::SeqOrView{<:NucleicAcidAlphabet{4}}) = count_ambiguous_bitpar(seq)
 
 ## For a pair of sequences.
 # A pair of 2-bit encoded sequences will never have ambiguous bases.
-Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{2}} = 0
-Base.count(::typeof(isambiguous), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
-Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
-Base.count(::typeof(isambiguous), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
+Base.count(::typeof(isambiguous), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{2}} = 0
+Base.count(::typeof(isambiguous), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
+Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
+Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
 
 # Counting certain sites
 let
@@ -122,7 +122,7 @@ let
     
     compile_2seq_bitpar(
         :count_certain_bitpar,
-        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        arguments = (:(seqa::SeqOrView{A}), :(seqb::SeqOrView{A})),
         parameters = (:(A<:NucleicAcidAlphabet),),
         init_code = :(count = 0),
         head_code = counter,
@@ -131,9 +131,9 @@ let
         return_code = :(return count)
     ) |> eval
 end
-Base.count(::typeof(iscertain), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_certain_bitpar(seqa, seqb)
-Base.count(::typeof(iscertain), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(iscertain, promote(seqa, seqb)...)
-Base.count(::typeof(iscertain), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(iscertain, promote(seqa, seqb)...)
+Base.count(::typeof(iscertain), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_certain_bitpar(seqa, seqb)
+Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(iscertain, promote(seqa, seqb)...)
+Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(iscertain, promote(seqa, seqb)...)
 
 # Counting gap sites
 let
@@ -149,7 +149,7 @@ let
     
     compile_2seq_bitpar(
         :count_gap_bitpar,
-        arguments = (:(seqa::LongSequence{A}), :(seqb::LongSequence{A})),
+        arguments = (:(seqa::SeqOrView{A}), :(seqb::SeqOrView{A})),
         parameters = (:(A<:NucleicAcidAlphabet),),
         init_code = :(count = 0),
         head_code = count_empty,
@@ -158,6 +158,6 @@ let
         return_code = :(return count)
     ) |> eval
 end
-Base.count(::typeof(isgap), seqa::LongSequence{A}, seqb::LongSequence{A}) where {A<:NucleicAcidAlphabet{4}} = count_gap_bitpar(seqa, seqb)
-Base.count(::typeof(isgap), seqa::LongSequence{<:NucleicAcidAlphabet{4}}, seqb::LongSequence{<:NucleicAcidAlphabet{2}}) = count(isgap, promote(seqa, seqb)...)
-Base.count(::typeof(isgap), seqa::LongSequence{<:NucleicAcidAlphabet{2}}, seqb::LongSequence{<:NucleicAcidAlphabet{4}}) = count(isgap, promote(seqa, seqb)...)
+Base.count(::typeof(isgap), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_gap_bitpar(seqa, seqb)
+Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isgap, promote(seqa, seqb)...)
+Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isgap, promote(seqa, seqb)...)
