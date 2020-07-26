@@ -74,34 +74,24 @@ function finalize(h1, h2, len)
     return h1
 end
 
-# TODO: Maybe simplify this
-function tail(data, next, last, h1, h2)
-    r = offset(next)
-    k1 = 0
-    k2 = 0
-    @inbounds if next < last
-        x = data[index(next)]
-        k1 |= x >> r
-        m1 = bitmask(last - next)
-        m2 = bitmask(max(last - (next + 64), 0))
-        next += 64 - r
-        if next < last
-            y = data[index(next)]
-            k1 |= y << (64 - r)
-            k2 |= y >> r
-            next += 64
-            if next < last
-                z = data[index(next)]
-                k2 |= z << (64 - r)
-            end
-        end
-        k1 &= m1
-        k2 &= m2
-        h1, k1 = murmur1(h1, k1)
-        h2, k2 = murmur2(h1, h2, k2)
+function tail(data, next, stop, h1, h2)
+    k1 = k2 = zero(UInt64)
+    
+    # Use this to mask any noncoding bits in last chunk
+    mask = bitmask(offset(stop - bits_per_symbol(stop)) + bits_per_symbol(stop))
+    @inbounds if next < stop
+        k1 = data[index(next)]
+        next += 64
     end
-
-    return h1, h2
+    @inbounds if next < stop
+        k2 = data[index(next)] & mask
+    else
+        k1 &= mask
+    end
+    
+    h1, k1 = murmur1(h1, k1)
+    h2, k2 = murmur2(h1, h2, k2)
+    return (h1, h2)
 end
 
 # ref: MurmurHash3_x64_128
