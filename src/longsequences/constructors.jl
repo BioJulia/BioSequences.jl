@@ -70,12 +70,17 @@ function (::Type{T})(seq::BioSequence) where {T<:LongSequence}
 end
 
 function LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet}
-    return LongSequence{A}(seq.data, seq.len)
+    return LongSequence{A}(copy(seq.data), seq.len)
 end
 
 function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
          {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
     return T(copy(seq.data), seq.len)
+end
+
+# This exists to fix ambiguity errors with Julia 1.0
+function LongSequence{A}(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where {N, A <: NucleicAcidAlphabet{N}}
+	return LongSequence{A}(copy(seq.data), seq.len)
 end
 
 # Concatenate multiple sequences
