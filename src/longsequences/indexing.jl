@@ -10,7 +10,7 @@
     return bitindex(BitsPerSymbol(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
 end
 
-function Base.getindex(seq::SeqOrView, part::UnitRange{<:Integer})
+function Base.getindex(seq::LongSequence, part::UnitRange{<:Integer})
 	@boundscheck checkbounds(seq, part)
 	newseq = typeof(seq)(length(part))
 	return copyto!(newseq, 1, seq, first(part), length(part))

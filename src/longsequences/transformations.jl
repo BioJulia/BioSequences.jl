@@ -56,18 +56,7 @@ end
 
 Reverse a biological sequence `seq` in place.
 """
-Base.reverse!(seq::SeqOrView{<:Alphabet}) = _reverse!(seq, BitsPerSymbol(seq))
-
-# Generic fallback - could be optimized for SeqView, but is it worth it?
-function _reverse!(seq::SeqOrView, ::BitsPerSymbol)
-    i, j = 1, lastindex(seq)
-    @inbounds while i < j
-        seq[i], seq[j] = seq[j], seq[i]
-        i += 1
-        j -= 1
-    end
-    return seq
-end
+Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(seq, BitsPerSymbol(seq))
 
 # Specialized methods for 2, 4, 8 bits per symbol
 @inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
@@ -76,6 +65,8 @@ end
 	rightshift!(seq.data, reverse_offset(seq))
     return seq
 end
+
+_reverse!(seq::LongSequence, ::BitsPerSymbol) = invoke(reverse!, Tuple{BioSequence}, seq)
 
 """
     complement!(seq)
