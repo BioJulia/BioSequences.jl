@@ -36,17 +36,9 @@ function Base.copy!(dst::LongSequence{<:NucleicAcidAlphabet{N}},
 end
 
 function _copy!(dst::LongSequence, src::LongSequence)
-    orphan!(dst)
-    # Most efficient
-    if !src.shared
-        resize!(dst.data, length(src.data))
-        copyto!(dst.data, src.data)
-        dst.part = src.part
-    # Less efficient
-    else
-        resize!(dst, length(src))
-        copyto!(dst, src)
-    end
+    resize!(dst.data, length(src.data))
+    copyto!(dst.data, src.data)
+    dst.len = src.len
     return dst
 end
 
@@ -101,12 +93,9 @@ function _copyto!(dst::LongSequence{A}, doff::Integer,
     @boundscheck checkbounds(dst, doff:doff+N-1)
     @boundscheck checkbounds(src, soff:soff+N-1)
 
-    if dst.shared
-        orphan!(dst)
-    end
     # This prevents a sequence from destructively overwriting its own data
     if (dst === src) & (doff > soff)
-        return _copyto!(dst, doff, copy(src[soff:soff+N-1]), 1, N)
+        return _copyto!(dst, doff, src[soff:soff+N-1], 1, N)
     end
 
     id = bitindex(dst, doff)
@@ -137,15 +126,7 @@ function _copyto!(dst::LongSequence{A}, doff::Integer,
     return dst
 end
 
-function Base.copy(seq::LongSequence)
-    if seq.shared
-        newseq = typeof(seq)(seq.data, seq.part, true)
-        orphan!(newseq, length(seq), true)
-    else
-        newseq = typeof(seq)(copy(seq.data), seq.part, false)
-    end
-    return newseq
-end
+Base.copy(seq::LongSequence) = typeof(seq)(copy(seq.data), seq.len)
 
 #########
 const SeqLike = Union{AbstractVector, AbstractString}
@@ -259,7 +240,11 @@ end
 
 # Specialized method to avoid O(N) length call for string-like src
 function Base.copyto!(dst::LongSequence{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
-    return copyto!(dst, 1, src, 1, ncodeunits(src), C)
+    len = ncodeunits(src)
+    @boundscheck checkbounds(dst, 1:len)
+    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
+    encode_chunks!(dst, 1, v, 1, len)
+    return dst
 end
 
 function Base.copyto!(dst::LongSequence{<:Alphabet}, src::SeqLike, C::AlphabetCode)
@@ -315,23 +300,12 @@ function Base.copyto!(dst::LongSequence{A}, doff::Integer,
     checkbounds(dst, doff:doff+len-1)
     length(src) < soff + len - 1 && throw_enc_indexerr(len, length(src), soff)
 
-    orphan!(dst)
-
-    next = bitindex(dst, doff)
-    stop = bitindex(dst, doff + len)
-
+    n = 0
     i = soff
-    while next < stop
-        x = UInt64(0)
-        j = index(next)
-        while index(next) == j && next < stop
-            char = src[i]
-            i = nextind(src, i)
-            x |= enc64(dst, convert(Char, char)) << offset(next)
-            #TODO: Resolve this use of bits_per_symbol...
-            next += bits_per_symbol(A())
-        end
-        dst.data[j] = x
+    @inbounds while n < len
+        n += 1
+        dst[doff + n - 1] = src[i]
+        i = nextind(src, i)
     end
     return dst
 end
@@ -341,7 +315,6 @@ function Base.copyto!(dst::LongSequence{A}, doff::Integer, src::AbstractVector{U
                       soff::Integer, N::Integer, ::AsciiAlphabet) where {A<:Alphabet}
     checkbounds(dst, doff:doff+N-1)
     length(src) < soff + N - 1 && throw_enc_indexerr(N, length(src), soff)
-    orphan!(dst)
     bitind = bitindex(dst, doff)
     remaining = N
 

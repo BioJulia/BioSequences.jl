@@ -4,13 +4,6 @@
 ###
 ### A general purpose biological sequence representation.
 ###
-### It is cheap to create a subsequence from a sequence because sequences can
-### share underlying data: creating a subsequence is just allocating a new
-### sequence object defining a part of the original sequence without copy.
-### Destructive operations create a copy of the underlying data if and only if it
-### is shared between (sub)sequences. This is often called as copy-on-write
-### strategy in computer science and should be transparent to the user.
-###
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
@@ -45,13 +38,10 @@ Biological sequence data structure indexed by an alphabet type `A`.
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
-    part::UnitRange{Int}  # interval within `data` defining the (sub)sequence
-    shared::Bool          # true if and only if `data` is shared between sequences
+    len::Int
 
-    function LongSequence{A}(data::Vector{UInt64},
-                            part::UnitRange{Int},
-                            shared::Bool) where A
-        return new(data, part, shared)
+    function LongSequence{A}(data::Vector{UInt64}, len::Int) where {A <: Alphabet}
+        return new(data, len)
     end
 end
 
@@ -68,7 +58,7 @@ const LongCharSeq      = LongSequence{CharAlphabet}
 "Gets the alphabet encoding of a given BioSequence."
 BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
 Alphabet(::Type{LongSequence{A}}) where {A <: Alphabet} = A()
-Base.length(seq::LongSequence) = last(seq.part) - first(seq.part) + 1
+Base.length(seq::LongSequence) = seq.len
 bindata(seq::LongSequence) = seq.data
 Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
 
@@ -78,48 +68,6 @@ end
 
 @inline function encoded_data(seq::LongSequence)
     return seq.data
-end
-
-
-# Replace a LongSequence's data with a copy, copying only what's needed.
-# The user should never need to call this, as it has no outward effect on the
-# sequence.
-function orphan!(seq::LongSequence,
-		 size::Integer = length(seq),
-		 force::Bool = false)
-	if !seq.shared & !force
-	    return seq
-	end
-	return _orphan!(seq, size)
-end
-
-function _orphan!(seq::LongSequence{A},
-		 size::Integer = length(seq)) where {A}
-
-    j, r = bitindex(seq, 1)
-    data = Vector{UInt64}(undef, seq_data_len(A, size))
-
-    @inbounds if !isempty(seq) & !isempty(data)
-        x = seq.data[j] >> r
-        m = index(bitindex(seq, lastindex(seq))) - j + 1
-        l = min(lastindex(data), m)
-        @simd for i in 1:l-1
-            y = seq.data[j + i]
-            data[i] = x | y << (64 - r)
-            x = y >> (r & 63)
-        end
-        if m <= l
-            data[l] = x
-        else
-            y = seq.data[j + l]
-            data[l] = x | y << (64 - r)
-        end
-    end
-
-    seq.data = data
-    seq.part = 1:size
-    seq.shared = false
-    return seq
 end
 
 include("indexing.jl")

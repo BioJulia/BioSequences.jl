@@ -12,11 +12,6 @@
         test_copy(AminoAcidAlphabet, random_aa(len))
         test_copy(CharAlphabet, random_aa(len))
     end
-
-    # Test copying shared seq
-    seq = LongSequence{DNAAlphabet{2}}(random_dna(50, [0.25, 0.25, 0.25, 0.25]))
-    seq2 = seq[5:44]
-    @test String(seq)[5:44] == String(seq2)
 end # testset
 
 @testset "Copy! sequence" begin

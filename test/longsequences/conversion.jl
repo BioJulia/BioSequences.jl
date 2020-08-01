@@ -92,7 +92,7 @@ end
 @testset "Encode_copy!" begin
     # Note: Other packages use this function, so we need to test it
     # Even though this is NOT exported or part of the API in a normal sense
-    function test_copyto!(dst::LongSequence{}, doff, src, soff, N)
+    function test_copyto!(dst::LongSequence, doff, src, soff, N)
         BioSequences.copyto!(dst, doff, src, soff, N)
         @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
     end
