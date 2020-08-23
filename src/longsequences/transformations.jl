@@ -86,7 +86,7 @@ function complement!(s::SeqView{A}) where {A <: NucleicAcidAlphabet}
 	bi = firstbitindex(s)
 	i = 1
 	stop = lastbitindex(s) + bps
-	@inbounds while !iszero(offset(bi))
+	@inbounds while (!iszero(offset(bi)) & (bi < stop))
 		s[i] = complement(s[i])
 		bi += bps
 		i += 1

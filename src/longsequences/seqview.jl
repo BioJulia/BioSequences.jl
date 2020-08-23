@@ -15,6 +15,18 @@ Base.length(v::SeqView) = last(v.part) - first(v.part) + 1
 encoded_data(v::SeqView) = v.data
 
 # Constructors
+function SeqView{A}(seq::LongSequence{A}) where {A <: Alphabet}
+    return SeqView{A}(seq.data, 1:length(seq))
+end
+
+function SeqView{A}(seq::SeqView{A}) where {A <: Alphabet}
+    return SeqView{A}(seq.data, seq.part)
+end
+
+function SeqView(seq::SeqOrView{A}) where {A <: Alphabet}
+	return SeqView{A}(seq)
+end
+
 function SeqView{A}(seq::LongSequence{A}, part::UnitRange{Int}) where {A <: Alphabet}
     @boundscheck checkbounds(seq, part)
     return SeqView{A}(seq.data, part)
@@ -24,10 +36,6 @@ function SeqView{A}(seq::SeqView{A}, part::UnitRange{<:Integer}) where {A <: Alp
     @boundscheck checkbounds(seq, part)
     newpart = first(part) + first(seq.part) - 1 : last(part) + first(seq.part) - 1
     return SeqView{A}(seq.data, newpart)
-end
-
-function SeqView(seq::SeqOrView{A}) where {A <: Alphabet}
-	return SeqView{A}(seq)
 end
 
 function SeqView(seq::SeqOrView{A}, i) where {A <: Alphabet}

@@ -6,19 +6,22 @@
 	v2 = SeqView(seq, 2:4)
 	v3 = view(seq, 2:4)
 	v4 = @view seq[2:4]
+	v5 = SeqView(seq)
 	vv = SeqView(v1, 2:3)
 	vv2 = v1[2:3]
+	vv3 = SeqView(vv)
 
 	@test_throws BoundsError SeqView(seq, 0:4)
 	@test_throws BoundsError SeqView(seq, 1:6)
 	@test_throws BoundsError SeqView(v1, 1:4)
 
+    @test collect(v5) == collect(seq)
 	@test typeof(v1) == typeof(v2) == typeof(v3) == typeof(v4) == typeof(vv) == SeqView{AminoAcidAlphabet}
 	@test v1 == v2 == v3 == v4
 
-	@test vv == vv2
+	@test vv == vv2 == vv3
 	vv[1] = AA_V
-	@test vv == vv2
+	@test vv == vv2 == vv3
 end
 
 @testset "Basics" begin
@@ -30,6 +33,10 @@ end
 	@test !isempty(v1)
 	@test isempty(v2)
 	@test length(v2) == 0
+
+	v1[1] = 'N'
+	v1[2] = 'K'
+	@test String(seq) == "ANKYH"
 end
 
 @testset "Conversion" begin
@@ -60,6 +67,14 @@ end
 	@test seq == LongAminoAcidSeq(str)
 	@test seq == v
 	@test seq == seq2
+
+	seq = LongDNASeq("TGAGTCGTAGGAAGGACCTAAA")
+	seq2 = copy(seq)
+	v = SeqView(seq2, 3:15)
+	complement!(v)
+	@test seq2[3:15] == complement(seq[3:15])
+	@test seq2[1:2] == dna"TG"
+	@test seq2[16:end] == seq[16:end]
 end
 
 @testset "Copying" begin
