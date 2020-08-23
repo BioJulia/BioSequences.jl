@@ -62,6 +62,7 @@ Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(seq, BitsPerSymbol(seq)
 @inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     reverse_data!(identity, seq.data, B)
+
 	rightshift!(seq.data, reverse_offset(seq))
     return seq
 end
