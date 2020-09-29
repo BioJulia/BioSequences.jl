@@ -19,6 +19,8 @@ end
 ###
 ### Conversion
 ###
+Base.convert(::Type{T}, seq::T) where {T <: LongSequence} = seq
+Base.convert(::Type{T}, seq::T) where {T <: LongSequence{<:NucleicAcidAlphabet}} = seq
 
 function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
          {T<:LongSequence{<:NucleicAcidAlphabet}}
