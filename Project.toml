@@ -18,7 +18,7 @@ BioGenerics = "0.1.0"
 BioSymbols = "4.0.0"
 Combinatorics = "1.0.0"
 IndexableBitVectors = "1.0.0"
-StableRNGs = "0.1"
+StableRNGs = "0.1, 1.0"
 Twiddle = "1.1.1"
 julia = "1"
 
