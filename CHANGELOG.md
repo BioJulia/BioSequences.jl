@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Ability to take a slice of an AbstractMer over a range
 
+### Changed
+- Fix `ReferenceSequence` slicing bug where the wrapped data is sliced instead.
+
 ## [2.0.1]
 ### Changed
 - Fixed syntax errors where functions were marked with `@inbounds` instead of

@@ -156,8 +156,9 @@ end
 end
 
 function Base.getindex(seq::ReferenceSequence, part::UnitRange{<:Integer})
-    checkbounds(seq, part)
-    return ReferenceSequence(seq, part)
+    sub_part = seq.part[part]
+    checkbounds(seq, sub_part)
+    return ReferenceSequence(seq, sub_part)
 end
 
 function find_next_ambiguous(seq::ReferenceSequence, i::Integer)
