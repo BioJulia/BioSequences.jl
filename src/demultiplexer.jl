@@ -237,7 +237,7 @@ function hamming_circle(seq, m)
         for rs in Iterators.product(fill(1:4, m)...)
             seq′ = copy(seq)
             for (p, r) in zip(ps, rs)
-                if findfirst(isequal(seq[p]), ACGT) ≤ r
+                if findfirst(isequal(seq[p]), ACGTN) ≤ r
                     r += 1
                 end
                 seq′[p] = ACGTN[r]
