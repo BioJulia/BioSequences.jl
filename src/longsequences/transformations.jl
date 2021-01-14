@@ -69,7 +69,7 @@ Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(seq, BitsPerSymbol(seq))
 @inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     cp = LongSequence{A}(unsigned(length(seq)))
-    reverse_data_copy!(identity, cp.data, seq.data, B)
+    reverse_data_copy!(identity, cp.data, seq.data, seq_data_len(seq) % UInt, B)
     return zero_offset!(cp)
 end
 
@@ -88,7 +88,8 @@ end
 
 @inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    reverse_data!(identity, seq.data, B)
+    # We need to account for the fact that the seq may not use all its stored data
+    reverse_data!(identity, seq.data, seq_data_len(seq) % UInt, B)
     return zero_offset!(seq)
 end
 
@@ -113,9 +114,8 @@ end
 
 # Reverse chunks in data vector and each symbol within a chunk. Chunks may have nonzero
 # offset after use, so use zero_offset!
-@inline function reverse_data!(pred, data::Vector{UInt64}, B::BT) where {
+@inline function reverse_data!(pred, data::Vector{UInt64}, len::UInt, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    len = length(data)
     @inbounds @simd ivdep for i in 1:len >>> 1
         data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
     end
@@ -124,9 +124,8 @@ end
     end
 end
 
-@inline function reverse_data_copy!(pred, dst::Vector{UInt64}, src::Vector{UInt64}, B::BT) where {
-    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    len = length(dst)
+@inline function reverse_data_copy!(pred, dst::Vector{UInt64}, src::Vector{UInt64}, len::UInt,
+    B::BT) where {BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     @inbounds @simd for i in eachindex(dst)
         dst[i] = pred(reversebits(src[len - i + 1], B))
     end
@@ -147,14 +146,14 @@ end
 
 function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
     pred = x -> complement_bitpar(x, Alphabet(seq))
-    reverse_data!(pred, seq.data, BitsPerSymbol(seq))
+    reverse_data!(pred, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
     return zero_offset!(seq)
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
     cp = typeof(seq)(unsigned(length(seq)))
     pred = x -> complement_bitpar(x, Alphabet(seq))
-    reverse_data_copy!(pred, cp.data, seq.data, BitsPerSymbol(seq))
+    reverse_data_copy!(pred, cp.data, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
     return zero_offset!(cp)
 end
 
