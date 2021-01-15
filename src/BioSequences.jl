@@ -240,8 +240,6 @@ export
     
     seqmatrix,
     majorityvote,
-    MinHashSketch,
-    minhash,
     Site,
     Certain,
     Ambiguous,
@@ -305,7 +303,5 @@ include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")
 include("search/pwm.jl")
-
-include("minhash.jl")
 
 end  # module BioSequences
