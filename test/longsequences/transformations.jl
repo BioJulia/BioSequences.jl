@@ -85,6 +85,10 @@
         @test String(seq) == seq_string
         @test String(seq2) == reverse(dna_complement(seq_string[100:200]))
 
+        # Test RC'ing works even with extra data in data buffer
+        seq = ungap!(dna"ACTG-----------CCAG")
+        @test String(reverse_complement(seq)) == reverse(dna_complement(String(seq)))
+
 	slice = randdnaseq(10)[2:9]
 	@test reverse_complement(reverse_complement(slice)) == slice
     end
