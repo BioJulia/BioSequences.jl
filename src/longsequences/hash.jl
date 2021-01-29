@@ -106,7 +106,7 @@ end
 end
 
 # This version of the body loop code must take a nonzero offset into account
-function body(::Type{<:SeqView}, next, stop, data, h1, h2)
+function body(::Type{<:LongSubSeq}, next, stop, data, h1, h2)
 	off = offset(next)
 	next < stop || return (h1, h2, next)
 	# No offset, we can use the LongSequence one (more efficient)
@@ -126,7 +126,7 @@ function body(::Type{<:SeqView}, next, stop, data, h1, h2)
 	return h1, h2, next
 end
 
-function tail(::Type{<:SeqView}, data, next, stop, h1, h2)
+function tail(::Type{<:LongSubSeq}, data, next, stop, h1, h2)
     next < stop || return (h1, h2)
     
     # Load in first up to 3 data elements where the last 128 bits may be stored

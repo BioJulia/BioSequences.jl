@@ -6,7 +6,7 @@
 
 # assumes `i` is positive and `bitsof(A)` is a power of 2
 
-@inline function bitindex(seq::SeqView, i::Integer)
+@inline function bitindex(seq::LongSubSeq, i::Integer)
     return bitindex(BitsPerSymbol(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
 end
 

@@ -93,15 +93,15 @@ Some computations that use bitwise operations will also be dramatically faster.
 ## Sequence views
 
 Similar to how Base Julia offers views of array objects, BioSequences offers view of
-`LongSequence`s - the `SeqView{A<:Alphabet}`.
+`LongSequence`s - the `LongSubSeq{A<:Alphabet}`.
 
-Conceptually, a `SeqView{A}` is similar to a `LongSequence{A}`, but instead of storing
+Conceptually, a `LongSubSeq{A}` is similar to a `LongSequence{A}`, but instead of storing
 their own data, they refer to the data of a `LongSequence`. Modiying the `LongSequence`
 will be reflected in the view, and vice versa. If the underlying `LongSequence`
 is truncated, the behaviour of a view is undefined. For the same reason,
 some operations are not supported for views, such as resizing.
 
-The purpose of `SeqView` is that, since they only contain a pointer to the
+The purpose of `LongSubSeq` is that, since they only contain a pointer to the
 underlying array, an offset and a length, they are much lighter than `LongSequences`,
 and will be stack allocated on Julia 1.5 and newer. Thus, the user may construct
 millions of views without major performace implications.

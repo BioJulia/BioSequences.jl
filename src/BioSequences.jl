@@ -146,7 +146,7 @@ export
     LongRNASeq,
     LongAminoAcidSeq,
     LongCharSeq,
-    SeqView,
+    LongSubSeq,
     
     # Random
     SamplerUniform,

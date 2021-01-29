@@ -82,7 +82,7 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     return seq
 end
 
-function complement!(s::SeqView{A}) where {A <: NucleicAcidAlphabet}
+function complement!(s::LongSubSeq{A}) where {A <: NucleicAcidAlphabet}
 	bps = bits_per_symbol(A())
 	bi = firstbitindex(s)
 	i = 1

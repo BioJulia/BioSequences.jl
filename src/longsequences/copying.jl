@@ -44,13 +44,13 @@ end
 
 # This is specific to views because it might overwrite itself
 function _copy!(dst::SeqOrView{A}, src::SeqOrView) where {A <: Alphabet}
-	# This intentionally throws an error for SeqView
+	# This intentionally throws an error for LongSubSeq
 	if length(dst) != length(src)
 		resize!(dst, length(src))
 	end
 	if dst.data === src.data
 		longseq = LongSequence{A}(src)
-		src_ = SeqView{A}(longseq.data, 1:length(longseq))
+		src_ = LongSubSeq{A}(longseq.data, 1:length(longseq))
 	else
 		src_ = src
 	end

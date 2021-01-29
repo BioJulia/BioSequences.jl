@@ -1,22 +1,22 @@
-@testset "SeqView" begin
+@testset "LongSubSeq" begin
 
 @testset "Construction" begin
 	seq = LongSequence{AminoAcidAlphabet}([AA_A, AA_V, AA_W, AA_Y, AA_H])
-	v1 = SeqView{AminoAcidAlphabet}(seq.data, 2:4)
-	v2 = SeqView(seq, 2:4)
+	v1 = LongSubSeq{AminoAcidAlphabet}(seq.data, 2:4)
+	v2 = LongSubSeq(seq, 2:4)
 	v3 = view(seq, 2:4)
 	v4 = @view seq[2:4]
-	v5 = SeqView(seq)
-	vv = SeqView(v1, 2:3)
+	v5 = LongSubSeq(seq)
+	vv = LongSubSeq(v1, 2:3)
 	vv2 = v1[2:3]
-	vv3 = SeqView(vv)
+	vv3 = LongSubSeq(vv)
 
-	@test_throws BoundsError SeqView(seq, 0:4)
-	@test_throws BoundsError SeqView(seq, 1:6)
-	@test_throws BoundsError SeqView(v1, 1:4)
+	@test_throws BoundsError LongSubSeq(seq, 0:4)
+	@test_throws BoundsError LongSubSeq(seq, 1:6)
+	@test_throws BoundsError LongSubSeq(v1, 1:4)
 
     @test collect(v5) == collect(seq)
-	@test typeof(v1) == typeof(v2) == typeof(v3) == typeof(v4) == typeof(vv) == SeqView{AminoAcidAlphabet}
+	@test typeof(v1) == typeof(v2) == typeof(v3) == typeof(v4) == typeof(vv) == LongSubSeq{AminoAcidAlphabet}
 	@test v1 == v2 == v3 == v4
 
 	@test vv == vv2 == vv3
@@ -26,8 +26,8 @@ end
 
 @testset "Basics" begin
 	seq = LongSequence{AminoAcidAlphabet}([AA_A, AA_V, AA_W, AA_Y, AA_H])
-	v1 = SeqView{AminoAcidAlphabet}(seq, 2:4)
-	v2 = SeqView(seq, 1:0)
+	v1 = LongSubSeq{AminoAcidAlphabet}(seq, 2:4)
+	v2 = LongSubSeq(seq, 1:0)
 
 	@test length(v1) == 3
 	@test !isempty(v1)
@@ -41,14 +41,14 @@ end
 
 @testset "Conversion" begin
 	seq = LongDNASeq("TAGTATCGAAMYCGNA")
-	v = SeqView(seq, 3:14)
+	v = LongSubSeq(seq, 3:14)
 
 	@test LongSequence(v) == seq[3:14]
 	s2 = LongSequence{RNAAlphabet{4}}(seq[3:14])
 	@test LongSequence{RNAAlphabet{4}}(v) == s2
 
-	@test LongSequence(SeqView{RNAAlphabet{4}}(seq)) == LongSequence{RNAAlphabet{4}}(seq)
-	@test SeqView{RNAAlphabet{4}}(seq) == LongSequence{RNAAlphabet{4}}(seq)
+	@test LongSequence(LongSubSeq{RNAAlphabet{4}}(seq)) == LongSequence{RNAAlphabet{4}}(seq)
+	@test LongSubSeq{RNAAlphabet{4}}(seq) == LongSequence{RNAAlphabet{4}}(seq)
 end
 
 @testset "Transformations" begin
@@ -70,7 +70,7 @@ end
 
 	seq = LongDNASeq("TGAGTCGTAGGAAGGACCTAAA")
 	seq2 = copy(seq)
-	v = SeqView(seq2, 3:15)
+	v = LongSubSeq(seq2, 3:15)
 	complement!(v)
 	@test seq2[3:15] == complement(seq[3:15])
 	@test seq2[1:2] == dna"TG"
