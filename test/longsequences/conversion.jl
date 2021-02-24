@@ -121,6 +121,17 @@ end
     end
 end
 
+@testset "Convert to same type" begin
+	function test_same_conversion(seq)
+		@test convert(typeof(seq), seq) === seq
+	end
+
+	test_same_conversion(random_dna(20))
+	test_same_conversion(random_rna(20))
+	test_same_conversion(random_aa(20))
+	test_same_conversion(LongSequence{CharAlphabet}("∈α"))
+end
+
 @testset "Conversion between 2-bit and 4-bit encodings" begin
     function test_conversion(A1, A2, seq)
         @test convert(LongSequence{A1}, LongSequence{A2}(seq)) == LongSequence{A1}(seq)

@@ -58,16 +58,78 @@ Reverse a biological sequence `seq` in place.
 """
 Base.reverse!(seq::LongSequence{<:Alphabet}) = _reverse!(seq, BitsPerSymbol(seq))
 
-# Specialized methods for 2, 4, 8 bits per symbol
-@inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
-    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    reverse_data!(identity, seq.data, B)
+"""
+    reverse(seq::LongSequence)
 
-	rightshift!(seq.data, reverse_offset(seq))
+Create reversed copy of a biological sequence.
+"""
+Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(seq, BitsPerSymbol(seq))
+
+# Fast path for non-inplace reversion
+@inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    cp = LongSequence{A}(unsigned(length(seq)))
+    reverse_data_copy!(identity, cp.data, seq.data, seq_data_len(seq) % UInt, B)
+    return zero_offset!(cp)
+end
+
+_reverse(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol) = reverse!(copy(seq))
+
+# Generic fallback
+function _reverse!(seq::LongSequence{<:Alphabet}, ::BitsPerSymbol)
+    i, j = 1, lastindex(seq)
+    @inbounds while i < j
+        seq[i], seq[j] = seq[j], seq[i]
+        i += 1
+        j -= 1
+    end
     return seq
 end
 
-_reverse!(seq::LongSequence, ::BitsPerSymbol) = invoke(reverse!, Tuple{BioSequence}, seq)
+@inline function _reverse!(seq::LongSequence{<:Alphabet}, B::BT) where {
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    # We need to account for the fact that the seq may not use all its stored data
+    reverse_data!(identity, seq.data, seq_data_len(seq) % UInt, B)
+    return zero_offset!(seq)
+end
+
+# Reversion of chunk bits may have left-shifted data in chunks, this function right shifts
+# all chunks by up to 63 bits.
+# This is written so it SIMD parallelizes - careful with changes
+@inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
+    lshift = offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))
+    rshift = 64 - lshift
+    len = length(seq.data)
+    @inbounds if !iszero(lshift)
+        this = seq.data[1]
+        for i in 1:len-1
+            next = seq.data[i+1]
+            seq.data[i] = (this >>> (unsigned(rshift) & 63)) | (next << (unsigned(lshift) & 63))
+            this = next
+        end
+        seq.data[len] >>>= (unsigned(rshift) & 63)
+    end
+    return seq
+end
+
+# Reverse chunks in data vector and each symbol within a chunk. Chunks may have nonzero
+# offset after use, so use zero_offset!
+@inline function reverse_data!(pred, data::Vector{UInt64}, len::UInt, B::BT) where {
+    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    @inbounds @simd ivdep for i in 1:len >>> 1
+        data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
+    end
+    @inbounds if isodd(len)
+        data[len >>> 1 + 1] = pred(reversebits(data[len >>> 1 + 1], B))
+    end
+end
+
+@inline function reverse_data_copy!(pred, dst::Vector{UInt64}, src::Vector{UInt64}, len::UInt,
+    B::BT) where {BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
+    @inbounds @simd for i in eachindex(dst)
+        dst[i] = pred(reversebits(src[len - i + 1], B))
+    end
+end
 
 """
     complement!(seq)
@@ -83,69 +145,46 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
 end
 
 function complement!(s::LongSubSeq{A}) where {A <: NucleicAcidAlphabet}
-	bps = bits_per_symbol(A())
-	bi = firstbitindex(s)
-	i = 1
-	stop = lastbitindex(s) + bps
-	@inbounds while (!iszero(offset(bi)) & (bi < stop))
-		s[i] = complement(s[i])
-		bi += bps
-		i += 1
-	end
-	@inbounds for j in index(bi):index(stop)-1
-		s.data[j] = complement_bitpar(s.data[j], Alphabet(s))
-		bi += 64
-		i += symbols_per_data_element(s)
-	end
-	@inbounds while bi < stop
-		s[i] = complement(s[i])
-		bi += bps
-		i += 1
-	end
-	return s
+    bps = bits_per_symbol(A())
+    bi = firstbitindex(s)
+    i = 1
+    stop = lastbitindex(s) + bps
+    @inbounds while (!iszero(offset(bi)) & (bi < stop))
+        s[i] = complement(s[i])
+        bi += bps
+        i += 1
+    end
+    @inbounds for j in index(bi):index(stop)-1
+        s.data[j] = complement_bitpar(s.data[j], Alphabet(s))
+        bi += 64
+        i += symbols_per_data_element(s)
+    end
+    @inbounds while bi < stop
+        s[i] = complement(s[i])
+        bi += bps
+        i += 1
+    end
+    return s
 end
 
 function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
     pred = x -> complement_bitpar(x, Alphabet(seq))
-    reverse_data!(pred, seq.data, BitsPerSymbol(seq))
-	rightshift!(seq.data, reverse_offset(seq))
-    return seq
+    reverse_data!(pred, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
+    return zero_offset!(seq)
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
-	return reverse_complement!(copy(seq))
+    cp = typeof(seq)(unsigned(length(seq)))
+    pred = x -> complement_bitpar(x, Alphabet(seq))
+    reverse_data_copy!(pred, cp.data, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
+    return zero_offset!(cp)
 end
 
-#-- utility functions
-
-function reverse_offset(seq::LongSequence)
-	return (64 - offset(bitindex(seq, lastindex(seq) + 1))) & 63
-end
-
-# This is written so it SIMD parallelizes - careful with changes
-@inline function rightshift!(v::Vector{UInt64}, offset::Integer)
-	len = length(v)
-    @inbounds if !iszero(offset)
-        this = v[1]
-        for i in 1:len-1
-            next = v[i+1]
-            v[i] = (this >>> (offset & 63)) | (next << ((64-offset) & 63))
-            this = next
-        end
-        v[len] >>>= (offset & 63)
+function Random.shuffle!(seq::LongSequence)
+    # Fisher-Yates shuffle
+    @inbounds for i in 1:lastindex(seq) - 1
+        j = rand(i:lastindex(seq))
+        seq[i], seq[j] = seq[j], seq[i]
     end
-    return v
-end
-
-# Reverse chunks in data vector and each symbol within a chunk. Chunks may have nonzero
-# offset after use, so remember to use rightshift!
-@inline function reverse_data!(pred, data::Vector{UInt64}, B::BT) where {
-    BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    len = length(data)
-    @inbounds @simd ivdep for i in 1:len >>> 1
-        data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
-    end
-    @inbounds if isodd(len)
-        data[len >>> 1 + 1] = pred(reversebits(data[len >>> 1 + 1], B))
-    end
+    return seq
 end

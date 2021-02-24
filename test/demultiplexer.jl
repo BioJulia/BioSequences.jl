@@ -118,4 +118,22 @@
         @test n_ok / 10_000 > 0.99
         @test n_ok < n_ok_with_fallback
     end
+
+    @testset "Hamming circle" begin
+        @test sort(BioSequences.hamming_circle(dna"A",1)) == [dna"C",dna"G",dna"T",dna"N"]
+        @test sort(BioSequences.hamming_circle(dna"N",1)) == [dna"A",dna"C",dna"G",dna"T"]
+    end
+    @testset "Levenshtein circle" begin
+        @test sort(BioSequences.levenshtein_circle(dna"A",1)) == [dna"", dna"C", dna"CA", dna"G", dna"GA", dna"T", dna"TA", dna"N", dna"NA"]
+        @test sort(BioSequences.levenshtein_circle(dna"N",1)) == [dna"", dna"A", dna"AN", dna"C", dna"CN", dna"G", dna"GN", dna"T", dna"TN"]
+    end
+    @testset "Levenshtein distance 2" begin
+        barcodes = [dna"ATGGC", dna"GGAAG"]
+        dplxr2 = Demultiplexer(barcodes, n_max_errors=2, distance=:levenshtein)
+
+        @test demultiplex(dplxr2, dna"ATGGC") === (1, 0)
+        @test demultiplex(dplxr2, dna"ATGG")  === (1, 1)
+        @test demultiplex(dplxr2, dna"ATG")   === (1, 2)
+        @test demultiplex(dplxr2, dna"TACG")  === (0, -1)
+    end
 end
