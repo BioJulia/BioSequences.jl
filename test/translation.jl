@@ -36,9 +36,12 @@
         return string_translate(seq) == String(translate(LongRNASeq(seq)))
     end
 
+    aas = aa""
     global reps = 10
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_translate(random_translatable_rna(len)) for _ in 1:reps])
+        seq = LongDNASeq(LongRNASeq(random_translatable_rna(len)))
+        @test translate!(aas, seq) == translate(seq)
     end
 
     # ambiguous codons
@@ -61,4 +64,11 @@
 
     # issue #133
     @test translate(rna"GAN") == aa"X"
+
+    # Translate kmers
+    for T in (RNACodon, DNACodon)
+        @test translate(T(mer"TAG")) == AA_Term
+        @test translate(T(mer"AAC")) == AA_N
+        @test translate(T(mer"CCT")) == AA_P
+    end
 end

@@ -11,7 +11,7 @@
 "Type representing a Genetic Code"
 struct GeneticCode <: AbstractDict{RNACodon, AminoAcid}
     name::String
-    tbl::Vector{AminoAcid}
+    tbl::NTuple{64, AminoAcid}
 end
 
 ###
@@ -19,11 +19,7 @@ end
 ###
 
 function Base.getindex(code::GeneticCode, idx::Union{DNACodon,RNACodon})
-    return code.tbl[convert(UInt64, idx) + 1]
-end
-
-function Base.setindex!(code::GeneticCode, aa::AminoAcid, idx::Union{DNACodon,RNACodon})
-    return setindex!(code.tbl, aa, convert(UInt64, idx) + 1)
+    return @inbounds code.tbl[reinterpret(Int64, idx) + 1]
 end
 
 Base.copy(code::GeneticCode) = GeneticCode(copy(code.name), copy(code.tbl))
@@ -58,7 +54,7 @@ function Base.iterate(code::GeneticCode, x=UInt64(0))
         return nothing
     else
         c = RNACodon(x)
-        return (c, code[c]), x + 1
+        return (c, @inbounds code[c]), x + 1
     end
 end
 
@@ -111,7 +107,7 @@ end
 function parse_gencode(s)
     name, _, aas, _, base1, base2, base3 = split(chomp(s), '\n')
     name = split(name, ' ', limit=2)[2]  # drop number
-    codes = GeneticCode(name, fill(AA_X, 4^3))
+    codearr = fill(AA_X, 4^3)
     @assert length(aas) == 73
     for i in 10:73
         aa = AminoAcid(aas[i])
@@ -119,9 +115,9 @@ function parse_gencode(s)
         b2 = DNA(base2[i])
         b3 = DNA(base3[i])
         codon = DNACodon(b1, b2, b3)
-        codes[codon] = aa
+        codearr[convert(UInt64, codon) + 1] = aa
     end
-    return codes
+    return GeneticCode(name, NTuple{64, AminoAcid}(codearr))
 end
 
 # Genetic codes translation tables are taken from the NCBI taxonomy database.
@@ -311,6 +307,13 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 ###
 
 """
+    translate(codon::Union{DNACodon, RNACodon}, code::GeneticCode)
+
+Translates a 3-mer using the genetic code. The code defaults to `standard_genetic_code`.
+"""
+translate(codon::Union{DNACodon, RNACodon}, code=standard_genetic_code) = code[codon]
+
+"""
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
 
 Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAminoAcidSeq`.
@@ -323,66 +326,78 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(seq::Union{LongRNASeq, LongSequence{RNAAlphabet{2}}};
-                   code::GeneticCode=standard_genetic_code,
-                   allow_ambiguous_codons::Bool = true,
-		   alternative_start::Bool = false)
-    return translate(seq, code, allow_ambiguous_codons, alternative_start)
+function translate(ntseq::LongNucleotideSequence;
+    code::GeneticCode=standard_genetic_code,
+    allow_ambiguous_codons::Bool = true,
+    alternative_start::Bool = false
+)
+    len = div((length(ntseq) % UInt) * 11, 32)
+    translate!(LongAminoAcidSeq(len), ntseq; code=code,
+    allow_ambiguous_codons=allow_ambiguous_codons, alternative_start=alternative_start)
 end
 
-function translate(seq::Union{LongRNASeq, LongSequence{RNAAlphabet{2}}}, code::GeneticCode, allow_ambiguous_codons::Bool, alternative_start::Bool)
-    aaseqlen, r = divrem(length(seq), 3)
-    if r != 0
-        error("LongRNASeq length is not divisible by three. Cannot translate.")
+function translate!(aaseq::LongAminoAcidSeq,
+    ntseq::LongSequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
+    code::GeneticCode=standard_genetic_code,
+    allow_ambiguous_codons::Bool = true,
+    alternative_start::Bool = false
+)
+    n_aa, remainder = divrem(length(ntseq) % UInt, 3)
+    iszero(remainder) || error("LongRNASeq length is not divisible by three. Cannot translate.")
+    resize!(aaseq, n_aa)
+    @inbounds for i in 1:n_aa
+        a = ntseq[3i-2]
+        b = ntseq[3i-1]
+        c = ntseq[3i]
+        codon = unambiguous_codon(a, b, c)
+        aaseq[i] = code[codon]
     end
+    alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
+    aaseq
+end
 
-    aaseq = LongAminoAcidSeq(aaseqlen)
-    i = j = 1
-    while i ≤ lastindex(seq) - 2
-        x = seq[i]
-        y = seq[i+1]
-        z = seq[i+2]
-        if isambiguous(x) || isambiguous(y) || isambiguous(z)
-            aa = try_translate_ambiguous_codon(code, x, y, z)
-            if aa == nothing
+function translate!(aaseq::LongAminoAcidSeq,
+    ntseq::LongSequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
+    code::GeneticCode=standard_genetic_code,
+    allow_ambiguous_codons::Bool = true,
+    alternative_start::Bool = false
+)
+    n_aa, remainder = divrem(length(ntseq) % UInt, 3)
+    iszero(remainder) || error("LongRNASeq length is not divisible by three. Cannot translate.")
+    resize!(aaseq, n_aa)
+    @inbounds for i in 1:n_aa
+        a = reinterpret(RNA, ntseq[3i-2])
+        b = reinterpret(RNA, ntseq[3i-1])
+        c = reinterpret(RNA, ntseq[3i])
+        if isambiguous(a) | isambiguous(b) | isambiguous(c)
+            aa = try_translate_ambiguous_codon(code, a, b, c)
+            if aa === nothing
                 if allow_ambiguous_codons
-                    aaseq[j] = AA_X
+                    aa = AA_X
                 else
                     error("codon ", x, y, z, " cannot be unambiguously translated")
                 end
-            else
-                aaseq[j] = aa
             end
+            aaseq[i] = aa
         else
-            aaseq[j] = code[RNACodon(x, y, z)]
+            aaseq[i] = code[unambiguous_codon(a, b, c)]
         end
-        i += 3
-        j += 1
     end
-    if alternative_start
-        aaseq[1] = AA_M
-    end
-    return aaseq
+    alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
+    aaseq
 end
 
-function translate(seq::LongDNASeq; kwargs...)
-    return translate(convert(LongRNASeq, seq); kwargs...)
-end
-
-function translate(seq::LongSequence{DNAAlphabet{2}}; kwargs...)
-    return translate(convert(LongSequence{RNAAlphabet{2}}, seq); kwargs...)
-end
 
 function try_translate_ambiguous_codon(code::GeneticCode,
                                        x::RNA,
                                        y::RNA,
                                        z::RNA)
-    if !isambiguous(x) && !isambiguous(y)
+    @inbounds if !isambiguous(x) & !isambiguous(y)
         # try to translate a codon `(x, y, RNA_N)`
-        aa_a = code[RNACodon(x, y, RNA_A)]
-        aa_c = code[RNACodon(x, y, RNA_C)]
-        aa_g = code[RNACodon(x, y, RNA_G)]
-        aa_u = code[RNACodon(x, y, RNA_U)]
+        aa_a = code[unambiguous_codon(x, y, RNA_A)]
+        aa_c = code[unambiguous_codon(x, y, RNA_C)]
+        aa_g = code[unambiguous_codon(x, y, RNA_G)]
+        aa_u = code[unambiguous_codon(x, y, RNA_U)]
         if aa_a == aa_c == aa_g == aa_u
             return aa_a
         end
@@ -390,8 +405,8 @@ function try_translate_ambiguous_codon(code::GeneticCode,
 
     found::Union{AminoAcid, Nothing} = nothing
     for (codon, aa) in code
-        if (iscompatible(x, codon[1]) &&
-            iscompatible(y, codon[2]) &&
+        @inbounds if (iscompatible(x, codon[1]) &
+            iscompatible(y, codon[2]) &
             iscompatible(z, codon[3]))
             if found == nothing
                 found = aa
@@ -401,4 +416,14 @@ function try_translate_ambiguous_codon(code::GeneticCode,
         end
     end
     return found
+end
+
+const XNA = Union{DNA, RNA}
+function unambiguous_codon(a::XNA, b::XNA, c::XNA)
+    @inbounds begin
+    bits = twobitnucs[reinterpret(UInt8, a) + 0x01] << 4 |
+    twobitnucs[reinterpret(UInt8, b) + 0x01] << 2 |
+    twobitnucs[reinterpret(UInt8, c) + 0x01]
+    end
+    reinterpret(RNACodon, bits % UInt64)
 end

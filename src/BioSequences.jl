@@ -213,7 +213,8 @@ export
     Composition,
     composition,
     NucleicAcidCounts,
-    
+
+    translate!,
     translate,
     ncbi_trans_table,
     
