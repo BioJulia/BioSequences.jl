@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Ability to take a slice of an AbstractMer over a range
+- Added method `translate!(::LongAminoAcidSeq, ::LongNucleotideSeq; kwargs...)`
+- Added method `translate(::Union{DNACodon, RNACodon}, ::GeneticCode)`
 
 ### Changed
 - Fix `ReferenceSequence` slicing bug where the wrapped data is sliced instead.
