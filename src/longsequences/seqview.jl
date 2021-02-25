@@ -57,8 +57,8 @@ end
 function _copy_seqview(T, s::LongSubSeq)
 	first = firstbitindex(s)
 	v = s.data[index(first):index(lastbitindex(s))]
-	rightshift!(v, offset(first))
-	return T(v, length(s))
+	res = T(v, length(s))
+	return zero_offset!(res, offset(first) % UInt)
 end
 
 function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where

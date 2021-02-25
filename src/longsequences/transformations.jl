@@ -93,12 +93,18 @@ end
     return zero_offset!(seq)
 end
 
+
 # Reversion of chunk bits may have left-shifted data in chunks, this function right shifts
 # all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
-    lshift = offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))
-    rshift = 64 - lshift
+    offs = (64 - offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))) % UInt
+    zero_offset!(seq, offs) 
+end
+
+@inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
+    rshift = offs
+    lshift = 64 - rshift
     len = length(seq.data)
     @inbounds if !iszero(lshift)
         this = seq.data[1]
