@@ -163,6 +163,36 @@ function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{<:Integer})
     return unsafe_setindex!(seq, x, locs)
 end
 
+function Base.setindex!(seq::BioSequence, x::BioSequence, locs::AbstractVector{<:Integer})
+    @boundscheck checkbounds(seq, locs)
+    checkdimension(x, locs)
+    @inbounds for i in eachindex(locs)
+        unsafe_setindex!(seq, x[i], locs[i])
+    end
+    seq
+end
+
+function Base.setindex!(seq::BioSequence, x::BioSequence, locs::AbstractVector{Bool})
+    @boundscheck checkbounds(seq, locs)
+    checkdimension(x, locs)
+    j = 0
+    @inbounds for i in eachindex(locs)
+        if locs[i]
+            j += 1
+            unsafe_setindex!(seq, x[j], i)
+        end
+    end
+    seq
+end
+
+function Base.setindex!(seq::BioSequence, other::BioSequence, ::Colon)
+    return setindex!(seq, other, 1:lastindex(seq))
+end
+
+function Base.setindex!(seq::BioSequence, x, ::Colon)
+    return setindex!(seq, x, 1:lastindex(seq))
+end
+
 @inline function Base.iterate(seq::BioSequence, i::Int = firstindex(seq))
     if i > lastindex(seq)
         return nothing

@@ -18,35 +18,10 @@ end
 
 function Base.setindex!(seq::SeqOrView{A},
                         other::SeqOrView{A},
-                        locs::AbstractVector{<:Integer}) where {A}
-    @boundscheck checkbounds(seq, locs)
-    checkdimension(other, locs)
-    return unsafe_setindex!(seq, other, locs)
-end
-
-function Base.setindex!(seq::SeqOrView{A},
-                        other::SeqOrView{A},
-                        locs::AbstractVector{Bool}) where {A}
-    @boundscheck checkbounds(seq, locs)
-    checkdimension(other, locs)
-    return unsafe_setindex!(seq, other, locs)
-end
-
-function Base.setindex!(seq::SeqOrView{A},
-                        other::SeqOrView{A},
                         locs::UnitRange{<:Integer}) where {A}
     @boundscheck checkbounds(seq, locs)
     checkdimension(other, locs)
     return copyto!(seq, locs.start, other, 1, length(locs))
-end
-
-function Base.setindex!(seq::SeqOrView{A},
-			            other::SeqOrView{A}, ::Colon) where {A}
-    return setindex!(seq, other, 1:lastindex(seq))
-end
-
-function Base.setindex!(seq::SeqOrView{A}, x, ::Colon) where {A}
-    return setindex!(seq, x, 1:lastindex(seq))
 end
 
 @inline function encoded_setindex!(seq::SeqOrView{A},
