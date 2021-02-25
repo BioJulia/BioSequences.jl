@@ -247,6 +247,8 @@ end
     function test_join(::Type{T}, seqs, result) where T
         @test join(T, seqs) == result
         @test join!(T(), seqs) == result
+        long_seq = T(1000)
+        @test join!(long_seq, seqs) == result
     end
 
     base_seq = dna"TGATGCTAVWMMKACGAS" # used for seqviews in testing

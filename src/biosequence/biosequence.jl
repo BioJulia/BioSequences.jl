@@ -93,6 +93,7 @@ function _join!(result::BioSequence, seqs, ::Val{resize}) where resize
         result[offset+1:offset+seqlen] = seq
         offset += seqlen
     end
+    resize && resize!(result, offset)
     result
 end
 
