@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added method `translate!(::LongAminoAcidSeq, ::LongNucleotideSeq; kwargs...)`
 - Added method `translate(::Union{DNACodon, RNACodon}, ::GeneticCode)`
 
+### Deprecated
+- `minhash` functionality is now deprecated and will be removed in v3.
+
 ### Changed
 - Fix `ReferenceSequence` slicing bug where the wrapped data is sliced instead.
 

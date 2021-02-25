@@ -79,6 +79,7 @@ end
 Generate a MinHash sketch of size `s` for kmers of length `k`.
 """
 function minhash(seq::LongSequence, k::Integer, s::Integer)
+    Base.depwarn("`minhash` is being moved to a dedicated package for BioSequences v3.", :minhash)
     kmerhashes = kmerminhash!(DNAMer{k}, seq, s, sizehint!(UInt64[], s))
     length(kmerhashes) < s && error("failed to generate enough hashes")
 
@@ -87,6 +88,7 @@ end
 
 
 function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:LongSequence}
+    Base.depwarn("`minhash` is being moved to a dedicated package for BioSequences v3.", :minhash)
     kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
         kmerminhash!(DNAMer{k}, seq, s, kmerhashes)
@@ -97,6 +99,7 @@ function minhash(seqs::Vector{T}, k::Integer, s::Integer) where {T<:LongSequence
 end
 
 function minhash(seqs::BioGenerics.IO.AbstractReader, k::Integer, s::Integer)
+    Base.depwarn("`minhash` is being moved to a dedicated package for BioSequences v3.", :minhash)
     kmerhashes = sizehint!(UInt64[], s)
     for seq in seqs
         kmerminhash!(DNAMer{k}, sequence(seq), s, kmerhashes)
