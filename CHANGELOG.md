@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Ability to take a slice of an AbstractMer over a range
 - Added method `translate!(::LongAminoAcidSeq, ::LongNucleotideSeq; kwargs...)`
 - Added method `translate(::Union{DNACodon, RNACodon}, ::GeneticCode)`
+- Added method `join(::Type{T<:BioSeuence}, it)` to join an iterable of biosequences
+to a new instance of T.
+- Added method `join!(s::BioSequence, it)`, an in-place version of `join`
 
 ### Deprecated
 - `minhash` functionality is now deprecated and will be removed in v3.

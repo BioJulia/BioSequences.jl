@@ -75,6 +75,39 @@ BitsPerSymbol(seq::BioSequence) = BitsPerSymbol(Alphabet(seq))
 "Get the number of bits each symbol packed into a BioSequence uses, as an integer value."
 bits_per_symbol(seq::BioSequence) = bits_per_symbol(Alphabet(seq))
 
+"""
+    join(::Type{T <: BioSequence}, seqs)
+
+Concatenate all the `seqs` to a biosequence of type `T`.
+
+# Examples
+```julia> join(LongDNASeq, [dna"TAG", mer"AAC"])
+"""
+Base.join(::Type{T}, seqs) where {T <: BioSequence} = join!(T(), seqs)
+
+function _join!(result::BioSequence, seqs, ::Val{resize}) where resize
+    offset = 0
+    for seq in seqs
+        seqlen = length(seq)
+        resize && length(result) < (offset + seqlen) && resize!(result, offset + seqlen)
+        result[offset+1:offset+seqlen] = seq
+        offset += seqlen
+    end
+    result
+end
+
+# This Union is the closest I can get to specifying a stateless iterator,
+# such that we can iterate over it twice.
+function join!(result::BioSequence, seqs::Union{AbstractArray, Tuple, AbstractSet, AbstractDict}
+)
+    # This early return is needed, because sum for empty iterables fail
+    isempty(seqs) && return resize!(result, 0)
+    resize!(result, sum(length, seqs))
+    _join!(result, seqs, Val(false))
+end
+
+join!(result::BioSequence, seqs) = _join!(result, seqs, Val(true))
+
 # The generic functions for any BioSequence...
 include("indexing.jl")
 include("conversion.jl")
