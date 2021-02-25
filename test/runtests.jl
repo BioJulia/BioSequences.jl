@@ -160,6 +160,7 @@ end
 @testset "LongSequences" begin
     include("longsequences/conversion.jl")
     include("longsequences/basics.jl")
+    include("longsequences/seqview.jl")
     include("longsequences/hashing.jl")
     include("longsequences/iteration.jl")
     include("longsequences/subseq.jl")

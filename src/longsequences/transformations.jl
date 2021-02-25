@@ -93,12 +93,18 @@ end
     return zero_offset!(seq)
 end
 
+
 # Reversion of chunk bits may have left-shifted data in chunks, this function right shifts
 # all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
-    lshift = offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))
-    rshift = 64 - lshift
+    offs = (64 - offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))) % UInt
+    zero_offset!(seq, offs) 
+end
+
+@inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
+    rshift = offs
+    lshift = 64 - rshift
     len = length(seq.data)
     @inbounds if !iszero(lshift)
         this = seq.data[1]
@@ -142,6 +148,29 @@ function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
         seqdata[i] = complement_bitpar(seqdata[i], Alphabet(seq))
     end
     return seq
+end
+
+function complement!(s::LongSubSeq{A}) where {A <: NucleicAcidAlphabet}
+    bps = bits_per_symbol(A())
+    bi = firstbitindex(s)
+    i = 1
+    stop = lastbitindex(s) + bps
+    @inbounds while (!iszero(offset(bi)) & (bi < stop))
+        s[i] = complement(s[i])
+        bi += bps
+        i += 1
+    end
+    @inbounds for j in index(bi):index(stop)-1
+        s.data[j] = complement_bitpar(s.data[j], Alphabet(s))
+        bi += 64
+        i += symbols_per_data_element(s)
+    end
+    @inbounds while bi < stop
+        s[i] = complement(s[i])
+        bi += bps
+        i += 1
+    end
+    return s
 end
 
 function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})

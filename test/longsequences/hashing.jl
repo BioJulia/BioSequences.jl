@@ -1,22 +1,33 @@
 @testset "Hash" begin
-    seq = dna"ACGTACGT"
-    @test isa(hash(seq), UInt64)
-    @test hash(seq) === hash(dna"ACGTACGT")
-    @test hash(seq) !== hash(seq[1:6])
-    @test hash(seq) !== hash(seq[1:7])
-    @test hash(seq) === hash(seq[1:8])
-    @test hash(seq[1:4]) === hash(dna"ACGT")
-    @test hash(seq[2:4]) === hash(dna"CGT")
-    @test hash(seq[3:4]) === hash(dna"GT")
-    @test hash(seq[4:4]) === hash(dna"T")
-    @test hash(seq[5:8]) === hash(dna"ACGT")
+    s = dna"ACGTACGT"
+    v = view(s, 1:lastindex(s))
 
-    @test hash(dna"") !== hash(dna"A")
-    @test hash(dna"A") !== hash(dna"AA")
-    @test hash(dna"AA") !== hash(dna"AAA")
-    @test hash(dna"AAA") !== hash(dna"AAAA")
+	for seq in [s, v]
+	    @test isa(hash(seq), UInt64)
+	    @test hash(seq) === hash(dna"ACGTACGT")
+	    @test hash(seq) !== hash(seq[1:6])
+	    @test hash(seq) !== hash(seq[1:7])
+	    @test hash(seq) === hash(seq[1:8])
+	    @test hash(seq[1:4]) === hash(dna"ACGT")
+	    @test hash(seq[2:4]) === hash(dna"CGT")
+	    @test hash(seq[3:4]) === hash(dna"GT")
+	    @test hash(seq[4:4]) === hash(dna"T")
+	    @test hash(seq[5:8]) === hash(dna"ACGT")
+	end
 
-    for n in 1:200, seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
+	@test hash(s) == hash(v)
+	@test hash(s[2:4]) == hash(v[2:4])
+
+	for i in 1:4
+		s1 = LongDNASeq("A"^(i-1))
+		s2 = LongDNASeq("A"^i)
+		@test hash(s1) != hash(s2)
+		v1 = view(s2, 1:lastindex(s2) - 1)
+		v2 = view(s2, 1:lastindex(s2))
+		@test hash(v1) != hash(v2)
+	end
+
+    for n in 1:20, seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
         @test hash(seq^n) === hash((dna""     * seq^n)[1:end])
         @test hash(seq^n) === hash((dna"T"    * seq^n)[2:end])
         @test hash(seq^n) === hash((dna"TT"   * seq^n)[3:end])

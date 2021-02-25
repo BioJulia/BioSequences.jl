@@ -124,7 +124,22 @@ end
 
 Base.filter(f::Function, seq::BioSequence) = filter!(f, copy(seq))
 Base.map(f::Function, seq::BioSequence) = map!(f, copy(seq))
+
+"""
+    reverse(seq::BioSequence)
+
+Create reversed copy of a biological sequence.
+"""
 Base.reverse(seq::BioSequence) = reverse!(copy(seq))
+
+function Base.reverse!(s::BioSequence)
+	i, j = 1, lastindex(s)
+	@inbounds while i < j
+		s[i], s[j] = s[j], s[i]
+		i, j = i + 1, j - 1
+	end
+	return s
+end
 
 """
     complement(seq)
@@ -202,6 +217,15 @@ ungap!(seq::BioSequence) = filter!(!isgap, seq)
 ###
 ### Shuffle
 ###
+
+function Random.shuffle!(seq::BioSequence)
+    # Fisher-Yates shuffle
+    @inbounds for i in 1:lastindex(seq) - 1
+        j = rand(i:lastindex(seq))
+        seq[i], seq[j] = seq[j], seq[i]
+    end
+    return seq
+end
 
 function Random.shuffle(seq::BioSequence)
     return shuffle!(copy(seq))

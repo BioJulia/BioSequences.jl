@@ -150,6 +150,28 @@ DNA 5-mer:
 TTAGC
 ```
 
+Sequence views (`LongSubSeq`s) are special, in that they do not own their own data,
+and must be constructed from a `LongSequence` or another `LongSubSeq`:
+
+```jdoctest
+julia> seq = LongDNASeq("TACGGACATTA")
+11nt DNA Sequence:
+TACGGACATTA
+
+julia> seqview = LongSubSeq(seq, 3:7)
+5nt DNA Sequence:
+CGGAC
+
+julia> seqview2 = @view seq[1:3]
+3nt DNA Sequence:
+TAC
+
+julia> typeof(seqview) == typeof(seqviev2) && typeof(seqview) <: LongSubSeq
+true
+
+```
+
+
 ## Conversion of sequence types
 
 Sometimes you can convert between sequence types without construction / having

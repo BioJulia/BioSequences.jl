@@ -74,7 +74,7 @@ function finalize(h1, h2, len)
     return h1
 end
 
-function tail(data, next, stop, h1, h2)
+function tail(::Type{<:LongSequence}, data, next, stop, h1, h2)
     k1 = k2 = zero(UInt64)
     
     # Use this to mask any noncoding bits in last chunk
@@ -94,24 +94,85 @@ function tail(data, next, stop, h1, h2)
     return (h1, h2)
 end
 
-# ref: MurmurHash3_x64_128
-function Base.hash(seq::LongSequence, seed::UInt64)
-    # Mix sequence length so that dna"A" and dna"AA"
-    # return the different hash values.
-    h1::UInt64 = h2::UInt64 = hash(length(seq), seed)
-    next = bitindex(seq, 1)
-    last = bitindex(seq, lastindex(seq) + 1)
-    data = encoded_data(seq)
-
-    @inbounds while last - next ≥ 128
+@inline function body(::Type{<:LongSequence}, next, stop, data, h1, h2)
+    @inbounds while stop - next ≥ 128
         j = index(next)
         k1 = data[j]
         k2 = data[j+1]
         h1, h2, k1, k2 = murmur(h1, h2, k1, k2)
         next += 128
     end
+    return (h1, h2, next)
+end
 
-    h1, h2 = tail(data, next, last, h1, h2)
+# This version of the body loop code must take a nonzero offset into account
+function body(::Type{<:LongSubSeq}, next, stop, data, h1, h2)
+	off = offset(next)
+	next < stop || return (h1, h2, next)
+	# No offset, we can use the LongSequence one (more efficient)
+	iszero(off) && return body(LongSequence, next, stop, data, h1, h2)
+	
+	@inbounds while stop - next ≥ 128
+		k1 = data[index(next)]
+		k2 = data[index(next) + 1]
+		k3 = data[index(next) + 2]
+		
+		k1 = (k1 >>> off) | (k2 << ((64 - off) & 63)) 
+		k2 = (k2 >>> off) | (k3 << ((64 - off) & 63))
+		
+		h1, h2, k1, k2 = murmur(h1, h2, k1, k2)
+		next += 128
+	end
+	return h1, h2, next
+end
+
+function tail(::Type{<:LongSubSeq}, data, next, stop, h1, h2)
+    next < stop || return (h1, h2)
+    
+    # Load in first up to 3 data elements where the last 128 bits may be stored
+	firstindex = next
+    k1 = data[index(next)]
+    k2 = k3 = zero(UInt64)
+    off = offset(next)
+    next += 64 - off
+    if next < stop
+        k2 = @inbounds data[index(next)]
+        next += 64
+    end
+    if next < stop
+        k3 = @inbounds data[index(next)]
+    end
+    
+    # Bitshift them to offset zero, only use k1 and k2
+    if !iszero(off)
+        k1 = (k1 >>> off) | (k2 << ((64 - off) & 63))
+        k2 = (k2 >>> off) | (k3 << ((64 - off) & 63))
+    end
+	
+	# Mask any noncoding bits
+	mask = bitmask((stop-firstindex) & 63)
+	if stop - firstindex > 64
+		k2 &= mask
+	else
+		k1 &= mask
+	end
+    
+    h1, k1 = murmur1(h1, k1)
+    h2, k2 = murmur2(h1, h2, k2)
+    
+    return (h1, h2)
+end
+
+function Base.hash(seq::SeqOrView, seed::UInt64)
+    # Mix sequence length so that dna"A" and dna"AA"
+    # return the different hash values.
+    h1::UInt64 = h2::UInt64 = hash(length(seq), seed)
+    next = bitindex(seq, 1)
+    stop = bitindex(seq, lastindex(seq) + 1)
+    data = encoded_data(seq)
+    
+    h1, h2, next = body(typeof(seq), next, stop, data, h1, h2)
+    h1, h2 = tail(typeof(seq), data, next, stop, h1, h2)
     h1 = finalize(h1, h2, length(seq))
 
     return h1

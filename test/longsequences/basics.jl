@@ -1,3 +1,18 @@
+@testset "Basics" begin
+	seq = LongSequence()
+	@test seq isa LongSequence{BioSequences.VoidAlphabet}
+	@test isempty(seq)
+
+	@test similar(seq) == seq
+
+	seq = LongSequence{DNAAlphabet{2}}([DNA(i) for i in "TAGCA"])
+	@test seq isa LongSequence
+	@test seq isa LongSequence{DNAAlphabet{2}}
+	sim = similar(seq)
+	@test typeof(sim) == typeof(seq)
+	@test length(sim) == length(seq)
+end
+
 @testset "Copy sequence" begin
     # Test copy from sequence to sequence
     function test_copy(A, str)
