@@ -27,7 +27,7 @@ function LongSubSeq(seq::SeqOrView{A}) where {A <: Alphabet}
 	return LongSubSeq{A}(seq)
 end
 
-function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{Int}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where {A <: Alphabet}
     @boundscheck checkbounds(seq, part)
     return LongSubSeq{A}(seq.data, part)
 end
