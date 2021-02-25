@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Ability to take a slice of an AbstractMer over a range
 
+### Deprecated
+- `minhash` functionality is now deprecated and will be removed in v3.
+
 ### Changed
 - Fix `ReferenceSequence` slicing bug where the wrapped data is sliced instead.
 
