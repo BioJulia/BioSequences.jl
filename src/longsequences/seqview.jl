@@ -8,7 +8,7 @@ end
 
 # These unions are significant because LongSubSeq and LongSequence have the same
 # encoding underneath, so many methods can be shared.
-const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}}
+const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}} where {A <: Alphabet}
 const NucleicSeqOrView = SeqOrView{<:NucleicAcidAlphabet}
 
 Base.length(v::LongSubSeq) = last(v.part) - first(v.part) + 1
