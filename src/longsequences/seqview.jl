@@ -8,7 +8,7 @@ end
 
 # These unions are significant because LongSubSeq and LongSequence have the same
 # encoding underneath, so many methods can be shared.
-const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}}
+const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}} where {A <: Alphabet}
 const NucleicSeqOrView = SeqOrView{<:NucleicAcidAlphabet}
 
 Base.length(v::LongSubSeq) = last(v.part) - first(v.part) + 1
@@ -27,7 +27,7 @@ function LongSubSeq(seq::SeqOrView{A}) where {A <: Alphabet}
 	return LongSubSeq{A}(seq)
 end
 
-function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{Int}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where {A <: Alphabet}
     @boundscheck checkbounds(seq, part)
     return LongSubSeq{A}(seq.data, part)
 end
