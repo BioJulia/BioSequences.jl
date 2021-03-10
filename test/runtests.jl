@@ -182,8 +182,6 @@ end
     include("refseq/random.jl")
 end
 
-include("composition.jl")
-
 @testset "Mers" begin
     include("mers/conversion.jl")
     include("mers/comparisons.jl")

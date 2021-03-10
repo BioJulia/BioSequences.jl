@@ -21,7 +21,7 @@ Strict separation of sequence types also means we are free to choose the most
 efficient representation. DNA and RNA sequences are encoded using either four
 bits per base (which is the default), or two bits per base. This makes them
 memory efficient and allows us to speed up many common operations and
-transformations, like nucleotide composition, reverse complement, and *k*-mer
+transformations, like reverse complement, and *k*-mer
 enumeration.
 
 ## Defining a new alphabet

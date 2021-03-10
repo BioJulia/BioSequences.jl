@@ -207,13 +207,6 @@ export
     gc_content,
     
     eachcanonical,
-    
-    ###
-    ### Composition
-    ###
-    Composition,
-    composition,
-    NucleicAcidCounts,
 
     translate!,
     translate,
@@ -294,8 +287,6 @@ include("refseq/refseq.jl")
 include("iterators/condition.jl")
 include("iterators/eachmer.jl")
 include("iterators/skipmerfactory.jl")
-
-include("composition.jl")
 
 include("geneticcode.jl")
 include("demultiplexer.jl")
