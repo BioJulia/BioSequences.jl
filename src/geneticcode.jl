@@ -34,7 +34,7 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
         println(io)
         print(io, "  ")
         for z in rna
-            codon = Kmer(x, y, z)
+            codon = RNACodon(x, y, z)
             aa = code[codon]
             print(io, codon, ": ", aa)
             if z != RNA_U
