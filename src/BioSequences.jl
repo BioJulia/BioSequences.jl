@@ -225,12 +225,6 @@ export
     maxscore,
     scoreat,
     
-    ###
-    ### Demultiplexing
-    ###
-    Demultiplexer,
-    demultiplex,
-    
     seqmatrix,
     majorityvote,
     Site,
@@ -283,7 +277,6 @@ include("iterators/eachmer.jl")
 include("iterators/skipmerfactory.jl")
 
 include("geneticcode.jl")
-include("demultiplexer.jl")
 
 # Pattern searching in sequences...
 include("search/exact.jl")

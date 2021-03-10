@@ -203,6 +203,5 @@ end
 
 include("counting.jl")
 include("translation.jl")
-include("demultiplexer.jl")
 
 end

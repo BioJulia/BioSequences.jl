@@ -12,7 +12,6 @@ makedocs(
         "Predicates"                     => "predicates.md",
         "Random sequences"               => "random.md",
         "Pattern matching and searching" => "sequence_search.md",
-        "Sequence Demultipllexing"       => "demultiplexer.md",
         "Iteration"                      => "iteration.md",
         "Counting"                       => "counting.md",
         "I/O"                            => "io.md"
