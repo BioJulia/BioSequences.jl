@@ -114,7 +114,7 @@ function each(::Type{T}, seq::BioSequence, step::Integer) where {T<:AbstractMer}
 end
 
 @inline Base.eltype(::Type{<:AbstractMerIterator{T,S}}) where {T,S} = MerIterResult{T}
-@inline Base.IteratorSize(::Type{<:AbstractMerIterator{T,S}}) where {T,S<:Union{ReferenceSequence,LongSequence{<:NucleicAcidAlphabet{4}}}} = Base.SizeUnknown()
+@inline Base.IteratorSize(::Type{<:AbstractMerIterator{T,S}}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{4}}} = Base.SizeUnknown()
 @inline Base.IteratorSize(::Type{<:AbstractMerIterator{T,S}}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}} = Base.HasLength()
 
 @inline function Base.length(it::AbstractMerIterator{T,S}) where {T,S<:LongSequence{<:NucleicAcidAlphabet{2}}}
@@ -195,7 +195,7 @@ end
 end
 
 @inline function Base.iterate(it::EveryMerIterator{T,S}, state=(it.start-1,1,encoded_data_type(T)(0),encoded_data_type(T)(0))
-    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{4}}}
     
     UT = encoded_data_type(T)
     i, filled, fkmer, rkmer = state
@@ -219,7 +219,7 @@ end
 end
 
 @inline function Base.iterate(it::SpacedMerIterator{T,S}, state=(it.start-it.increment, 1, 0, zero(encoded_data_type(T)), zero(encoded_data_type(T)))
-    ) where {T,S<:Union{ReferenceSequence, LongSequence{<:NucleicAcidAlphabet{4}}}}
+    ) where {T,S<:LongSequence{<:NucleicAcidAlphabet{4}}}
     UT = encoded_data_type(T)
     i, pos, filled, fwkmer, rvkmer = state
     i += it.increment

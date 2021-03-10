@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 * Removed minhashing functionality
 * Removed composition functionality
+* Removed ReferenceSequence functionality
 
 ## [Unreleased]
 ### Added

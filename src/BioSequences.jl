@@ -225,8 +225,6 @@ export
     maxscore,
     scoreat,
     
-    ReferenceSequence,
-    
     ###
     ### Demultiplexing
     ###
@@ -278,10 +276,6 @@ include("longsequences/randseq.jl")
 
 # The definition of the Skipmer concrete type, and its method overloads...
 include("mers/mer.jl")
-
-# The definition of the ReferenceSequence concrete type, and its method overloads...
-include("nmask.jl")
-include("refseq/refseq.jl")
 
 # The generic iterators for any BioSequence...
 include("iterators/condition.jl")

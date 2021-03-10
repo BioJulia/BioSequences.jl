@@ -53,10 +53,6 @@ julia> RNAMer(LongRNASeq("AUCGAUCG"))
 RNA 8-mer:
 AUCGAUCG
 
-julia> seq = ReferenceSequence("NNCGTATTTTCN")
-12nt Reference Sequence:
-NNCGTATTTTCN
-
 ```
 
 !!! note 

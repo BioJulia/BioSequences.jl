@@ -174,14 +174,6 @@ end
     include("longsequences/shuffle.jl")
 end
 
-@testset "ReferenceSequences" begin
-    include("refseq/conversion.jl")
-    include("refseq/basics.jl")
-    include("refseq/long.jl")
-    include("refseq/print.jl")
-    include("refseq/random.jl")
-end
-
 @testset "Mers" begin
     include("mers/conversion.jl")
     include("mers/comparisons.jl")

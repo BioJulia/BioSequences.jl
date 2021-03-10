@@ -75,7 +75,6 @@ end
     for k in [1, 3, 16, 32], step in 1:3, len in [1, 2, 3, 5, 10, 100, 1000]
         test_eachkmer(LongSequence{DNAAlphabet{4}}, random_dna(len), k, step)
         test_eachkmer(LongSequence{RNAAlphabet{4}}, random_rna(len), k, step)
-        test_eachkmer(ReferenceSequence, random_dna(len), k, step)
 
         probs = [0.25, 0.25, 0.25, 0.25, 0.00]
 
