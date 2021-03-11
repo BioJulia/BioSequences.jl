@@ -27,7 +27,7 @@
     end
 
     @testset "Reverse" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 32, 1000], _ in 1:5
             test_reverse(DNAAlphabet{4}, random_dna(len))
             test_reverse(RNAAlphabet{4}, random_rna(len))
             test_reverse(AminoAcidAlphabet, random_aa(len))
@@ -40,7 +40,7 @@
     end
 
     @testset "Complement" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 10, 32, 1000], _ in 1:5
             test_dna_complement(DNAAlphabet{4}, random_dna(len))
             test_rna_complement(RNAAlphabet{4}, random_rna(len))
 
@@ -58,7 +58,7 @@
     end
 
     @testset "Reverse complement" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 10, 32, 1000], _ in 1:5
             test_dna_revcomp(DNAAlphabet{4}, random_dna(len))
             test_rna_revcomp(RNAAlphabet{4}, random_rna(len))
 

@@ -32,7 +32,7 @@ end # testset
 @testset "Copy! sequence" begin
     function test_copy!(A, srctxt)
         src = LongSequence{A}(srctxt)
-        dst = LongSequence{A}(0)
+        dst = LongSequence{A}(undef, 0)
         for len in [max(0, length(src) - 3), length(src), length(src) + 4]
             resize!(dst, len)
             copy!(dst, src)
@@ -106,14 +106,14 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(6)
-    dna4 = LongSequence{DNAAlphabet{4}}(6)
-    rna2 = LongSequence{RNAAlphabet{2}}(6)
-    rna4 = LongSequence{RNAAlphabet{4}}(6)
-    aa = LongSequence{AminoAcidAlphabet}(6)
-    charseq = LongSequence{CharAlphabet}(6)
+    dna2 = LongSequence{DNAAlphabet{2}}(undef, 6)
+    dna4 = LongSequence{DNAAlphabet{4}}(undef, 6)
+    rna2 = LongSequence{RNAAlphabet{2}}(undef, 6)
+    rna4 = LongSequence{RNAAlphabet{4}}(undef, 6)
+    aa = LongSequence{AminoAcidAlphabet}(undef, 6)
+    charseq = LongSequence{CharAlphabet}(undef, 6)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
-        for len in [0, 1, 10, 16, 32, 100, 5]
+        for len in [0, 1, 5, 16, 32, 100]
             test_copy!(dna2, dtype(random_dna(len, probs)))
             test_copy!(dna4, dtype(random_dna(len)))
             test_copy!(rna2, dtype(random_rna(len, probs)))
@@ -137,12 +137,12 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(50)
-    dna4 = LongSequence{DNAAlphabet{4}}(50)
-    rna2 = LongSequence{RNAAlphabet{2}}(50)
-    rna4 = LongSequence{RNAAlphabet{4}}(50)
-    aa = LongSequence{AminoAcidAlphabet}(50)
-    charseq = LongSequence{CharAlphabet}(50)
+    dna2 = LongSequence{DNAAlphabet{2}}(undef, 50)
+    dna4 = LongSequence{DNAAlphabet{4}}(undef, 50)
+    rna2 = LongSequence{RNAAlphabet{2}}(undef, 50)
+    rna4 = LongSequence{RNAAlphabet{4}}(undef, 50)
+    aa = LongSequence{AminoAcidAlphabet}(undef, 50)
+    charseq = LongSequence{CharAlphabet}(undef, 50)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 10, 16, 32, 5]
             test_twoarg_copyto!(dna2, dtype(random_dna(len, probs)))
