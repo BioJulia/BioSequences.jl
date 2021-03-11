@@ -1,13 +1,13 @@
 @testset "Subsequence construction" begin
     function test_subseq(A, seq)
         bioseq = LongSequence{A}(seq)
-        for _ in 1:100
+        for _ in [1, 9, 32, 99]
             part = random_interval(1, lastindex(seq))
             @test convert(String, bioseq[part]) == seq[part]
         end
     end
 
-    for len in [1, 10, 32, 1000, 10000, 100000]
+    for len in [1, 10, 32, 1000]
         test_subseq(DNAAlphabet{4}, random_dna(len))
         test_subseq(RNAAlphabet{4}, random_rna(len))
         test_subseq(AminoAcidAlphabet, random_aa(len))

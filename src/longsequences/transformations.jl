@@ -68,7 +68,7 @@ Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(seq, BitsPerSymbol(seq))
 # Fast path for non-inplace reversion
 @inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    cp = LongSequence{A}(unsigned(length(seq)))
+    cp = LongSequence{A}(undef, unsigned(length(seq)))
     reverse_data_copy!(identity, cp.data, seq.data, seq_data_len(seq) % UInt, B)
     return zero_offset!(cp)
 end
@@ -180,7 +180,7 @@ function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
-    cp = typeof(seq)(unsigned(length(seq)))
+    cp = typeof(seq)(undef, unsigned(length(seq)))
     pred = x -> complement_bitpar(x, Alphabet(seq))
     reverse_data_copy!(pred, cp.data, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
     return zero_offset!(cp)

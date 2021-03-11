@@ -6,17 +6,17 @@
 end
 
 @testset "Constructing uninitialized sequences" begin
-    @test isa(LongSequence{DNAAlphabet{2}}(0), LongSequence)
-    @test isa(LongSequence{DNAAlphabet{4}}(10), LongSequence)
-    @test isa(LongSequence{RNAAlphabet{2}}(0), LongSequence)
-    @test isa(LongSequence{RNAAlphabet{4}}(10), LongSequence)
-    @test isa(LongSequence{AminoAcidAlphabet}(10), LongSequence)
+    @test isa(LongSequence{DNAAlphabet{2}}(undef, 0), LongSequence)
+    @test isa(LongSequence{DNAAlphabet{4}}(undef, 10), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{2}}(undef, 0), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{4}}(undef, 10), LongSequence)
+    @test isa(LongSequence{AminoAcidAlphabet}(undef, 10), LongSequence)
 
-    @test_throws ArgumentError LongSequence{DNAAlphabet{2}}(-1)
-    @test_throws ArgumentError LongSequence{DNAAlphabet{4}}(-1)
-    @test_throws ArgumentError LongSequence{RNAAlphabet{2}}(-1)
-    @test_throws ArgumentError LongSequence{RNAAlphabet{4}}(-1)
-    @test_throws ArgumentError LongSequence{AminoAcidAlphabet}(-1)
+    @test_throws ArgumentError LongSequence{DNAAlphabet{2}}(undef, -1)
+    @test_throws ArgumentError LongSequence{DNAAlphabet{4}}(undef, -1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{2}}(undef, -1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{4}}(undef, -1)
+    @test_throws ArgumentError LongSequence{AminoAcidAlphabet}(undef, -1)
 end
 
 @testset "Conversion from/to strings" begin
@@ -30,7 +30,7 @@ end
         @test parse(LongSequence{A}, seq) == LongSequence{A}(seq)
     end
 
-    for len in [0, 1, 2, 3, 10, 32, 1000, 10000]
+    for len in [0, 1, 3, 10, 32, 1000, 10000]
         test_string_construction(DNAAlphabet{4}, random_dna(len))
         test_string_construction(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_construction(DNAAlphabet{4}, lowercase(random_dna(len)))
@@ -98,25 +98,25 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25]
-    for len in [0, 1, 2, 10, 100]
+    for len in [0, 1, 10, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_copyto!(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
-            test_copyto!(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
-            test_copyto!(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
-            test_copyto!(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
-            test_copyto!(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
-            test_copyto!(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(undef, len), 1, f(random_dna(len, probs)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(undef, len), 1, f(random_rna(len, probs)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len), 1, f(random_dna(len)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len), 1, f(random_rna(len)), 1, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len), 1, f(random_aa(len)), 1, len)
+            test_copyto!(LongSequence{CharAlphabet}(undef, len), 1, f(random_aa(len)), 1, len)
         end
     end
 
     for len in [10, 32, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_copyto!(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
-            test_copyto!(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
-            test_copyto!(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
-            test_copyto!(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
-            test_copyto!(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
-            test_copyto!(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(undef, len+7), 5, f(random_dna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(undef, len+7), 5, f(random_rna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len+7), 5, f(random_dna(len+11)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len+7), 5, f(random_rna(len+11)), 3, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len+7), 5, f(random_aa(len+11)), 3, len)
+            test_copyto!(LongSequence{CharAlphabet}(undef, len+7), 5, f(random_aa(len+11)), 3, len)
         end
     end
 end

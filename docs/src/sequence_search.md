@@ -18,13 +18,19 @@ are considered.
 
 ## Exact search
 
-Exact search functions search for an occurrence of the query symbol or
-sequence.
+Similar to other Julia sequences like `Vector`, a `BioSequence` can be searched using a function. This returns the index of the element matching where the function returns `true`, or `nothing` if no elements were found:
+
+```jldoctest
+julia> findfirst(isequal(DNA_A), dna"GCTTAG")
+5
+
+julia> findfirst(isequal(DNA_M), dna"GCTTAG") === nothing
+true
+```
+
+Sequences may also be effectively searched for the occurence of subsequences:
 ```jldoctest
 julia> seq = dna"ACAGCGTAGCT";
-
-julia> findfirst(DNA_G, seq)
-4
 
 julia> query = dna"AGC";
 
@@ -52,15 +58,6 @@ julia> findfirst(dna"CNT", dna"ACGT")  # 'G' matches 'N'
 
 julia> occursin(dna"CNT", dna"ACNT")
 true
-```
-
-The exception to this behaviour is if you are finding a single 'character',
-in which case an ambiguous symbol is matched exactly:
-
-```jldoctest
-julia> findfirst(DNA_N, dna"ACNT")
-3
-
 ```
 
 The exact sequence search needs a preprocessing phase of query sequence before
@@ -160,8 +157,7 @@ false
 
 ```
 
-`match` will return a `RegexMatch` if a match is found, otherwise it will return
-`nothing` if no match is found.
+`match` will return a `RegexMatch` if a match is found, otherwise it will return `nothing` if no match is found.
 
 The table below summarizes available syntax elements.
 
@@ -286,6 +282,7 @@ julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
 
 The ``PWM_{s,j}`` matrix is computed from ``PFM_{s,j}`` and the prior
 probability ``p(s)`` as follows ([Wasserman2004]):
+
 ```math
 \begin{align}
     PWM_{s,j} &= \log_2 \frac{p(s,j)}{p(s)} \\

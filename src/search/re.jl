@@ -674,7 +674,7 @@ function Base.match(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=
     s = start
     while true
         if firstsym != BioSequences.gap(T)
-            s = findnext(firstsym, seq, s)
+            s = findnext(isequal(firstsym), seq, s)
             if s == nothing
                 break
             end

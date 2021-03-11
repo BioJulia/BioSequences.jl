@@ -332,7 +332,7 @@ function translate(ntseq::LongNucleotideSequence;
     alternative_start::Bool = false
 )
     len = div((length(ntseq) % UInt) * 11, 32)
-    translate!(LongAminoAcidSeq(len), ntseq; code=code,
+    translate!(LongAminoAcidSeq(undef, len), ntseq; code=code,
     allow_ambiguous_codons=allow_ambiguous_codons, alternative_start=alternative_start)
 end
 
