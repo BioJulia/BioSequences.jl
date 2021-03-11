@@ -32,6 +32,12 @@ function (::Type{T})(seq) where {T<:AbstractMer}
     return reinterpret(T, x)
 end
 
+(::Type{T})(i::Signed) where {T<:AbstractMer} = T(unsigned(i))
+(::Type{T})(i::Unsigned) where {T<:AbstractMer} = T(encoded_data_type(T)(i))
+
+UInt64(x::Mer) = reinterpret(UInt64, x)
+UInt128(x::BigMer) = reinterpret(UInt128, x)
+
 (::Type{Mer{A}})(seq) where {A} = Mer{A,length(seq)}(seq)
 (::Type{BigMer{A}})(seq) where {A} = BigMer{A,length(seq)}(seq)
 
