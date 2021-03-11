@@ -274,7 +274,6 @@ include("longsequences/randseq.jl")
 include("mers/mer.jl")
 
 # The generic iterators for any BioSequence...
-include("iterators/condition.jl")
 include("iterators/eachmer.jl")
 include("iterators/skipmerfactory.jl")
 
