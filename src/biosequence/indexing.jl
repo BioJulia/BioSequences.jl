@@ -118,6 +118,9 @@ Base.size(seq::BioSequence) = (length(seq),)
 Base.firstindex(seq::BioSequence) = 1
 Base.lastindex(seq::BioSequence) = length(seq)
 Base.eachindex(seq::BioSequence) = Base.OneTo(lastindex(seq))
+Base.keys(seq::BioSequence) = eachindex(seq)
+Base.nextind(::BioSequence, i::Integer) = Int(i) + 1
+Base.prevind(::BioSequence, i::Integer) = Int(i) - 1
 
 # Bounds checking...
 @inline function Base.checkbounds(seq::BioSequence, i::Integer)

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Removed composition functionality
 * Removed ReferenceSequence functionality
 * Removed demultiplexer functionality
+* Exact sequence search for single biosymbols have been removed. Instead of `findfirst(DNA_A, my_seq)`, use `findfirst(isequal(DNA_A), my_seq)`.
+
+### Changed
 
 ## [Unreleased]
 ### Added
