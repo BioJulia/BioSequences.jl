@@ -29,7 +29,7 @@ const RNACodon = RNAMer{3}
 @inline encoded_data_type(::Type{BigMer{A,K}}) where {A,K} = UInt128
 @inline encoded_data_type(x::AbstractMer) = encoded_data_type(typeof(x))
 @inline encoded_data(x::AbstractMer) = reinterpret(encoded_data_type(typeof(x)), x)
-@inline capacity(x::Type{U}) where {U<:Unsigned} = div(8 * sizeof(U), 2)
+@inline capacity(::Type{U}) where {U<:Unsigned} = div(8 * sizeof(U), 2)
 @inline capacity(mer::Type{T}) where {T<:AbstractMer} = capacity(encoded_data_type(mer))
 @inline capacity(mer::AbstractMer) = capacity(typeof(mer))
 @inline ksize(::Type{T}) where {A,K,T<:AbstractMer{A,K}} = K
@@ -43,52 +43,51 @@ const RNACodon = RNAMer{3}
     end
 end
 
+"""
+    masked(::Type{<:AbstractMer}, x::Unsigned)
+
+Re-interpret `x` as a `T`, setting any uncoding bits to zero.
+Throws an error if `T` is un-instantiable, e.g. `DNAMer{-1}`.
+"""
+function masked(::Type{T}, x::UInt64) where {T <: Mer}
+    checkmer(T)
+    reinterpret(T, x & ((one(UInt64) << (2 * ksize(T))) - 1))
+end
+
+function masked(::Type{T}, x::UInt128) where {T <: BigMer}
+    checkmer(T)
+    reinterpret(T, x & ((one(UInt128) << (2 * ksize(T))) - 1))
+end
 
 @inline Base.length(x::AbstractMer{A,K}) where {A,K} = ksize(typeof(x))
 @inline Base.unsigned(x::AbstractMer) = encoded_data(x)
-@inline Base.summary(x::AbstractMer{DNAAlphabet{2},K}) where {K} = string("DNA ", K, "-mer")
-@inline Base.summary(x::AbstractMer{RNAAlphabet{2},K}) where {K} = string("RNA ", K, "-mer")
+@inline Base.summary(::AbstractMer{DNAAlphabet{2},K}) where {K} = string("DNA ", K, "-mer")
+@inline Base.summary(::AbstractMer{RNAAlphabet{2},K}) where {K} = string("RNA ", K, "-mer")
 
 function Base.typemin(::Type{T}) where {T<:AbstractMer}
     checkmer(T)
-    return T(typemin(encoded_data_type(T)))
+    return reinterpret(T, typemin(encoded_data_type(T)))
 end
 
 function Base.typemax(::Type{T}) where {T<:AbstractMer}
     checkmer(T)
     U = encoded_data_type(T)
-    return T(typemax(U) >> (8 * sizeof(U) - 2ksize(T)))
+    return reinterpret(T, typemax(U) >> (8 * sizeof(U) - 2ksize(T)))
 end 
 
 function Base.rand(::Type{T}) where {T<:AbstractMer}
-    return T(rand(encoded_data_type(T)))
+    return masked(T, rand(encoded_data_type(T)))
 end
 
 function Base.rand(::Type{T}, size::Integer) where {T<:AbstractMer}
     return [rand(T) for _ in 1:size]
 end
 
-Base.:-(x::AbstractMer, y::Integer) = typeof(x)(encoded_data(x) - y % encoded_data_type(x))
-Base.:+(x::AbstractMer, y::Integer) = typeof(x)(encoded_data(x) + y % encoded_data_type(x))
-Base.:+(x::AbstractMer, y::AbstractMer) = y + x
-
 Alphabet(::Type{Mer{A,K} where A<:NucleicAcidAlphabet{2}}) where {K} = Any
 
 ###
 ### Conversion
 ###
-
-function Mer{A,K}(x::UInt64) where {A,K}
-    checkmer(Mer{A,K})
-    mask = (one(UInt64) << (2 * K)) - 1
-    return reinterpret(Mer{A,K}, x & mask)
-end
-
-function BigMer{A,K}(x::UInt128) where {A,K}
-    checkmer(BigMer{A,K})
-    mask = (one(UInt128) << (2 * K)) - 1
-    return reinterpret(BigMer{A,K}, x & mask)
-end
 
 include("conversion.jl")
 include("indexing.jl")
@@ -119,7 +118,7 @@ function Base.iterate(it::MerNeighborIterator{S}, i = zero(encoded_data_type(S))
     if i == 4
         return nothing
     else
-        return S((encoded_data(it.x) << 2) | i), i + 1
+        return masked(S, (encoded_data(it.x) << 2) | i), i + 1
     end
 end
 

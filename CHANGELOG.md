@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Removed composition functionality
 * Removed ReferenceSequence functionality
 * Removed demultiplexer functionality
+* AbstractMers can no longer be instantiated from, or converted to or from integers. Users should instead use the explicit `masked(T, x::UInt)` to create k-mers from integers.
+
+### Added
+* Added method `masked(::Type{<:Mer}, x::UInt)` and equivalent for `BigMer`. Use this method to convert an integer to a kmer.
 
 ## [Unreleased]
 ### Added
