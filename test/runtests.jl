@@ -189,7 +189,6 @@ end
 end
 
 @testset "Iterators" begin
-    include("iterators/condition.jl")
     include("iterators/eachmer.jl")
 end
 
