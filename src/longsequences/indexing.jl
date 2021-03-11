@@ -13,7 +13,7 @@ end
 # More efficient due to copyto!
 function Base.getindex(seq::LongSequence, part::UnitRange{<:Integer})
 	@boundscheck checkbounds(seq, part)
-	newseq = typeof(seq)(length(part))
+	newseq = typeof(seq)(undef, length(part))
 	return copyto!(newseq, 1, seq, first(part), length(part))
 end
 
