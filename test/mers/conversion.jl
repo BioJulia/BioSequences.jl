@@ -39,20 +39,11 @@ global reps = 10
     function check_roundabout_construction(::Type{T}, A2, seq::AbstractString) where {T<:AbstractMer}
         return String(LongSequence{A2}(T(LongSequence{A2}(seq)))) == uppercase(seq)
     end
-    
-    function check_uint_conversion(::Type{T}) where {T<:AbstractMer}
-        U = BioSequences.encoded_data_type(T)
-        uint = rand(typemin(U):U(one(U) << 2BioSequences.ksize(T) - 1))
-        return convert(U, T(uint)) === uint
-    end
 
     @testset "Skipmer conversion" begin
         for len in [1, 16, 32, 64]
             
             if len <= 32
-                # UInt64 conversions
-                @test all(Bool[check_uint_conversion(DNAMer{len}) for _ in 1:reps])
-                @test all(Bool[check_uint_conversion(RNAMer{len}) for _ in 1:reps])
                 # String construction
                 @test all(Bool[check_string_construction(DNAMer{len}, random_dna_kmer(len)) for _ in 1:reps])
                 @test all(Bool[check_string_construction(RNAMer{len}, random_rna_kmer(len)) for _ in 1:reps])
@@ -72,9 +63,6 @@ global reps = 10
                 @test all(Bool[check_roundabout_construction(RNAMer{len}, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
             end
             
-            # UInt64 conversions
-            @test all(Bool[check_uint_conversion(BigDNAMer{len}) for _ in 1:reps])
-            @test all(Bool[check_uint_conversion(BigDNAMer{len}) for _ in 1:reps])
             # String construction
             @test all(Bool[check_string_construction(BigDNAMer{len}, random_dna_kmer(len)) for _ in 1:reps])
             @test all(Bool[check_string_construction(BigRNAMer{len}, random_rna_kmer(len)) for _ in 1:reps])
@@ -99,8 +87,6 @@ global reps = 10
     @test_throws MethodError BigMer() # can't construct 0-mer using `BigKmer()`
     @test_throws ArgumentError DNAMer(dna"") # 0-mers not allowed
     @test_throws ArgumentError BigDNAMer(dna"") # 0-mers not allowed
-    @test_throws ArgumentError DNAMer{0}(UInt64(0)) # 0-mers not allowed
-    @test_throws ArgumentError RNAMer{0}(UInt64(0)) # 0-mers not allowed
     @test_throws ArgumentError RNAMer(RNA_A, RNA_C, RNA_G, RNA_N, RNA_U) # no Ns in kmers
     @test_throws ArgumentError DNAMer(DNA_A, DNA_C, DNA_G, DNA_N, DNA_T) # no Ns in kmers
     @test_throws ArgumentError RNAMer(rna"ACGNU")# no Ns in kmers

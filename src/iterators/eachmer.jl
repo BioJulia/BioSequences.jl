@@ -145,7 +145,7 @@ const kmerbits = (0xff, 0x00, 0x01, 0xff,
         rvkmer = (rvkmer >> 0x02) | (UT(rbits) << unsigned(offset(T, 1)))
         filled += 1
         if filled == ksize(T)
-            return MerIterResult(1, T(fwkmer), T(rvkmer)), (i, fwkmer, rvkmer)
+            return MerIterResult(1, masked(T, fwkmer), masked(T, rvkmer)), (i, fwkmer, rvkmer)
         end
         i += 1
     end
@@ -167,7 +167,7 @@ end
         rvkmer = (rvkmer >> 0x02) | (UT(rbits) << unsigned(offset(T, 1)))
         pos = i - ksize(T) + 1
         
-        return MerIterResult(pos, T(fwkmer), T(rvkmer)), (i, fwkmer, rvkmer)
+        return MerIterResult(pos, masked(T, fwkmer), masked(T, rvkmer)), (i, fwkmer, rvkmer)
     end    
 end
 
@@ -187,7 +187,7 @@ end
         filled += 1
         if filled == ksize(T)
             pos = i - ksize(T) + 1
-            return MerIterResult(pos, T(fkmer), T(rkmer)), (i, fkmer, rkmer)
+            return MerIterResult(pos, masked(T, fkmer), masked(T, rkmer)), (i, fkmer, rkmer)
         end
         i += 1
     end
@@ -211,7 +211,7 @@ end
         filled = ifelse(fbits == 0xff, 0, filled + 1)
         if filled == ksize(T)
             pos = i - ksize(T) + 1
-            return MerIterResult(pos, T(fkmer), T(rkmer)), (i, ksize(T), fkmer, rkmer)
+            return MerIterResult(pos, masked(T, fkmer), masked(T, rkmer)), (i, ksize(T), fkmer, rkmer)
         end
         i += 1
     end
@@ -240,7 +240,7 @@ end
         end
         if filled == ksize(T)
             state = (i, i - ksize(T) + 1 + it.step, it.filled, fwkmer, rvkmer)
-            return MerIterResult(pos, T(fwkmer), T(rvkmer)), state
+            return MerIterResult(pos, masked(T, fwkmer), masked(T, rvkmer)), state
         end
         i += 1
     end

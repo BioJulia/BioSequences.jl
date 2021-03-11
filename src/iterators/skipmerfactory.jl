@@ -188,7 +188,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
     @inbounds rkmer = gen.rkmer[nextfinished]
     newn = gen.n + 1
     gen.n = newn
-    return MerIterResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+    return MerIterResult(newn, masked(mertype(gen), fkmer), masked(mertype(gen), rkmer))
 end
 
 function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcidAlphabet{4},U,K}
@@ -211,7 +211,7 @@ function nextmer(gen::SkipmerFactory{LongSequence{A},U,K}) where {A<:NucleicAcid
             if gen.last_unknown[gen.finished] + span <= gen.position
                 fkmer = gen.fkmer[gen.finished]
                 rkmer = gen.rkmer[gen.finished]
-                return MerIterResult(newn, mertype(gen)(fkmer), mertype(gen)(rkmer))
+                return MerIterResult(newn, masked(mertype(gen), fkmer), masked(mertype(gen), rkmer))
             end
         end
     end

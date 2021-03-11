@@ -54,22 +54,22 @@
     @testset "Inequality" begin
         for len in [1, 10, 32, 64]
             if len <= 32
-                @test  isless(DNAMer{1}(UInt64(0)), DNAMer{1}(UInt64(1)))
-                @test !isless(DNAMer{1}(UInt64(0)), DNAMer{1}(UInt64(0)))
-                @test !isless(DNAMer{1}(UInt64(1)), DNAMer{1}(UInt64(0)))
+                @test  isless(DNAMer{1}(dna"A"), DNAMer{1}(dna"C"))
+                @test !isless(DNAMer{1}(dna"A"), DNAMer{1}(dna"A"))
+                @test !isless(DNAMer{1}(dna"C"), DNAMer{1}(dna"A"))
                 
-                @test  isless(RNAMer{1}(UInt64(0)), RNAMer{1}(UInt64(1)))
-                @test !isless(RNAMer{1}(UInt64(0)), RNAMer{1}(UInt64(0)))
-                @test !isless(RNAMer{1}(UInt64(1)), RNAMer{1}(UInt64(0)))
+                @test  isless(RNAMer{1}(dna"A"), RNAMer{1}(dna"C"))
+                @test !isless(RNAMer{1}(dna"A"), RNAMer{1}(dna"A"))
+                @test !isless(RNAMer{1}(dna"C"), RNAMer{1}(dna"A"))
             end
             
-            @test  isless(BigDNAMer{1}(UInt128(0)), BigDNAMer{1}(UInt128(1)))
-            @test !isless(BigDNAMer{1}(UInt128(0)), BigDNAMer{1}(UInt128(0)))
-            @test !isless(BigDNAMer{1}(UInt128(1)), BigDNAMer{1}(UInt128(0)))
+            @test  isless(BigDNAMer{1}(dna"A"), BigDNAMer{1}(dna"C"))
+            @test !isless(BigDNAMer{1}(dna"A"), BigDNAMer{1}(dna"A"))
+            @test !isless(BigDNAMer{1}(dna"C"), BigDNAMer{1}(dna"A"))
             
-            @test  isless(BigRNAMer{1}(UInt128(0)), BigRNAMer{1}(UInt128(1)))
-            @test !isless(BigRNAMer{1}(UInt128(0)), BigRNAMer{1}(UInt128(0)))
-            @test !isless(BigRNAMer{1}(UInt128(1)), BigRNAMer{1}(UInt128(0)))
+            @test  isless(BigRNAMer{1}(dna"A"), BigRNAMer{1}(dna"C"))
+            @test !isless(BigRNAMer{1}(dna"A"), BigRNAMer{1}(dna"A"))
+            @test !isless(BigRNAMer{1}(dna"C"), BigRNAMer{1}(dna"A"))
         end
     end
 

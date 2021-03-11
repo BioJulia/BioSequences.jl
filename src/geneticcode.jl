@@ -53,7 +53,7 @@ function Base.iterate(code::GeneticCode, x=UInt64(0))
     if x > UInt64(0b111111)
         return nothing
     else
-        c = RNACodon(x)
+        c = reinterpret(RNACodon, x)
         return (c, @inbounds code[c]), x + 1
     end
 end
@@ -115,7 +115,7 @@ function parse_gencode(s)
         b2 = DNA(base2[i])
         b3 = DNA(base3[i])
         codon = DNACodon(b1, b2, b3)
-        codearr[convert(UInt64, codon) + 1] = aa
+        codearr[reinterpret(UInt64, codon) + 1] = aa
     end
     return GeneticCode(name, NTuple{64, AminoAcid}(codearr))
 end

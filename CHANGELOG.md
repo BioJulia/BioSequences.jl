@@ -10,7 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Removed composition functionality
 * Removed ReferenceSequence functionality
 * Removed demultiplexer functionality
+* AbstractMers can no longer be instantiated from, or converted to or from integers. Users should instead use the explicit `masked(T, x::UInt)` to create k-mers from integers.
 * Exact sequence search for single biosymbols have been removed. Instead of `findfirst(DNA_A, my_seq)`, use `findfirst(isequal(DNA_A), my_seq)`.
+
+### Added
+* Added method `masked(::Type{<:Mer}, x::UInt)` and equivalent for `BigMer`. Use this method to convert an integer to a kmer.
 
 ### Changed
 

@@ -173,6 +173,8 @@ export
     BigRNAMer,
     BigDNAKmer,
     BigRNAKmer,
+
+    masked,
     
     DNACodon,
     RNACodon,

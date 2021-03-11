@@ -178,7 +178,6 @@ end
     include("mers/conversion.jl")
     include("mers/comparisons.jl")
     include("mers/length.jl")
-    include("mers/arithmetic.jl")
     include("mers/access.jl")
     include("mers/random.jl")
     include("mers/find.jl")
