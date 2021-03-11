@@ -62,7 +62,7 @@ global reps = 10
                 @test all(Bool[check_roundabout_construction(RNAMer{len}, RNAAlphabet{2}, random_rna_kmer(len)) for _ in 1:reps])
                 @test all(Bool[check_roundabout_construction(RNAMer{len}, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
             end
-            
+
             # String construction
             @test all(Bool[check_string_construction(BigDNAMer{len}, random_dna_kmer(len)) for _ in 1:reps])
             @test all(Bool[check_string_construction(BigRNAMer{len}, random_rna_kmer(len)) for _ in 1:reps])
@@ -82,6 +82,26 @@ global reps = 10
             @test all(Bool[check_roundabout_construction(BigRNAMer{len}, RNAAlphabet{4}, random_rna_kmer(len)) for _ in 1:reps])
         end
     end
+
+    # Construction from UInt
+    @test DNAMer{4}(0xf1) == mer"TTAC"
+    @test BigDNAMer{4}(0xfa) == mer"TTGG"
+    @test RNAMer{3}(UInt(7)) == mer"ACU"rna
+
+    # Overflow
+    @test_throws DomainError DNAMer{4}(0xffff)
+    @test_throws DomainError RNAMer{4}(0x1000001)
+    @test_throws DomainError BigDNAMer{20}(0x1234567890abcdef)
+
+    # Construction from Int
+    @test DNAMer{2}(9) == mer"GC"
+    @test BigDNAMer{6}(1) == mer"AAAAAC"
+    @test RNAMer{3}(0) == mer"AAA"rna
+
+    # Construction of int from Mer
+    @test UInt64(mer"TCC") == UInt(0b110101)
+    @test UInt64(mer"AAACU"rna) == UInt(0b0000000111)
+    @test UInt128(BigRNAMer{11}(19)) == UInt(19)
 
     @test_throws MethodError Mer() # can't construct 0-mer using `Kmer()`
     @test_throws MethodError BigMer() # can't construct 0-mer using `BigKmer()`

@@ -85,6 +85,20 @@ end
 
 Alphabet(::Type{Mer{A,K} where A<:NucleicAcidAlphabet{2}}) where {K} = Any
 
+function Mer{A,K}(x::UInt64) where {A,K}
+    checkmer(Mer{A,K})
+    maxval = (one(UInt64) << (2 * K)) - 1
+    x > maxval && throw(DomainError(x, "Mer with K=$K is too small for $x"))
+    return reinterpret(Mer{A,K}, x)
+end
+
+function BigMer{A,K}(x::UInt128) where {A,K}
+    checkmer(BigMer{A,K})
+    maxval = (one(UInt128) << (2 * K)) - 1
+    x > maxval && throw(DomainError(x, "Mer with K=$K is too small for $x"))
+    return reinterpret(BigMer{A,K}, x)
+end
+
 ###
 ### Conversion
 ###
