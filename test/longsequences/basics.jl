@@ -182,7 +182,7 @@ end
         @test convert(String, seq) == uppercase(str)
     end
 
-    for _ in 1:100
+    for _ in [1, 2, 5, 10, 18, 32, 55, 64, 70]
         n = rand(1:10)
         chunks = [random_dna(rand(1:100)) for _ in 1:n]
         test_concatenation(DNAAlphabet{4}, chunks)
@@ -232,7 +232,7 @@ end
 end
 
 @testset "Length" begin
-    for len in [0, 1, 2, 3, 10, 16, 32, 1000, 10000]
+    for len in [0, 1, 2, 10, 16, 32, 1000]
         seq = LongDNASeq(random_dna(len))
         @test length(seq) === lastindex(seq) === len
 

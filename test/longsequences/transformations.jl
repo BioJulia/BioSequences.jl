@@ -138,7 +138,7 @@
         @test filter!(x -> x != DNA_N, seq) == seq
         @test seq == dna"ACGTACGT"
 
-        for len in 1:50, _ in 1:10
+        for len in [1, 2, 3, 5, 8, 9, 15, 19, 31, 32, 33, 50], _ in 1:5
             str = random_dna(len)
             seq = LongDNASeq(str)
             @test filter(x -> x == DNA_N, seq) ==

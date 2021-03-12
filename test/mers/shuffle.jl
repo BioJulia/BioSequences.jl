@@ -17,7 +17,7 @@
         return a, c, g, t
     end
 
-    for k in 1:64, _ in 1:10
+    for k in [1, 3, 5, 8, 15, 16, 30, 32, 55, 64], _ in 1:5
         if k <= 32
             kmer = rand(DNAMer{k})
             @test count(kmer) == count(shuffle(kmer))

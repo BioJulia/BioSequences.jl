@@ -25,7 +25,7 @@
     end
 
     @testset "Reverse" begin
-        for len in 1:64, _ in 1:10
+        for len in [1, 3, 5, 8, 15, 16, 30, 32, 55, 64], _ in 1:5
             if len <= 32
                 test_reverse(DNAMer{len}, random_dna_kmer(len))
                 test_reverse(RNAMer{len}, random_rna_kmer(len))
@@ -39,7 +39,7 @@
     end
 
     @testset "Complement" begin
-        for len in 1:64, _ in 1:10
+        for len in [1, 3, 5, 8, 15, 16, 30, 32, 55, 64], _ in 1:5
             if len <= 32
                 test_dna_complement(DNAMer{len}, random_dna_kmer(len))
                 test_rna_complement(RNAMer{len}, random_rna_kmer(len))
@@ -50,7 +50,7 @@
     end
 
     @testset "Reverse Complement" begin
-        for len in 1:64, _ in 1:10
+        for len in [1, 3, 5, 8, 15, 16, 30, 32, 55, 64], _ in 1:5
             if len <= 32
                 test_dna_revcomp(DNAMer{len}, random_dna_kmer(len))
                 test_rna_revcomp(RNAMer{len}, random_rna_kmer(len))

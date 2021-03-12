@@ -1,7 +1,7 @@
 @testset "Random" begin
-    @testset for k in 1:64
+    @testset for k in [1, 2, 4, 8, 15, 16, 32, 33, 55, 64]
         if k <= 32
-            for _ in 1:10
+            for _ in 1:5
                 kmer = rand(DNAMer{k})
                 @test isa(kmer, DNAMer{k})
                 kmer = rand(RNAMer{k})
@@ -25,7 +25,7 @@
             end
         end
         
-        for _ in 1:10
+        for _ in 1:5
             kmer = rand(BigDNAMer{k})
             @test isa(kmer, BigDNAMer{k})
             kmer = rand(BigRNAMer{k})

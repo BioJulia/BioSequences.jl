@@ -27,7 +27,7 @@
 		@test hash(v1) != hash(v2)
 	end
 
-    for n in 1:20, seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
+    for n in [1, 2, 3, 6, 8, 9, 11, 15, 16, 20], seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
         @test hash(seq^n) === hash((dna""     * seq^n)[1:end])
         @test hash(seq^n) === hash((dna"T"    * seq^n)[2:end])
         @test hash(seq^n) === hash((dna"TT"   * seq^n)[3:end])

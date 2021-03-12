@@ -29,7 +29,7 @@ end
         @test parse(LongSequence{A}, seq) == LongSequence{A}(seq)
     end
 
-    for len in [0, 1, 3, 10, 32, 1000, 10000]
+    for len in [0, 1, 3, 10, 32, 100]
         test_string_construction(DNAAlphabet{4}, random_dna(len))
         test_string_construction(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_construction(DNAAlphabet{4}, lowercase(random_dna(len)))
@@ -76,7 +76,7 @@ end
         @test LongSequence{A}(xs) == LongSequence{A}(seq)
     end
 
-    for len in [0, 1, 10, 32, 1000, 10000]
+    for len in [0, 1, 10, 32, 1000]
         test_vector_construction(DNAAlphabet{4}, random_dna(len))
         test_vector_construction(RNAAlphabet{4}, random_rna(len))
         test_vector_construction(AminoAcidAlphabet, random_aa(len))

@@ -7,7 +7,7 @@
         @test mismatches(a, b) === mismatches(b, a) === count
     end
 
-    for len in 1:64, _ in 1:10
+    for len in [1, 2, 7, 9, 16, 33, 64], _ in 1:5
         a = random_dna_kmer(len)
         b = random_dna_kmer(len)
         if len <= 32
