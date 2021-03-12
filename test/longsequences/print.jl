@@ -27,12 +27,6 @@
 
     print(buf, dna"A"^4100, width=100)
     @test String(take!(buf)) == repeat("A"^100 * '\n', 40) * "A"^100
-
-    print(buf, char"ϐ")
-    @test String(take!(buf)) == "ϐ"
-
-    print(buf, char"ϐaδ", width=1)
-    @test String(take!(buf)) == "ϐ\na\nδ"
 end
 
 @testset "Show" begin

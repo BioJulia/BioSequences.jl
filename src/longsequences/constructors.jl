@@ -19,7 +19,6 @@ end
 LongSequence(::Type{DNA}) = LongDNASeq()
 LongSequence(::Type{RNA}) = LongRNASeq()
 LongSequence(::Type{AminoAcid}) = LongAminoAcidSeq()
-LongSequence(::Type{Char}) = LongCharSeq()
 
 function LongSequence()
     return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0)

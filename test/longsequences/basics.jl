@@ -25,7 +25,6 @@ end
         test_copy(DNAAlphabet{4}, random_dna(len))
         test_copy(RNAAlphabet{2}, random_rna(len, [0.25, 0.25, 0.25, 0.25]))
         test_copy(AminoAcidAlphabet, random_aa(len))
-        test_copy(CharAlphabet, random_aa(len))
     end
 end # testset
 
@@ -43,7 +42,6 @@ end # testset
     test_copy!(DNAAlphabet{4}, random_dna(14))
     test_copy!(RNAAlphabet{2}, random_rna(55, [0.25, 0.25, 0.25, 0.25]))
     test_copy!(AminoAcidAlphabet, random_aa(18))
-    test_copy!(CharAlphabet, random_aa(9))
 
     #  Also works across nucleotide types!
     for N in (2,4)
@@ -88,7 +86,6 @@ end
     test_copyto2!(DNAAlphabet{2}, len -> random_dna(len, [0.25, 0.25, 0.25, 0.25]))
     test_copyto2!(RNAAlphabet{4}, random_rna)
     test_copyto2!(AminoAcidAlphabet, random_aa)
-    test_copyto2!(CharAlphabet, random_aa)
 
     # Test bug when copying to self
     src = LongDNASeq("A"^16 * "C"^16 * "A"^16)
@@ -111,7 +108,6 @@ end
     rna2 = LongSequence{RNAAlphabet{2}}(undef, 6)
     rna4 = LongSequence{RNAAlphabet{4}}(undef, 6)
     aa = LongSequence{AminoAcidAlphabet}(undef, 6)
-    charseq = LongSequence{CharAlphabet}(undef, 6)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 5, 16, 32, 100]
             test_copy!(dna2, dtype(random_dna(len, probs)))
@@ -119,10 +115,8 @@ end
             test_copy!(rna2, dtype(random_rna(len, probs)))
             test_copy!(rna4, dtype(random_rna(len)))
             test_copy!(aa, dtype(random_aa(len)))
-            test_copy!(charseq, dtype(random_aa(len)))
         end
     end
-    test_copy!(charseq, "ϐʌ⨝W")
 end
 
 @testset "Copyto! data" begin
@@ -142,7 +136,6 @@ end
     rna2 = LongSequence{RNAAlphabet{2}}(undef, 50)
     rna4 = LongSequence{RNAAlphabet{4}}(undef, 50)
     aa = LongSequence{AminoAcidAlphabet}(undef, 50)
-    charseq = LongSequence{CharAlphabet}(undef, 50)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 10, 16, 32, 5]
             test_twoarg_copyto!(dna2, dtype(random_dna(len, probs)))
@@ -150,11 +143,8 @@ end
             test_twoarg_copyto!(rna2, dtype(random_rna(len, probs)))
             test_twoarg_copyto!(rna4, dtype(random_rna(len)))
             test_twoarg_copyto!(aa, dtype(random_aa(len)))
-            test_twoarg_copyto!(charseq, dtype(random_aa(len)))
         end
     end
-    copyto!(charseq, "ϐʌ⨝W")
-    @test collect(charseq[1:4]) == collect("ϐʌ⨝W")
 
     # Five-arg copyto!
     function test_fivearg_copyto!(seq, src)
@@ -174,7 +164,6 @@ end
         test_fivearg_copyto!(rna2, dtype(random_rna(60, probs)))
         test_fivearg_copyto!(rna4, dtype(random_rna(60)))
         test_fivearg_copyto!(aa, dtype(random_aa(60)))
-        test_fivearg_copyto!(charseq, dtype(random_aa(60)))
     end
 
 end
@@ -254,8 +243,6 @@ end
         seq = LongAminoAcidSeq(random_aa(len))
         @test length(seq) === lastindex(seq) === len
     end
-
-    @test length(char"いろはabc") === 6
 end
 
 @testset "Access" begin
@@ -289,7 +276,6 @@ end
     @test rna"ACUGNACUGN"[5:1] == rna""
 
     @test aa"KSAAV"[3] == AA_A
-    @test char"いろはにほ"[3] == 'は'
 end
 
 @testset "Equality" begin

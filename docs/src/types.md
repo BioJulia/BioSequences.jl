@@ -77,7 +77,6 @@ aliases for convenience.
 | `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
 | `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
 | `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
-| `LongSequence{CharAlphabet}`        | `Char`      | `LongCharSeq`      |
 
 The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}, which means the
 sequence may store ambiguous nucleotides.

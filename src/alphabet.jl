@@ -124,26 +124,6 @@ end
 end
 
 ###
-### Generic character alphabet
-###
-
-"""
-General character alphabet.
-"""
-struct CharAlphabet <: Alphabet end
-BitsPerSymbol(::CharAlphabet) = BitsPerSymbol{32}()
-Base.eltype(::Type{CharAlphabet}) = Char
-Base.length(::CharAlphabet) = 1114112
-
-@inline function Base.iterate(::CharAlphabet, state::Char = '\0')
-    state > '\U10ffff' ? nothing : (state, state + UInt32(1))
-end
-
-@inline function Base.getindex(::CharAlphabet, i)
-    return reinterpret(Char, i - 1)
-end
-
-###
 ### The void alphabet
 ###
 
@@ -262,29 +242,6 @@ end
 
 @inline function decode(::AminoAcidAlphabet, x::Unsigned)
     return decode(AminoAcidAlphabet(), UInt8(x))
-end
-
-###
-### CharAlphabet
-###
-
-@inline function encode(::CharAlphabet, char::Char)
-    if char > '\U10ffff'
-        throw(EncodeError(CharAlphabet(), char))
-    end
-    return reinterpret(UInt32, char)
-end
-
-@inline function decode(::CharAlphabet, x::UInt32)
-    c = reinterpret(Char, x)
-    if !isvalid(c)
-        throw(DecodeError(CharAlphabet(), x))
-    end
-    return c
-end
-
-@inline function decode(::CharAlphabet, x::Unsigned)
-    return decode(CharAlphabet(), UInt32(x))
 end
 
 # AsciiAlphabet trait - add to user defined type to use speedups.

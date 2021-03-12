@@ -53,18 +53,3 @@ end
 macro aa_str(seq)
     return LongAminoAcidSeq(remove_newlines(seq))
 end
-
-macro char_str(seq, flag)
-    if flag == "s"
-        return LongCharSeq(remove_newlines(seq))
-    elseif flag == "d"
-        return quote
-            LongCharSeq($(remove_newlines(seq)))
-        end
-    end
-    error("Invalid Char flag: '$(flag)'")
-end
-
-macro char_str(seq)
-    return LongCharSeq(remove_newlines(seq))
-end

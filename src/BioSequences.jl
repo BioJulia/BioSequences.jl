@@ -101,7 +101,6 @@ export
     DNAAlphabet,
     RNAAlphabet,
     AminoAcidAlphabet,
-    CharAlphabet,
     
     ###
     ### BioSequences
@@ -145,7 +144,6 @@ export
     LongDNASeq,
     LongRNASeq,
     LongAminoAcidSeq,
-    LongCharSeq,
     LongSubSeq,
     
     # Random
@@ -189,7 +187,7 @@ export
     @dna_str,
     @rna_str,
     @aa_str,
-    @char_str,
+
     @biore_str,
     @prosite_str,
     @mer_str,

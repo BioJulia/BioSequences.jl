@@ -2,7 +2,6 @@
     @test LongDNASeq() == LongSequence(DNA)
     @test LongRNASeq() == LongSequence(RNA)
     @test LongAminoAcidSeq() == LongSequence(AminoAcid)
-    @test LongCharSeq() == LongSequence(Char)
 end
 
 @testset "Constructing uninitialized sequences" begin
@@ -63,7 +62,6 @@ end
     @test isa(dna"ACGTMRWSYKVHDBN-", LongDNASeq)
     @test isa(rna"ACGUMRWSYKVHDBN-", LongRNASeq)
     @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAminoAcidSeq)
-    @test isa(char"いろは αβγ 甲乙丙", LongCharSeq)
 
     # Non-nucleotide characters should throw
     @test_throws Exception LongDNASeq("ACCNNCATTTTTTAGATXATAG")
@@ -105,7 +103,6 @@ end
             test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len), 1, f(random_dna(len)), 1, len)
             test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len), 1, f(random_rna(len)), 1, len)
             test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len), 1, f(random_aa(len)), 1, len)
-            test_copyto!(LongSequence{CharAlphabet}(undef, len), 1, f(random_aa(len)), 1, len)
         end
     end
 
@@ -116,7 +113,6 @@ end
             test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len+7), 5, f(random_dna(len+11)), 3, len)
             test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len+7), 5, f(random_rna(len+11)), 3, len)
             test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len+7), 5, f(random_aa(len+11)), 3, len)
-            test_copyto!(LongSequence{CharAlphabet}(undef, len+7), 5, f(random_aa(len+11)), 3, len)
         end
     end
 end
@@ -129,7 +125,6 @@ end
 	test_same_conversion(random_dna(20))
 	test_same_conversion(random_rna(20))
 	test_same_conversion(random_aa(20))
-	test_same_conversion(LongSequence{CharAlphabet}("∈α"))
 end
 
 @testset "Conversion between 2-bit and 4-bit encodings" begin

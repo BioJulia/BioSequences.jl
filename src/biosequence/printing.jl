@@ -4,7 +4,6 @@
 Base.summary(seq::BioSequence{<:DNAAlphabet}) = string(length(seq), "nt ", "DNA Sequence")
 Base.summary(seq::BioSequence{<:RNAAlphabet}) = string(length(seq), "nt ", "RNA Sequence")
 Base.summary(seq::BioSequence{<:AminoAcidAlphabet}) = string(length(seq), "aa ", "Amino Acid Sequence")
-Base.summary(seq::BioSequence{<:CharAlphabet}) = string(length(seq), "char ", "Char Sequence")
 
 # Buffer type. Not exposed to user, so code should be kept simple and performant.
 # B is true if it is buffered and false if it is not

@@ -49,7 +49,6 @@ const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
 const LongDNASeq       = LongSequence{DNAAlphabet{4}}
 const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
-const LongCharSeq      = LongSequence{CharAlphabet}
 
 ###
 ### Required type traits and methods

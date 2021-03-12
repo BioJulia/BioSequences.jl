@@ -227,11 +227,6 @@ AUUUGNCCANU
 julia> aa"ARNDCQEGHILKMFPSTWYVX"
 21aa Amino Acid Sequence:
 ARNDCQEGHILKMFPSTWYVX
-
-julia> char"αβγδϵ"
-5char Char Sequence:
-αβγδϵ
-
 ```
 
 However, it should be noted that by default these sequence literals
