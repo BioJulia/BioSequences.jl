@@ -124,18 +124,6 @@ end
 end
 
 ###
-### The void alphabet
-###
-
-"""
-Void alphabet (internal use only).
-"""
-struct VoidAlphabet <: Alphabet end
-BitsPerSymbol(::VoidAlphabet) = BitsPerSymbol{0}()
-Base.eltype(::Type{VoidAlphabet}) = Nothing
-symbols(::VoidAlphabet) = nothing
-
-###
 ### Encoders & Decoders
 ###
 

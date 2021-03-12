@@ -1,6 +1,5 @@
 @testset "Basics" begin
-	seq = LongSequence()
-	@test seq isa LongSequence{BioSequences.VoidAlphabet}
+	seq = LongSequence{DNAAlphabet{2}}()
 	@test isempty(seq)
 
 	@test similar(seq) == seq

@@ -20,10 +20,6 @@ LongSequence(::Type{DNA}) = LongDNASeq()
 LongSequence(::Type{RNA}) = LongRNASeq()
 LongSequence(::Type{AminoAcid}) = LongAminoAcidSeq()
 
-function LongSequence()
-    return LongSequence{VoidAlphabet}(Vector{UInt64}(), 0)
-end
-
 function LongSequence{A}(seq::LongSequence{A}, part::UnitRange) where A
     return seq[part]
 end
