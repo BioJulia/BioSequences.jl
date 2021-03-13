@@ -7,6 +7,13 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+@inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
+
+@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
+    iszero(bits_per_symbol(A())) && return 0
+    return cld(len, div(64, bits_per_symbol(A())))
+end
+
 function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
@@ -14,19 +21,8 @@ function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), convert(Int, len))
 end
 
-@inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
-
-@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
-	iszero(bits_per_symbol(A())) && return 0
-    return cld(len, div(64, bits_per_symbol(A())))
-end
-
 Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], 0)
 (::Type{<:LongSequence})() = empty(T)
-
-function LongSequence{A}(seq::LongSequence{A}, part::UnitRange) where A
-    return seq[part]
-end
 
 function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
     return LongSequence{A}(s, codetype(A()))

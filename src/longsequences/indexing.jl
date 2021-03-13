@@ -4,15 +4,24 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+# Internally, LongSequence and LongSubSeq are indexed by a bitindex
 function bitindex(x::LongSequence, i::Integer)
     N = BitsPerSymbol(Alphabet(typeof(x)))
-    bitindex(N, encoded_data_eltype(T), i)
+    bitindex(N, encoded_data_eltype(typeof(x)), i)
 end
 
 function bitindex(x::LongSubSeq, i::Integer)
     N = BitsPerSymbol(Alphabet(typeof(x)))
-    bitindex(N, encoded_data_eltype(T), i - first(x.part) + 1)
+    bitindex(N, encoded_data_eltype(typeof(x)), i - first(x.part) + 1)
 end
+
+extract_encoded_element(x::SeqOrView, i::Integer) = extract_encoded_element(x, bitindex(x, i))
+
+function extract_encoded_element(x::SeqOrView, i::BitIndex{N, UInt64}) where N
+    extract_encoded_element(i, x.data)
+end
+
+####################
 
 # More efficient due to copyto!
 function Base.getindex(seq::LongSequence, part::UnitRange{<:Integer})

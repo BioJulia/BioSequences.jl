@@ -34,7 +34,7 @@
 #  * 'X' : used and pointed by index `i`
 
 """
-    LongSequence{A}
+    LongSequence{A <: Alphabet}
 
 `LongSequence` is the default mutable, variable-length `BioSequence`.
 It is suitable for biological sequences whose length is either not
@@ -63,7 +63,6 @@ symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x))
 include("seqview.jl")
 include("indexing.jl")
 include("constructors.jl")
-include("printing.jl")
 include("copying.jl")
 include("conversion.jl")
 include("stringliterals.jl")

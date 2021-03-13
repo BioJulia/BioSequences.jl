@@ -231,17 +231,25 @@ include("bit-manipulation/bit-manipulation.jl")
 include("biosequence/biosequence.jl")
 
 # The definition of the LongSequence concrete type, and its method overloads...
+#=
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
+# The definition of the Skipmer concrete type, and its method overloads...
+include("mers/mer.jl")
+
+# The generic iterators for any BioSequence...
+include("iterators/eachmer.jl")
+include("iterators/skipmerfactory.jl")
+
 include("geneticcode.jl")
-=#
 
 # Pattern searching in sequences...
 include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")
 include("search/pwm.jl")
+=#
 
 end  # module BioSequences
