@@ -7,8 +7,6 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-# TODO: Add generic emethods for other bioseqs like mers and refseqs
-##########
 """
     copy!(dst::LongSequence, src::BioSequence)
 
@@ -38,7 +36,7 @@ end
 function _copy!(dst::LongSequence, src::LongSequence)
     resize!(dst.data, length(src.data))
     copyto!(dst.data, src.data)
-    dst.len = src.len
+    dst.len[] = src.len[]
     return dst
 end
 
@@ -57,40 +55,6 @@ function _copy!(dst::SeqOrView{A}, src::SeqOrView) where {A <: Alphabet}
 	return copyto!(dst, 1, src_, 1, length(src))
 end
 
-
-"""
-    copyto!(dst::LongSequence, src::BioSequence)
-
-Equivalent to `copyto!(dst, 1, src, 1, length(src))`
-"""
-function Base.copyto!(dst::SeqOrView{A}, src::SeqOrView{A}) where {A <: Alphabet}
-    return copyto!(dst, 1, src, 1, length(src))
-end
-
-function Base.copyto!(dst::SeqOrView{<:NucleicAcidAlphabet{N}},
-                      src::SeqOrView{<:NucleicAcidAlphabet{N}}) where N
-    return copyto!(dst, 1, src, 1, length(src))
-end
-
-"""
-    copyto!(dst::LongSequence, soff, src::BioSequence, doff, N)
-
-In-place copy `N` elements from `src` starting at `soff` to `dst`, starting at `doff`.
-The length of `dst` must be greater than or equal to `N + doff - 1`.
-The first N elements of `dst` are overwritten,
-the other elements are left untouched. The alphabets of `src` and `dst` must be compatible.
-
-# Examples
-```
-julia> seq = copyto!(dna"AACGTM", 1, dna"TAG", 1, 3)
-6nt DNA Sequence:
-TAGGTM
-
-julia> copyto!(seq, 2, rna"UUUU", 1, 4)
-6nt DNA Sequence:
-TTTTTM
-```
-"""
 function Base.copyto!(dst::SeqOrView{A}, doff::Integer,
                       src::SeqOrView{A}, soff::Integer,
                       N::Integer) where {A <: Alphabet}
@@ -141,8 +105,6 @@ function _copyto!(dst::SeqOrView{A}, doff::Integer,
 
     return dst
 end
-
-Base.copy(seq::LongSequence) = typeof(seq)(copy(seq.data), seq.len)
 
 #########
 const SeqLike = Union{AbstractVector, AbstractString}

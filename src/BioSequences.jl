@@ -231,8 +231,9 @@ include("bit-manipulation/bit-manipulation.jl")
 include("biosequence/biosequence.jl")
 
 # The definition of the LongSequence concrete type, and its method overloads...
-#=
+
 include("longsequences/longsequence.jl")
+#=
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 

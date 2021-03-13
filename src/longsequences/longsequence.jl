@@ -42,20 +42,24 @@ known at compile time, or that is larger than about 100 symbols.
 
 See also: [`Mer`](@ref)
 """
-mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
+struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
-    len::Int
+    len::Base.RefValue{UInt}
 
-    LongSequence{A}(data::Vector{UInt64}, len::Int) where {A <: Alphabet} = new{A}(data, len)
+    function LongSequence{A}(data::Vector{UInt64}, len::Base.RefValue{UInt}) where {A <: Alphabet}
+        new{A}(data, len)
+    end
 end
 
 const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
 const LongDNASeq       = LongSequence{DNAAlphabet{4}}
 const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
+# Basic attributes
 
-Base.length(seq::LongSequence) = seq.len
-encoded_data_eltype(::Type{<:LongSequence}) = UInt
+Base.length(seq::LongSequence) = seq.len[] % Int
+encoded_data_eltype(::Type{<:LongSequence}) = UInt64
+Base.copy(x::LongSequence) = typeof(x)(x.data, x.len)
 
 # Derived basic attributes
 symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x)))
@@ -63,8 +67,8 @@ symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x))
 include("seqview.jl")
 include("indexing.jl")
 include("constructors.jl")
-include("copying.jl")
 include("conversion.jl")
+include("copying.jl")
 include("stringliterals.jl")
 include("transformations.jl")
 include("operators.jl")

@@ -52,6 +52,44 @@ Base.isempty(x::BioSequence) = iszero(length(x))
 Base.empty(::Type{T}) where {T <: BioSequence} = T(eltype(T)[])
 Base.empty(x::BioSequence) = empty(typeof(x))
 
+function Base.similar(seq::BioSequence, len::Integer=length(seq))
+    return typeof(seq)(undef, len)
+end
+
+# Fast path for iterables we know are stateless
+function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
+    _join(resize!(seq, sum(length, it)), it, Val(true))
+end
+
+join!(seq::BioSequence, it) = _join!(seq, it, Val(false))
+
+function _join!(seq::BioSequence, it, ::Val{B}) where B
+    index = 1
+    for i in it
+        B || resize!(seq, length(seq) + length(i))
+        copyto!(seq, index, i, 1, length(i))
+        index += length(i)
+    end
+    seq
+end
+
+function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
+    _join!(T(undef, sum(length, it)), it, Val(true))
+end
+
+function Base.join(::Type{T}, it) where {T <: BioSequence}
+    _join!(empty(T), it, Val(false))
+end
+
+Base.repeat(chunk::BioSequence, n::Integer) = join((chunk for i in 1:n))
+Base.:^(x::BioSequence, n::Integer) = repeat(x, n)
+
+# Concatenation and Base.repeat operators
+function Base.:*(chunks::BioSequence...)
+    T = typeof(first(chunks))
+    join(T, chunks)
+end
+
 """
     encoded_data_eltype(::Type{<:BioSequence})
 
@@ -97,3 +135,4 @@ include("find.jl")
 include("printing.jl")
 include("transformations.jl")
 include("counting.jl")
+include("copying.jl")

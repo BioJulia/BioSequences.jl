@@ -176,6 +176,8 @@ function BioSymbols.complement(seq::NucleotideSeq)
     return complement!(copy(seq))
 end
 
+complement!(seq::NucleotideSeq) = map!(complement, seq)
+
 """
     reverse_complement!(seq)
 

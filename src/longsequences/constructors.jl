@@ -18,11 +18,32 @@ function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
     end
-    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), convert(Int, len))
+    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), Ref(UInt(len)))
 end
 
-Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], 0)
-(::Type{<:LongSequence})() = empty(T)
+# Generic constructor
+LongSequence(it) = LongSequence{eltype(it)}(it)
+function LongSequence{A}(it) where {A <: Alphabet}
+    len = length(it)
+    data = Vector{UInt64}(undef, seq_data_len(A, len))
+    bits = zero(UInt)
+    bitind = bitindex(BitsPerSymbol(A()), encoded_data_eltype(LongSequence{A}), 1)
+    @inbounds for (i, x) in enumerate(it)
+        xT = convert(eltype(A), x)
+        enc = encode(A(), xT)
+        bits |= enc << offset(bitind)
+        bitind = nextposition(bitind)
+        if iszero(offset(bitind))
+            data[index(bitind)] = bits
+            bits = zero(UInt64)
+        end
+    end
+    iszero(offset(bitind)) || (data[index(bitind)] = bits)
+    LongSequence{A}(data, Ref(len % UInt))
+end
+
+Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], Base.RefValue(UInt(0)))
+(::Type{T})() where {T <: LongSequence} = empty(T)
 
 function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
     return LongSequence{A}(s, codetype(A()))
@@ -42,7 +63,7 @@ function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) w
 end
 
 function LongSequence{A}(
-        src::Union{AbstractString,AbstractVector},
+        src::Union{AbstractString,AbstractVector{UInt8}},
         startpos::Integer=1,
         stoppos::Integer=length(src)) where {A<:Alphabet}
     len = stoppos - startpos + 1
@@ -62,9 +83,7 @@ function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
     return LongSequence{A}(seq)
 end
 
-function LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet}
-    return LongSequence{A}(copy(seq.data), seq.len)
-end
+LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet} = copy(seq)
 
 function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
          {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
@@ -74,23 +93,4 @@ end
 # This exists to fix ambiguity errors with Julia 1.0
 function LongSequence{A}(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where {N, A <: NucleicAcidAlphabet{N}}
 	return LongSequence{A}(copy(seq.data), seq.len)
-end
-
-function Base.repeat(chunk::LongSequence{A}, n::Integer) where {A}
-    seq = LongSequence{A}(undef, length(chunk) * n)
-    offset = 1
-    for i in 1:n
-        copyto!(seq, offset, chunk, 1, length(chunk))
-        offset += length(chunk)
-    end
-    return seq
-end
-
-# Concatenation and Base.repeat operators
-Base.:*(chunk::LongSequence{A}, chunks::LongSequence{A}...) where {A} =
-    LongSequence{A}(chunk, chunks...)
-Base.:^(chunk::LongSequence, n::Integer) = repeat(chunk, n)
-
-function Base.similar(seq::LongSequence{A}, len::Integer = length(seq)) where {A}
-    return LongSequence{A}(undef, len)
 end

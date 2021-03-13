@@ -15,11 +15,12 @@ function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) wh
         if force | (seq_data_len(A, size) > seq_data_len(A, length(seq)))
             resize!(seq.data, seq_data_len(A, size))
         end
-        seq.len = size
+        seq.len[] = size
         return seq
     end
 end
 
+#=
 """
     reverse!(seq::LongSequence)
 
@@ -163,3 +164,4 @@ function Random.shuffle!(seq::LongSequence)
     end
     return seq
 end
+=#

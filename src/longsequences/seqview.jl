@@ -19,14 +19,12 @@ const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}}
 const NucleicSeqOrView = SeqOrView{<:NucleicAcidAlphabet}
 
 Base.length(v::LongSubSeq) = last(v.part) - first(v.part) + 1
+Base.copy(v::LongSubSeq{A}) where A = LongSequence{A}(v)
+ 
 encoded_data_eltype(::Type{<:LongSubSeq}) = encoded_data_eltype(LongSequence)
 
 @inline function bitindex(x::LongSubSeq{A}, i::Integer) where A
 	bitindex(BitsPerSymbol(A), encoded_data_eltype(typeof(x)), i - first(x.part) + 1)
-end
-
-@inline function extract_encoded_element(x::LongSubSeq, i::Integer)
-    extract_encoded_element(bitindex(typeof(x), i), x.data)
 end
 
 # Constructors
@@ -36,10 +34,6 @@ end
 
 function LongSubSeq{A}(seq::LongSubSeq{A}) where {A <: Alphabet}
     return LongSubSeq{A}(seq.data, seq.part)
-end
-
-function LongSubSeq(seq::SeqOrView{A}) where {A <: Alphabet}
-	return LongSubSeq{A}(seq)
 end
 
 function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where {A <: Alphabet}

@@ -13,7 +13,7 @@ BioSequences.extract_encoded_element(x::SimpleSeq, i::Integer) = x.x[i]
 
 BioSequences.encoded_setindex!(x::SimpleSeq, e::UInt, i::Integer) = x.x[i] = e
 SimpleSeq(::UndefInitializer, x::Integer) = SimpleSeq(zeros(UInt, x))
-resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len), x)
+Base.resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len); x)
 
 # Not part of the API, just used for testing purposes
 random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))

@@ -12,7 +12,9 @@ using YAML
 # Test utils not dependent on BioSymbols
 include("utils.jl")
 
-include("alphabet.jl")
+@testset "Alphabet" begin
+    include("alphabet.jl")
+end
 
 @testset "BioSequences" begin
     include("biosequences/biosequence.jl")
@@ -20,10 +22,10 @@ include("alphabet.jl")
     include("biosequences/misc.jl")
 end
 
-#=
 @testset "LongSequences" begin
-    include("longsequences/conversion.jl")
     include("longsequences/basics.jl")
+    #=
+    include("longsequences/conversion.jl")
     include("longsequences/seqview.jl")
     include("longsequences/hashing.jl")
     include("longsequences/iteration.jl")
@@ -36,6 +38,7 @@ end
     include("longsequences/find.jl")
     include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
+    =#
 end
 
 @testset "Search" begin
