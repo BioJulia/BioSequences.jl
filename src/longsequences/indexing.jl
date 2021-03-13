@@ -4,10 +4,14 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-# assumes `i` is positive and `bitsof(A)` is a power of 2
+function bitindex(x::LongSequence, i::Integer)
+    N = BitsPerSymbol(Alphabet(typeof(x)))
+    bitindex(N, encoded_data_eltype(T), i)
+end
 
-@inline function bitindex(seq::LongSubSeq, i::Integer)
-    return bitindex(BitsPerSymbol(seq), encoded_data_eltype(seq), i + first(seq.part) - 1)
+function bitindex(x::LongSubSeq, i::Integer)
+    N = BitsPerSymbol(Alphabet(typeof(x)))
+    bitindex(N, encoded_data_eltype(T), i - first(x.part) + 1)
 end
 
 # More efficient due to copyto!

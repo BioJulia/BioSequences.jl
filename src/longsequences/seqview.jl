@@ -12,7 +12,34 @@ const SeqOrView{A} = Union{LongSequence{A}, LongSubSeq{A}} where {A <: Alphabet}
 const NucleicSeqOrView = SeqOrView{<:NucleicAcidAlphabet}
 
 Base.length(v::LongSubSeq) = last(v.part) - first(v.part) + 1
-encoded_data(v::LongSubSeq) = v.data
+encoded_data_eltype(::Type{<:LongSubSeq}) = encoded_data_eltype(LongSequence)
+
+@inline function bitindex(x::LongSubSeq{A}, i::Integer) where A
+	bitindex(BitsPerSymbol(A), encoded_data_eltype(typeof(x)), i - first(x.part) + 1)
+end
+
+@inline function extract_encoded_element(x::LongSequence, i::Integer)
+    extract_encoded_element(bitindex(typeof(x), i), x.data)
+end
+
+@inline function encoded_setindex!(x::LongSequence, x::UInt64, i::Integer)
+	
+
+"""
+* `Base.length(::T)::Int`
+* `encoded_data_eltype(::Type{T})::Type{E}`
+* `extract_encoded_element(::T, ::Integer)::E`
+* T must be able to be constructed from any iterable with `length` defined and
+with a known, compatible element type.
+
+Furthermore, mutable sequences should implement
+* `encoded_setindex!(::T, ::E, ::Integer)`
+* `T(undef, ::Int)`
+* resize!(::T, ::Int)
+* empty(::Type{T})
+
+For compatibility with existing `Alphabet`s, the encoded data eltype must be `UInt`.
+"""
 
 # Constructors
 function LongSubSeq{A}(seq::LongSequence{A}) where {A <: Alphabet}

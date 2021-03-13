@@ -21,7 +21,7 @@ Append a biological symbol `x` to a biological sequence `seq`.
 function Base.push!(seq::BioSequence, x)
     x_ = convert(eltype(seq), x)
     resize!(seq, length(seq) + 1)
-    unsafe_setindex!(seq, x_, lastindex(seq))
+    @inbounds seq[end] = x_
     return seq
 end
 
@@ -50,7 +50,7 @@ function Base.insert!(seq::BioSequence, i::Integer, x)
     checkbounds(seq, i)
     resize!(seq, length(seq) + 1)
     copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
-    unsafe_setindex!(seq, x, i)
+    @inbounds seq[i] = x
     return seq
 end
 
@@ -118,12 +118,38 @@ Insert a biological symbol `x` at the beginning of a biological sequence `seq`.
 function Base.pushfirst!(seq::BioSequence, x)
     resize!(seq, length(seq) + 1)
     copyto!(seq, 2, seq, 1, length(seq) - 1)
-    unsafe_setindex!(seq, x, 1)
+    @inbounds seq[firstindex(seq)] = x
     return seq
 end
 
-Base.filter(f::Function, seq::BioSequence) = filter!(f, copy(seq))
-Base.map(f::Function, seq::BioSequence) = map!(f, copy(seq))
+Base.filter(f, seq::BioSequence) = filter!(f, copy(seq))
+
+function Base.filter!(f, seq::BioSequence)
+    ind = 0
+    @inbounds for i in eachindex(seq)
+        if f(seq[i])
+            ind += 1
+        else
+            break
+        end
+    end
+    @inbounds for i in ind+1:lastindex(seq)
+        if f(seq[i])
+            ind += 1
+            seq[ind] = i
+        end
+    end
+    return resize!(seq, ind)
+end
+
+Base.map(f, seq::BioSequence) = map!(f, copy(seq))
+
+function Base.map!(f, seq::BioSequence)
+    @inbounds for i in eachindex(seq)
+        seq[i] = f(seq[i])
+    end
+    seq
+end
 
 """
     reverse(seq::BioSequence)

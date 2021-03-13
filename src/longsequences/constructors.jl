@@ -7,8 +7,6 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-
-
 function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
@@ -16,9 +14,15 @@ function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), convert(Int, len))
 end
 
-LongSequence(::Type{DNA}) = LongDNASeq()
-LongSequence(::Type{RNA}) = LongRNASeq()
-LongSequence(::Type{AminoAcid}) = LongAminoAcidSeq()
+@inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
+
+@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
+	iszero(bits_per_symbol(A())) && return 0
+    return cld(len, div(64, bits_per_symbol(A())))
+end
+
+Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], 0)
+(::Type{<:LongSequence})() = empty(T)
 
 function LongSequence{A}(seq::LongSequence{A}, part::UnitRange) where A
     return seq[part]
@@ -58,14 +62,6 @@ function LongSequence(other::LongSequence, part::UnitRange{<:Integer})
     return subseq
 end
 
-function (::Type{T})(seq::BioSequence) where {T<:LongSequence}
-    newseq = T(undef, length(seq))
-    @inbounds for i in eachindex(seq)
-        newseq[i] = seq[i]
-    end
-    return newseq
-end
-
 function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
     return LongSequence{A}(seq)
 end
@@ -82,21 +78,6 @@ end
 # This exists to fix ambiguity errors with Julia 1.0
 function LongSequence{A}(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where {N, A <: NucleicAcidAlphabet{N}}
 	return LongSequence{A}(copy(seq.data), seq.len)
-end
-
-# Concatenate multiple sequences
-function LongSequence{A}(chunks::LongSequence{A}...) where {A}
-    len = 0
-    for chunk in chunks
-        len += length(chunk)
-    end
-    seq = LongSequence{A}(undef, len)
-    offset = 1
-    for chunk in chunks
-        copyto!(seq, offset, chunk, 1, length(chunk))
-        offset += length(chunk)
-    end
-    return seq
 end
 
 function Base.repeat(chunk::LongSequence{A}, n::Integer) where {A}

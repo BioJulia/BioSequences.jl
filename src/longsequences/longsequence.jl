@@ -25,7 +25,7 @@
 #     decode(A, (seq.data[index(j)] >> offset(j)) & mask(A))
 #
 #  index :        index(j) - 1       index(j)       index(j) + 1
-#   data : ....|xxxxx...........|xxXxxxxxxxxxxxxx|............xxxx|....
+#   data :     |xxxxxxxxxxxxxxxx|xxXxxxxxxxxxxxxx|............xxxx|....
 # offset :                          |<-offset(j)-|
 #  width :      |<---- 64 ---->| |<---- 64 ---->| |<---- 64 ---->|
 #
@@ -34,15 +34,19 @@
 #  * 'X' : used and pointed by index `i`
 
 """
-Biological sequence data structure indexed by an alphabet type `A`.
+    LongSequence{A}
+
+`LongSequence` is the default mutable, variable-length `BioSequence`.
+It is suitable for biological sequences whose length is either not
+known at compile time, or that is larger than about 100 symbols.
+
+See also: [`Mer`](@ref)
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
     len::Int
 
-    function LongSequence{A}(data::Vector{UInt64}, len::Int) where {A <: Alphabet}
-        return new(data, len)
-    end
+    LongSequence{A}(data::Vector{UInt64}, len::Int) where {A <: Alphabet} = new{A}(data, len)
 end
 
 const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
@@ -50,26 +54,11 @@ const LongDNASeq       = LongSequence{DNAAlphabet{4}}
 const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
 
-###
-### Required type traits and methods
-###
-
-"Gets the alphabet encoding of a given BioSequence."
-BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
-Alphabet(::Type{LongSequence{A}}) where {A <: Alphabet} = A()
 Base.length(seq::LongSequence) = seq.len
-bindata(seq::LongSequence) = seq.data
-Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
+encoded_data_eltype(::Type{<:LongSequence}) = UInt
 
-@inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
-@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
-	iszero(bits_per_symbol(A())) && return 0
-    return cld(len, div(64, bits_per_symbol(A())))
-end
-
-@inline function encoded_data(seq::LongSequence)
-    return seq.data
-end
+# Derived basic attributes
+symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x)))
 
 include("seqview.jl")
 include("indexing.jl")

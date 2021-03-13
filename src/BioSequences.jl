@@ -236,6 +236,7 @@ include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
 include("geneticcode.jl")
+=#
 
 # Pattern searching in sequences...
 include("search/exact.jl")
