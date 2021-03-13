@@ -10,8 +10,8 @@
 function Base.findnext(f::Function, seq::BioSequence, start::Integer)
     start > lastindex(seq) && return nothing
     checkbounds(seq, start)
-    for i in start:lastindex(seq)
-        if f(inbounds_getindex(seq, i))
+    @inbounds for i in start:lastindex(seq)
+        if f(seq[i])
             return i
         end
     end
@@ -25,7 +25,7 @@ function Base.findprev(f::Function, seq::BioSequence, start::Integer)
     start < firstindex(seq) && return nothing
     checkbounds(seq, start)
     for i in start:-1:firstindex(seq)
-        if f(inbounds_getindex(seq, i))
+        if f(seq[i])
             return i
         end
     end

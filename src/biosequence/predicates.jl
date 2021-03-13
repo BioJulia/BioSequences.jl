@@ -14,18 +14,13 @@ function Base.:(==)(seq1::BioSequence, seq2::BioSequence)
     return true
 end
 
-function Base.isequal(seq1::BioSequence, seq2::BioSequence)
-    return typeof(seq1) === typeof(seq2) && seq1 == seq2
-end
-
 function Base.isless(seq1::BioSequence, seq2::BioSequence)
-    length(seq1) == length(seq2) && return isless(length(seq1), length(seq2))
-    @inbounds for i in eachindex(seq1)
+    @inbounds for i in Base.OneTo(min(length(seq1), length(seq2)))
         i1, i2 = seq1[i], seq2[i]
         isless(i1, i2) && return true
         isless(i2, i1) && return false
     end
-    return false
+    return isless(length(seq1), length(seq2))
 end
 
 """
@@ -119,7 +114,7 @@ two i.e. `canonical_seq < other_seq`.
 function iscanonical(seq::NucleotideSeq)
     i = 1
     j = lastindex(seq)
-    @inbounds while i <= j
+    @inbounds while i < j
         f = seq[i]
         r = complement(seq[j])
         f < r && return true

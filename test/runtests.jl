@@ -17,6 +17,7 @@ include("alphabet.jl")
 @testset "BioSequences" begin
     include("biosequences/biosequence.jl")
     include("biosequences/indexing.jl")
+    include("biosequences/misc.jl")
 end
 
 #=

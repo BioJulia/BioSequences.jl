@@ -3,7 +3,9 @@ struct SimpleSeq <: BioSequence{RNAAlphabet{2}}
     x::Vector{UInt}
 end
 
-SimpleSeq(it) = SimpleSeq([BioSequences.encode(Alphabet(SimpleSeq), i) for i in it])
+function SimpleSeq(it)
+    SimpleSeq([BioSequences.encode(Alphabet(SimpleSeq), convert(RNA, i)) for i in it])
+end
 Base.copy(x::SimpleSeq) = SimpleSeq(copy(x.x))
 Base.length(x::SimpleSeq) = length(x.x)
 BioSequences.encoded_data_eltype(::Type{SimpleSeq}) = UInt
@@ -12,6 +14,9 @@ BioSequences.extract_encoded_element(x::SimpleSeq, i::Integer) = x.x[i]
 BioSequences.encoded_setindex!(x::SimpleSeq, e::UInt, i::Integer) = x.x[i] = e
 SimpleSeq(::UndefInitializer, x::Integer) = SimpleSeq(zeros(UInt, x))
 resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len), x)
+
+# Not part of the API, just used for testing purposes
+random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
 
 @testset "Basics" begin
     seq = SimpleSeq([RNA_C, RNA_G, RNA_U])
@@ -42,6 +47,6 @@ resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len), x)
 
     @test_throws EncodeError SimpleSeq([RNA_C, RNA_G, RNA_M])
     @test_throws EncodeError SimpleSeq([RNA_Gap])
-    @test_throws MethodError SimpleSeq([DNA_C, DNA_G, DNA_C])
+    @test_throws MethodError SimpleSeq([DNA_C, "foo", DNA_C])
     @test_throws MethodError SimpleSeq(1:3)
 end

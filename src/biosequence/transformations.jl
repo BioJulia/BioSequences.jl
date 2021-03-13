@@ -232,7 +232,7 @@ end
 Create the canonical sequence of `seq`.
 
 """
-canonical(seq::NucleotideSeq) = canonical!(copy(seq))
+canonical(seq::NucleotideSeq) = is_canonical(seq) ? copy(seq) : reverse_complement(seq)
 
 "Create a copy of a sequence with gap characters removed."
 ungap(seq::BioSequence)  =  filter(!isgap, seq)
