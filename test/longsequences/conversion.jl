@@ -1,7 +1,7 @@
 @testset "Constructing empty sequences" begin
-    @test LongDNASeq() == LongSequence(DNA)
-    @test LongRNASeq() == LongSequence(RNA)
-    @test LongAminoAcidSeq() == LongSequence(AminoAcid)
+    @test isempty(LongDNASeq())
+    @test isempty(LongRNASeq())
+    @test isempty(LongAminoAcidSeq())
 end
 
 @testset "Constructing uninitialized sequences" begin

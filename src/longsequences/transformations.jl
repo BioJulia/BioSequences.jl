@@ -20,7 +20,6 @@ function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) wh
     end
 end
 
-#=
 """
     reverse!(seq::LongSequence)
 
@@ -164,4 +163,3 @@ function Random.shuffle!(seq::LongSequence)
     end
     return seq
 end
-=#

@@ -51,6 +51,8 @@ function LongSubSeq(seq::SeqOrView{A}, i) where {A <: Alphabet}
 	return LongSubSeq{A}(seq, i)
 end
 
+LongSubSeq(seq::SeqOrView, ::Colon) = LongSubSeq(seq, 1:lastindex(seq))
+
 Base.view(seq::SeqOrView, part::UnitRange) = LongSubSeq(seq, part)
 
 # Conversion
@@ -66,7 +68,7 @@ end
 function _copy_seqview(T, s::LongSubSeq)
 	first = firstbitindex(s)
 	v = s.data[index(first):index(lastbitindex(s))]
-	res = T(v, length(s))
+	res = T(v, Ref(UInt(length(s))))
 	return zero_offset!(res, offset(first) % UInt)
 end
 

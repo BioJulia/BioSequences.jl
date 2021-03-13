@@ -6,7 +6,7 @@
 	v2 = LongSubSeq(seq, 2:4)
 	v3 = view(seq, 2:4)
 	v4 = @view seq[2:4]
-	v5 = LongSubSeq(seq)
+	v5 = LongSubSeq(seq, :)
 	vv = LongSubSeq(v1, 2:3)
 	vv2 = v1[2:3]
 	vv3 = LongSubSeq(vv)

@@ -32,11 +32,11 @@ function LongSequence{A}(it) where {A <: Alphabet}
         xT = convert(eltype(A), x)
         enc = encode(A(), xT)
         bits |= enc << offset(bitind)
-        bitind = nextposition(bitind)
-        if iszero(offset(bitind))
+        if iszero(offset(nextposition(bitind)))
             data[index(bitind)] = bits
             bits = zero(UInt64)
         end
+        bitind = nextposition(bitind)
     end
     iszero(offset(bitind)) || (data[index(bitind)] = bits)
     LongSequence{A}(data, Ref(len % UInt))

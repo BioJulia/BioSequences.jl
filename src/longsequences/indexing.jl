@@ -12,7 +12,7 @@ end
 
 function bitindex(x::LongSubSeq, i::Integer)
     N = BitsPerSymbol(Alphabet(typeof(x)))
-    bitindex(N, encoded_data_eltype(typeof(x)), i - first(x.part) + 1)
+    bitindex(N, encoded_data_eltype(typeof(x)), i + first(x.part) - 1)
 end
 
 firstbitindex(s::SeqOrView) = bitindex(s, firstindex(s))
