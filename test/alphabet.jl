@@ -161,7 +161,7 @@ end
     @testset "AminoAcid" begin
         @test encode(AminoAcidAlphabet(), AA_A) === UInt(0x00)
         for aa in BioSymbols.alphabet(AminoAcid)
-            @test encode(AminoAcidAlphabet(), aa) === convert(UInt, aa)
+            @test encode(AminoAcidAlphabet(), aa) === convert(UInt, reinterpret(UInt8, aa))
         end
         @test_throws BioSequences.EncodeError encode(AminoAcidAlphabet(), BioSymbols.AA_INVALID)
     end
@@ -203,7 +203,7 @@ end
     @testset "AminoAcid" begin
         @test decode(AminoAcidAlphabet(), 0x00) === AA_A
         for x in 0x00:0x1b
-            @test decode(AminoAcidAlphabet(), x) === convert(AminoAcid, x)
+            @test decode(AminoAcidAlphabet(), x) === reinterpret(AminoAcid, x)
         end
         @test_throws BioSequences.DecodeError decode(AminoAcidAlphabet(), 0x1c)
     end

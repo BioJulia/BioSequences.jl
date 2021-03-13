@@ -6,28 +6,27 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-function Base.cmp(seq1::BioSequence, seq2::BioSequence)
-    m = lastindex(seq1)
-    n = lastindex(seq2)
-    for i in 1:min(m, n)
-        c = cmp(inbounds_getindex(seq1, i),
-                inbounds_getindex(seq2, i))
-        if c != 0
-            return c
-        end
-    end
-    return cmp(m, n)
-end
-
 function Base.:(==)(seq1::BioSequence, seq2::BioSequence)
-    return eltype(seq1)    == eltype(seq2) &&
-           length(seq1)    == length(seq2) &&
-           cmp(seq1, seq2) == 0
+    length(seq1) == length(seq2) || return false
+    @inbounds for i in eachindex(seq1)
+        seq1[i] == seq2[i] || return false
+    end
+    return true
 end
 
-Base.isless(seq1::BioSequence, seq2::BioSequence) = cmp(seq1, seq2) < 0
+function Base.isequal(seq1::BioSequence, seq2::BioSequence)
+    return typeof(seq1) === typeof(seq2) && seq1 == seq2
+end
 
-Base.isempty(seq::BioSequence) = length(seq) == 0
+function Base.isless(seq1::BioSequence, seq2::BioSequence)
+    length(seq1) == length(seq2) && return isless(length(seq1), length(seq2))
+    @inbounds for i in eachindex(seq1)
+        i1, i2 = seq1[i], seq2[i]
+        isless(i1, i2) && return true
+        isless(i2, i1) && return false
+    end
+    return false
+end
 
 """
     isrepetitive(seq::BioSequence, n::Integer=length(seq))

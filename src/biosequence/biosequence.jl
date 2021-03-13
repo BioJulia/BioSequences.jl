@@ -24,6 +24,7 @@ encoded data type:
 * `Base.length(::T)::Int`
 * `encoded_data_eltype(::Type{T})::Type{E}`
 * `extract_encoded_element(::T, ::Integer)::E`
+* `copy(::T)`
 * T must be able to be constructed from any iterable with `length` defined and
 with a known, compatible element type.
 
@@ -31,7 +32,6 @@ Furthermore, mutable sequences should implement
 * `encoded_setindex!(::T, ::E, ::Integer)`
 * `T(undef, ::Int)`
 * resize!(::T, ::Int)
-* empty(::Type{T})
 
 For compatibility with existing `Alphabet`s, the encoded data eltype must be `UInt`.
 """
@@ -45,8 +45,45 @@ Base.nextind(::BioSequence, i::Integer) = Int(i) + 1
 Base.prevind(::BioSequence, i::Integer) = Int(i) - 1
 Base.size(x::BioSequence) = (length(x),)
 Base.eltype(::Type{<:BioSequence{A}}) where {A <: Alphabet} = eltype(A)
+Base.eltype(x::BioSequence) = eltype(typeof(x))
 Alphabet(::Type{<:BioSequence{A}}) where {A <: Alphabet} = A()
 Alphabet(x::BioSequence) = Alphabet(typeof(x))
+Base.isempty(x::BioSequence) = iszero(length(x))
+Base.empty(::Type{T}) where {T <: BioSequence} = T(eltype(T)[])
+Base.empty(x::BioSequence) = empty(typeof(x))
+
+"""
+    encoded_data_eltype(::Type{<:BioSequence})
+
+Returns the element type of the encoded data of the `BioSequence`.
+This is the return type of `extract_encoded_element`, i.e. the data
+type that stores the biological symbols in the biosequence.
+
+See also: [`BioSequence`](@ref) 
+"""
+function encoded_data_eltype end
+
+"""
+    extract_encoded_element(::BioSequence{A}, i::Integer)
+
+Returns the encoded element at position `i`. This data can be
+decoded using `decode(A(), data)` to yield the element type of
+the biosequence.
+
+See also: [`BioSequence`](@ref) 
+"""
+function extract_encoded_element end
+
+
+"""
+    encoded_setindex!(seq::BioSequence, x::E, i::Integer)
+
+Given encoded data `x` of type `encoded_data_eltype(typeof(seq))`,
+sets the internal sequence data at the given index.
+
+See also: [`BioSequence`](@ref) 
+"""
+function encoded_setindex! end
 
 # Specific biosequences
 const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}

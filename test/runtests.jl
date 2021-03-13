@@ -14,6 +14,11 @@ include("utils.jl")
 
 include("alphabet.jl")
 
+@testset "BioSequences" begin
+    include("biosequences/biosequence.jl")
+    include("biosequences/indexing.jl")
+end
+
 #=
 @testset "LongSequences" begin
     include("longsequences/conversion.jl")

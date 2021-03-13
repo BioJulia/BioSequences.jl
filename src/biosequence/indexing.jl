@@ -17,7 +17,7 @@ function Base.checkbounds(x::BioSequence, i::Integer)
 end
 
 function Base.checkbounds(x::BioSequence, locs::AbstractVector{Bool})
-    length(x) == length(locs) || throw(BoundsError(seq, length(locs)))
+    length(x) == length(locs) || throw(BoundsError(x, lastindex(locs)))
 end
 
 @inline function Base.checkbounds(seq::BioSequence, locs::AbstractVector)
@@ -41,9 +41,8 @@ Base.@propagate_inbounds function Base.getindex(x::BioSequence, i::Integer)
 end
 
 Base.@propagate_inbounds function Base.getindex(x::BioSequence, bools::AbstractVector{Bool})
-    @boundscheck checkbounds(x, i)
-    N = count(i)
-    res = typeof(x)(undef, N)
+    @boundscheck checkbounds(x, bools)
+    res = typeof(x)(undef, count(bools))
     ind = 0
     @inbounds for i in eachindex(bools)
         if bools[i]
@@ -56,12 +55,15 @@ end
 
 Base.@propagate_inbounds function Base.getindex(x::BioSequence, i::AbstractVector{<:Integer})
     @boundscheck checkbounds(x, i)
-    res = typeof(x)(undef, length(x))
+    isempty(i) && return empty(x)
+    res = typeof(x)(undef, length(i))
     @inbounds for ind in eachindex(res)
         res[ind] = x[i[ind]]
     end
     return res
 end
+
+Base.getindex(x::BioSequence, ::Colon) = copy(x)
 
 ## Setindex
 Base.@propagate_inbounds function Base.setindex!(x::BioSequence, v, i::Integer)
@@ -71,18 +73,20 @@ Base.@propagate_inbounds function Base.setindex!(x::BioSequence, v, i::Integer)
     encoded_setindex!(x, data, i)
 end
 
-Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x::BioSequence, locs::AbstractVector{<:Integer})
+Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{<:Integer})
     @boundscheck checkbounds(seq, locs)
-    @boundscheck checkbounds(x, eachindex(locs))
-    @inbounds for i in eachindex(locs)
-        seq[locs[i]] = x[i]
+    @boundscheck (length(x) == length(locs) || throw(BoundsError(x, lastindex(locs))))
+    for (i, xi) in zip(locs, x)
+        @boundscheck checkbounds(seq, i)
+        seq[i] = xi
     end
     return seq
 end
 
-Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x::BioSequence, locs::AbstractVector{Bool})
+Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{Bool})
     @boundscheck checkbounds(seq, locs)
-    @boundscheck checkbounds(x, Base.OneTo(count(locs)))
+    n = count(locs)
+    @boundscheck (length(x) == n || throw(BoundsError(x, n)))
     j = 0
     @inbounds for i in eachindex(locs)
         if locs[i]
@@ -93,6 +97,6 @@ Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x::BioSequenc
     return seq
 end
 
-function Base.setindex!(seq::BioSequence, other::BioSequence, ::Colon)
-    return setindex!(seq, other, 1:lastindex(seq))
+function Base.setindex!(seq::BioSequence, x, ::Colon)
+    return setindex!(seq, x, 1:lastindex(seq))
 end
