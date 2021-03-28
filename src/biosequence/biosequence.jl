@@ -51,6 +51,7 @@ Alphabet(x::BioSequence) = Alphabet(typeof(x))
 Base.isempty(x::BioSequence) = iszero(length(x))
 Base.empty(::Type{T}) where {T <: BioSequence} = T(eltype(T)[])
 Base.empty(x::BioSequence) = empty(typeof(x))
+BitsPerSymbol(x::BioSequence) = BitsPerSymbol(Alphabet(typeof(x)))
 
 function Base.similar(seq::BioSequence, len::Integer=length(seq))
     return typeof(seq)(undef, len)
@@ -81,7 +82,7 @@ function Base.join(::Type{T}, it) where {T <: BioSequence}
     _join!(empty(T), it, Val(false))
 end
 
-Base.repeat(chunk::BioSequence, n::Integer) = join((chunk for i in 1:n))
+Base.repeat(chunk::BioSequence, n::Integer) = join(typeof(chunk), (chunk for i in 1:n))
 Base.:^(x::BioSequence, n::Integer) = repeat(x, n)
 
 # Concatenation and Base.repeat operators

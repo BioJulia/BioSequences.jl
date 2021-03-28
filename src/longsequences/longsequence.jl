@@ -55,11 +55,11 @@ const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
 const LongDNASeq       = LongSequence{DNAAlphabet{4}}
 const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
-# Basic attributes
 
+# Basic attributes
 Base.length(seq::LongSequence) = seq.len[] % Int
 encoded_data_eltype(::Type{<:LongSequence}) = UInt64
-Base.copy(x::LongSequence) = typeof(x)(x.data, x.len)
+Base.copy(x::LongSequence) = typeof(x)(copy(x.data), Ref(x.len[]))
 
 # Derived basic attributes
 symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x)))

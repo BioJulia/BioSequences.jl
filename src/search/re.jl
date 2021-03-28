@@ -481,7 +481,7 @@ function Base.show(io::IO, op::Op)
     if t == MatchTag
         print(io, "match")
     elseif t == BitsTag
-        print(io, "bits 0x", string(x, base = 16, pad = 8))
+        print(io, "bits ", repr(x))
     elseif t == JumpTag
         print(io, "jump ", x)
     elseif t == PushTag

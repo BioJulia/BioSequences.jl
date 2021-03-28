@@ -75,7 +75,9 @@ end
 
 Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{<:Integer})
     @boundscheck checkbounds(seq, locs)
-    @boundscheck (length(x) == length(locs) || throw(BoundsError(x, lastindex(locs))))
+    @boundscheck if length(x) != length(locs)
+        throw(DimensionMismatch("Attempt to assign $(length(x)) values to $(length(locs)) destinations"))
+    end
     for (i, xi) in zip(locs, x)
         @boundscheck checkbounds(seq, i)
         seq[i] = xi
@@ -86,7 +88,9 @@ end
 Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::AbstractVector{Bool})
     @boundscheck checkbounds(seq, locs)
     n = count(locs)
-    @boundscheck (length(x) == n || throw(BoundsError(x, n)))
+    @boundscheck if length(x) != n
+        throw(DimensionMismatch("Attempt to assign $(length(x)) values to $n destinations"))
+    end
     j = 0
     @inbounds for i in eachindex(locs)
         if locs[i]
@@ -96,6 +100,9 @@ Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::Abst
     end
     return seq
 end
+
+# For backwards compatibility
+unsafe_setindex!(seq::BioSequence, x, i) = @inbounds seq[i] = x
 
 function Base.setindex!(seq::BioSequence, x, ::Colon)
     return setindex!(seq, x, 1:lastindex(seq))

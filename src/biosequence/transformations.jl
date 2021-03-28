@@ -134,9 +134,10 @@ function Base.filter!(f, seq::BioSequence)
         end
     end
     @inbounds for i in ind+1:lastindex(seq)
-        if f(seq[i])
+        v = seq[i]
+        if f(v)
             ind += 1
-            seq[ind] = i
+            seq[ind] = v
         end
     end
     return resize!(seq, ind)

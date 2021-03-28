@@ -47,7 +47,9 @@ function Base.setindex!(seq::SeqOrView{A},
                         other::SeqOrView{A},
                         locs::UnitRange{<:Integer}) where {A <: Alphabet}
     @boundscheck checkbounds(seq, locs)
-    @boundscheck (length(seq) == length(locs) || throw(BoundsError(seq, lastindex(locs))))
+    @boundscheck if length(other) != length(locs)
+        throw(DimensionMismatch("Attempt to assign $(length(locs)) values to $(length(seq)) destinations"))
+    end
     return copyto!(seq, locs.start, other, 1, length(locs))
 end
 

@@ -11,6 +11,9 @@ Modifying the view changes the sequence and vice versa.
 struct LongSubSeq{A<:Alphabet} <: BioSequence{A}
     data::Vector{UInt64}
     part::UnitRange{Int}
+
+	# Added to reduce method ambiguities
+	LongSubSeq{A}(data::Vector{UInt64}, part::UnitRange{Int}) where A = new{A}(data, part)
 end
 
 # These unions are significant because LongSubSeq and LongSequence have the same
@@ -28,35 +31,36 @@ encoded_data_eltype(::Type{<:LongSubSeq}) = encoded_data_eltype(LongSequence)
 end
 
 # Constructors
-function LongSubSeq{A}(seq::LongSequence{A}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSequence{A}) where A
     return LongSubSeq{A}(seq.data, 1:length(seq))
 end
 
-function LongSubSeq{A}(seq::LongSubSeq{A}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSubSeq{A}) where A
     return LongSubSeq{A}(seq.data, seq.part)
 end
 
-function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
     return LongSubSeq{A}(seq.data, part)
 end
 
-function LongSubSeq{A}(seq::LongSubSeq{A}, part::UnitRange{<:Integer}) where {A <: Alphabet}
+function LongSubSeq{A}(seq::LongSubSeq{A}, part::UnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
     newpart = first(part) + first(seq.part) - 1 : last(part) + first(seq.part) - 1
     return LongSubSeq{A}(seq.data, newpart)
 end
 
-function LongSubSeq(seq::SeqOrView{A}, i) where {A <: Alphabet}
+function LongSubSeq(seq::SeqOrView{A}, i) where A
 	return LongSubSeq{A}(seq, i)
 end
 
 LongSubSeq(seq::SeqOrView, ::Colon) = LongSubSeq(seq, 1:lastindex(seq))
+LongSubSeq(seq::BioSequence{A}) where A = LongSubSeq{A}(seq)
 
 Base.view(seq::SeqOrView, part::UnitRange) = LongSubSeq(seq, part)
 
 # Conversion
-function LongSequence(s::LongSubSeq{A}) where {A <: Alphabet}
+function LongSequence(s::LongSubSeq{A}) where A
 	_copy_seqview(LongSequence{A}, s)
 end
 

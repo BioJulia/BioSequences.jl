@@ -47,6 +47,6 @@ random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
 
     @test_throws EncodeError SimpleSeq([RNA_C, RNA_G, RNA_M])
     @test_throws EncodeError SimpleSeq([RNA_Gap])
-    @test_throws MethodError SimpleSeq([DNA_C, "foo", DNA_C])
     @test_throws MethodError SimpleSeq(1:3)
+    @test_throws MethodError SimpleSeq([DNA_C, "foo", DNA_C])
 end

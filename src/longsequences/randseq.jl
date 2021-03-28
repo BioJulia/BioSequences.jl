@@ -112,7 +112,7 @@ function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
     seq = LongSequence{typeof(A)}(undef, len)
     @inbounds for i in 1:len
         letter = rand(rng, sp)
-        unsafe_setindex!(seq, letter, i)
+        seq[i] = letter
     end
     return seq
 end

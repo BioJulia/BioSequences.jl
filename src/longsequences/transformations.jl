@@ -67,11 +67,13 @@ end
 # all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
+    isempty(seq) && return seq
     offs = (64 - offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))) % UInt
     zero_offset!(seq, offs) 
 end
 
 @inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
+    isempty(seq) && return seq
     rshift = offs
     lshift = 64 - rshift
     len = length(seq.data)

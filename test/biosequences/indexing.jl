@@ -105,12 +105,12 @@ end
         random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
         seq = random_simple(19)
 
-        @test_throws BoundsError seq[trues(19)] = random_simple(18)
+        @test_throws DimensionMismatch seq[trues(19)] = random_simple(18)
         @test_throws BoundsError seq[trues(18)] = random_simple(19)
 
         mask = vcat(falses(2), trues(5), falses(12))
-        @test_throws BoundsError seq[mask] = random_simple(4)
-        @test_throws BoundsError seq[mask] = random_simple(6)
+        @test_throws DimensionMismatch seq[mask] = random_simple(4)
+        @test_throws DimensionMismatch seq[mask] = random_simple(6)
 
         test_bool_arr(seq, mask)
         for i in 1:5
@@ -147,7 +147,7 @@ end
         @test_throws BoundsError seq[15:17] = [RNA_A, RNA_C, RNA_U]
         @test_throws BoundsError seq[5:25] = ""
 
-        @test_throws BoundsError seq[5:7] = "AUCG"
+        @test_throws DimensionMismatch seq[5:7] = "AUCG"
 
         seq2 = copy(seq)
         seq2[5:4] = ""
@@ -163,8 +163,8 @@ end
         @test_throws BoundsError seq[[0, 1, 2]] = "UUU"
         @test_throws BoundsError seq[[6, 1, 18]] = "UUU"
 
-        @test_throws BoundsError seq[[4,5,6]] = "UU"
-        @test_throws BoundsError seq[[4,5,6]] = "ACGU"
+        @test_throws DimensionMismatch seq[[4,5,6]] = "UU"
+        @test_throws DimensionMismatch seq[[4,5,6]] = "ACGU"
 
         seq[[2,6,8]] = "ACU"
         @test seq == SimpleSeq(map(RNA, collect("AAGCUCCUUAUGUUCUU")))

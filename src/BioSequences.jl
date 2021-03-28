@@ -111,9 +111,6 @@ export
     NucleotideSeq,
     AminoAcidSeq,
     
-    # Indexing
-    unsafe_setindex!,
-    
     # Predicates
     ispalindromic,
     hasambiguity,
@@ -233,9 +230,9 @@ include("biosequence/biosequence.jl")
 # The definition of the LongSequence concrete type, and its method overloads...
 
 include("longsequences/longsequence.jl")
-#=
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
+#=
 
 # The definition of the Skipmer concrete type, and its method overloads...
 include("mers/mer.jl")
