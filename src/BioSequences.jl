@@ -106,6 +106,8 @@ export
     ###
     ### BioSequences
     ###
+
+    join!,
     
     # Type & aliases
     BioSequence,
