@@ -54,7 +54,7 @@ end # testset
     end
 
     # Doesn't work for wrong types
-    @test_throws MethodError copy!(LongDNASeq("TAG"), LongAminoAcidSeq("WGM"))
+    @test_throws MethodError copy!(LongDNASeq("TAG"), LongAASeq("WGM"))
     @test_throws MethodError copy!(LongSequence{DNAAlphabet{2}}("TAG"), LongRNASeq("UGM"))
 end
 
@@ -239,7 +239,7 @@ end
         seq = LongRNASeq(random_rna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = LongAminoAcidSeq(random_aa(len))
+        seq = LongAASeq(random_aa(len))
         @test length(seq) === lastindex(seq) === len
     end
 end

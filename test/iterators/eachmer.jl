@@ -57,7 +57,7 @@ end
     
     function test_eachkmer(S, seq::AbstractString, k, step)
         alph = BioSequences.minimal_alphabet(Alphabet(S))
-        mertype = Mer{alph, k}
+        mertype = BioSequences.kmertype(Kmer{alph, k})
         iter = each(mertype, S(seq), step)
         
         @test eltype(iter) == MerIterResult{mertype}
@@ -69,7 +69,7 @@ end
     end
     
     function test_iteratorlength(S, seq::AbstractString, k, step)
-         @test length(each(Mer{BioSequences.minimal_alphabet(Alphabet(S)),k}, S(seq), step)) == length(string_eachkmer(eltype(S), seq, k, step))
+         @test length(each(Kmer{BioSequences.minimal_alphabet(Alphabet(S)),k}, S(seq), step)) == length(string_eachkmer(eltype(S), seq, k, step))
     end
     
     for k in [1, 3, 16, 32], step in 1:3, len in [1, 2, 3, 5, 10, 100, 1000]
@@ -85,31 +85,21 @@ end
         test_iteratorlength(LongSequence{RNAAlphabet{2}}, random_rna(len, probs), k, step)
     end
     
-    @test isempty(collect(each(DNAMer{1}, dna"")))
-    @test isempty(collect(each(DNAMer{1}, dna"NNNNNNNNNN")))
-    @test_throws Exception each(DNAMer{-1}, dna"ACGT")
-    @test_throws Exception each(DNAMer{0}, dna"ACGT")
-    @test_throws Exception each(DNAMer{33}, dna"ACGT")
-    @test collect(each(DNAMer{3}, dna"AC-TGAG--TGC")) == [MerIterResult(4, DNACodon(DNA_T, DNA_G, DNA_A), DNACodon(DNA_T, DNA_C, DNA_A)),
-                                                          MerIterResult(5, DNACodon(DNA_G, DNA_A, DNA_G), DNACodon(DNA_C, DNA_T, DNA_C)),
-                                                          MerIterResult(10, DNACodon(DNA_T, DNA_G, DNA_C), DNACodon(DNA_G, DNA_C, DNA_A))]
+    @test isempty(collect(each(DNAKmer{1}, dna"")))
+    @test isempty(collect(each(DNAKmer{1}, dna"NNNNNNNNNN")))
+    @test_throws Exception each(DNAKmer{-1}, dna"ACGT")
+    @test_throws Exception each(DNAKmer{0}, dna"ACGT")
+    @test collect(each(DNAKmer{3}, dna"AC-TGAG--TGC")) == [MerIterResult(4, Kmer(DNA_T, DNA_G, DNA_A), Kmer(DNA_T, DNA_C, DNA_A)),
+                                                          MerIterResult(5, Kmer(DNA_G, DNA_A, DNA_G), Kmer(DNA_C, DNA_T, DNA_C)),
+                                                          MerIterResult(10, Kmer(DNA_T, DNA_G, DNA_C), Kmer(DNA_G, DNA_C, DNA_A))]
 end
 
 @testset "SkipmerFactory" begin
     seq2 = LongSequence{DNAAlphabet{2}}("GAGGGGGATGCCCCTCTTTGAGCCCAAGG")
     seq4 = LongSequence{DNAAlphabet{4}}("GAGGGGGATGCCCCTCTTTGAGCCCAAGG")
     
-    #function test_iter_traits(it::CanonicalSkipmers{ST,U,S}) where {ST,U,S}
-    function test_iter_traits(it::SkipmerFactory{S,UInt64,K}) where {S,K}
-        A = ifelse(eltype(S) == DNA, DNAAlphabet{2}, RNAAlphabet{2})
-        @test eltype(it) == MerIterResult{Mer{A,K}}
-        @test Base.IteratorSize(it) == Base.HasLength()
-        @test Base.IteratorEltype(it) == Base.HasEltype()
-    end
-    
-    function test_iter_traits(it::SkipmerFactory{S,UInt128,K}) where {S,K}
-        A = ifelse(eltype(S) == DNA, DNAAlphabet{2}, RNAAlphabet{2})
-        @test eltype(it) == MerIterResult{BigMer{A,K}}
+    function test_iter_traits(it::SkipmerFactory{S,A,K,N}) where {S,A,K,N}
+        @test eltype(it) == MerIterResult{Kmer{A,K,N}}
         @test Base.IteratorSize(it) == Base.HasLength()
         @test Base.IteratorEltype(it) == Base.HasEltype()
     end
@@ -127,11 +117,9 @@ end
              "GAGCCCCTTGGCCA", "ATCCCTTTGACCAA", "TGCCTCTTAGCCAG",
              "GCCCCTTGGCCAGG"]
     
-    M = Mer{DNAAlphabet{2},14}
-    BIGM = BigMer{DNAAlphabet{2},14}
+    M = BioSequences.kmertype(DNAKmer{14})
     
     ans = collect(MerIterResult(x...) for x in zip(eachindex(fwans), M.(fwans), M.(string_reverse_complement.(DNA, fwans))))
-    bigans = collect(MerIterResult(x...) for x in zip(eachindex(fwans), BIGM.(fwans), BIGM.(string_reverse_complement.(DNA, fwans))))
     
     #ans = ["CAAGGGGCTCCCTC", "AGGGATCCCTTTGA", "CTAAGAGGCACCCC",
     #       "GCCAAGGGGCTCCC", "GGATCCCTTTGACC", "GGCTAAGAGGCACC",
@@ -147,46 +135,27 @@ end
     #@test collect(eachcanonical(ST, seq4)) == ST.(ans)
     @test collect(SkipmerFactory(M, seq4, 2, 3)) == ans
     
-    # Test the same pattern, but with UInt128 for big capacity skipmers.
-    #test_iter_traits(eachcanonical(BIGST, seq2))
-    test_iter_traits(SkipmerFactory(BIGM, seq2, 2, 3))
-    #test_iter_traits(eachcanonical(BIGST, seq4))
-    test_iter_traits(SkipmerFactory(BIGM, seq4, 2, 3))
-    #@test collect(eachcanonical(BIGST, seq2)) == BIGST.(ans)
-    @test collect(SkipmerFactory(BIGM, seq2, 2, 3)) == bigans
-    #@test collect(eachcanonical(BIGST, seq4)) == BIGST.(ans)
-    @test collect(SkipmerFactory(BIGM, seq4, 2, 3)) == bigans
-    
     # Test when Skipmers are based on UInt64, and sample nucleotides using
     # M = 1, N = 3, K = 7 pattern.
-    M2 = Mer{DNAAlphabet{2},7}
-    BIGM2 = BigMer{DNAAlphabet{2},7}
+    M2 = BioSequences.kmertype(DNAKmer{7})
     
     fwans2 = ["GGGGCCT", "AGACCTG", "GGTCTTA", "GGGCCTG",
              "GACCTGC", "GTCTTAC", "GGCCTGC", "ACCTGCA",
              "TCTTACA", "GCCTGCG", "CCTGCAG"]
     
     ans2 = collect(MerIterResult(x...) for x in zip(eachindex(fwans2), M2.(fwans2), M2.(string_reverse_complement.(DNA, fwans2))))
-    bigans2 = collect(MerIterResult(x...) for x in zip(eachindex(fwans2), BIGM2.(fwans2), BIGM2.(string_reverse_complement.(DNA, fwans2))))
     
     # Does iterator stop you if the span of your skipmer exceeds the len of the
     # sequence?
-    @test_throws ArgumentError SkipmerFactory(Mer{DNAAlphabet{2},14}, seq2, 1, 3)
+    @test_throws ArgumentError SkipmerFactory(BioSequences.kmertype(DNAKmer{14}), seq2, 1, 3)
     
     test_iter_traits(SkipmerFactory(M2, seq2, 1, 3))
     test_iter_traits(SkipmerFactory(M2, seq4, 1, 3))
     @test collect(SkipmerFactory(M2, seq2, 1, 3)) == ans2
     @test collect(SkipmerFactory(M2, seq4, 1, 3)) == ans2
     
-    # Test the same pattern, but with UInt128 for big capacity skipmers.
-    test_iter_traits(SkipmerFactory(BIGM2, seq2, 1, 3))
-    test_iter_traits(SkipmerFactory(BIGM2, seq4, 1, 3))
-    @test collect(SkipmerFactory(BIGM2, seq2, 1, 3)) == bigans2
-    @test collect(SkipmerFactory(BIGM2, seq4, 1, 3)) == bigans2
-    
     # Test when Skipmers are generated using M = 2, N = 4, K = 8 pattern.
-    M3 = Mer{DNAAlphabet{2},8}
-    BIGM3 = BigMer{DNAAlphabet{2},8}
+    M3 = BioSequences.kmertype(DNAKmer{8})
     
     fwans3 = ["GAGGTGCC", "AGGGGCCT", "GGGACCTC", "GGATCCCT",
               "GGTGCCTT", "GGGCCTTT", "GACCTCTG", "ATCCCTGA",
@@ -194,17 +163,10 @@ end
               "CCTTAGCA", "CTTTGCAA", "TCTGCCAG", "CTGACCGG"]
     
     ans3 = collect(MerIterResult(x...) for x in zip(eachindex(fwans3), M3.(fwans3), M3.(string_reverse_complement.(DNA, fwans3))))
-    bigans3 = collect(MerIterResult(x...) for x in zip(eachindex(fwans3), BIGM3.(fwans3), BIGM3.(string_reverse_complement.(DNA, fwans3))))
     
     test_iter_traits(SkipmerFactory(M3, seq2, 2, 4))
     test_iter_traits(SkipmerFactory(M3, seq4, 2, 4))
     @test collect(SkipmerFactory(M3, seq2, 2, 4)) == ans3
     @test collect(SkipmerFactory(M3, seq4, 2, 4)) == ans3
-    
-    # Test the same pattern, but with UInt128 for big capacity skipmers.
-    test_iter_traits(SkipmerFactory(BIGM3, seq2, 2, 4))
-    test_iter_traits(SkipmerFactory(BIGM3, seq4, 2, 4))
-    @test collect(SkipmerFactory(BIGM3, seq2, 2, 4)) == bigans3
-    @test collect(SkipmerFactory(BIGM3, seq4, 2, 4)) == bigans3
 end
 

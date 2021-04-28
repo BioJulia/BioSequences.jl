@@ -55,6 +55,8 @@ end
 "Get the element type of the vector of bits storing a sequences packed encoded elements."
 @inline encoded_data_eltype(seq::BioSequence) = eltype(encoded_data_type(seq))
 
+@inline Alphabet(any::Any) = Any
+
 """
 Return the `Alpahbet` defining the possible biological symbols
 and their encoding for a given biological sequence.

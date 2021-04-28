@@ -316,7 +316,7 @@ translate(codon::Union{DNACodon, RNACodon}, code=standard_genetic_code) = code[c
 """
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
 
-Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAminoAcidSeq`.
+Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAASeq`.
 
 Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.

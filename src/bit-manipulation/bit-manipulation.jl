@@ -27,20 +27,25 @@ end
     )
 end
 
-@inline function gc_bitcount(x::Unsigned, ::BitsPerSymbol{2})
+@inline function gc_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2})
     msk = repeatpattern(typeof(x), 0x55)
     c = x & msk
     g = (x >> 1) & msk
     return count_ones(c ⊻ g)
 end
 
-@inline function gc_bitcount(x::Unsigned, ::BitsPerSymbol{4})
+@inline function gc_bitcount(x::Unsigned, ::NucleicAcidAlphabet{4})
     a =  x & repeatpattern(typeof(x), 0x11)
     c = (x & repeatpattern(typeof(x), 0x22)) >> 1
     g = (x & repeatpattern(typeof(x), 0x44)) >> 2
     t = (x & repeatpattern(typeof(x), 0x88)) >> 3
     return count_ones((c | g) & ~(a | t))
 end
+
+@inline a_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_00_bitpairs(x)
+@inline c_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_01_bitpairs(x)
+@inline g_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_10_bitpairs(x)
+@inline t_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_11_bitpairs(x)
 
 @inline function mismatch_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
     return count_nonzero_nibbles(a ⊻ b)
@@ -86,8 +91,3 @@ end
     y = enumerate_nibbles(b) ⊻ 0x1111111111111111
     return count_0000_nibbles(x | y)
 end
-
-@inline count_a(x::Unsigned) = count_00_bitpairs(x)
-@inline count_c(x::Unsigned) = count_01_bitpairs(x)
-@inline count_g(x::Unsigned) = count_10_bitpairs(x)
-@inline count_t(x::Unsigned) = count_11_bitpairs(x)

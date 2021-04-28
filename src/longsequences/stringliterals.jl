@@ -41,15 +41,15 @@ end
 
 macro aa_str(seq, flag)
     if flag == "s"
-        return LongAminoAcidSeq(remove_newlines(seq))
+        return LongAASeq(remove_newlines(seq))
     elseif flag == "d"
         return quote
-            LongAminoAcidSeq($(remove_newlines(seq)))
+            LongAASeq($(remove_newlines(seq)))
         end
     end
     error("Invalid Amino Acid flag: '$(flag)'")
 end
 
 macro aa_str(seq)
-    return LongAminoAcidSeq(remove_newlines(seq))
+    return LongAASeq(remove_newlines(seq))
 end
