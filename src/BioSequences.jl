@@ -240,10 +240,6 @@ include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
-
-# The generic iterators for any BioSequence...
-include("iterators/condition.jl")
-
 include("geneticcode.jl")
 
 # Pattern searching in sequences...

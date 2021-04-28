@@ -41,7 +41,7 @@ end
 
 macro aa_str(seq, flag)
     if flag == "s"
-        return LongAASeq(remove_newlines(seq))
+        return LongAminoAcidSeq(remove_newlines(seq))
     elseif flag == "d"
         return quote
             LongAASeq($(remove_newlines(seq)))
@@ -51,5 +51,5 @@ macro aa_str(seq, flag)
 end
 
 macro aa_str(seq)
-    return LongAASeq(remove_newlines(seq))
+    return LongAminoAcidSeq(remove_newlines(seq))
 end
