@@ -156,11 +156,6 @@ end
     include("longsequences/shuffle.jl")
 end
 
-
-@testset "Iterators" begin
-    include("iterators/eachmer.jl")
-end
-
 @testset "Search" begin
     include("search/exact.jl")
     include("search/approximate.jl")
