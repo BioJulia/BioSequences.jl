@@ -8,7 +8,6 @@ import BioSymbols
 using BioSequences
 using StatsBase
 using YAML
-using BioGenerics
 
 const codons = [
     "AAA", "AAC", "AAG", "AAU",
