@@ -132,8 +132,6 @@ export
     
     # Iteration
     each,
-    fwmer,
-    bwmer,
     
     ###
     ### LongSequence
@@ -207,7 +205,6 @@ export
     Mismatch,
     count_pairwise
 
-using BioGenerics
 using BioSymbols
 import Combinatorics
 import IndexableBitVectors

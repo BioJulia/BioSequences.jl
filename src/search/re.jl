@@ -34,7 +34,7 @@ end
 
 module RE
 
-import BioGenerics, BioSequences
+import BioSequences
 
 # Syntax tree
 # -----------
