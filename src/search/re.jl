@@ -34,8 +34,6 @@ end
 
 module RE
 
-using Printf: @sprintf
-
 import BioGenerics, BioSequences
 
 # Syntax tree
@@ -483,7 +481,7 @@ function Base.show(io::IO, op::Op)
     if t == MatchTag
         print(io, "match")
     elseif t == BitsTag
-        print(io, "bits ", @sprintf("0x%08x", x))
+        print(io, "bits 0x", string(x, base = 16, pad = 8))
     elseif t == JumpTag
         print(io, "jump ", x)
     elseif t == PushTag
