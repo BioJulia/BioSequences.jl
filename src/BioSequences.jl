@@ -206,7 +206,6 @@ export
     count_pairwise
 
 using BioSymbols
-import IndexableBitVectors
 import Twiddle: enumerate_nibbles,
     nibble_mask,
     count_0000_nibbles,
