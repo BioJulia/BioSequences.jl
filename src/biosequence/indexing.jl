@@ -111,6 +111,8 @@ end
 # Provided Base methods for indexing any BioSequence type. May be overloaded if
 # needed but it is unlikely.
 
+Base.IteratorSize(::Type{<:BioSequence}) = Base.HasLength()
+Base.IteratorEltype(::Type{<:BioSequence}) = Base.HasEltype()
 Base.eltype(::Type{T}) where T <: BioSequence = eltype(Alphabet(T))
 Base.eltype(seq::BioSequence) = eltype(Alphabet(seq))
 Base.size(seq::BioSequence) = (length(seq),)

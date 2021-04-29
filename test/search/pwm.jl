@@ -34,7 +34,7 @@
         @test pfm .+ [0,1,2,3] isa PFM{DNA,Int}
         @test pfm .+ [0,1,2,3] == PFM{DNA}(m .+ [0,1,2,3])
 
-        set = DNAMer.(split(
+        set = LongDNASeq.(split(
         """
         ACG
         ATG
@@ -49,10 +49,10 @@
             0 1 0  # T
         ]
         @test pfm == PFM(Set(set))
-        @test_throws ArgumentError PFM(DNAKmer[])
+        @test_throws ArgumentError PFM(LongDNASeq[])
         @test_throws ArgumentError PFM(["foo"])
-        @test_throws ArgumentError PFM([DNAMer("AA"), RNAMer("AA")])
-        @test_throws ArgumentError PFM([DNAMer("AA"), DNAMer("AAA")])
+#        @test_throws ArgumentError PFM([LongDNASeq("AA"), LongDNASeq("AA")])
+        @test_throws ArgumentError PFM([LongDNASeq("AA"), LongDNASeq("AAA")])
     end
 
     @testset "PWM" begin

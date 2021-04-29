@@ -8,22 +8,12 @@
         @test gc_content(dna"ACATTGTGTATAACAAAAGG") === 6 / 20
         @test gc_content(dna"GAGGCGTTTATCATC"[2:end]) === 6 / 14
         
-        @test gc_content(mer"AATA"dna) === 0.0
-        @test gc_content(mer"ACGT"dna) === 0.5
-        @test gc_content(mer"CGGC"dna) === 1.0
-        @test gc_content(mer"ACATTGTGTATAACAAAAGG"dna) === 6 / 20
-
         @test gc_content(rna"") === 0.0
         @test gc_content(rna"AAUA") === 0.0
         @test gc_content(rna"ACGU") === 0.5
         @test gc_content(rna"CGGC") === 1.0
         @test gc_content(rna"ACAUUGUGUAUAACAAAAGG") === 6 / 20
         @test gc_content(rna"GAGGCGUUUAUCAUC"[2:end]) === 6 / 14
-
-        @test gc_content(mer"AAUA"rna) === 0.0
-        @test gc_content(mer"ACGU"rna) === 0.5
-        @test gc_content(mer"CGGC"rna) === 1.0
-        @test gc_content(mer"ACAUUGUGUAUAACAAAAGG"rna) === 6 / 20
         
         @test_throws Exception gc_content(aa"ARN")
         

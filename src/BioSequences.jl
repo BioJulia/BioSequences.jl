@@ -155,32 +155,6 @@ export
     randaaseq,
     
     ###
-    ### Mers
-    ###
-    
-    # Type & aliases
-    AbstractMer,
-    Mer,
-    DNAMer,
-    RNAMer,
-    DNAKmer,
-    RNAKmer,
-    
-    BigMer,
-    BigDNAMer,
-    BigRNAMer,
-    BigDNAKmer,
-    BigRNAKmer,
-
-    masked,
-    
-    DNACodon,
-    RNACodon,
-    
-    # Iteration
-    neighbors,
-    
-    ###
     ### Sequence literals
     ###
     
@@ -190,8 +164,6 @@ export
 
     @biore_str,
     @prosite_str,
-    @mer_str,
-    @bigmer_str,
     
     matched,
     captured,
@@ -267,13 +239,6 @@ include("biosequence/biosequence.jl")
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
-
-# The definition of the Skipmer concrete type, and its method overloads...
-include("mers/mer.jl")
-
-# The generic iterators for any BioSequence...
-include("iterators/eachmer.jl")
-include("iterators/skipmerfactory.jl")
 
 include("geneticcode.jl")
 

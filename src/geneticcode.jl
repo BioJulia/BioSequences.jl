@@ -7,9 +7,20 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+const XNA = Union{DNA, RNA}
+function unambiguous_codon(a::XNA, b::XNA, c::XNA)
+    @inbounds begin
+    bits = twobitnucs[reinterpret(UInt8, a) + 0x01] << 4 |
+    twobitnucs[reinterpret(UInt8, b) + 0x01] << 2 |
+    twobitnucs[reinterpret(UInt8, c) + 0x01]
+    end
+    #reinterpret(RNACodon, bits % UInt64)
+    return bits % UInt64
+end
+
 # A genetic code is a table mapping RNA 3-mers (i.e. RNAKmer{3}) to AminoAcids.
 "Type representing a Genetic Code"
-struct GeneticCode <: AbstractDict{RNACodon, AminoAcid}
+struct GeneticCode <: AbstractDict{UInt64, AminoAcid}
     name::String
     tbl::NTuple{64, AminoAcid}
 end
@@ -18,8 +29,8 @@ end
 ### Basic Functions
 ###
 
-function Base.getindex(code::GeneticCode, idx::Union{DNACodon,RNACodon})
-    return @inbounds code.tbl[reinterpret(Int64, idx) + 1]
+function Base.getindex(code::GeneticCode, codon::UInt64)
+    return @inbounds code.tbl[codon + one(UInt64)]
 end
 
 Base.copy(code::GeneticCode) = GeneticCode(copy(code.name), copy(code.tbl))
@@ -34,9 +45,9 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
         println(io)
         print(io, "  ")
         for z in rna
-            codon = RNACodon(x, y, z)
+            codon = unambiguous_codon(x, y, z)
             aa = code[codon]
-            print(io, codon, ": ", aa)
+            print(io, x, y, z, ": ", aa)
             if z != RNA_U
                 print(io, "    ")
             end
@@ -49,12 +60,11 @@ end
 ###
 
 
-function Base.iterate(code::GeneticCode, x=UInt64(0))
+function Base.iterate(code::GeneticCode, x = UInt64(0))
     if x > UInt64(0b111111)
         return nothing
     else
-        c = reinterpret(RNACodon, x)
-        return (c, @inbounds code[c]), x + 1
+        return (x, @inbounds code[x]), x + 1
     end
 end
 
@@ -106,7 +116,7 @@ end
 
 function parse_gencode(s)
     name, _, aas, _, base1, base2, base3 = split(chomp(s), '\n')
-    name = split(name, ' ', limit=2)[2]  # drop number
+    name = split(name, ' ', limit = 2)[2]  # drop number
     codearr = fill(AA_X, 4^3)
     @assert length(aas) == 73
     for i in 10:73
@@ -114,8 +124,8 @@ function parse_gencode(s)
         b1 = DNA(base1[i])
         b2 = DNA(base2[i])
         b3 = DNA(base3[i])
-        codon = DNACodon(b1, b2, b3)
-        codearr[reinterpret(UInt64, codon) + 1] = aa
+        codon = unambiguous_codon(b1, b2, b3)
+        codearr[codon + one(UInt64)] = aa
     end
     return GeneticCode(name, NTuple{64, AminoAcid}(codearr))
 end
@@ -306,17 +316,17 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 ### Translation
 ###
 
-"""
-    translate(codon::Union{DNACodon, RNACodon}, code::GeneticCode)
-
-Translates a 3-mer using the genetic code. The code defaults to `standard_genetic_code`.
-"""
-translate(codon::Union{DNACodon, RNACodon}, code=standard_genetic_code) = code[codon]
+#"""
+#    translate(codon::Union{DNACodon, RNACodon}, code::GeneticCode)
+#
+#Translates a 3-mer using the genetic code. The code defaults to `standard_genetic_code`.
+#"""
+#translate(codon::Union{DNACodon, RNACodon}, code = standard_genetic_code) = code[codon]
 
 """
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
 
-Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAminoAcidSeq`.
+Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAASeq`.
 
 Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.
@@ -327,18 +337,18 @@ can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
 function translate(ntseq::LongNucleotideSequence;
-    code::GeneticCode=standard_genetic_code,
+    code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
     len = div((length(ntseq) % UInt) * 11, 32)
-    translate!(LongAminoAcidSeq(undef, len), ntseq; code=code,
-    allow_ambiguous_codons=allow_ambiguous_codons, alternative_start=alternative_start)
+    translate!(LongAminoAcidSeq(undef, len), ntseq; code = code,
+    allow_ambiguous_codons = allow_ambiguous_codons, alternative_start = alternative_start)
 end
 
 function translate!(aaseq::LongAminoAcidSeq,
     ntseq::LongSequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
-    code::GeneticCode=standard_genetic_code,
+    code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
@@ -358,7 +368,7 @@ end
 
 function translate!(aaseq::LongAminoAcidSeq,
     ntseq::LongSequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
-    code::GeneticCode=standard_genetic_code,
+    code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
@@ -405,9 +415,11 @@ function try_translate_ambiguous_codon(code::GeneticCode,
 
     found::Union{AminoAcid, Nothing} = nothing
     for (codon, aa) in code
-        @inbounds if (iscompatible(x, codon[1]) &
-            iscompatible(y, codon[2]) &
-            iscompatible(z, codon[3]))
+        # TODO: Make this more tidy - maybe reuse the decode method for DNAAlph{4}.
+        a = reinterpret(RNA, 0x1 << ((codon >> 4) & 0x3))
+        b = reinterpret(RNA, 0x1 << ((codon >> 2) & 0x3))
+        c = reinterpret(RNA, 0x1 << (codon & 0x3))
+        @inbounds if (iscompatible(x, a) & iscompatible(y, b) & iscompatible(z, c))
             if found == nothing
                 found = aa
             elseif aa != found
@@ -416,14 +428,4 @@ function try_translate_ambiguous_codon(code::GeneticCode,
         end
     end
     return found
-end
-
-const XNA = Union{DNA, RNA}
-function unambiguous_codon(a::XNA, b::XNA, c::XNA)
-    @inbounds begin
-    bits = twobitnucs[reinterpret(UInt8, a) + 0x01] << 4 |
-    twobitnucs[reinterpret(UInt8, b) + 0x01] << 2 |
-    twobitnucs[reinterpret(UInt8, c) + 0x01]
-    end
-    reinterpret(RNACodon, bits % UInt64)
 end

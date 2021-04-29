@@ -104,24 +104,6 @@ function intempdir(fn::Function, parent=tempdir())
     end
 end
 
-function random_dna_kmer(len)
-    return random_dna(len, [0.25, 0.25, 0.25, 0.25])
-end
-
-function random_rna_kmer(len)
-    return random_rna(len, [0.25, 0.25, 0.25, 0.25])
-end
-
-function random_dna_kmer_nucleotides(len)
-    return random_array(len, [DNA_A, DNA_C, DNA_G, DNA_T],
-                        [0.25, 0.25, 0.25, 0.25])
-end
-
-function random_rna_kmer_nucleotides(len)
-    return random_array(len, [RNA_A, RNA_C, RNA_G, RNA_U],
-                        [0.25, 0.25, 0.25, 0.25])
-end
-
 function dna_complement(seq::AbstractString)
     seqc = Vector{Char}(undef, length(seq))
     complementer = Dict(zip("-ACGTSWYRKMDVHBN", "-TGCASWRYMKHBDVN"))
@@ -172,24 +154,6 @@ end
     include("longsequences/find.jl")
     include("longsequences/randseq.jl")
     include("longsequences/shuffle.jl")
-end
-
-@testset "Mers" begin
-    include("mers/conversion.jl")
-    include("mers/comparisons.jl")
-    include("mers/length.jl")
-    include("mers/access.jl")
-    include("mers/random.jl")
-    include("mers/find.jl")
-    include("mers/print.jl")
-    include("mers/transformations.jl")
-    include("mers/mismatches.jl")
-    include("mers/debruijn_neighbors.jl")
-    include("mers/shuffle.jl")
-end
-
-@testset "Iterators" begin
-    include("iterators/eachmer.jl")
 end
 
 @testset "Search" begin

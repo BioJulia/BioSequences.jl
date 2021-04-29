@@ -6,7 +6,8 @@
 
 # Counting GC positions
 let
-    counter = :(n += gc_bitcount(chunk, BitsPerSymbol(seq)))
+    @info "Compiling bit-parallel GC counter for LongSequence{<:NucleicAcidAlphabet}"
+    counter = :(n += gc_bitcount(chunk, Alphabet(seq)))
     compile_bitpar(
         :count_gc_bitpar,
         arguments   = (:(seq::SeqOrView{<:NucleicAcidAlphabet}),),

@@ -64,11 +64,4 @@
 
     # issue #133
     @test translate(rna"GAN") == aa"X"
-
-    # Translate kmers
-    for T in (RNACodon, DNACodon)
-        @test translate(T(mer"TAG")) == AA_Term
-        @test translate(T(mer"AAC")) == AA_N
-        @test translate(T(mer"CCT")) == AA_P
-    end
 end
