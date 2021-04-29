@@ -154,26 +154,4 @@ CTTA
 julia&gt; foo()
 4nt DNA Sequence:
 CTTA
-</code></pre><p>So the take home message of sequence literals is this:</p><p>Be careful when you are using sequence literals inside of functions, and inside the bodies of things like for loops. And if you use them and are unsure, use the  &#39;s&#39; and &#39;d&#39; flags to ensure the behaviour you get is the behaviour you intend.</p><h3 id="Kmer-literals-1"><a class="docs-heading-anchor" href="#Kmer-literals-1">Kmer literals</a><a class="docs-heading-anchor-permalink" href="#Kmer-literals-1" title="Permalink"></a></h3><p>You can create literals for <code>Mer</code>s and <code>BigMer</code>s as well:</p><pre><code class="language-julia-repl">julia&gt; mer&quot;ATCG&quot;
-DNA 4-mer:
-ATCG
-
-julia&gt; mer&quot;ATCG&quot;dna
-DNA 4-mer:
-ATCG
-
-julia&gt; mer&quot;AUCG&quot;rna
-RNA 4-mer:
-AUCG
-</code></pre><p>By using a flag at the end of the literal, you can set whether the kmer should be a DNA kmer or an RNA kmer. If you don&#39;t set the flag, then by default it will try to make a dna kmer from the string.</p><p>Literals for <code>BigMer</code>s are also available:</p><pre><code class="language-julia-repl">julia&gt; bigmer&quot;ATCG&quot;
-DNA 4-mer:
-ATCG
-
-julia&gt; bigmer&quot;ATCG&quot;dna
-DNA 4-mer:
-ATCG
-
-julia&gt; bigmer&quot;AUCG&quot;rna
-RNA 4-mer:
-AUCG
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../types/">« BioSequences Types</a><a class="docs-footer-nextpage" href="../transforms/">Indexing &amp; modifying sequences »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 29 April 2021 22:16">Thursday 29 April 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><p>So the take home message of sequence literals is this:</p><p>Be careful when you are using sequence literals inside of functions, and inside the bodies of things like for loops. And if you use them and are unsure, use the  &#39;s&#39; and &#39;d&#39; flags to ensure the behaviour you get is the behaviour you intend.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../types/">« BioSequences Types</a><a class="docs-footer-nextpage" href="../transforms/">Indexing &amp; modifying sequences »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 29 April 2021 22:27">Thursday 29 April 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
