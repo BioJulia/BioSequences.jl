@@ -33,26 +33,6 @@ julia> LongSequence{RNAAlphabet{2}}("UUAGC")
 5nt RNA Sequence:
 UUAGC
 
-julia> DNAMer{8}("ATCGATCG")
-DNA 8-mer:
-ATCGATCG
-
-julia> # The following works, but is not type-stable...
-
-julia> DNAMer("ATCGATCG")
-DNA 8-mer:
-ATCGATCG
-
-julia> RNAMer{8}("AUCGAUCG")
-RNA 8-mer:
-AUCGAUCG
-
-julia> # The following works, but is not type-stable...
-
-julia> RNAMer(LongRNASeq("AUCGAUCG"))
-RNA 8-mer:
-AUCGAUCG
-
 ```
 
 !!! note 
