@@ -30,7 +30,7 @@ function compile_bitpar(funcname::Symbol;
                 ind += 64 - o
             end
             
-            lastind = index(stop - bits_per_symbol(seq))
+            lastind = index(stop - bits_per_symbol(Alphabet(seq)))
             lastind -= !iszero(offset(stop))
             for i in index(ind):lastind
                 chunk = data[i]
@@ -131,8 +131,8 @@ function compile_2seq_bitpar(funcname::Symbol;
         stopa = bitindex(seqa, lastindex(seqa) + 1)
         nextb = bitindex(seqb, 1)
         stopb = bitindex(seqb, lastindex(seqb) + 1)
-        adata = encoded_data(seqa)
-        bdata = encoded_data(seqb)
+        adata = seqa.data
+        bdata = seqb.data
         
         $(init_code)
         

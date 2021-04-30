@@ -36,7 +36,7 @@ end
 function _copy!(dst::LongSequence, src::LongSequence)
     resize!(dst.data, length(src.data))
     copyto!(dst.data, src.data)
-    dst.len[] = src.len[]
+    dst.len = src.len
     return dst
 end
 

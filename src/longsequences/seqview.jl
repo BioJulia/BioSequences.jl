@@ -72,7 +72,7 @@ end
 function _copy_seqview(T, s::LongSubSeq)
 	first = firstbitindex(s)
 	v = s.data[index(first):index(lastbitindex(s))]
-	res = T(v, Ref(UInt(length(s))))
+	res = T(v, length(s) % UInt)
 	return zero_offset!(res, offset(first) % UInt)
 end
 

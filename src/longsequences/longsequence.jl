@@ -42,11 +42,11 @@ known at compile time, or that is larger than about 100 symbols.
 
 See also: [`Mer`](@ref)
 """
-struct LongSequence{A <: Alphabet} <: BioSequence{A}
+mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
-    len::Base.RefValue{UInt}
+    len::UInt
 
-    function LongSequence{A}(data::Vector{UInt64}, len::Base.RefValue{UInt}) where {A <: Alphabet}
+    function LongSequence{A}(data::Vector{UInt64}, len::UInt) where {A <: Alphabet}
         new{A}(data, len)
     end
 end
@@ -57,9 +57,9 @@ const LongRNASeq       = LongSequence{RNAAlphabet{4}}
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
 
 # Basic attributes
-Base.length(seq::LongSequence) = seq.len[] % Int
+Base.length(seq::LongSequence) = seq.len % Int
 encoded_data_eltype(::Type{<:LongSequence}) = UInt64
-Base.copy(x::LongSequence) = typeof(x)(copy(x.data), Ref(x.len[]))
+Base.copy(x::LongSequence) = typeof(x)(copy(x.data), x.len)
 
 # Derived basic attributes
 symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x)))

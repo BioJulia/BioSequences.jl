@@ -18,7 +18,7 @@ function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
     end
-    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), Ref(UInt(len)))
+    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), UInt(len))
 end
 
 # Generic constructor
@@ -39,10 +39,10 @@ function LongSequence{A}(it) where {A <: Alphabet}
         bitind = nextposition(bitind)
     end
     iszero(offset(bitind)) || (data[index(bitind)] = bits)
-    LongSequence{A}(data, Ref(len % UInt))
+    LongSequence{A}(data, len % UInt)
 end
 
-Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], Base.RefValue(UInt(0)))
+Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
 (::Type{T})() where {T <: LongSequence} = empty(T)
 
 function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}

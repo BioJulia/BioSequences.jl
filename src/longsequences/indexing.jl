@@ -60,9 +60,9 @@ end
 
 @inline function encoded_setindex!(s::SeqOrView, v::Unsigned, i::BitIndex)
     vi, off = i
-    data = encoded_data(s)
+    data = s.data
     bits = @inbounds data[vi]
-	v_ = v % encoded_data_eltype(s)
-    @inbounds data[vi] = (v_ << off) | (bits & ~(bindata_mask(s) << off))
+	v_ = v % encoded_data_eltype(typeof(s))
+    @inbounds data[vi] = (v_ << off) | (bits & ~(bitmask(i) << off))
     return s
 end
