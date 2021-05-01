@@ -10,35 +10,33 @@
 """
 # Alphabets of biological symbols.
 
-`Alphabet` is the most important type trait for `BioSequence` An `Alphabet`
+`Alphabet` is the most important type trait for `BioSequence`. An `Alphabet`
 represents a set of biological symbols encoded by a sequence, e.g. A, C, G
 and T for a 2-bit DNA Alphabet.
 
 * Subtypes of Alphabet are singleton structs that may or may not be parameterized.
-* Alphabets span over a *finite* list of biological symbols
-* The alphabet controls the encoding/decoding between a decoded element type and
-    an internal data representation type.
-* An `Alphabet` must never encode (using `encode`) or decode (using `decode`)
-invalid data.  Other methods for check-free encoding/decoding methods may be added.
+* Alphabets span over a *finite* set of biological symbols.
+* The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
+of the alphabet's element type, as well as the decoding, the inverse process.
+* An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
 
 Every subtype `A` of `Alphabet` must implement:
-* `Base.eltype(::Type{A})::Type{E}` for some eltype `E`, which must be a BioSymbol
-* `symbols(::A)::Tuple{Vararg{E}}`. This gives tuplea of all elements of `A`.
-* `encode(::A, ::E)::X` encodes an element to the internal data eltype `X`
-* `decode(::A, ::X)::E` decodes an `X` to an element `E`.
+* `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a BioSymbol.
+* `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
+* `encode(::A, ::S)::E` encodes a symbol to an internal data eltype `E`.
+* `decode(::A, ::E)::S` decodes an internal data eltype `E` to a symbol `S`.
 * Except for `eltype` which must follow Base conventions, all functions operating
 on `Alphabet` should operate on instances of the alphabet, not the type.
 
-
 If you want interoperation with existing subtypes of `BioSequence`,
-the element type `E` must be `UInt`, and you must also implement:
+the encoded representation `E` must be of type `UInt`, and you must also implement:
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
 or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 """
 abstract type Alphabet end
 
 """
-The number of bits required to represent a packed symbol in a vector of bits.
+The number of bits required to represent a packed symbol encoding in a vector of bits.
 """
 bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))
 Base.length(A::Alphabet) = length(symbols(A))
@@ -51,9 +49,10 @@ bits_per_symbol(::BitsPerSymbol{N}) where N = N
 ## Encoders & Decoders
 
 """
-    encode(::Alphabet, x::T)
+    encode(::Alphabet, x::S)
 
-Encode biosymbol `T` to a data element using an `Alphabet`.
+
+Encode BioSymbol `S` to an internal representation using an `Alphabet`.
 This decoding is checked to enforce valid data element.
 """
 function encode end
@@ -71,7 +70,7 @@ end
 """
     decode(::Alphabet, x::E)
 
-Decode data element `E` to a `BioSymbol` using an `Alphabet`.
+Decode internal representation `E` to a `BioSymbol` using an `Alphabet`.
 This decoding is checked to enforce valid biosymbols.
 """
 function decode end
@@ -122,7 +121,7 @@ BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{2} = BitsPerSymbol{2}()
 BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{4} = BitsPerSymbol{4}()
 
 
-## Encoding and decoding DNA and RNA alphabets
+## Encoding and decoding DNA and RNA alphabet symbols
 
 # A nucleotide with bitvalue B has kmer-bitvalue kmerbits[B+1].
 # ambiguous nucleotides have no kmervalue, here set to 0xff

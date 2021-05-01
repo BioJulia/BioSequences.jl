@@ -36,34 +36,6 @@
     end
 end
 
-"""
-# Alphabets of biological symbols.
-
-`Alphabet` is the most important type trait for `BioSequence` An `Alphabet`
-represents a set of biological symbols encoded by a sequence, e.g. A, C, G
-and T for a 2-bit DNA Alphabet.
-
-* Subtypes of Alphabet are singleton structs that may or may not be parameterized.
-* Alphabets span over a *finite* list of biological symbols
-* The alphabet controls the encoding/decoding between a decoded element type and
-    an internal data representation type.
-* An `Alphabet` must never encode (using `encode`) or decode (using `decode`)
-invalid data.  Other methods for check-free encoding/decoding methods may be added.
-
-Every subtype `A` of `Alphabet` must implement:
-* `Base.eltype(::Type{A})::Type{E}` for some eltype `E`, which must be a BioSymbol
-* `symbols(::A)::Tuple{Vararg{E}}`. This gives tuplea of all elements of `A`.
-* `encode(::A, ::E)::X` encodes an element to the internal data eltype `X`
-* `decode(::A, ::X)::E` decodes an `X` to an element `E`.
-* Except for `eltype` which must follow Base conventions, all functions operating
-on `Alphabet` should operate on instances of the alphabet, not the type.
-
-
-If you want interoperation with existing subtypes of `BioSequence`,
-the element type `E` must be `UInt`, and you must also implement:
-* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
-or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
-"""
 encode = BioSequences.encode
 EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
