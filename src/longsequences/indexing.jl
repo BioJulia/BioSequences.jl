@@ -5,21 +5,21 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 # Basic get/setindex methods
-function bitindex(x::LongSequence, i::Integer)
+@inline function bitindex(x::LongSequence, i::Integer)
     N = BitsPerSymbol(Alphabet(typeof(x)))
     bitindex(N, encoded_data_eltype(typeof(x)), i)
 end
 
-function bitindex(x::LongSubSeq, i::Integer)
+@inline function bitindex(x::LongSubSeq, i::Integer)
     N = BitsPerSymbol(Alphabet(typeof(x)))
-    bitindex(N, encoded_data_eltype(typeof(x)), i + first(x.part) - 1)
+    bitindex(N, encoded_data_eltype(typeof(x)), i % UInt + first(x.part) - 1)
 end
 
 firstbitindex(s::SeqOrView) = bitindex(s, firstindex(s))
 lastbitindex(s::SeqOrView) = bitindex(s, lastindex(s))
 
-function extract_encoded_element(x::SeqOrView, i::Integer)
-    bi = bitindex(x, i)
+@inline function extract_encoded_element(x::SeqOrView, i::Integer)
+    bi = bitindex(x, i % UInt)
     extract_encoded_element(bi, x.data)
 end
 

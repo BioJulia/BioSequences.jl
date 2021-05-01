@@ -71,10 +71,9 @@ end
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
 "Extract the element stored in a packed bitarray referred to by bidx."
-@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::Union{AbstractArray{W}, NTuple{T, W}}) where {N,W,T}
-    @inbounds chunk = data[index(bidx)]
-    offchunk = chunk >> offset(bidx)
-    return offchunk & bitmask(bidx)
+@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::Union{AbstractArray{W}, Tuple{Vararg{W}}}) where {N,W}
+    chunk = (@inbounds data[index(bidx)]) >> offset(bidx)
+    return chunk & bitmask(bidx)
 end
 
 "Extract the element stored in a packed bitarray referred to by bidx."

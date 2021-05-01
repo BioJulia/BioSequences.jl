@@ -9,6 +9,9 @@ using BioSequences
 using StatsBase
 using YAML
 
+# Test for the absence of ubound type parameters in the package
+@test length(Test.detect_unbound_args(BioSequences)) == 0
+
 # Test utils not dependent on BioSymbols
 include("utils.jl")
 

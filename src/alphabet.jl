@@ -46,6 +46,9 @@ Base.length(A::Alphabet) = length(symbols(A))
 struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
 
+"Compute whether all bitpatterns represent valid symbols for an alphabet"
+iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
+
 ## Encoders & Decoders
 
 """
