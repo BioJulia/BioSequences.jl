@@ -41,10 +41,10 @@ EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
 DecodeError = BioSequences.DecodeError
 
-@testset "Custom Alphabet" begin
-    # NOTE: See the docs for the interface of Alphabet
-    struct ReducedAAAlphabet <: Alphabet end
+# NOTE: See the docs for the interface of Alphabet
+struct ReducedAAAlphabet <: Alphabet end
 
+@testset "Custom Alphabet" begin
     Base.eltype(::Type{ReducedAAAlphabet}) = AminoAcid
     BioSequences.BitsPerSymbol(::ReducedAAAlphabet) = BioSequences.BitsPerSymbol{4}()
     function BioSequences.symbols(::ReducedAAAlphabet)
