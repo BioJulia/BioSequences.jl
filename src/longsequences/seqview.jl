@@ -64,9 +64,13 @@ function LongSequence(s::LongSubSeq{A}) where A
 	_copy_seqview(LongSequence{A}, s)
 end
 
-function (::Type{T})(seq::LongSubSeq{<:NucleicAcidAlphabet{N}}) where
-	{N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
-	_copy_seqview(T, seq)
+#function (::Type{T})(seq::LongSubSeq{<:NucleicAcidAlphabet{N}}) where
+#	{N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
+#	_copy_seqview(T, seq)
+#end
+	
+function LongSequence{A}(seq::LongSubSeq{A}) where {A<:NucleicAcidAlphabet}
+	_copy_seqview(LongSequence{A}, seq)
 end
 
 function _copy_seqview(T, s::LongSubSeq)
