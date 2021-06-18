@@ -67,33 +67,12 @@ julia> LongSequence{DNAAlphabet{2}}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
 5nt DNA Sequence:
 TTAGC
 
-julia> DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> RNAMer{5}([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
-RNA 5-mer:
-UUAGC
-
-julia> # Works, but is not type-stable
-
-julia> DNAMer([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> RNAMer([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
-RNA 5-mer:
-UUAGC
 ```
 
 ### Constructing sequences from other sequences
 
 You can create sequences, by concatenating other sequences together:
 ```jldoctest
-julia> LongDNASeq(LongDNASeq("ACGT"), LongDNASeq("NNNN"), LongDNASeq("TGCA"))
-12nt DNA Sequence:
-ACGTNNNNTGCA
-
 julia> LongDNASeq("ACGT") * LongDNASeq("TGCA")
 8nt DNA Sequence:
 ACGTTGCA
@@ -106,24 +85,6 @@ julia> LongDNASeq("TA") ^ 10
 20nt DNA Sequence:
 TATATATATATATATATATA
 
-```
-
-You can also construct long sequences from kmer sequences, and vice versa:
-
-```jldoctest
-julia> m = DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> LongSequence(m)
-5nt DNA Sequence:
-TTAGC
-
-julia> # round trip from mer to long sequence back to mer.
-
-julia> DNAMer(LongSequence(m))
-DNA 5-mer:
-TTAGC
 ```
 
 Sequence views (`LongSubSeq`s) are special, in that they do not own their own data,
@@ -150,10 +111,7 @@ true
 
 ## Conversion of sequence types
 
-Sometimes you can convert between sequence types without construction / having
-to copy data. for example, despite being separate types, `LongDNASeq` and
-`LongRNASeq` can freely be converted between efficiently, without copying the
-underlying data:
+You can convert between sequence types.
 ```jldoctest
 julia> dna = dna"TTANGTAGACCG"
 12nt DNA Sequence:
@@ -162,9 +120,6 @@ TTANGTAGACCG
 julia> rna = convert(LongRNASeq, dna)
 12nt RNA Sequence:
 UUANGUAGACCG
-
-julia> dna.data === rna.data  # underlying data are same
-true
 
 ```
 
@@ -181,7 +136,7 @@ julia> dnastr = convert(String, dna)
 julia> # Implicit conversion to string - putting dna sequence in String vector 
 
 julia> arr = String[dna]
-1-element Array{String,1}:
+1-element Vector{String}:
  "TTANGTAGACCG"
  
 ```
