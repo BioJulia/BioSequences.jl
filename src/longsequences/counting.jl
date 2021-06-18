@@ -44,7 +44,7 @@ let
     
     count_empty = quote
         count += match_bitcount(x, y, A())
-        nempty = div(64, bits_per_symbol(A())) - div(offs, bits_per_symbol(A()))
+        nempty = div(64, bits_per_symbol(A())) - div(Int(offs), bits_per_symbol(A()))
         count -= nempty
     end
     
