@@ -24,40 +24,33 @@ with the rest of BioSequences, providing that key methods or traits are defined)
 BioSequence
 ```
 
-This abstract type is parametric over concrete types of `Alphabet`, which
-define the range of symbols permitted in the sequence.
-
-Some aliases are also provided for your convenience:
-
-| Type alias      | Type                                 |
-| :-------------- | :----------------------------------- |
-| `NucleotideSeq` | `BioSequence{<:NucleicAcidAlphabet}` |
-| `AminoAcidSeq`  | `BioSequence{AminoAcidAlphabet}`     |
-
-Any concrete sequence type compatible with BioSequences must inherit from
-`BioSequence{A}`, where `A` is the alphabet of the concrete sequence type.
-It must also have the following methods defined for it:
+Some aliases for `BioSequence` are also provided for your convenience:
 
 ```@docs
-encoded_data
+NucleotideSeq
+AminoAcidSeq
+```
+
+Let's have a closer look at some of those methods that a subtype of `BioSequence`
+must implement. Check out julia base library docs for `copy` and `resize!`.
+
+```@docs 
 Base.length(::BioSequence)
-```
-
-If these requirements are satisfied, the following key traits and methods backing
-the BioSequences interface, should be defined already for the sequence type.
-
-```@docs
-encoded_data_type
 encoded_data_eltype
-Alphabet(::BioSequence)
-BioSymbols.alphabet(::BioSequence)
-BitsPerSymbol
-bits_per_symbol
+extract_encoded_element
+encoded_setindex!
 ```
 
-As a result, the vast majority of methods described in the rest of this manual
-should work out of the box for the concrete sequence type. But they can always
-be overloaded if needed.
+A correctly defined subtype of `BioSequence` that satisfies the interface, will
+find the vast majority of methods described in the rest of this manual
+should work out of the box for that type. But they can always be overloaded if
+needed. Indeed the `LongSequence` type overloads Indeed some of the generic
+`BioSequence` methods, are overloaded for `LongSequence`, for example
+for transformation and counting operations where efficiency gains can be made
+due to the specific internal representation of a specific type.
+
+
+
 
 ## Long Sequences
 

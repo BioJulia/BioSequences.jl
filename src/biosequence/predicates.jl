@@ -24,7 +24,7 @@ function Base.isless(seq1::BioSequence, seq2::BioSequence)
 end
 
 """
-    isrepetitive(seq::BioSequence, n::Integer=length(seq))
+    isrepetitive(seq::BioSequence, n::Integer = length(seq))
 
 Return `true` if and only if `seq` contains a repetitive subsequence of length `≥ n`.
 """

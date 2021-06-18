@@ -125,7 +125,14 @@ See also: [`BioSequence`](@ref)
 function encoded_setindex! end
 
 # Specific biosequences
+"""
+An alias for `BioSequence{<:NucleicAcidAlphabet}`
+"""
 const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}
+
+"""
+An alias for `BioSequence{AminoAcidAlphabet}`
+"""
 const AminoAcidSeq = BioSequence{AminoAcidAlphabet}
 
 # The generic functions for any BioSequence...
