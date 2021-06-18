@@ -50,6 +50,15 @@ for transformation and counting operations where efficiency gains can be made
 due to the specific internal representation of a specific type.
 
 
+## The abstract Alphabet
+
+Alphabets control how biological symbols are encoded and decoded.
+They also confer many of the automatic traits and methods that any subtype
+of `T<:BioSequence{A<:Alphabet}` will get.
+
+```@docs
+BioSequences.Alphabet
+```
 
 
 ## Long Sequences
@@ -101,13 +110,3 @@ The purpose of `LongSubSeq` is that, since they only contain a pointer to the
 underlying array, an offset and a length, they are much lighter than `LongSequences`,
 and will be stack allocated on Julia 1.5 and newer. Thus, the user may construct
 millions of views without major performace implications.
-
-# Alphabet types
-
-```@docs
-BioSequences.Alphabet
-```
-
-Alphabets control how biological symbols are encoded and decoded.
-They also confer many of the automatic traits and methods that any subtype
-of `T<:BioSequence{A<:Alphabet}` will get.
