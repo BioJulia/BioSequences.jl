@@ -12,7 +12,7 @@
 
 `Alphabet` is the most important type trait for `BioSequence`. An `Alphabet`
 represents a set of biological symbols encoded by a sequence, e.g. A, C, G
-and T for a 2-bit DNA Alphabet.
+and T for a DNA Alphabet that requires only 2-bits to represent each symbol.
 
 * Subtypes of Alphabet are singleton structs that may or may not be parameterized.
 * Alphabets span over a *finite* set of biological symbols.

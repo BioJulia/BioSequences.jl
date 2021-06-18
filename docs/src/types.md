@@ -5,7 +5,7 @@ DocTestSetup = quote
 end
 ```
 
-# Sequence Types
+# Abstract Types
 
 BioSequences exports an abstract `BioSequence` type, and several concrete sequence
 types which inherit from it.
@@ -49,6 +49,13 @@ needed. Indeed the `LongSequence` type overloads Indeed some of the generic
 for transformation and counting operations where efficiency gains can be made
 due to the specific internal representation of a specific type.
 
+A few aliases for `BioSequence` also exist:
+
+```@docs
+NucleotideSeq
+AminoAcidSeq
+```
+
 
 ## The abstract Alphabet
 
@@ -60,6 +67,9 @@ of `T<:BioSequence{A<:Alphabet}` will get.
 BioSequences.Alphabet
 ```
 
+# Concrete types
+
+## Implemented alphabets
 
 ## Long Sequences
 
@@ -109,4 +119,4 @@ some operations are not supported for views, such as resizing.
 The purpose of `LongSubSeq` is that, since they only contain a pointer to the
 underlying array, an offset and a length, they are much lighter than `LongSequences`,
 and will be stack allocated on Julia 1.5 and newer. Thus, the user may construct
-millions of views without major performace implications.
+millions of views without major performance implications.

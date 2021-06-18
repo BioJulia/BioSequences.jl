@@ -10,11 +10,11 @@
 `BioSequence` is the main abstract type of `BioSequences`.
 Its subtypes are characterized by:
 * Being a linear container type with random access and indices `Base.OneTo(length(x))`.
-* Containing zero or internal data elements of type `encoded_data_eltype(typeof(x))`.
+* Containing zero or more internal data elements of type `encoded_data_eltype(typeof(x))`.
 * Being associated with an `Alphabet`, `A` by being a subtype of `BioSequence{A}`.
 
 A `BioSequence{A}` is indexed by an integer. The biosequence subtype, the index
-and the alphabet `A` determine how to extract the internal encoding data.
+and the alphabet `A` determine how to extract the internal encoded data.
 The alphabet decides how to decode the data to the element type of the biosequence.
 Hence, the element type and container type of a `BioSequence` are separated.
 
