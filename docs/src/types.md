@@ -20,6 +20,10 @@ performance when such code is compiled for a concrete BioSequence subtype.
 Additionally, it allows new types to be implemented that are fully compatible
 with the rest of BioSequences, providing that key methods or traits are defined).
 
+```@docs
+BioSequence
+```
+
 This abstract type is parametric over concrete types of `Alphabet`, which
 define the range of symbols permitted in the sequence.
 
