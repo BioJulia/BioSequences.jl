@@ -169,7 +169,7 @@ function Base.hash(seq::SeqOrView, seed::UInt64)
     h1::UInt64 = h2::UInt64 = hash(length(seq), seed)
     next = bitindex(seq, 1)
     stop = bitindex(seq, lastindex(seq) + 1)
-    data = encoded_data(seq)
+    data = seq.data
     
     h1, h2, next = body(typeof(seq), next, stop, data, h1, h2)
     h1, h2 = tail(typeof(seq), data, next, stop, h1, h2)

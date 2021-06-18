@@ -333,7 +333,7 @@ function bits2sym(::Type{T}, bits::UInt32) where {T}
 end
 
 mask(::Type{T}) where {T<:BioSequences.NucleicAcid} = (UInt32(1) << 4) - one(UInt32)
-@assert convert(Int, BioSequences.AA_U) + 1 == 22  # check there are 22 unambiguous amino acids
+@assert Int(reinterpret(UInt8, BioSequences.AA_U)) + 1 == 22  # check there are 22 unambiguous amino acids
 mask(::Type{BioSequences.AminoAcid}) = (UInt32(1) << 22) - one(UInt32)
 
 function desugar(::Type{T}, tree::SyntaxTree) where {T}
@@ -481,7 +481,7 @@ function Base.show(io::IO, op::Op)
     if t == MatchTag
         print(io, "match")
     elseif t == BitsTag
-        print(io, "bits 0x", string(x, base = 16, pad = 8))
+        print(io, "bits ", repr(x))
     elseif t == JumpTag
         print(io, "jump ", x)
     elseif t == PushTag

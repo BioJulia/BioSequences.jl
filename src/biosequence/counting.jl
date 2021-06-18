@@ -33,9 +33,9 @@ The first argument should be a function which accepts an element of the sequence
 as its first parameter, additional arguments may be passed with `args...`.
 """
 Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
-
 Base.count(pred, seqa::BioSequence, seqb::BioSequence) = count_naive(pred, seqa, seqb)
 
+# These functions are BioSequences-specific because they take two arguments
 BioSymbols.isambiguous(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) | isambiguous(y)
 BioSymbols.isgap(x::T, y::T) where {T<:NucleicAcid} = isgap(x) | isgap(y)
 BioSymbols.iscertain(x::T, y::T) where {T<:NucleicAcid} = iscertain(x) & iscertain(y)
@@ -66,4 +66,3 @@ n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap, seqa, seqb)
 
 mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)
 matches(seqa::BioSequence, seqb::BioSequence) = count(==, seqa, seqb)
-

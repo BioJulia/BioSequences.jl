@@ -11,8 +11,22 @@
 #                          |<-offset(i)-|
 #                      |<--- 64 bits -->|
 
-struct BitIndex{N,W}
-    val::Int64
+"""
+    BitIndex
+
+`BitIndex` is an internal type used in BioSequences.It contains
+a bit offset. For biosequences with an internal array of coding units,
+it can be used to obtain the array index and element bit offset.
+
+Useful methods:
+* bitindex(::BioSequence, ::Int)
+* index(::BitIndex)
+* offset(::BitIndex)
+* nextposition / prevposition(::BitIndex)
+* extract_encoded_element(::BitIndex, ::Union{Array, Tuple})
+"""
+struct BitIndex{N, W}
+    val::UInt64
 end
 
 BitsPerSymbol(::BitIndex{N, W}) where {N,W} = BitsPerSymbol{N}()
@@ -22,11 +36,9 @@ bits_per_symbol(::BitIndex{N, W}) where {N,W} = N
     return BitIndex{N, W}((i - 1) << trailing_zeros(N))
 end
 
-@inline bitwidth(::Type{W}) where {W<:Unsigned} = 8 * sizeof(W)
-@inline bitwidth(::BitIndex{N,W}) where {N,W} = bitwidth(W)
-
-@inline index_shift(i::BitIndex{N,W}) where {N,W} = trailing_zeros(bitwidth(W))
-@inline offset_mask(i::BitIndex{N,W}) where {N,W} = UInt8(bitwidth(W)) - 0x01
+bitwidth(::Type{W}) where W = 8*sizeof(W)
+@inline index_shift(::BitIndex{N,W}) where {N,W} = trailing_zeros(bitwidth(W))
+@inline offset_mask(::BitIndex{N,W}) where {N,W} = UInt8(bitwidth(W)) - 0x01
 
 @inline index(i::BitIndex) = (i.val >> index_shift(i)) + 1
 @inline offset(i::BitIndex) = i.val & offset_mask(i)
@@ -59,10 +71,9 @@ end
 Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
 
 "Extract the element stored in a packed bitarray referred to by bidx."
-@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::AbstractArray{W}) where {N,W}
-    @inbounds chunk = data[index(bidx)]
-    offchunk = chunk >> offset(bidx)
-    return offchunk & bitmask(bidx)
+@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::Union{AbstractArray{W}, Tuple{Vararg{W}}}) where {N,W}
+    chunk = (@inbounds data[index(bidx)]) >> offset(bidx)
+    return chunk & bitmask(bidx)
 end
 
 "Extract the element stored in a packed bitarray referred to by bidx."
@@ -82,12 +93,6 @@ end
 
 # Create a bit mask filling least significant N bits.
 # This is used in the extract_encoded_element function.
-bitmask(bidx::BitIndex{N,W}) where {N, W} = bitmask(W, N)
+bitmask(::BitIndex{N,W}) where {N, W} = bitmask(W, N)
 bitmask(n::Integer) = bitmask(UInt64, n)
 bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
-
-
-# TODO: Work out places this is used and see if it is really nessecery given the
-# bitmask methods above.
-# TODO: Resolve this use of bits_per_symbol and A().
-bitmask(::A) where {A<:Alphabet} = bitmask(bits_per_symbol(A()))

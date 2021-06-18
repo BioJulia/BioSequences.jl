@@ -112,7 +112,7 @@ function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
     seq = LongSequence{typeof(A)}(undef, len)
     @inbounds for i in 1:len
         letter = rand(rng, sp)
-        unsafe_setindex!(seq, letter, i)
+        seq[i] = letter
     end
     return seq
 end
@@ -160,21 +160,22 @@ end
 randseq(A::AminoAcidAlphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
 
 # Generic fallback method.
-function randseq(rng::AbstractRNG, A::Alphabet, len::Integer)
-    if length(A) == 1 << bits_per_symbol(A)
-        return randseq_allbits(rng, A, len)
-    else
-        letters = symbols(A)
-        sampler = SamplerUniform{eltype(A)}(letters)
-        return randseq(rng, A, sampler, len)
-    end
-end
-randseq(A::Alphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
+randseq(rng::AbstractRNG, A::Alphabet, len::Integer) = randseq(rng, iscomplete(A), A, len)
 
-function randseq_allbits(rng::AbstractRNG, A::Alphabet, len::Integer)
+# All bitpatterns are valid
+function randseq(rng::AbstractRNG, ::Val{true}, A::Alphabet, len::Integer)
     vector = rand(rng, UInt64, seq_data_len(typeof(A), len))
-    return LongSequence{typeof(A)}(vector, len)
+    return LongSequence{typeof(A)}(vector, UInt(len))
 end
+
+# Not all bitpatterns are valid
+function randseq(rng::AbstractRNG, ::Val{false}, A::Alphabet, len::Integer)
+    letters = symbols(A)
+    sampler = SamplerUniform{eltype(A)}(letters)
+    return randseq(rng, A, sampler, len)
+end
+
+randseq(A::Alphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
 
 """
     randdnaseq([rng::AbstractRNG], len::Integer)

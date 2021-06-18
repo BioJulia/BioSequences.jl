@@ -57,7 +57,7 @@ function approx_preprocess(pat, forward)
         y = forward ? pat[i] : pat[end-i+1]
         for x in Σ
             if BioSequences.iscompatible(x, y)
-                Pcom[convert(UInt8, x)+1] |= one(T) << (i - 1)
+                Pcom[reinterpret(UInt8, x)+0x01] |= one(T) << (i - 1)
             end
         end
     end
@@ -183,7 +183,7 @@ function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward
     end
 
     while (forward && j ≤ min(stop, n)) || (!forward && j ≥ max(stop, 1))
-        Eq = Pcom[convert(UInt8, seq[j])+1]
+        Eq = Pcom[reinterpret(UInt8, seq[j])+0x01]
         Xv = Eq | Mv
         Xh = (((Eq & Pv) + Pv) ⊻ Pv) | Eq
 
