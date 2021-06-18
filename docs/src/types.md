@@ -63,6 +63,12 @@ BioSequences.Alphabet
 
 ## Implemented alphabets
 
+```@docs
+DNAAlphabet
+RNAAlphabet
+AminoAcidAlphabet
+```
+
 ## Long Sequences
 
 Many genomics scripts and tools benefit from an efficient general purpose
