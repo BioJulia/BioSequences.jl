@@ -32,10 +32,9 @@ AminoAcidSeq
 ```
 
 Let's have a closer look at some of those methods that a subtype of `BioSequence`
-must implement. Check out julia base library docs for `copy` and `resize!`.
+must implement. Check out julia base library docs for `length`, `copy` and `resize!`.
 
 ```@docs 
-Base.length(::BioSequence)
 encoded_data_eltype
 extract_encoded_element
 encoded_setindex!
@@ -48,13 +47,6 @@ needed. Indeed the `LongSequence` type overloads Indeed some of the generic
 `BioSequence` methods, are overloaded for `LongSequence`, for example
 for transformation and counting operations where efficiency gains can be made
 due to the specific internal representation of a specific type.
-
-A few aliases for `BioSequence` also exist:
-
-```@docs
-NucleotideSeq
-AminoAcidSeq
-```
 
 
 ## The abstract Alphabet
