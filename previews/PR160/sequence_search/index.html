@@ -94,7 +94,7 @@ RegexMatch(&quot;CPVPQARG&quot;)
 julia&gt; match(prosite&quot;[AC]xVx(4){ED}&quot;, aa&quot;CPVPQARG&quot;)
 RegexMatch(&quot;CPVPQARG&quot;)
 </code></pre><h2 id="Position-weight-matrix-search-1"><a class="docs-heading-anchor" href="#Position-weight-matrix-search-1">Position weight matrix search</a><a class="docs-heading-anchor-permalink" href="#Position-weight-matrix-search-1" title="Permalink"></a></h2><p>A motif can also be specified using <a href="https://en.wikipedia.org/wiki/Position_weight_matrix">position weight matrix</a> (PWM) in a probabilistic way. <code>search(seq, pwm, threshold)</code> method searches for the first position in the sequence where a score calculated using the PWM is greater than or equal to the threshold. More formally, denoting the sequence as <span>$S$</span> and the PWM value of symbol <span>$s$</span> at position <span>$j$</span> as <span>$M_{s,j}$</span>, the score starting from a position <span>$p$</span> is defined as</p><div>\[\operatorname{score}(S, p) = \sum_{i=1}^L M_{S[p+i-1],i}\]</div><p>and <code>search(S, M, t)</code> returns the smallest <span>$p$</span> that satisfies <span>$\operatorname{score}(S, p) \ge t$</span>.</p><p>There are two kinds of matrices in this package: <code>PFM</code> and <code>PWM</code>. The <code>PFM</code> type is a position frequency matrix and stores symbol frequencies for each position. The <code>PWM</code> is a position weight matrix and stores symbol scores for each position. You can create a <code>PFM</code> from a set of sequences with the same length and then create a <code>PWM</code> from the <code>PFM</code> object.</p><pre><code class="language-julia-repl">julia&gt; motifs = [dna&quot;TTA&quot;, dna&quot;CTA&quot;, dna&quot;ACA&quot;, dna&quot;TCA&quot;, dna&quot;GTA&quot;]
-5-element Vector{LongSequence{DNAAlphabet{4}}}:
+5-element Vector{LongDNASeq}:
  TTA
  CTA
  ACA
@@ -102,28 +102,28 @@ RegexMatch(&quot;CPVPQARG&quot;)
  GTA
 
 julia&gt; pfm = PFM(motifs)  # sequence set =&gt; PFM
-4×3 PFM{DNA,Int64}:
+4×3 PFM{DNA, Int64}:
  A  1  0  5
  C  1  2  0
  G  1  0  0
  T  2  3  0
 
 julia&gt; pwm = PWM(pfm)  # PFM =&gt; PWM
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.321928 -Inf       2.0
  C -0.321928  0.678072 -Inf
  G -0.321928 -Inf      -Inf
  T  0.678072  1.26303  -Inf
 
 julia&gt; pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.319068 -6.97728   1.99139
  C -0.319068  0.673772 -6.97728
  G -0.319068 -6.97728  -6.97728
  T  0.673772  1.25634  -6.97728
 
 julia&gt; pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A  0.00285965 -6.65535   2.31331
  C -0.582103    0.410737 -7.24031
  G -0.582103   -7.24031  -7.24031
@@ -131,4 +131,4 @@ julia&gt; pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
 </code></pre><p>The <span>$PWM_{s,j}$</span> matrix is computed from <span>$PFM_{s,j}$</span> and the prior probability <span>$p(s)$</span> as follows ([Wasserman2004]):</p><div>\[\begin{align}
     PWM_{s,j} &amp;= \log_2 \frac{p(s,j)}{p(s)} \\
     p(s,j)  &amp;= \frac{PFM_{s,j}}{\sum_{s&#39;} PFM_{s&#39;,j}}.
-\end{align}\]</div><p>[Wasserman2004]: https://doi.org/10.1038/nrg1315</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../random/">« Random sequences</a><a class="docs-footer-nextpage" href="../iteration/">Iteration »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 18 June 2021 19:20">Friday 18 June 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+\end{align}\]</div><p>[Wasserman2004]: https://doi.org/10.1038/nrg1315</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../random/">« Random sequences</a><a class="docs-footer-nextpage" href="../iteration/">Iteration »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 18 June 2021 19:25">Friday 18 June 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
