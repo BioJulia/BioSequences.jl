@@ -42,7 +42,7 @@ DNA_A
 ```
 
 !!! note
-    Some types such as `Kmer` can be indexed using integers but not using ranges.
+    Some types such can be indexed using integers but not using ranges.
 
     
 For `LongSequence` types, indexing a sequence by range creates a copy of the
