@@ -97,12 +97,18 @@ abstract type NucleicAcidAlphabet{N} <: Alphabet end
 
 """
 DNA nucleotide alphabet.
+
+`DNAAlphabet` has a parameter `N` which is a number that determines the
+`BitsPerSymbol` trait. Currently supported values of `N` are 2 and 4.
 """
 struct DNAAlphabet{N} <: NucleicAcidAlphabet{N} end
 Base.eltype(::Type{<:DNAAlphabet}) = DNA
 
 """
 RNA nucleotide alphabet.
+
+`RNAAlphabet` has a parameter `N` which is a number that determines the
+`BitsPerSymbol` trait. Currently supported values of `N` are 2 and 4.
 """
 struct RNAAlphabet{N} <: NucleicAcidAlphabet{N} end
 Base.eltype(::Type{<:RNAAlphabet}) = RNA
