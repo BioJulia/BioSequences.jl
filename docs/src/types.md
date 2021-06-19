@@ -71,37 +71,9 @@ AminoAcidAlphabet
 
 ## Long Sequences
 
-Many genomics scripts and tools benefit from an efficient general purpose
-sequence type that allows you to create and edit sequences. In BioSequences,
-the `LongSequence` type fills this requirement.
-
-`LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
-`Alphabet` type `A` that defines the domain (or set) of biological symbols
-permitted.
-For example, `AminoAcidAlphabet` is associated with `AminoAcid` and hence an
-object of the `LongSequence{AminoAcidAlphabet}` type represents a sequence of
-amino acids.  Symbols from multiple alphabets can't be intermixed in one
-sequence type.
-
-The following table summarizes common LongSequence types that have been given
-aliases for convenience.
-
-| Type                                | Symbol type | Type alias         |
-| :---------------------------------- | :---------- | :----------------- |
-| `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
-| `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
-| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
-
-The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}, which means the
-sequence may store ambiguous nucleotides.
-If you are sure that nucleotide sequences store unambiguous nucleotides
-only, you can reduce the memory required by sequences by using a slightly
-different parameter:
-`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
-unambiguous nucleotide symbols (ACGT in DNA and ACGU in RNA).
-Replacing `LongSequence{DNAAlphabet{4}}` in your code with
-`LongSequence{DNAAlphabet{2}}` is all you need to do in order to benefit.
-Some computations that use bitwise operations will also be dramatically faster.
+```@docs
+LongSequence
+```
 
 ## Sequence views
 
