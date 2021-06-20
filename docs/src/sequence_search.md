@@ -178,14 +178,14 @@ The table below summarizes available syntax elements.
 
 ```jldoctest
 julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap
-4-element Array{LongSequence{DNAAlphabet{4}},1}:
+4-element Vector{LongDNASeq}:
  TAT  
  TAT
  TATA
  TATAA
 
 julia> collect(matched(x) for x in eachmatch(biore"TATA*"d, dna"TATTATAATTA", false)) # no overlap
-2-element Array{LongSequence{DNAAlphabet{4}},1}:
+2-element Vector{LongDNASeq}:
  TAT  
  TATAA
 
@@ -242,37 +242,37 @@ position. You can create a `PFM` from a set of sequences with the same length
 and then create a `PWM` from the `PFM` object.
 
 ```jldoctest
-julia> kmers = DNAMer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
-5-element Array{Mer{DNAAlphabet{2},3},1}:
+julia> motifs = [dna"TTA", dna"CTA", dna"ACA", dna"TCA", dna"GTA"]
+5-element Vector{LongDNASeq}:
  TTA
  CTA
  ACA
  TCA
  GTA
 
-julia> pfm = PFM(kmers)  # sequence set => PFM
-4×3 PFM{DNA,Int64}:
+julia> pfm = PFM(motifs)  # sequence set => PFM
+4×3 PFM{DNA, Int64}:
  A  1  0  5
  C  1  2  0
  G  1  0  0
  T  2  3  0
 
 julia> pwm = PWM(pfm)  # PFM => PWM
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.321928 -Inf       2.0
  C -0.321928  0.678072 -Inf
  G -0.321928 -Inf      -Inf
  T  0.678072  1.26303  -Inf
 
 julia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.319068 -6.97728   1.99139
  C -0.319068  0.673772 -6.97728
  G -0.319068 -6.97728  -6.97728
  T  0.673772  1.25634  -6.97728
 
 julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A  0.00285965 -6.65535   2.31331
  C -0.582103    0.410737 -7.24031
  G -0.582103   -7.24031  -7.24031

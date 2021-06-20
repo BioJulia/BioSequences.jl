@@ -36,11 +36,55 @@
 """
     LongSequence{A <: Alphabet}
 
+Many genomics scripts and tools benefit from an efficient general purpose
+sequence type that allows you to create and edit sequences.
+
 `LongSequence` is the default mutable, variable-length `BioSequence`.
 It is suitable for biological sequences whose length is either not
 known at compile time, or that is larger than about 100 symbols.
 
-See also: [`Mer`](@ref)
+`LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
+`Alphabet` type `A` that defines the domain (or set) of biological symbols
+permitted.
+
+As the [`BioSequence`](@ref) interface definition implies, `LongSequence`s store
+the biological symbol elements that they contain in a succinct encoded form that
+permits many operations to be done in an efficient bit-parallel manner. As per
+the interface of [`BioSequence`](@ref), the [`Alphabet`](@ref) determines how
+an element is encoded or decoded when it is inserted or extracted from the
+sequence.
+
+For example, [`AminoAcidAlphabet`](@ref) is associated with `AminoAcid` and hence
+an object of the `LongSequence{AminoAcidAlphabet}` type represents a sequence of
+amino acids.
+
+Symbols from multiple alphabets can't be intermixed in one sequence type.
+
+The following table summarizes common LongSequence types that have been given
+aliases for convenience.
+
+| Type                                | Symbol type | Type alias         |
+| :---------------------------------- | :---------- | :----------------- |
+| `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
+| `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
+| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
+
+The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}.
+
+`DNAAlphabet{4}` permits ambiguous nucleotides, and a sequence must use at least
+4 bits to internally store each element (and indeed `LongSequence` does).
+
+If you are sure that you are working with sequences with no ambiguous nucleotides,
+you can use `LongSeqeunces` parameterised with `DNAAlphabet{2}` instead.
+
+`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
+unambiguous nucleotide symbols (A,C,G,T).
+
+Changing this single parameter, is all you need to do in order to benefit from memory savings.
+Some computations that use bitwise operations will also be dramatically faster.
+
+The same applies with `LongSeqeunce{RNAAlphabet{4}}`, simply replace the alphabet
+parameter with `RNAAlphabet{2}` in order to benefit.
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
@@ -52,8 +96,14 @@ mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
 end
 
 const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
+
+"An alias for LongSequence{DNAAlphabet{4}}"
 const LongDNASeq       = LongSequence{DNAAlphabet{4}}
+
+"An alias for LongSequence{RNAAlphabet{4}}"
 const LongRNASeq       = LongSequence{RNAAlphabet{4}}
+
+"An alias for LongSequence{AminoAcidAlphabet}"
 const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
 
 # Basic attributes

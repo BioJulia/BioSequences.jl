@@ -5,7 +5,7 @@ DocTestSetup = quote
 end
 ```
 
-# Sequence Types
+# Abstract Types
 
 BioSequences exports an abstract `BioSequence` type, and several concrete sequence
 types which inherit from it.
@@ -20,74 +20,60 @@ performance when such code is compiled for a concrete BioSequence subtype.
 Additionally, it allows new types to be implemented that are fully compatible
 with the rest of BioSequences, providing that key methods or traits are defined).
 
-This abstract type is parametric over concrete types of `Alphabet`, which
-define the range of symbols permitted in the sequence.
-
-Some aliases are also provided for your convenience:
-
-| Type alias      | Type                                 |
-| :-------------- | :----------------------------------- |
-| `NucleotideSeq` | `BioSequence{<:NucleicAcidAlphabet}` |
-| `AminoAcidSeq`  | `BioSequence{AminoAcidAlphabet}`     |
-
-Any concrete sequence type compatible with BioSequences must inherit from
-`BioSequence{A}`, where `A` is the alphabet of the concrete sequence type.
-It must also have the following methods defined for it:
-
 ```@docs
-encoded_data
-Base.length(::BioSequence)
+BioSequence
 ```
 
-If these requirements are satisfied, the following key traits and methods backing
-the BioSequences interface, should be defined already for the sequence type.
+Some aliases for `BioSequence` are also provided for your convenience:
 
 ```@docs
-encoded_data_type
+NucleotideSeq
+AminoAcidSeq
+```
+
+Let's have a closer look at some of those methods that a subtype of `BioSequence`
+must implement. Check out julia base library docs for `length`, `copy` and `resize!`.
+
+```@docs 
 encoded_data_eltype
-Alphabet(::BioSequence)
-BioSymbols.alphabet(::BioSequence)
-BitsPerSymbol
-bits_per_symbol
+extract_encoded_element
+encoded_setindex!
 ```
 
-As a result, the vast majority of methods described in the rest of this manual
-should work out of the box for the concrete sequence type. But they can always
-be overloaded if needed.
+A correctly defined subtype of `BioSequence` that satisfies the interface, will
+find the vast majority of methods described in the rest of this manual
+should work out of the box for that type. But they can always be overloaded if
+needed. Indeed the `LongSequence` type overloads Indeed some of the generic
+`BioSequence` methods, are overloaded for `LongSequence`, for example
+for transformation and counting operations where efficiency gains can be made
+due to the specific internal representation of a specific type.
+
+
+## The abstract Alphabet
+
+Alphabets control how biological symbols are encoded and decoded.
+They also confer many of the automatic traits and methods that any subtype
+of `T<:BioSequence{A<:Alphabet}` will get.
+
+```@docs
+BioSequences.Alphabet
+```
+
+# Concrete types
+
+## Implemented alphabets
+
+```@docs
+DNAAlphabet
+RNAAlphabet
+AminoAcidAlphabet
+```
 
 ## Long Sequences
 
-Many genomics scripts and tools benefit from an efficient general purpose
-sequence type that allows you to create and edit sequences. In BioSequences,
-the `LongSequence` type fills this requirement.
-
-`LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
-`Alphabet` type `A` that defines the domain (or set) of biological symbols
-permitted.
-For example, `AminoAcidAlphabet` is associated with `AminoAcid` and hence an
-object of the `LongSequence{AminoAcidAlphabet}` type represents a sequence of
-amino acids.  Symbols from multiple alphabets can't be intermixed in one
-sequence type.
-
-The following table summarizes common LongSequence types that have been given
-aliases for convenience.
-
-| Type                                | Symbol type | Type alias         |
-| :---------------------------------- | :---------- | :----------------- |
-| `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
-| `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
-| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
-
-The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}, which means the
-sequence may store ambiguous nucleotides.
-If you are sure that nucleotide sequences store unambiguous nucleotides
-only, you can reduce the memory required by sequences by using a slightly
-different parameter:
-`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
-unambiguous nucleotide symbols (ACGT in DNA and ACGU in RNA).
-Replacing `LongSequence{DNAAlphabet{4}}` in your code with
-`LongSequence{DNAAlphabet{2}}` is all you need to do in order to benefit.
-Some computations that use bitwise operations will also be dramatically faster.
+```@docs
+LongSequence
+```
 
 ## Sequence views
 
@@ -103,14 +89,4 @@ some operations are not supported for views, such as resizing.
 The purpose of `LongSubSeq` is that, since they only contain a pointer to the
 underlying array, an offset and a length, they are much lighter than `LongSequences`,
 and will be stack allocated on Julia 1.5 and newer. Thus, the user may construct
-millions of views without major performace implications.
-
-# Alphabet types
-
-```@docs
-BioSequences.Alphabet
-```
-
-Alphabets control how biological symbols are encoded and decoded.
-They also confer many of the automatic traits and methods that any subtype
-of `T<:BioSequence{A<:Alphabet}` will get.
+millions of views without major performance implications.
