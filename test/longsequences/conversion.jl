@@ -1,7 +1,7 @@
 @testset "Constructing empty sequences" begin
-    @test isempty(LongDNASeq())
-    @test isempty(LongRNASeq())
-    @test isempty(LongAminoAcidSeq())
+    @test isempty(LongDNA{4}())
+    @test isempty(LongRNA{4}())
+    @test isempty(LongAA())
 end
 
 @testset "Constructing uninitialized sequences" begin
@@ -59,13 +59,13 @@ end
     end
 
     # non-standard string literal
-    @test isa(dna"ACGTMRWSYKVHDBN-", LongDNASeq)
-    @test isa(rna"ACGUMRWSYKVHDBN-", LongRNASeq)
-    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAminoAcidSeq)
+    @test isa(dna"ACGTMRWSYKVHDBN-", LongDNA{4})
+    @test isa(rna"ACGUMRWSYKVHDBN-", LongRNA{4})
+    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAA)
 
     # Non-nucleotide characters should throw
-    @test_throws Exception LongDNASeq("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception LongRNASeq("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongDNA{4}("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongRNA{4}("ACCNNCATTTTTTAGATXATAG")
     @test_throws Exception LongAASeq("ATGHLMY@ZACAGNM")
 end
 
@@ -165,8 +165,8 @@ end
 end
 
 @testset "Conversion between RNA and DNA" begin
-    @test convert(LongRNASeq, LongDNASeq("ACGTN")) == rna"ACGUN"
-    @test convert(LongDNASeq, LongRNASeq("ACGUN")) == dna"ACGTN"
+    @test convert(LongRNA{4}, LongDNA{4}("ACGTN")) == rna"ACGUN"
+    @test convert(LongDNA{4}, LongRNA{4}("ACGUN")) == dna"ACGTN"
 end
 
 @testset "Conversion to Matrices" begin
@@ -248,7 +248,7 @@ end
     @test_throws ArgumentError seqmatrix(rnathrow, :seq)
     @test_throws ArgumentError seqmatrix(dna, :lol)
     @test_throws MethodError seqmatrix(AminoAcid, dna, :site)
-    @test_throws ArgumentError seqmatrix(LongDNASeq[], :site)
-    @test_throws ArgumentError seqmatrix(LongDNASeq[], :seq)
+    @test_throws ArgumentError seqmatrix(LongDNA{4}[], :site)
+    @test_throws ArgumentError seqmatrix(LongDNA{4}[], :seq)
 
 end

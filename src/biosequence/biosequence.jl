@@ -130,10 +130,19 @@ An alias for `BioSequence{<:NucleicAcidAlphabet}`
 """
 const NucleotideSeq = BioSequence{<:NucleicAcidAlphabet}
 
+"An alias for `BioSequence{<:NucleicAcidAlphabet}`"
+const NucSeq{N} = BioSequence{<:NucleicAcidAlphabet{N}}
+
+"An alias for `BioSequence{DNAAlphabet{N}}`"
+const DNASeq{N} = BioSequence{DNAAlphabet{N}}
+
+"An alias for `BioSequence{RNAAlphabet{N}}`"
+const RNASeq{N} = BioSequence{RNAAlphabet{N}}
+
 """
 An alias for `BioSequence{AminoAcidAlphabet}`
 """
-const AminoAcidSeq = BioSequence{AminoAcidAlphabet}
+const AASeq = BioSequence{AminoAcidAlphabet}
 
 # The generic functions for any BioSequence...
 include("indexing.jl")

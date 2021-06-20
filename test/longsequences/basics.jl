@@ -44,8 +44,8 @@ end # testset
 
     #  Also works across nucleotide types!
     for N in (2,4)
-        src = LongSequence{DNAAlphabet{N}}(random_dna(33, [0.25, 0.25, 0.25, 0.25]))
-        dst = LongSequence{RNAAlphabet{N}}(random_rna(31, [0.25, 0.25, 0.25, 0.25]))
+        src = LongDNA{N}(random_dna(33, [0.25, 0.25, 0.25, 0.25]))
+        dst = LongRNA{N}(random_rna(31, [0.25, 0.25, 0.25, 0.25]))
         copy!(dst, src)
         @test String(typeof(dst)(src)) == String(dst)
         resize!(dst, 16)
@@ -54,8 +54,8 @@ end # testset
     end
 
     # Doesn't work for wrong types
-    @test_throws MethodError copy!(LongDNASeq("TAG"), LongAminoAcidSeq("WGM"))
-    @test_throws MethodError copy!(LongSequence{DNAAlphabet{2}}("TAG"), LongRNASeq("UGM"))
+    @test_throws MethodError copy!(LongDNA{4}("TAG"), LongAA("WGM"))
+    @test_throws MethodError copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
 end
 
 @testset "Copyto! sequence" begin
@@ -87,7 +87,7 @@ end
     test_copyto2!(AminoAcidAlphabet, random_aa)
 
     # Test bug when copying to self
-    src = LongDNASeq("A"^16 * "C"^16 * "A"^16)
+    src = LongDNA{4}("A"^16 * "C"^16 * "A"^16)
     copyto!(src, 17, src, 1, 32)
     @test String(src) == "A"^32 * "C"^16
 end
@@ -102,11 +102,11 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(undef, 6)
-    dna4 = LongSequence{DNAAlphabet{4}}(undef, 6)
-    rna2 = LongSequence{RNAAlphabet{2}}(undef, 6)
-    rna4 = LongSequence{RNAAlphabet{4}}(undef, 6)
-    aa = LongSequence{AminoAcidAlphabet}(undef, 6)
+    dna2 = LongDNA{2}(undef, 6)
+    dna4 = LongDNA{4}(undef, 6)
+    rna2 = LongRNA{2}(undef, 6)
+    rna4 = LongRNA{4}(undef, 6)
+    aa = LongAA(undef, 6)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 5, 16, 32, 100]
             test_copy!(dna2, dtype(random_dna(len, probs)))
@@ -130,11 +130,11 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(undef, 50)
-    dna4 = LongSequence{DNAAlphabet{4}}(undef, 50)
-    rna2 = LongSequence{RNAAlphabet{2}}(undef, 50)
-    rna4 = LongSequence{RNAAlphabet{4}}(undef, 50)
-    aa = LongSequence{AminoAcidAlphabet}(undef, 50)
+    dna2 = LongDNA{2}(undef, 50)
+    dna4 = LongDNA{4}(undef, 50)
+    rna2 = LongRNA{2}(undef, 50)
+    rna4 = LongRNA{4}(undef, 50)
+    aa = LongAA(undef, 50)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 10, 16, 32, 5]
             test_twoarg_copyto!(dna2, dtype(random_dna(len, probs)))
@@ -233,13 +233,13 @@ end
 
 @testset "Length" begin
     for len in [0, 1, 2, 10, 16, 32, 1000]
-        seq = LongDNASeq(random_dna(len))
+        seq = LongDNA{4}(random_dna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = LongRNASeq(random_rna(len))
+        seq = LongRNA{4}(random_rna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = LongAminoAcidSeq(random_aa(len))
+        seq = LongAA(random_aa(len))
         @test length(seq) === lastindex(seq) === len
     end
 end

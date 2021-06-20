@@ -19,8 +19,8 @@
 	@test hash(s[2:4]) == hash(v[2:4])
 
 	for i in 1:4
-		s1 = LongDNASeq("A"^(i-1))
-		s2 = LongDNASeq("A"^i)
+		s1 = LongDNA{4}("A"^(i-1))
+		s2 = LongDNA{4}("A"^i)
 		@test hash(s1) != hash(s2)
 		v1 = view(s2, 1:lastindex(s2) - 1)
 		v2 = view(s2, 1:lastindex(s2))

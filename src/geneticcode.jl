@@ -336,24 +336,24 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(ntseq::LongNucleotideSequence;
+function translate(ntseq::LongNuc{N};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
-)
+) where N
     len = div((length(ntseq) % UInt) * 11, 32)
-    translate!(LongAminoAcidSeq(undef, len), ntseq; code = code,
+    translate!(LongAA(undef, len), ntseq; code = code,
     allow_ambiguous_codons = allow_ambiguous_codons, alternative_start = alternative_start)
 end
 
-function translate!(aaseq::LongAminoAcidSeq,
-    ntseq::LongSequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
+function translate!(aaseq::LongAA,
+    ntseq::LongNuc{2};#Sequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
     n_aa, remainder = divrem(length(ntseq) % UInt, 3)
-    iszero(remainder) || error("LongRNASeq length is not divisible by three. Cannot translate.")
+    iszero(remainder) || error("LongRNA length is not divisible by three. Cannot translate.")
     resize!(aaseq, n_aa)
     @inbounds for i in 1:n_aa
         a = ntseq[3i-2]
@@ -366,14 +366,14 @@ function translate!(aaseq::LongAminoAcidSeq,
     aaseq
 end
 
-function translate!(aaseq::LongAminoAcidSeq,
-    ntseq::LongSequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
+function translate!(aaseq::LongAA,
+    ntseq::LongNuc{4};#Sequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
     n_aa, remainder = divrem(length(ntseq) % UInt, 3)
-    iszero(remainder) || error("LongRNASeq length is not divisible by three. Cannot translate.")
+    iszero(remainder) || error("LongRNA length is not divisible by three. Cannot translate.")
     resize!(aaseq, n_aa)
     @inbounds for i in 1:n_aa
         a = reinterpret(RNA, ntseq[3i-2])

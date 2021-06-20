@@ -40,7 +40,7 @@ end
 end
 
 @testset "Conversion" begin
-	seq = LongDNASeq("TAGTATCGAAMYCGNA")
+	seq = LongDNA{4}("TAGTATCGAAMYCGNA")
 	v = LongSubSeq(seq, 3:14)
 
 	@test LongSequence(v) == seq[3:14]
@@ -54,21 +54,21 @@ end
 @testset "Transformations" begin
 	# Reverse!
 	str = "SKVANNSFDGRKIQAWPSRQ"
-	seq = LongAminoAcidSeq(str)
+	seq = LongAA(str)
 	seq2 = copy(seq)
 	v = view(seq, 1:lastindex(seq))
 
 	reverse!(v)
-	@test seq == LongAminoAcidSeq(reverse(str))
+	@test seq == LongAA(reverse(str))
 	@test seq == v
 	@test seq != seq2
 
 	reverse!(v)
-	@test seq == LongAminoAcidSeq(str)
+	@test seq == LongAA(str)
 	@test seq == v
 	@test seq == seq2
 
-	seq = LongDNASeq("TGAGTCGTAGGAAGGACCTAAA")
+	seq = LongDNA{4}("TGAGTCGTAGGAAGGACCTAAA")
 	seq2 = copy(seq)
 	v = LongSubSeq(seq2, 3:15)
 	complement!(v)
@@ -78,7 +78,7 @@ end
 end
 
 @testset "Copying" begin
-	seq = LongRNASeq("UAUUAACCGGAGAUCAUUCAGGUAA")
+	seq = LongRNA{4}("UAUUAACCGGAGAUCAUUCAGGUAA")
 	v1 = view(seq, 1:3)
 	v2 = view(seq, 4:11)
 

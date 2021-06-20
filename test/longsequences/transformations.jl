@@ -140,11 +140,11 @@
 
         for len in [1, 2, 3, 5, 8, 9, 15, 19, 31, 32, 33, 50], _ in 1:5
             str = random_dna(len)
-            seq = LongDNASeq(str)
+            seq = LongDNA{4}(str)
             @test filter(x -> x == DNA_N, seq) ==
-                LongDNASeq(filter(x -> x == 'N', str))
+                LongDNA{4}(filter(x -> x == 'N', str))
             @test filter(x -> x != DNA_N, seq) ==
-                LongDNASeq(filter(x -> x != 'N', str))
+                LongDNA{4}(filter(x -> x != 'N', str))
         end
 
         seq = rna""
