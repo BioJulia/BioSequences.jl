@@ -7,6 +7,7 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 function Base.:(==)(seq1::BioSequence, seq2::BioSequence)
+    seq1 === seq2 && return true
     length(seq1) == length(seq2) || return false
     @inbounds for i in eachindex(seq1)
         seq1[i] == seq2[i] || return false
