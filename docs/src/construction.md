@@ -35,6 +35,26 @@ UUAGC
 
 ```
 
+Type alias' can also be used for brevity.
+
+```jldoctest
+julia> LongDNA{4}("TTANC")
+5nt DNA Sequence:
+TTANC
+
+julia> LongDNA{2}("TTAGC")
+5nt DNA Sequence:
+TTAGC
+
+julia> LongRNA{4}("UUANC")
+5nt RNA Sequence:
+UUANC
+
+julia> LongRNA{2}("UUAGC")
+5nt RNA Sequence:
+UUAGC
+```
+
 !!! note 
     From version 2.0 onwards, the `convert` methods for converting a
     string or vector of symbols into a sequence type have been removed. These

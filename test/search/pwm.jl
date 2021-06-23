@@ -34,7 +34,7 @@
         @test pfm .+ [0,1,2,3] isa PFM{DNA,Int}
         @test pfm .+ [0,1,2,3] == PFM{DNA}(m .+ [0,1,2,3])
 
-        set = LongDNASeq.(split(
+        set = LongDNA{4}.(split(
         """
         ACG
         ATG
@@ -49,10 +49,10 @@
             0 1 0  # T
         ]
         @test pfm == PFM(Set(set))
-        @test_throws ArgumentError PFM(LongDNASeq[])
+        @test_throws ArgumentError PFM(LongDNA{4}[])
         @test_throws ArgumentError PFM(["foo"])
-#        @test_throws ArgumentError PFM([LongDNASeq("AA"), LongDNASeq("AA")])
-        @test_throws ArgumentError PFM([LongDNASeq("AA"), LongDNASeq("AAA")])
+#        @test_throws ArgumentError PFM([LongDNA{4}("AA"), LongDNA{4}("AA")])
+        @test_throws ArgumentError PFM([LongDNA{4}("AA"), LongDNA{4}("AAA")])
     end
 
     @testset "PWM" begin
@@ -96,6 +96,6 @@
         @test findfirst(pwm, seq, 1.4) === 4
         @test findfirst(pwm, seq, 1.8) === 7
         @test findfirst(pwm, seq, 2.0) === nothing
-        @test_throws ArgumentError findfirst(pwm, LongRNASeq(seq), 1.0)
+        @test_throws ArgumentError findfirst(pwm, LongRNA{4}(seq), 1.0)
     end
 end

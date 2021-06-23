@@ -108,8 +108,8 @@ export
     
     # Type & aliases
     BioSequence,
-    NucleotideSeq,
-    AminoAcidSeq,
+    NucSeq,
+    AASeq,
     
     # Predicates
     ispalindromic,
@@ -136,9 +136,10 @@ export
     
     # Type & aliases
     LongSequence,
-    LongDNASeq,
-    LongRNASeq,
-    LongAminoAcidSeq,
+    LongNuc,
+    LongDNA,
+    LongRNA,
+    LongAA,
     LongSubSeq,
     
     # Random

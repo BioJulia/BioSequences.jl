@@ -63,11 +63,11 @@ Symbols from multiple alphabets can't be intermixed in one sequence type.
 The following table summarizes common LongSequence types that have been given
 aliases for convenience.
 
-| Type                                | Symbol type | Type alias         |
-| :---------------------------------- | :---------- | :----------------- |
-| `LongSequence{DNAAlphabet{4}}`      | `DNA`       | `LongDNASeq`       |
-| `LongSequence{RNAAlphabet{4}}`      | `RNA`       | `LongRNASeq`       |
-| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAminoAcidSeq` |
+| Type                                | Symbol type | Type alias   |
+| :---------------------------------- | :---------- | :----------- |
+| `LongSequence{DNAAlphabet{N}}`      | `DNA`       | `LongDNA{N}` |
+| `LongSequence{RNAAlphabet{N}}`      | `RNA`       | `LongRNA{N}` |
+| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAA`     |
 
 The `LongDNASeq` and `LongRNASeq` aliases use a DNAAlphabet{4}.
 
@@ -95,16 +95,22 @@ mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     end
 end
 
-const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
+#const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
+"An alias for LongSequence{<:NucleicAcidAlpabet{N}}"
+const LongNuc{N} = LongSequence{<:NucleicAcidAlphabet{N}}
 
-"An alias for LongSequence{DNAAlphabet{4}}"
-const LongDNASeq       = LongSequence{DNAAlphabet{4}}
+#"An alias for LongSequence{DNAAlphabet{4}}"
+#const LongDNASeq       = LongSequence{DNAAlphabet{4}}
+"An alias for LongSequence{DNAAlphabet{N}}"
+const LongDNA{N} = LongSequence{DNAAlphabet{N}}
 
-"An alias for LongSequence{RNAAlphabet{4}}"
-const LongRNASeq       = LongSequence{RNAAlphabet{4}}
+#"An alias for LongSequence{RNAAlphabet{4}}"
+#const LongRNASeq       = LongSequence{RNAAlphabet{4}}
+"An alias for LongSequence{RNAAlphabet{N}}"
+const LongRNA{N} = LongSequence{RNAAlphabet{N}}
 
 "An alias for LongSequence{AminoAcidAlphabet}"
-const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
+const LongAA = LongSequence{AminoAcidAlphabet}
 
 # Basic attributes
 Base.length(seq::LongSequence) = seq.len % Int

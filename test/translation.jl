@@ -33,14 +33,14 @@
     end
 
     function check_translate(seq::AbstractString)
-        return string_translate(seq) == String(translate(LongRNASeq(seq)))
+        return string_translate(seq) == String(translate(LongRNA{4}(seq)))
     end
 
     aas = aa""
     global reps = 10
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_translate(random_translatable_rna(len)) for _ in 1:reps])
-        seq = LongDNASeq(LongRNASeq(random_translatable_rna(len)))
+        seq = LongDNA{4}(LongRNA{4}(random_translatable_rna(len)))
         @test translate!(aas, seq) == translate(seq)
     end
 
@@ -52,7 +52,7 @@
     @test translate(LongSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
     @test translate(LongSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
 
-    # LongDNASeq
+    # LongDNA{4}
     @test translate(dna"ATGTAA") == aa"M*"
 
     # Alternative start codons
