@@ -111,6 +111,24 @@ function Base.findfirst(pat::BioSequence, seq::BioSequence,
     return findfirst(ExactSearchQuery(pat), seq, start, stop)
 end
 
+"""
+    findfirst(symbol::BioSymbol, seq::BioSequence, [, start=1[, stop=lastindex(seq)]])
+
+Return the index of the first occurrence of the symbol in the sequence; symbol
+comparison is done using `BioSequences.iscompatible`.
+"""
+function Base.findfirst(symbol::BioSymbol, seq::BioSequence,
+                        start::Integer=1, stop::Integer=lastindex(seq))
+    if eltype(seq) != typeof(symbol)
+        throw(ArgumentError("the element type of sequence must be $(typeof(symbol))"))
+    end
+    checkbounds(seq, start:stop)
+    @inbounds for i in start:stop
+        iscompatible(symbol, seq[i]) && return i
+    end
+    return nothing
+end
+
 function Base.findfirst(query::ExactSearchQuery, seq::BioSequence,
                         start::Integer=1, stop::Integer=lastindex(seq))
     checkeltype(seq, query.seq)
@@ -180,6 +198,24 @@ comparison is done using `BioSequences.iscompatible`.
 function Base.findlast(pat::BioSequence, seq::BioSequence,
                        start::Integer=lastindex(seq), stop::Integer=1)
     return findlast(ExactSearchQuery(pat), seq, start, stop)
+end
+
+"""
+    findlast(symbol::BioSymbol, seq::BioSequence, [, start=1[, stop=lastindex(seq)]])
+
+Return the index of the last occurrence of the symbol in the sequence; symbol
+comparison is done using `BioSequences.iscompatible`.
+"""
+function Base.findlast(symbol::BioSymbol, seq::BioSequence,
+                        start::Integer=1, stop::Integer=lastindex(seq))
+    if eltype(seq) != typeof(symbol)
+        throw(ArgumentError("the element type of sequence must be $(typeof(symbol))"))
+    end
+    checkbounds(seq, start:stop)
+    @inbounds for i in stop:-1:start
+        iscompatible(symbol, seq[i]) && return i
+    end
+    return nothing
 end
 
 function Base.findlast(query::ExactSearchQuery, seq::BioSequence,
