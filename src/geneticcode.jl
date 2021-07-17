@@ -316,15 +316,8 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 ### Translation
 ###
 
-#"""
-#    translate(codon::Union{DNACodon, RNACodon}, code::GeneticCode)
-#
-#Translates a 3-mer using the genetic code. The code defaults to `standard_genetic_code`.
-#"""
-#translate(codon::Union{DNACodon, RNACodon}, code = standard_genetic_code) = code[codon]
-
 """
-    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, convert_start_codon=false)
+    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, alternative_start=false)
 
 Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAASeq`.
 
@@ -420,7 +413,7 @@ function try_translate_ambiguous_codon(code::GeneticCode,
         b = reinterpret(RNA, 0x1 << ((codon >> 2) & 0x3))
         c = reinterpret(RNA, 0x1 << (codon & 0x3))
         @inbounds if (iscompatible(x, a) & iscompatible(y, b) & iscompatible(z, c))
-            if found == nothing
+            if found === nothing
                 found = aa
             elseif aa != found
                 return nothing
