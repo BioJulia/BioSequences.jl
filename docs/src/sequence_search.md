@@ -135,6 +135,10 @@ julia> approxsearch(dna"ACTACGT", query, 2)
 Query patterns can be described in regular expressions. The syntax supports
 a subset of Perl and PROSITE's notation.
 
+Biological regexes can be constructed using the `BioRegex` constructor, for
+example by doing `BioRegex{AminoAcid}("MV+")`. For bioregex literals, it is
+instead recommended using the `@biore_str` macro:
+
 The Perl-like syntax starts with `biore` (BIOlogical REgular expression)
 and ends with a symbol option: "dna", "rna" or "aa". For example, `biore"A+"dna`
 is a regular expression for DNA sequences and `biore"A+"aa` is for amino acid

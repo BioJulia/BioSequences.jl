@@ -161,6 +161,8 @@ export
     @biore_str,
     @prosite_str,
     
+    BioRegex,
+    BioRegexMatch,
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
