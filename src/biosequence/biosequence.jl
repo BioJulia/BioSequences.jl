@@ -44,6 +44,7 @@ Base.keys(seq::BioSequence) = eachindex(seq)
 Base.nextind(::BioSequence, i::Integer) = Int(i) + 1
 Base.prevind(::BioSequence, i::Integer) = Int(i) - 1
 Base.size(x::BioSequence) = (length(x),)
+Base.ndims(x::BioSequence) = 1
 Base.eltype(::Type{<:BioSequence{A}}) where {A <: Alphabet} = eltype(A)
 Base.eltype(x::BioSequence) = eltype(typeof(x))
 Alphabet(::Type{<:BioSequence{A}}) where {A <: Alphabet} = A()

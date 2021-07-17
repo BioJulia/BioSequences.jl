@@ -66,3 +66,6 @@ end
     @inbounds data[vi] = (v_ << off) | (bits & ~(bitmask(i) << off))
     return s
 end
+
+# Broadcasting
+
