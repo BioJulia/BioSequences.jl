@@ -88,7 +88,7 @@ function hasambiguity(seq::BioSequence)
     return false
 end
 # 2 Bit specialization:
-@inline hasambiguity(seq::BioSequence{<:NucleicAcidAlphabet{2}}) = false
+@inline hasambiguity(seq::NucSeq{2}) = false
 
 """
     iscanonical(seq::NucleotideSeq)
