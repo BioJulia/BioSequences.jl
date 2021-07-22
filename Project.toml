@@ -15,7 +15,7 @@ Twiddle = "7200193e-83a8-5a55-b20d-5d36d44a0795"
 
 [compat]
 BioGenerics = "0.1.0"
-BioSymbols = "4.0.0"
+BioSymbols = "4.0.0, 5"
 Combinatorics = "1.0.0"
 IndexableBitVectors = "1.0.0"
 StableRNGs = "0.1, 1.0"
