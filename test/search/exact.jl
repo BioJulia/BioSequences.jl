@@ -12,6 +12,13 @@
         @test findfirst(dna"ACG", seq, 2) === 5:7
         @test findfirst(seq, seq) === 1:lastindex(seq)
 
+        @test findfirst(DNA_A, dna"AAACT") == 1
+        @test findfirst(DNA_C, dna"") === nothing
+        @test findfirst(DNA_M, dna"TGC") == 3
+        @test findfirst(DNA_N, dna"T") == 1
+        @test findfirst(DNA_V, dna"TTTT") === nothing
+        @test findfirst(DNA_C, seq) == 2
+
         @test findfirst(dna"", dna"") === 1:0
         @test findfirst(dna"", dna"", -1) === 1:0
         @test findfirst(dna"", dna"", 2) === nothing
@@ -40,6 +47,12 @@
         @test findlast(dna"ACG", seq) === 5:7
         @test findlast(dna"ACG", seq, 6) === 1:3
         @test findlast(seq, seq) === 1:lastindex(seq)
+
+        @test findlast(DNA_A, seq) == 5
+        @test findlast(DNA_T, seq) == 4
+        @test findlast(DNA_N, dna"") === nothing
+        @test findlast(DNA_R, dna"AGTCAGTTCT") == 6
+        @test findlast(DNA_R, dna"TCTCTT") === nothing
 
         @test findlast(dna"", dna"") === 1:0
         @test findlast(dna"", dna"", 2) === 1:0
