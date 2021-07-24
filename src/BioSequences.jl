@@ -127,9 +127,6 @@ export
     ungap,
     ungap!,
     
-    # Iteration
-    each,
-    
     ###
     ### LongSequence
     ###
@@ -175,13 +172,10 @@ export
     n_certain,
     
     gc_content,
-    
-    eachcanonical,
 
     translate!,
     translate,
     ncbi_trans_table,
-    
     
     # Search
     ExactSearchQuery,
@@ -196,14 +190,7 @@ export
     scoreat,
     
     seqmatrix,
-    majorityvote,
-    Site,
-    Certain,
-    Ambiguous,
-    Gap,
-    Match,
-    Mismatch,
-    count_pairwise
+    majorityvote
 
 using BioSymbols
 import Twiddle: enumerate_nibbles,
