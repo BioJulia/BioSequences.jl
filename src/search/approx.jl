@@ -33,6 +33,8 @@ struct ApproximateSearchQuery{S<:BioSequence}
     end
 end
 
+Base.isempty(x::ApproximateSearchQuery) = isempty(x.seq)
+
 """
     ApproximateSearchQuery(pat::BioSequence[, direction=:both])
 
@@ -77,6 +79,7 @@ end
 
 function approxsearch(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                       start::Integer=1, stop::Integer=lastindex(seq))
+    isempty(query) && return firstindex(seq):(firstindex(seq)-1)
     return _approxsearch(query, seq, k, start, stop, true)
 end
 
@@ -93,6 +96,7 @@ end
 
 function approxrsearch(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                        start::Integer=lastindex(seq), stop::Integer=1)
+    isempty(query) && return lastindex(seq):(lastindex(seq)-1)
     return _approxsearch(query, seq, k, start, stop, false)
 end
 
@@ -104,12 +108,15 @@ up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxsearchindex(seq::BioSequence, pat::BioSequence, k::Integer,
                            start::Integer=1, stop::Integer=lastindex(seq))
-    return first(approxsearch(seq, pat, k, start, stop))
+    rng = approxsearch(seq, pat, k, start, stop)
+    return rng === nothing ? nothing : first(rng)
 end
 
 function approxsearchindex(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                            start::Integer=1, stop::Integer=lastindex(seq))
-    return first(approxsearch(seq, query, k, start, stop))
+    isempty(query) && return firstindex(seq):(firstindex(seq)-1)
+    rng = approxsearch(seq, query, k, start, stop)
+    return rng === nothing ? nothing : first(rng)
 end
 
 """
@@ -120,12 +127,15 @@ up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function approxrsearchindex(seq::BioSequence, pat::BioSequence, k::Integer,
                             start::Integer=lastindex(seq), stop::Integer=1)
-    return first(approxrsearch(seq, pat, k, start, stop))
+    rng = approxrsearch(seq, pat, k, start, stop)
+    return rng === nothing ? nothing : first(rng)
 end
 
 function approxrsearchindex(seq::BioSequence, query::ApproximateSearchQuery, k::Integer,
                             start::Integer=lastindex(seq), stop::Integer=1)
-    return first(approxrsearch(seq, query, k, start, stop))
+    isempty(query) && return lastindex(seq):(lastindex(seq)-1)
+    rng = approxrsearch(seq, query, k, start, stop)
+    return rng === nothing ? nothing : first(rng)
 end
 
 function _approxsearch(query, seq, k, start, stop, forward)
@@ -137,16 +147,17 @@ function _approxsearch(query, seq, k, start, stop, forward)
     end
 
     if k ≥ length(query.seq)
-        return start:start-1
+        return nothing
     end
 
     # search the approximate suffix
-    matchstop, dist = search_approx_suffix(
+    sas = search_approx_suffix(
         forward ? query.fPcom : query.bPcom,
         query.seq, seq, k, start, stop, forward)
-    if matchstop == 0
-        return 0:-1
+    if sas === nothing
+        return nothing
     end
+    matchstop, dist = sas
 
     # locate the starting position of the match
     matchstart = alignback!(query.H, query.seq, seq, dist, start, matchstop, forward)
@@ -206,7 +217,7 @@ function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward
         j += ifelse(forward, +1, -1)
     end
 
-    return 0, -1  # not found
+    return nothing  # not found
 end
 
 # run dynamic programming to get the starting position of the alignment
