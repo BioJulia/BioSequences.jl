@@ -165,144 +165,41 @@ julia> aa"ARNDCQEGHILKMFPSTWYVX"
 ARNDCQEGHILKMFPSTWYVX
 ```
 
-However, it should be noted that by default these sequence literals
-allocate the `LongSequence` object before the code containing the sequence
-literal is run.
-This means there may be occasions where your program does not behave as you
-first expect.
-For example consider the following code:
+Unlike most string literal macros in Julia, the resulting sequences are allocated
+at runtime, not at compile time - so called _dynamic allocation_. Most other Julia
+string macros create the objects at compile time.
+
+You can create biosequences at compile time by setting the "static" flag `s` after
+the literal. This may improve performance by moving the allocation to compile time,
+but can lead to unexpected behaviour, as the following example shows:
 
 ```jldoctest
-julia> function foo()
-           s = dna"CTT"
-           push!(s, DNA_A)
-       end
-foo (generic function with 1 method)
+julia> f() = dna"C"s;
 
+julia> push!(f(), DNA_A)
+2nt DNA Sequence:
+CA
+
+julia> push!(f(), DNA_A) # same sequence - two A's!
+3nt DNA Sequence:
+CAA
 ```
 
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"d
-        push!(s, DNA_A)
-    end
-end
-```
+In the example above, the same `const` (static) sequence is being returned from `f()`,
+and grown at each `push!` call. This makes `f` a fast function, since it does not need
+to allocate memory.
 
-You might expect that every time you call `foo`, that a DNA sequence `CTTA` would
-be returned. You might expect that this is because every time `foo` is called,
-a new DNA sequence variable `CTT` is created, and the `A` nucleotide is pushed
-to it, and the result, `CTTA` is returned.
-In other words you might expect the following output:
+The default behaviour, namely dynamic allocation at runtime, can also be obtained by
+using the `d` flag:
 
 ```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
+julia> f() = dna"C"d;
 
-julia> foo()
-4nt DNA Sequence:
-CTTA
+julia> push!(f(), DNA_A)
+2nt DNA Sequence:
+CA
 
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
+julia> push!(f(), DNA_A) # new sequence - one A!
+2nt DNA Sequence:
+CA
 ```
-
-However, this is not what happens, instead the following happens:
-
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"s
-        push!(s, DNA_A)
-    end
-end
-```
-
-```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-5nt DNA Sequence:
-CTTAA
-
-julia> foo()
-6nt DNA Sequence:
-CTTAAA
-
-```
-
-The reason for this is because the sequence literal is allocated only once
-before the first time the function `foo` is called and run. Therefore, `s` in
-`foo` is always a reference to that one sequence that was allocated.
-So one sequence is created before `foo` is called, and then it is pushed to
-every time `foo` is called. Thus, that one allocated sequence grows with every
-call of `foo`.
-
-If you wanted `foo` to create a new sequence each time it is called,
-then you can add a flag to the end of the sequence literal to dictate behaviour:
-A flag of 's' means 'static': the sequence will be allocated before code is run,
-as is the default behaviour described above.
-However providing 'd' flag changes the behaviour: 'd' means 'dynamic':
-the sequence will be allocated whilst the code is running, and not before.
-So to change `foo` so as it creates a new sequence
-each time it is called, simply add the 'd' flag to the sequence literal:
-```@meta
-DocTestSetup = quote
-    using BioSequences
-end
-```
-
-```jldoctest
-julia> function foo()
-           s = dna"CTT"d     # 'd' flag appended to the string literal.
-           push!(s, DNA_A)
-       end
-foo (generic function with 1 method)
-
-```
-
-Now every time `foo` is called, a new sequence `CTT` is created, and an `A`
-nucleotide is pushed to it:
-```@meta
-DocTestSetup = quote
-    using BioSequences
-    function foo()
-        s = dna"CTT"d
-        push!(s, DNA_A)
-    end
-end
-```
-
-```jldoctest
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-julia> foo()
-4nt DNA Sequence:
-CTTA
-
-```
-```@meta
-DocTestSetup = quote
-    using BioSequences
-end
-```
-
-So the take home message of sequence literals is this:
-
-Be careful when you are using sequence literals inside of functions, and inside
-the bodies of things like for loops. And if you use them and are unsure, use the
- 's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.

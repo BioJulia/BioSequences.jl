@@ -21,7 +21,9 @@ macro dna_str(seq, flag)
 end
 
 macro dna_str(seq)
-    return LongDNA{4}(remove_newlines(seq))
+    return quote
+        LongDNA{4}($(remove_newlines(seq)))
+    end
 end
 
 macro rna_str(seq, flag)
@@ -36,7 +38,9 @@ macro rna_str(seq, flag)
 end
 
 macro rna_str(seq)
-    return LongRNA{4}(remove_newlines(seq))
+    return quote
+        LongRNA{4}($(remove_newlines(seq)))
+    end
 end
 
 macro aa_str(seq, flag)
@@ -51,5 +55,7 @@ macro aa_str(seq, flag)
 end
 
 macro aa_str(seq)
-    return LongAA(remove_newlines(seq))
+    return quote
+        LongAA($(remove_newlines(seq)))
+    end
 end
