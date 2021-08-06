@@ -66,7 +66,7 @@ end
     # Non-nucleotide characters should throw
     @test_throws Exception LongDNA{4}("ACCNNCATTTTTTAGATXATAG")
     @test_throws Exception LongRNA{4}("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception LongAASeq("ATGHLMY@ZACAGNM")
+    @test_throws Exception LongAA("ATGHLMY@ZACAGNM")
 end
 
 @testset "Construction from vectors" begin

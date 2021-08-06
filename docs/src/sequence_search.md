@@ -181,14 +181,14 @@ The table below summarizes available syntax elements.
 
 ```jldoctest
 julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap
-4-element Vector{LongDNASeq}:
+4-element Vector{LongSequence{DNAAlphabet{4}}}:
  TAT  
  TAT
  TATA
  TATAA
 
 julia> collect(matched(x) for x in eachmatch(biore"TATA*"d, dna"TATTATAATTA", false)) # no overlap
-2-element Vector{LongDNASeq}:
+2-element Vector{LongSequence{DNAAlphabet{4}}}:
  TAT  
  TATAA
 
@@ -246,7 +246,7 @@ and then create a `PWM` from the `PFM` object.
 
 ```jldoctest
 julia> motifs = [dna"TTA", dna"CTA", dna"ACA", dna"TCA", dna"GTA"]
-5-element Vector{LongDNASeq}:
+5-element Vector{LongSequence{DNAAlphabet{4}}}:
  TTA
  CTA
  ACA
