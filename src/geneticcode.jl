@@ -319,7 +319,7 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 """
     translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, alternative_start=false)
 
-Translate an `LongRNASeq` or a `LongDNASeq` to an `LongAASeq`.
+Translate an `LongRNA` or a `LongDNA` to an `LongAA`.
 
 Translation uses genetic code `code` to map codons to amino acids. See
 `ncbi_trans_table` for available genetic codes.

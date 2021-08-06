@@ -27,8 +27,8 @@ BioSequence
 Some aliases for `BioSequence` are also provided for your convenience:
 
 ```@docs
-NucleotideSeq
-AminoAcidSeq
+NucSeq
+AASeq
 ```
 
 Let's have a closer look at some of those methods that a subtype of `BioSequence`

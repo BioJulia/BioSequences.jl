@@ -17,7 +17,7 @@ types in BioSequences.
 Sequences can be constructed from strings using their constructors:
 
 ```jldoctest
-julia> LongDNASeq("TTANC")
+julia> LongDNA{4}("TTANC")
 5nt DNA Sequence:
 TTANC
 
@@ -25,7 +25,7 @@ julia> LongSequence{DNAAlphabet{2}}("TTAGC")
 5nt DNA Sequence:
 TTAGC
 
-julia> LongRNASeq("UUANC")
+julia> LongRNA{4}("UUANC")
 5nt RNA Sequence:
 UUANC
 
@@ -55,31 +55,12 @@ julia> LongRNA{2}("UUAGC")
 UUAGC
 ```
 
-!!! note 
-    From version 2.0 onwards, the `convert` methods for converting a
-    string or vector of symbols into a sequence type have been removed. These
-    convert methods did nothing but pass their arguments to the appropriate
-    constructor.
-    
-    These specific `convert` methods have been removed due to the semantics of
-    `convert`: Even though `convert(LongDNASeq, "ATCG")` was previously the same
-    as `LongDNASeq("ATCG")`, unlike constructors, `convert` is sometimes
-    implicitly called. So it's methods should be restricted to cases that are
-    considered safe or unsurprising. `convert` should convert between types that
-    represent the same basic kind of thing, like different representations of
-    numbers. It is also usually lossless. Not all strings are valid sequences,
-    and depending on the sequence type, not all vectors of BioSymbols are valid
-    sequences either. A string only represents the "same kind of thing" as a
-    biological sequence in some cases, so implicitly `convert`ing them to a
-    sequence type was never safe or unsurprising. These `convert` methods have
-    been renamed to `Base.parse` methods.
-
 ### Constructing sequences from arrays of BioSymbols
 
 Sequences can be constructed using vectors or arrays of a `BioSymbol` type:
 
 ```jldoctest
-julia> LongDNASeq([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+julia> LongDNA{4}([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
 5nt DNA Sequence:
 TTANC
 
@@ -93,15 +74,15 @@ TTAGC
 
 You can create sequences, by concatenating other sequences together:
 ```jldoctest
-julia> LongDNASeq("ACGT") * LongDNASeq("TGCA")
+julia> LongDNA{2}("ACGT") * LongDNA{2}("TGCA")
 8nt DNA Sequence:
 ACGTTGCA
 
-julia> repeat(LongDNASeq("TA"), 10)
+julia> repeat(LongDNA{4}("TA"), 10)
 20nt DNA Sequence:
 TATATATATATATATATATA
 
-julia> LongDNASeq("TA") ^ 10
+julia> LongDNA{4}("TA") ^ 10
 20nt DNA Sequence:
 TATATATATATATATATATA
 
@@ -111,7 +92,7 @@ Sequence views (`LongSubSeq`s) are special, in that they do not own their own da
 and must be constructed from a `LongSequence` or another `LongSubSeq`:
 
 ```jdoctest
-julia> seq = LongDNASeq("TACGGACATTA")
+julia> seq = LongDNA{4}("TACGGACATTA")
 11nt DNA Sequence:
 TACGGACATTA
 
@@ -137,7 +118,7 @@ julia> dna = dna"TTANGTAGACCG"
 12nt DNA Sequence:
 TTANGTAGACCG
 
-julia> rna = convert(LongRNASeq, dna)
+julia> rna = convert(LongRNA{4}, dna)
 12nt RNA Sequence:
 UUANGUAGACCG
 
