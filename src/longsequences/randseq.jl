@@ -7,8 +7,7 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-import Random: Sampler, rand!
-const DEFAULT_RNG = StableRNG(rand(Int) & typemax(Int))
+import Random: Sampler, rand!, GLOBAL_RNG
 
 """
     SamplerUniform{T}
@@ -36,7 +35,7 @@ end
 SamplerUniform(elems) = SamplerUniform{eltype(elems)}(elems)
 Base.eltype(::Type{SamplerUniform{T}}) where {T} = T
 Base.rand(rng::AbstractRNG, sp::SamplerUniform) = rand(rng, sp.elems)
-Base.rand(sp::SamplerUniform) = rand(DEFAULT_RNG, sp.elems)
+Base.rand(sp::SamplerUniform) = rand(GLOBAL_RNG, sp.elems)
 const DefaultAASampler = SamplerUniform(aa"ACDEFGHIKLMNPQRSTVWY")
 
 """
@@ -91,7 +90,7 @@ function Base.rand(rng::AbstractRNG, sp::SamplerWeighted)
     end
     return @inbounds sp.elems[j]
 end
-Base.rand(sp::SamplerWeighted) = rand(DEFAULT_RNG, sp)
+Base.rand(sp::SamplerWeighted) = rand(GLOBAL_RNG, sp)
 
 """
     randseq([rng::AbstractRNG], A::Alphabet, sp::Sampler, len::Integer)
@@ -116,7 +115,7 @@ function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
     end
     return seq
 end
-randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(DEFAULT_RNG, A, sp, len)
+randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(GLOBAL_RNG, A, sp, len)
 
 """
     randseq([rng::AbstractRNG], A::Alphabet, len::Integer)
@@ -152,12 +151,12 @@ function randseq(rng::AbstractRNG, A::NucleicAcidAlphabet{4}, len::Integer)
     end
     return seq
 end
-randseq(A::NucleicAcidAlphabet{4}, len::Integer) = randseq(DEFAULT_RNG, A, len)
+randseq(A::NucleicAcidAlphabet{4}, len::Integer) = randseq(GLOBAL_RNG, A, len)
 
 function randseq(rng::AbstractRNG, ::AminoAcidAlphabet, len::Integer)
     return randseq(rng, AminoAcidAlphabet(), DefaultAASampler, len)
 end
-randseq(A::AminoAcidAlphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
+randseq(A::AminoAcidAlphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
 
 # Generic fallback method.
 randseq(rng::AbstractRNG, A::Alphabet, len::Integer) = randseq(rng, iscomplete(A), A, len)
@@ -175,7 +174,7 @@ function randseq(rng::AbstractRNG, ::Val{false}, A::Alphabet, len::Integer)
     return randseq(rng, A, sampler, len)
 end
 
-randseq(A::Alphabet, len::Integer) = randseq(DEFAULT_RNG, A, len)
+randseq(A::Alphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
 
 """
     randdnaseq([rng::AbstractRNG], len::Integer)
@@ -184,7 +183,7 @@ Generate a random LongSequence{DNAAlphabet{4}} sequence of length `len`,
 with bases sampled uniformly from [A, C, G, T]
 """
 randdnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, DNAAlphabet{4}(), len)
-randdnaseq(len::Integer) = randseq(DEFAULT_RNG, DNAAlphabet{4}(), len)
+randdnaseq(len::Integer) = randseq(GLOBAL_RNG, DNAAlphabet{4}(), len)
 
 """
     randrnaseq([rng::AbstractRNG], len::Integer)
@@ -193,7 +192,7 @@ Generate a random LongSequence{RNAAlphabet{4}} sequence of length `len`,
 with bases sampled uniformly from [A, C, G, U]
 """
 randrnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, RNAAlphabet{4}(), len)
-randrnaseq(len::Integer) = randseq(DEFAULT_RNG, RNAAlphabet{4}(), len)
+randrnaseq(len::Integer) = randseq(GLOBAL_RNG, RNAAlphabet{4}(), len)
 
 """
     randaaseq([rng::AbstractRNG], len::Integer)
@@ -202,4 +201,4 @@ Generate a random LongSequence{AminoAcidAlphabet} sequence of length `len`,
 with amino acids sampled uniformly from the 20 standard amino acids.
 """
 randaaseq(rng::AbstractRNG, len::Integer) = randseq(rng, AminoAcidAlphabet(), len)
-randaaseq(len::Integer) = randseq(DEFAULT_RNG, AminoAcidAlphabet(), len)
+randaaseq(len::Integer) = randseq(GLOBAL_RNG, AminoAcidAlphabet(), len)
