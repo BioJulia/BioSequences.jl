@@ -11,7 +11,7 @@ export
     ###
     ### Symbols
     ###
-    
+
     # Types & aliases
     NucleicAcid,
     DNA,
@@ -81,7 +81,7 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-    
+
     # Predicates
     isGC,
     iscompatible,
@@ -90,11 +90,11 @@ export
     isgap,
     ispurine,
     ispyrimidine,
-    
+
     ###
     ### Alphabets
     ###
-    
+
     # Types & aliases
     Alphabet,
     NucleicAcidAlphabet,
@@ -102,7 +102,7 @@ export
     RNAAlphabet,
     AminoAcidAlphabet,
     CharAlphabet,
-    
+
     ###
     ### BioSequences
     ###
@@ -111,16 +111,16 @@ export
     BioSequence,
     NucleotideSeq,
     AminoAcidSeq,
-    
+
     # Indexing
     unsafe_setindex!,
-    
+
     # Predicates
     ispalindromic,
     hasambiguity,
     isrepetitive,
     iscanonical,
-    
+
     # Transformations
     canonical,
     canonical!,
@@ -130,16 +130,16 @@ export
     reverse_complement!,
     ungap,
     ungap!,
-    
+
     # Iteration
     each,
     fwmer,
     bwmer,
-    
+
     ###
     ### LongSequence
     ###
-    
+
     # Type & aliases
     LongSequence,
     LongDNASeq,
@@ -154,11 +154,11 @@ export
     randdnaseq,
     randrnaseq,
     randaaseq,
-    
+
     ###
     ### Mers
     ###
-    
+
     # Type & aliases
     AbstractMer,
     Mer,
@@ -166,23 +166,23 @@ export
     RNAMer,
     DNAKmer,
     RNAKmer,
-    
+
     BigMer,
     BigDNAMer,
     BigRNAMer,
     BigDNAKmer,
     BigRNAKmer,
-    
+
     DNACodon,
     RNACodon,
-    
+
     # Iteration
     neighbors,
-    
+
     ###
     ### Sequence literals
     ###
-    
+
     @dna_str,
     @rna_str,
     @aa_str,
@@ -191,7 +191,7 @@ export
     @prosite_str,
     @mer_str,
     @bigmer_str,
-    
+
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
@@ -202,11 +202,11 @@ export
     n_ambiguous,
     n_gaps,
     n_certain,
-    
+
     gc_content,
-    
+
     eachcanonical,
-    
+
     ###
     ### Composition
     ###
@@ -216,8 +216,8 @@ export
     
     translate,
     ncbi_trans_table,
-    
-    
+
+
     # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
@@ -229,15 +229,15 @@ export
     PWM,
     maxscore,
     scoreat,
-    
+
     ReferenceSequence,
-    
+
     ###
     ### Demultiplexing
     ###
     Demultiplexer,
     demultiplex,
-    
+
     seqmatrix,
     majorityvote,
     MinHashSketch,
@@ -305,6 +305,7 @@ include("search/exact.jl")
 include("search/approx.jl")
 include("search/re.jl")
 include("search/pwm.jl")
+include("search/generic.jl")
 
 include("minhash.jl")
 

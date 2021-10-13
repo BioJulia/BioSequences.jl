@@ -208,6 +208,7 @@ end
     include("search/approximate.jl")
     include("search/regex.jl")
     include("search/pwm.jl")
+    include("search/generic.jl")
 end
 
 include("counting.jl")
