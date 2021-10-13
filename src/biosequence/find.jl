@@ -34,3 +34,13 @@ end
 
 Base.findfirst(f::Function, seq::BioSequence) = findnext(f, seq, 1)
 Base.findlast(f::Function, seq::BioSequence) = findprev(f, seq, lastindex(seq))
+
+# Thought of more clever ways of doing this but for 3 lines I think this is fine
+# for exact symbol finding. Plus it will error is you do say findfirst(DNA_A, rna"AUG").
+# Whilst it is concieveable to want the DNA to be converted to RNA for search,
+# that would be an implicit behaviour some may no expect. Probably best to error
+# and cause a fuss if one was trying to search for RNA letters in a container type
+# that does not contain them!
+Base.findfirst(x::DNA, seq::BioSequence{<:DNAAlphabet}) = Base.findfirst(isequal(x), seq)
+Base.findfirst(x::RNA, seq::BioSequence{<:RNAAlphabet}) = Base.findfirst(isequal(x), seq)
+Base.findfirst(x::AminoAcid, seq::BioSequence{AminoAcidAlphabet}) = Base.findfirst(isequal(x), seq)
