@@ -26,12 +26,12 @@ encoded data type:
 * `extract_encoded_element(::T, ::Integer)::E`
 * `copy(::T)`
 * T must be able to be constructed from any iterable with `length` defined and
-with a known, compatible element type.
+  with a known, compatible element type.
 
 Furthermore, mutable sequences should implement
 * `encoded_setindex!(::T, ::E, ::Integer)`
 * `T(undef, ::Int)`
-* resize!(::T, ::Int)
+* `resize!(::T, ::Int)`
 
 For compatibility with existing `Alphabet`s, the encoded data eltype must be `UInt`.
 """
