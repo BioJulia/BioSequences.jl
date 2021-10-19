@@ -162,20 +162,7 @@ function Base.findnext(query::SearchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-
-"""
-    findnext(pat, seq::BioSequence, start::Integer)
-
-Return the index of the first occurrence of `pat` in `seq`.
-
-Symbol comparison is done using `BioSequences.iscompatible`.
-"""
-function Base.findnext(pat::BioSequence, seq::BioSequence, start::Integer)
-    return findnext(SearchQuery(pat), seq, start)
-end
-
 Base.findfirst(pat::SearchQuery, seq::BioSequence) = findnext(pat, seq, firstindex(seq))
-Base.findfirst(pat::BioSequence, seq::BioSequence) = findfirst(SearchQuery(pat), seq)
 
 
 # Backward
@@ -224,6 +211,12 @@ function quickrsearch(seq, query, start, stop)
     return 0  # not found
 end
 
+"""
+    findprev(query::SearchQuery, seq::BioSequence, start::Integer)
+
+Return the index of the last occurrence of `query` in `seq`.
+Symbol comparison is done using `BioSequences.iscompatible`.
+"""
 function Base.findprev(query::SearchQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
     i = quickrsearch(seq, query, start, 1)
@@ -234,31 +227,11 @@ function Base.findprev(query::SearchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-"""
-    findprev(pat::BioSequence, seq::BioSequence, start::Integer)
-
-Return the index of the last occurrence of `pat` in `seq`.
-Symbol comparison is done using `BioSequences.iscompatible`.
-"""
-function Base.findprev(pat::BioSequence, seq::BioSequence, start::Integer)
-    return findprev(SearchQuery(pat), seq, start)
-end
-
 Base.findlast(query::SearchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
-Base.findlast(pat::BioSequence, seq::BioSequence) = findlast(SearchQuery(pat), seq)
-
-
-
-"""
-    occursin(x::BioSequence, y::BioSequence)
-
-Return Bool indicating presence of exact match of x in y.
-"""
-Base.occursin(x::BioSequence, y::BioSequence) = occursin(SearchQuery(x), y)
 
 """
     occursin(x::SearchQuery, y::BioSequence)
 
 Return Bool indicating presence of exact match of x in y.
 """
-Base.occursin(x::SearchQuery, y::BioSequence) = quicksearch(x, y, 1, length(y)) != 0
+Base.occursin(x::SearchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0
