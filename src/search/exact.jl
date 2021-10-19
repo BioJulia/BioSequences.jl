@@ -224,25 +224,28 @@ function quickrsearch(seq, query, start, stop)
     return 0  # not found
 end
 
-"""
-    findlast(pat, seq::BioSequence)
-
-Return the index of the last occurrence of `pat` in `seq`.
-Symbol comparison is done using `BioSequences.iscompatible`.
-"""
-function Base.findlast(pat::BioSequence, seq::BioSequence)
-    return findlast(SearchQuery(pat), seq)
-end
-
-function Base.findlast(query::SearchQuery, seq::BioSequence)
+function Base.findprev(query::SearchQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
-    i = quickrsearch(seq, query, lastindex(seq), 1)
+    i = quickrsearch(seq, query, start, 1)
     if i == 0
         return nothing
     else
         return i:i+length(query.seq)-1
     end
 end
+
+"""
+    findprev(pat::BioSequence, seq::BioSequence, start::Integer)
+
+Return the index of the last occurrence of `pat` in `seq`.
+Symbol comparison is done using `BioSequences.iscompatible`.
+"""
+function Base.findprev(pat::BioSequence, seq::BioSequence, start::Integer)
+    return findprev(SearchQuery(pat), seq, start)
+end
+
+Base.findlast(query::SearchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
+Base.findlast(pat::BioSequence, seq::BioSequence) = findlast(SearchQuery(pat), seq)
 
 
 
