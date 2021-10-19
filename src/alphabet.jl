@@ -8,30 +8,30 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
-# Alphabets of biological symbols.
+    Alphabet
 
 `Alphabet` is the most important type trait for `BioSequence`. An `Alphabet`
 represents a set of biological symbols encoded by a sequence, e.g. A, C, G
-and T for a DNA Alphabet that requires only 2-bits to represent each symbol.
+and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
 
 * Subtypes of Alphabet are singleton structs that may or may not be parameterized.
 * Alphabets span over a *finite* set of biological symbols.
 * The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
-of the alphabet's element type, as well as the decoding, the inverse process.
+  of the alphabet's element type, as well as the decoding, the inverse process.
 * An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
 
 Every subtype `A` of `Alphabet` must implement:
-* `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a BioSymbol.
+* `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
 * `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
 * `encode(::A, ::S)::E` encodes a symbol to an internal data eltype `E`.
 * `decode(::A, ::E)::S` decodes an internal data eltype `E` to a symbol `S`.
 * Except for `eltype` which must follow Base conventions, all functions operating
-on `Alphabet` should operate on instances of the alphabet, not the type.
+  on `Alphabet` should operate on instances of the alphabet, not the type.
 
 If you want interoperation with existing subtypes of `BioSequence`,
 the encoded representation `E` must be of type `UInt`, and you must also implement:
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
-or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
+  or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 """
 abstract type Alphabet end
 
