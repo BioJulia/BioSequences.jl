@@ -1,15 +1,15 @@
 @testset "SearchQuery" begin
     seq = dna"ACGTACG"
-
+    
     @testset "forward" begin
         @test findfirst(SearchQuery(dna""), seq) === 1:0
         @test findfirst(SearchQuery(dna"AC"), seq) === 1:2
-        @test findfirst(SearchQuery(dna"AC"), seq, 2) === 5:6
-        @test findfirst(SearchQuery(dna"AC"), seq, 2, 5) === nothing
+        @test findnext(SearchQuery(dna"AC"), seq, 2) === 5:6
+        #@test findfirst(SearchQuery(dna"AC"), seq, 2, 5) === nothing
         @test findfirst(SearchQuery(dna"TG"), seq) === nothing
         @test findfirst(SearchQuery(dna"TN"), seq) === 4:5
         @test findfirst(SearchQuery(dna"ACG"), seq)  === 1:3
-        @test findfirst(SearchQuery(dna"ACG"), seq, 2) === 5:7
+        @test findnext(SearchQuery(dna"ACG"), seq, 2) === 5:7
         @test findfirst(SearchQuery(seq), seq) === 1:lastindex(seq)
 
         @test findfirst(DNA_A, dna"AAACT") == 1
@@ -25,27 +25,27 @@
 
         @test first(findfirst(SearchQuery(dna""), seq)) === 1
         @test first(findfirst(SearchQuery(dna"AC"), seq)) === 1
-        @test first(findfirst(SearchQuery(dna"AC"), seq, 2)) === 5
-        @test findnext(SearchQuery(dna"AC"), seq, 2) === nothing
+        @test first(findnext(SearchQuery(dna"AC"), seq, 2)) === 5
+        #@test findnext(SearchQuery(dna"AC"), seq, 2) === nothing
 
         query = SearchQuery(dna"ACG")
         @test findfirst(query, seq) === 1:3
-        @test findfirst(query, seq, 2) === 5:7
-        @test findfirst(query, seq, 2, 6) === nothing
+        @test findnext(query, seq, 2) === 5:7
+        #@test findfirst(query, seq, 2, 6) === nothing
         @test first(findfirst(query, seq)) === 1
-        @test first(findfirst(query, seq, 2)) === 5
-        @test findfirst(query, seq, 2, 6) === nothing
+        @test first(findnext(query, seq, 2)) === 5
+        #@test findfirst(query, seq, 2, 6) === nothing
     end
 
     @testset "backward" begin
         @test findlast(SearchQuery(dna""), seq) === 8:7
         @test findlast(SearchQuery(dna"AC"), seq) === 5:6
-        @test findlast(SearchQuery(dna"AC"), seq, 5) === 1:2
-        @test findlast(SearchQuery(dna"AC"), seq, 5, 2) === nothing
+        @test findprev(SearchQuery(dna"AC"), seq, 5) === 1:2
+        #@test findlast(SearchQuery(dna"AC"), seq, 5, 2) === nothing
         @test findlast(SearchQuery(dna"TG"), seq) === nothing
         @test findlast(SearchQuery(dna"TN"), seq) === 4:5
         @test findlast(SearchQuery(dna"ACG"), seq) === 5:7
-        @test findlast(SearchQuery(dna"ACG"), seq, 6) === 1:3
+        @test findprev(SearchQuery(dna"ACG"), seq, 6) === 1:3
         @test findlast(SearchQuery(seq), seq) === 1:lastindex(seq)
 
         @test findlast(DNA_A, seq) == 5
@@ -60,16 +60,16 @@
 
         @test first(findlast(SearchQuery(dna""), seq)) === 8
         @test first(findlast(SearchQuery(dna"AC"), seq)) === 5
-        @test first(findlast(SearchQuery(dna"AC"), seq, 5)) === 1
-        @test findlast(SearchQuery(dna"AC"), seq, 5, 2) === nothing
+        @test first(findprev(SearchQuery(dna"AC"), seq, 5)) === 1
+        #@test findlast(SearchQuery(dna"AC"), seq, 5, 2) === nothing
 
         query = SearchQuery(dna"ACG")
         @test findlast(query, seq) === 5:7
-        @test findlast(query, seq, 6) === 1:3
-        @test findlast(query, seq, 2, 6) === nothing
+        @test findprev(query, seq, 6) === 1:3
+        #@test findlast(query, seq, 2, 6) === nothing
         @test first(findlast(query, seq)) === 5
-        @test first(findlast(query, seq, 6)) === 1
-        @test findlast(query, seq, 6, 2) === nothing
+        @test first(findprev(query, seq, 6)) === 1
+        #@test findlast(query, seq, 6, 2) === nothing
     end
 
     @testset "occursin" begin
