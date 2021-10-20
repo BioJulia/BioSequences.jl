@@ -187,6 +187,7 @@ export
     approxrsearchindex,
     PFM,
     PWM,
+    PWMSearchQuery,
     maxscore,
     scoreat,
     
