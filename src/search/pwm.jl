@@ -144,7 +144,7 @@ Create a position weight matrix from a position frequency matrix `pfm`.
 
 The positive weight matrix will be `log2.((pfm ./ sum(pfm, 1)) ./ prior)`.
 """
-function PWM(pfm::PFM{S}; prior=fill(1/4, 4)) where S <: Union{DNA,RNA}
+function PWM(pfm::PFM{S}; prior = fill(1/4, 4)) where S <: Union{DNA,RNA}
     if !all(x -> x > 0, prior)
         throw(ArgumentError("prior must be positive"))
     elseif sum(prior) ≉ 1
@@ -260,12 +260,25 @@ function scoreat(seq::BioSequence, pwm::PWM, start::Integer)
     return score
 end
 
-function Base.findfirst(pwm::PWM, seq::BioSequence, threshold::Real, start = 1, stop=lastindex(seq))
+struct PWMSearchQuery{S,T,R<:Real}
+    pwm::PWM{S,T}
+    threshold::R
+end
+
+function PWMSearchQuery(pwm::PWM{S,T}, threshold::R) where {S,T,R<:Real}
+    return PWMSearchQuery{S,T,R}(pwm, threshold)
+end
+
+function Base.findnext(query::PWMSearchQuery, seq::BioSequence, start)
     if eltype(seq) == DNA || eltype(seq) == RNA
-        return search_nuc(seq, start:stop, pwm, convert(eltype(pwm), threshold))
+        return search_nuc(seq, start:lastindex(seq), query.pwm, convert(eltype(query.pwm), query.threshold))
     else
         throw(ArgumentError("no search algorithm for '$(typeof(seq))'"))
     end
+end
+
+function Base.findfirst(query::PWMSearchQuery, seq::BioSequence)
+    return findnext(query, seq, firstindex(seq))
 end
 
 function check_pwm(seq, pwm::PWM{S}) where S <: Union{DNA,RNA}
@@ -283,11 +296,11 @@ function search_nuc(seq::BioSequence, range::UnitRange{Int}, pwm::PWM{<:Union{DN
     for p in range.start:range.stop-pwmlen+1
         score = zero(eltype(pwm))
         @inbounds for j in 0:pwmlen-1
-            if score + pwm.maxscore[j+1] < threshold
+            if score + pwm.maxscore[j + 1] < threshold
                 break
             end
-            x = seq[p+j]
-            score += iscertain(x) ? pwm[j<<2+trailing_zeros(x)+1] : zero(score)
+            x = seq[p + j]
+            score += iscertain(x) ? pwm[j << 2 + trailing_zeros(x) + 1] : zero(score)
         end
         if score ≥ threshold
             return p
