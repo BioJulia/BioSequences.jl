@@ -179,7 +179,7 @@ export
     ncbi_trans_table,
     
     # Search
-    ExactSearchQuery,
+    SearchQuery,
     ApproximateSearchQuery,
     approxsearch,
     approxsearchindex,
