@@ -27,6 +27,7 @@ function Base.convert(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
     return str
 end
 
+Base.parse(::Type{S}, str::AbstractString) where {S<:BioSequence} = S(str)
 Base.String(seq::BioSequence) = convert(String, seq)
 Base.convert(::Type{Vector{DNA}}, seq::BioSequence{<:DNAAlphabet}) = collect(seq)
 Base.convert(::Type{Vector{RNA}}, seq::BioSequence{<:RNAAlphabet}) = collect(seq)
