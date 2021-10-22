@@ -45,6 +45,10 @@ function Base.setindex!(seq::SeqOrView, x, locs::AbstractVector{<:Integer})
 	unsafe_setindex!(seq, x, locs)
 end
 
+function Base.setindex!(seq::SeqOrView, x::BioSequence, locs::AbstractVector{<:Integer})
+	@boundscheck checkbounds(seq, locs)
+	unsafe_setindex!(seq, x, locs)
+end
 
 @inline function unsafe_setindex!(seq::SeqOrView, x, locs::AbstractVector{<:Integer})
 	bin = encode(Alphabet(seq), convert(eltype(seq), x))
@@ -84,10 +88,16 @@ end
 
 # To avoid ambiguity errors
 function Base.setindex!(seq::SeqOrView{A},
-                        other::SeqOrView{A},
+                        other::BioSequence{A},
                         locs::AbstractVector{<:Integer}) where {A <: Alphabet}
     @boundscheck checkbounds(seq, locs)
     checkdimension(other, locs)
+    unsafe_setindex!(seq, other, locs)
+end
+
+function unsafe_setindex!(seq::SeqOrView{A},
+                        other::BioSequence,
+                        locs::AbstractVector{<:Integer}) where {A <: Alphabet}
 	@inbounds for (i, n) in zip(locs, other)
 		seq[i] = n
 	end
