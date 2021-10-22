@@ -53,16 +53,19 @@ But there are a few differences:
 `merge!` is used to accumulate composition statistics of multiple sequences:
 
 ```@repl
+using BioSequences # hide
 # initiaize an empty composition counter
 comp = composition(dna"");
 
 # iterate over sequences and accumulate composition statistics into `comp`
+seqs = [randdnaseq(10) for i in 1:5]
+
 for seq in seqs
     merge!(comp, composition(seq))
 end
 
 # or functional programming style in one line
-foldl((x, y) -> merge(x, composition(y)), composition(dna""), seqs)
+foldl((x, y) -> merge(x, composition(y)), seqs, init=composition(""))
 ```
 
 `composition` is also applicable to a *k*-mer iterator:
