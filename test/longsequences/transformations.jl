@@ -1,29 +1,29 @@
 @testset "Transformations" begin
     function test_reverse(A, seq)
         revseq = reverse(LongSequence{A}(seq))
-        @test convert(String, revseq) == reverse(seq)
+        @test String(revseq) == reverse(seq)
         revseq = reverse!(LongSequence{A}(seq))
-        @test convert(String, revseq) == reverse(seq)
+        @test String(revseq) == reverse(seq)
     end
 
     function test_dna_complement(A, seq)
         comp = complement(LongSequence{A}(seq))
-        @test convert(String, comp) == dna_complement(seq)
+        @test String(comp) == dna_complement(seq)
     end
 
     function test_rna_complement(A, seq)
         comp = complement(LongSequence{A}(seq))
-        @test convert(String, comp) == rna_complement(seq)
+        @test String(comp) == rna_complement(seq)
     end
 
     function test_dna_revcomp(A, seq)
         revcomp = reverse_complement(LongSequence{A}(seq))
-        @test convert(String, revcomp) == reverse(dna_complement(seq))
+        @test String(revcomp) == reverse(dna_complement(seq))
     end
 
     function test_rna_revcomp(A, seq)
         revcomp = reverse_complement(LongSequence{A}(seq))
-        @test convert(String, revcomp) == reverse(rna_complement(seq))
+        @test String(revcomp) == reverse(rna_complement(seq))
     end
 
     @testset "Reverse" begin
