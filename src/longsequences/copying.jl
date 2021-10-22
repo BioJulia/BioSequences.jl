@@ -172,7 +172,7 @@ end
 @noinline function throw_encode_error(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer)
     for i in 1:div(64, bits_per_symbol(A))
         sym = src[soff+i-1]
-        stringbyte(A, sym) & 0x80 == 0x80 && error("Cannot encode $sym to $A")
+        stringbyte(A, sym) & 0x80 == 0x80 && error("Cannot encode $(repr(sym)) to $A")
     end
 end
 
