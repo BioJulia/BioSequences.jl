@@ -7,6 +7,15 @@
 A view into a `LongSequence`. This shares data buffer with the underlying
 sequence, and is therefore much faster to instantiate than a `LongSequence`.
 Modifying the view changes the sequence and vice versa.
+
+# Examples
+```jldoctest
+julia> LongSubSeq(dna"TAGA", 2:3)
+AG
+
+julia view(dna"TAGA", 2:3)
+AG
+```
 """
 struct LongSubSeq{A<:Alphabet} <: BioSequence{A}
     data::Vector{UInt64}
@@ -63,11 +72,6 @@ Base.view(seq::SeqOrView, part::UnitRange) = LongSubSeq(seq, part)
 function LongSequence(s::LongSubSeq{A}) where A
 	_copy_seqview(LongSequence{A}, s)
 end
-
-#function (::Type{T})(seq::LongSubSeq{<:NucleicAcidAlphabet{N}}) where
-#	{N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
-#	_copy_seqview(T, seq)
-#end
 	
 function LongSequence{A}(seq::LongSubSeq{A}) where {A<:NucleicAcidAlphabet}
 	_copy_seqview(LongSequence{A}, seq)

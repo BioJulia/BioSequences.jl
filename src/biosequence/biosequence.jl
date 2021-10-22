@@ -8,6 +8,10 @@
     BioSequence{A <: Alphabet}
 
 `BioSequence` is the main abstract type of `BioSequences`.
+It abstracts over the internal representation of different biological sequences,
+and is parameterized by an `Alphabet`, which controls the element type.
+
+# Extended help
 Its subtypes are characterized by:
 * Being a linear container type with random access and indices `Base.OneTo(length(x))`.
 * Containing zero or more internal data elements of type `encoded_data_eltype(typeof(x))`.
