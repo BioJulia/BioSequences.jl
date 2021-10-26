@@ -226,7 +226,7 @@ end
 end
 
 # AsciiAlphabet trait - add to user defined type to use speedups.
-# Must define methods codetype, stringbyte,
+# Must define methods codetype, BioSymbols.stringbyte, ascii_encode
 "Abstract trait for ASCII/Unicode dispatch. See `AsciiAlphabet`"
 abstract type AlphabetCode end
 
@@ -234,17 +234,8 @@ abstract type AlphabetCode end
     AsciiAlphabet
 
 Trait for alphabet using ASCII characters as String representation.
-
-Alphabets default to `UnicodeAlphabet`, but alphabets where each symbol can
-be represented by an ASCII character can be `AsciiAlphabet` by defining
-`codetype(::A) = AsciiAlphabet()`. This will improve performance for many encoding
-and IO tasks.
-
-# Extended help
-An `AsciiAlphabet` should have the following methods defined:
-* `stringbyte(::eltype(A))`
-* `stringbyte(A, ::UInt8)`
-, and should not have symbols with and encoded elements with a value larger than `0x7f`.
+Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` A to gain speed.
+Methods needed: `BioSymbols.stringbyte(::eltype(A))` and `ascii_encode(A, ::UInt8)`.
 """
 struct AsciiAlphabet <: AlphabetCode end
 
@@ -259,38 +250,31 @@ end
 codetype(::Alphabet) = UnicodeAlphabet()
 
 """
-    stringbyte(::Alphabet, ::UInt8)::UInt8
-    stringbyte(::eltype(A))::UInt8
+	ascii_encode(::Alphabet, b::UInt8)::UInt8
 
-Methods needed to conform to the `AsciiAlphabet` trait.
-The purpose of these methods is to facilitate efficient string/bioseq transcoding.
+Encode the ASCII character represented by `b` to the internal alphabet encoding.
+For example, the input byte `UInt8('C')` is encoded to `0x01` and `0x02` for
+2- and 4-bit DNA alphabets, reprectively.
+This method is only needed if the `Alphabet` is an `AsciiAlphabet`.
 
-`stringbyte(::Alphabet, ::UInt8)` takes an alphabet and a byte corresponding to
-an input ASCII text byte, and returns the encoded element as a `UInt8`. Invalid
-input bytes should be encoded to an invalid value with the top bit set, e.g. `0x80`.
-
-`stringbyte(::eltype(A))::UInt8` takes a symbol and returns the byte that represents
-it in an ASCII string. The symbol is assumed to be valid, so invalid symbols may return any byte.
+See also: [`AsciiAlphabet`](@ref)
 """
-function stringbyte end
+function ascii_encode end
 
-# Create a lookup table from biosymbol to the UInt8 for the character that would
-# represent it in a string, e.g. DNA_G -> UInt8('G')
-for alphabettype in ("DNA", "RNA", "AminoAcid")
-    tablename = Symbol(uppercase(alphabettype), "_TO_BYTE")
-    typ = Symbol(alphabettype)
+for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
+    RNAAlphabet{2}, AminoAcidAlphabet))
+    tablename = Symbol("BYTE_TO_ALPHABET_CHAR" * string(anum))
     @eval begin
+        alph = $(atype)()
+        syms = symbols(alph)
         const $(tablename) = let
-            alph = alphabet($(typ))
-            bytes = zeros(UInt8, length(alph))
-            @inbounds for letter in alph
-                bytes[reinterpret(UInt8, letter) + 1] = UInt8(Char(letter))
+            bytes = fill(0x80, 256)
+            for symbol in syms
+                bytes[UInt8(Char(symbol)) + 1] = encode(alph, symbol)
+                bytes[UInt8(lowercase(Char(symbol))) + 1] = encode(alph, symbol)
             end
             Tuple(bytes)
         end
-        stringbyte(x::$(typ)) = @inbounds $(tablename)[reinterpret(UInt8, x) + 1]
+        ascii_encode(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
     end
 end
-
-# Less efficient fallback. Should only be called for symbols of AsciiAlphabet
-stringbyte(x::BioSymbol) = UInt8(Char(x))
