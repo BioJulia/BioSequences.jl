@@ -384,7 +384,7 @@ end
 
 function Base.findprev(query::PWMSearchQuery, seq::BioSequence, start)
     if eltype(seq) == DNA || eltype(seq) == RNA
-        return rsearch_nuc(seq, firstindex(seq), start, query.pwm, convert(eltype(query.pwm), query.threshold))
+        return rsearch_nuc(seq, start, firstindex(seq), query.pwm, convert(eltype(query.pwm), query.threshold))
     else
         throw(ArgumentError("no search algorithm for '$(typeof(seq))'"))
     end
