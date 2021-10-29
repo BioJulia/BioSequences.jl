@@ -69,28 +69,28 @@ function approx_preprocess(pat, forward)
 end
 
 """
-    findnext(query, seq[, start=1])
+    findnext(query, seq[, start=firstindex(seq)])
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function Base.findnext(query::ApproximateSearchQuery, seq::BioSequence,
                        start::Integer = firstindex(seq))
-    return _approxsearch(query, seq, k, start, lastindex(seq), true)
+    return _approxsearch(query, seq, start, lastindex(seq), true)
 end
 
 # TODO: Needed?
 Base.findfirst(query::ApproximateSearchQuery, seq::BioSequence) = findnext(query, seq)
 
 """
-    findprev(query, seq, k[, start=lastindex(seq)[, stop=1]])
+    findprev(query, seq, k[, start=lastindex(seq)[, stop=lastindex(seq)]])
 
 Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function Base.findprev(query::ApproximateSearchQuery, seq::BioSequence,
                        start::Integer = lastindex(seq))
-    return _approxsearch(query, seq, k, start, firstindex(seq), false)
+    return _approxsearch(query, seq, start, firstindex(seq), false)
 end
 
 # TODO: Needed?
