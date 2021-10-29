@@ -104,8 +104,8 @@ function _approxsearch(query, seq, start, stop, forward)
         throw(ArgumentError("query is not preprocessed for backward search"))
     end
 
-    if k ≥ length(query.seq)
-        return nothing
+    if query.k ≥ length(query.seq)
+        return start:start-1
     end
 
     # search the approximate suffix
