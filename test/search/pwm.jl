@@ -81,7 +81,7 @@
         @test startswith(sprint(show, pwm), string(summary(pwm), ":\n"))
     end
 
-    @testset "findfirst" begin
+    @testset "findfirst and findlast" begin
         seq = dna"ACGATNATCGCGTANTG"
         data = [
             1.0 0.1 0.2
@@ -97,5 +97,10 @@
         @test findfirst(PWMSearchQuery(pwm, 1.8), seq) === 7
         @test findfirst(PWMSearchQuery(pwm, 2.0), seq) === nothing
         @test_throws ArgumentError findfirst(PWMSearchQuery(pwm, 1.0), LongRNA{4}(seq))
+        @test findlast(PWMSearchQuery(pwm, 1.0), seq) == 14
+        @test findlast(PWMSearchQuery(pwm, 1.4), seq) === 7
+        @test findlast(PWMSearchQuery(pwm, 1.8), seq) === 7
+        @test findlast(PWMSearchQuery(pwm, 2.0), seq) === nothing
+        @test_throws ArgumentError findlast(PWMSearchQuery(pwm, 1.0), LongRNA{4}(seq))
     end
 end
