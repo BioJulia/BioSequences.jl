@@ -5,20 +5,33 @@ DocTestSetup = quote
 end
 ```
 
-# Sequence search
+# Searching for sequence motifs
 
-Three kinds of on-line search functions are provided:
+There are many ways to search for particular motifs in biological sequences:
 
-1. Exact search
-2. Approximate search
-3. Regular expression search
+1. Exact searches, where you are looking for exact matches of a particular
+   character of substring.
+2. Approximate searches, where you are looking for sequences that are
+   sufficiently similar to a given sequence or family of sequences.
+3. Searches where you are looking for sequences that conform to some sort of
+   pattern.
 
-These are all specialized for biological sequences and ambiguities of symbols
-are considered.
+All these kinds of searches are provided in BioSequences.jl
+
 
 ## Exact search
 
-Similar to other Julia sequences like `Vector`, a `BioSequence` can be searched using a function. This returns the index of the element matching where the function returns `true`, or `nothing` if no elements were found:
+Exact searches, are where you are looking for exact matches of a particular
+character of substring.
+
+Similar to other Julia sequences like `Vector`, a `BioSequence` can be searched
+using a function. This returns the index of the element matching where the
+function returns `true`, or `nothing` if no elements were found:
+
+Therefore you can search using the `findfirst(predicate, collection)` pattern.
+
+For example, the following will find the first exact match of a specific
+symbol.
 
 ```jldoctest
 julia> findfirst(isequal(DNA_A), dna"GCTTAG")
@@ -44,41 +57,49 @@ julia> occursin(query, seq)
 true
 ```
 
-These search functions take ambiguous symbols into account.
-That is, if two symbols are compatible (e.g. `DNA_A` and `DNA_N`),
-they match when searching an occurrence.
-In the following example, 'N' is a wild card that matches any symbols.
-
-```jldoctest
-julia> findfirst(dna"CGT", dna"ACNT")  # 'N' matches 'G'
-2:4
-
-julia> findfirst(dna"CNT", dna"ACGT")  # 'G' matches 'N'
-2:4
-
-julia> occursin(dna"CNT", dna"ACNT")
-true
-```
-
-The exact sequence search needs a preprocessing phase of query sequence before
-the searching phase. This would be fast enough for most search applications.
-But when searching a query sequence to many target sequences, caching
-the result of preprocessing may save time. You can do this by creating an
-`ExactSearchQuery` object and re-use it for each search:
-```jldoctest
-julia> query = ExactSearchQuery(dna"ATT");
-
-julia> findfirst(query, dna"ATTTATT")
-1:3
-
-julia> findlast(query, dna"ATTTATT")
-5:7
-
-julia> occursin(query, dna"ATTTATT")
-true
-```
 
 ## Approximate search
+
+An approximate search is for when you are looking for sequences that are 
+sufficiently similar to a given sequence or family of sequences.
+
+
+### Compatible sequences
+
+Sometimes, instead of searching for an exact match for a symbol or subsequence,
+you are happy for your search to return symbols or subsequences that are
+_compatible_ with your query.
+
+Searching for _compatible_ symbols or subsequences means simply taking ambiguous
+symbols into account.
+
+That is, if two symbols are compatible (e.g. `DNA_A` and `DNA_N`), they match
+when searching an occurrence, whereas they would not in an exact search.
+In the following example, 'N' is a wild card that matches any symbols.
+The compatibility of symbols can be checked with `iscompatible`, and is
+typically defined according to the IUPAC alphabets.
+
+To perform such a search that returns compatible results, simply wrap your
+query pattern in a `SearchQuery` before passing it to one of the find functions.
+
+   !!! tip
+   Constructing `SearchQuery`s requires some preprocessing, so if you're running
+   the same query across many sequences, try constructing it first, and then
+   passing it as a variable to `findfirst`!
+
+```jldoctest
+julia> findfirst(SearchQuery(dna"CGT"), dna"ACNT")  # 'N' matches 'G'
+2:4
+
+julia> findfirst(SearchQuery(dna"CNT"), dna"ACGT")  # 'G' matches 'N'
+2:4
+
+julia> occursin(SearchQuery(dna"CNT"), dna"ACNT")
+true
+```
+
+
+### Allowing mismatches
 
 The approximate search is similar to the exact search but allows a specific
 number of errors. That is, it tries to find a subsequence of the target sequence
@@ -129,7 +150,9 @@ julia> approxsearch(dna"ACTACGT", query, 2)
 
 ```
 
-## Regular expression search
+## Searching according to a pattern
+
+### Regular expression search
 
 Query patterns can be described in regular expressions. The syntax supports
 a subset of Perl and PROSITE's notation.
@@ -221,21 +244,22 @@ RegexMatch("CPVPQARG")
 ```
 
 
-## Position weight matrix search
+### Position weight matrix search
 
-A motif can also be specified using [position weight
+A motif can be specified using [position weight
 matrix](https://en.wikipedia.org/wiki/Position_weight_matrix) (PWM) in a
-probabilistic way. `search(seq, pwm, threshold)` method searches for the first
-position in the sequence where a score calculated using the PWM is greater than
-or equal to the threshold. More formally, denoting the sequence as ``S`` and the
-PWM value of symbol ``s`` at position ``j`` as ``M_{s,j}``, the score starting
-from a position ``p`` is defined as
+probabilistic way. 
+This method searches for the first position in the sequence where a score
+calculated using a PWM is greater than or equal to a threshold.
+More formally, denoting the sequence as ``S`` and the PWM value of symbol ``s``
+at position ``j`` as ``M_{s,j}``, the score starting from a position ``p`` is
+defined as
 
 ```math
 \operatorname{score}(S, p) = \sum_{i=1}^L M_{S[p+i-1],i}
 ```
 
-and `search(S, M, t)` returns the smallest ``p`` that satisfies
+and the search returns the smallest ``p`` that satisfies
 ``\operatorname{score}(S, p) \ge t``.
 
 There are two kinds of matrices in this package: `PFM` and `PWM`. The `PFM` type
@@ -291,6 +315,16 @@ probability ``p(s)`` as follows ([Wasserman2004]):
     PWM_{s,j} &= \log_2 \frac{p(s,j)}{p(s)} \\
     p(s,j)  &= \frac{PFM_{s,j}}{\sum_{s'} PFM_{s',j}}.
 \end{align}
+```
+
+However, if you just want to quickly conduct a search, constructing the pfm and
+pwm is done for you as a convenience if you build a `PWMSearchQuery`, using a
+collection of sequences:
+
+```jldoctest
+subject = dna"TATTATAATTA"
+qa = PWMSearchQuery(motifs)
+findfirst(qa, subject)
 ```
 
 [Wasserman2004]: https://doi.org/10.1038/nrg1315
