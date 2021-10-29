@@ -2,36 +2,25 @@
     seq = dna"ACGTACG"
 
     @testset "forward" begin
-        @test approxsearch(seq, dna"", 0) === 1:0
-        @test approxsearch(seq, dna"AC", 0) === 1:2
-        @test approxsearch(seq, dna"AC", 0, 2) === 5:6
-        @test approxsearch(seq, dna"AC", 0, 2, 5) === nothing
-        @test approxsearch(seq, dna"AT", 0) === nothing
-        @test approxsearch(seq, dna"AT", 1) === 1:1
-        @test approxsearch(seq, dna"AT", 1, 2) === 3:4
-        @test approxsearch(seq, dna"AT", 1, 2, 3) === nothing
-        @test approxsearch(seq, dna"NG", 0) === 2:3
-        @test approxsearch(seq, dna"NG", 1) === 1:1
-        @test approxsearch(seq, dna"GN", 0) === 3:4
-        @test approxsearch(seq, dna"GN", 1) === 1:1
-        @test approxsearch(seq, dna"ACG", 0) === 1:3
-        @test approxsearch(seq, dna"ACG", 1) === 1:2
-        @test approxsearch(seq, dna"ACG", 2) === 1:1
-        @test approxsearch(seq, dna"ACG", 3) === nothing
-        @test approxsearch(seq, dna"ACG", 4) === nothing
-
-        @test approxsearchindex(seq, dna"", 0) === 1
-        @test approxsearchindex(seq, dna"AC", 0) === 1
-        @test approxsearchindex(seq, dna"AC", 0, 2) === 5
-        @test approxsearchindex(seq, dna"AC", 0, 2, 5) === nothing
-
-        query = ApproximateSearchQuery(dna"ACG")
-        @test approxsearch(seq, query, 1) === 1:2
-        @test approxsearch(seq, query, 1, 2) === 2:3
-        @test approxsearch(seq, query, 1, 2, 2) === nothing
-        @test approxsearchindex(seq, query, 1) === 1
-        @test approxsearchindex(seq, query, 1, 2) === 2
-        @test approxsearchindex(seq, query, 1, 2, 2) === nothing
+        ApproximateSearchQuery(dna"", 0)
+        @test findnext(ApproximateSearchQuery(dna"", 0), seq) === 1:0
+        @test findnext(ApproximateSearchQuery(dna"AC", 0), seq) === 1:2
+        @test findnext(ApproximateSearchQuery(dna"AC", 0), seq, 2) === 5:6
+        #@test approxsearch(seq, dna"AC", 0, 2, 5) === 0:-1 make as view
+        @test findnext(ApproximateSearchQuery(dna"AT", 0), seq) === 0:-1
+        @test findnext(ApproximateSearchQuery(dna"AT", 1), seq) === 1:1
+        @test findnext(ApproximateSearchQuery(dna"AT", 1), seq, 2) === 3:4
+        #@test approxsearch(seq, dna"AT", 1, 2, 3) === 0:-1 make as view
+        @test findnext(ApproximateSearchQuery(dna"NG", 0), seq) === 2:3
+        @test findnext(ApproximateSearchQuery(dna"NG", 1), seq) === 1:1
+        @test findnext(ApproximateSearchQuery(dna"GN", 0), seq) === 3:4
+        @test findnext(ApproximateSearchQuery(dna"GN", 1), seq) === 1:1
+        
+        @test findnext(ApproximateSearchQuery(dna"ACG", 0), seq) === 1:3
+        @test findnext(ApproximateSearchQuery(dna"ACG", 1), seq) === 1:2
+        @test findnext(ApproximateSearchQuery(dna"ACG", 2), seq) === 1:1
+        @test findnext(ApproximateSearchQuery(dna"ACG", 3), seq) === 1:0
+        @test findnext(ApproximateSearchQuery(dna"ACG", 4), seq) === 1:0
     end
 
     @testset "backward" begin
