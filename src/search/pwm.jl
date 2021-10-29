@@ -266,7 +266,7 @@ function check_pwm(seq, pwm::PWM{S}) where S <: Union{DNA,RNA}
     end
 end
 
-# TODO: Have search_nuc search backwards as well as forwards?
+# TODO: Have one version of search_nuc that searches backwards as well as forwards?
 function search_nuc(seq::BioSequence, first::Int, last::Int, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
     checkbounds(seq, first:last)
@@ -310,9 +310,9 @@ end
 #= TODO: Replace forward and back function with this one?
 function search_nuc2(seq::BioSequence, first::Integer, last::Integer, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
-    checkbounds(seq, range)
-    pwmlen = size(pwm, 2)
     rev = first > last
+    checkbounds(seq, ifelse(rev, last:first, first:last)
+    pwmlen = size(pwm, 2)
     interval′ = range(
         ifelse(rev, first - pwmlen + 1, first),
         step = ifelse(rev, -1, 1),
