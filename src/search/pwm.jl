@@ -269,7 +269,7 @@ end
 # TODO: Have search_nuc search backwards as well as forwards?
 function search_nuc(seq::BioSequence, first::Int, last::Int, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
-    checkbounds(seq, range)
+    checkbounds(seq, first:last)
     pwmlen = size(pwm, 2)
     for p in first:last-pwmlen+1
         score = zero(eltype(pwm))
@@ -289,7 +289,7 @@ end
 
 function rsearch_nuc(seq::BioSequence, first::Int, last::Int, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
-    checkbounds(seq, range)
+    checkbounds(seq, last:first)
     pwmlen = size(pwm, 2)
     for p in first-pwmlen+1:-1:last
         score = zero(eltype(pwm))
