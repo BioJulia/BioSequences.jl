@@ -42,7 +42,7 @@
     end
     
     function counter_random_tests(pred::Function, alias::Function, alphx::Type{<:Alphabet}, alphy::Type{<:Alphabet}, subset::Bool)
-        for _ in 1:50
+        for _ in 1:20
             seqA = random_seq(alphx, rand(10:100))
             seqB = random_seq(alphy, rand(10:100))
             sa = seqA
@@ -93,6 +93,7 @@
                 counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, sub)
             end
         end
+        @test count(isambiguous, LongSequence{DNAAlphabet{2}}("TAG")) == 0 
     end
     
     @testset "Certain" begin
