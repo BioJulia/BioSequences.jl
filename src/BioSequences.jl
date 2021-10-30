@@ -126,6 +126,7 @@ export
     reverse_complement!,
     ungap,
     ungap!,
+    join!,
     
     ###
     ### LongSequence

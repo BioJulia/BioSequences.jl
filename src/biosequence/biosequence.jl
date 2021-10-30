@@ -63,7 +63,7 @@ end
 
 # Fast path for iterables we know are stateless
 function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
-    _join(resize!(seq, sum(length, it)), it, Val(true))
+    _join!(resize!(seq, sum(length, it)), it, Val(true))
 end
 
 join!(seq::BioSequence, it) = _join!(seq, it, Val(false))

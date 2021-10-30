@@ -54,8 +54,8 @@ end # testset
     end
 
     # Doesn't work for wrong types
-    @test_throws MethodError copy!(LongDNA{4}("TAG"), LongAA("WGM"))
-    @test_throws MethodError copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
+    @test_throws Exception copy!(LongDNA{4}("TAG"), LongAA("WGM"))
+    @test_throws Exception copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
 end
 
 @testset "Copyto! sequence" begin
