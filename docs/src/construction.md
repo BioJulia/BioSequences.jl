@@ -295,3 +295,16 @@ So the take home message of sequence literals is this:
 Be careful when you are using sequence literals inside of functions, and inside
 the bodies of things like for loops. And if you use them and are unsure, use the
  's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
+
+## Comparison to other sequence types
+Following Base standards, BioSequences do not compare equal to other containers even if they have the same elements.
+To e.g. compare a BioSequence with a vector of DNA, compare the elements themselves:
+```jldoctest
+julia> seq = dna"GAGCTGA"; vec = collect(seq);
+
+julia> seq == vec, isequal(seq, vec)
+(false, false)
+
+julia> length(seq) == length(vec) && all(i == j for (i, j) in zip(seq, vec))
+true 
+```

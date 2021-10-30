@@ -14,6 +14,7 @@
 represents a set of biological symbols encoded by a sequence, e.g. A, C, G
 and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
 
+# Extended help
 * Subtypes of Alphabet are singleton structs that may or may not be parameterized.
 * Alphabets span over a *finite* set of biological symbols.
 * The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
@@ -32,6 +33,8 @@ If you want interoperation with existing subtypes of `BioSequence`,
 the encoded representation `E` must be of type `UInt`, and you must also implement:
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
   or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
+
+For increased performance, see `AsciiAlphabet`
 """
 abstract type Alphabet end
 
@@ -91,7 +94,8 @@ end
 ## Nucleic acid alphabets
 
 """
-Alphabet of nucleic acids.
+Alphabet of nucleic acids. Parameterized by the number of bits per symbol, by
+default only `2` or `4`-bit variants exists.
 """
 abstract type NucleicAcidAlphabet{N} <: Alphabet end
 
@@ -230,8 +234,17 @@ abstract type AlphabetCode end
     AsciiAlphabet
 
 Trait for alphabet using ASCII characters as String representation.
-Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` A to gain speed.
-Methods needed: `stringbyte(::eltype(A))` and `stringbyte(A, ::UInt8)`.
+
+Alphabets default to `UnicodeAlphabet`, but alphabets where each symbol can
+be represented by an ASCII character can be `AsciiAlphabet` by defining
+`codetype(::A) = AsciiAlphabet()`. This will improve performance for many encoding
+and IO tasks.
+
+# Extended help
+An `AsciiAlphabet` should have the following methods defined:
+* `stringbyte(::eltype(A))`
+* `stringbyte(A, ::UInt8)`
+, and should not have symbols with and encoded elements with a value larger than `0x7f`.
 """
 struct AsciiAlphabet <: AlphabetCode end
 
@@ -244,6 +257,22 @@ function codetype(::A) where {A <: Union{DNAAlphabet{2}, DNAAlphabet{4},
     return AsciiAlphabet()
 end
 codetype(::Alphabet) = UnicodeAlphabet()
+
+"""
+    stringbyte(::Alphabet, ::UInt8)::UInt8
+    stringbyte(::eltype(A))::UInt8
+
+Methods needed to conform to the `AsciiAlphabet` trait.
+The purpose of these methods is to facilitate efficient string/bioseq transcoding.
+
+`stringbyte(::Alphabet, ::UInt8)` takes an alphabet and a byte corresponding to
+an input ASCII text byte, and returns the encoded element as a `UInt8`. Invalid
+input bytes should be encoded to an invalid value with the top bit set, e.g. `0x80`.
+
+`stringbyte(::eltype(A))::UInt8` takes a symbol and returns the byte that represents
+it in an ASCII string. The symbol is assumed to be valid, so invalid symbols may return any byte.
+"""
+function stringbyte end
 
 # Create a lookup table from biosymbol to the UInt8 for the character that would
 # represent it in a string, e.g. DNA_G -> UInt8('G')

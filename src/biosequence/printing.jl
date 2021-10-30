@@ -122,9 +122,7 @@ function showcompact(io::IO, seq::BioSequence)
                 print(io, seq[i])
             end
         else
-            for x in seq
-                print(io, convert(Char, x))
-            end
+            print(io, seq)
         end
     end
 end
@@ -134,5 +132,3 @@ function string_compact(seq::BioSequence)
     showcompact(buf, seq)
     return String(take!(buf))
 end
-
-Base.parse(::Type{S}, str::AbstractString) where {S<:BioSequence} = convert(S, str)

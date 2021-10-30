@@ -18,4 +18,3 @@ end
 function _string(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
     String([stringbyte(s) for s in seq])
 end
-

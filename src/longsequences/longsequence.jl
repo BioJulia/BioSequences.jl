@@ -36,13 +36,10 @@
 """
     LongSequence{A <: Alphabet}
 
-Many genomics scripts and tools benefit from an efficient general purpose
-sequence type that allows you to create and edit sequences.
+General-purpose `BioSequence`. This type is mutable and variable-length, and should
+be preferred for most use cases.
 
-`LongSequence` is the default mutable, variable-length `BioSequence`.
-It is suitable for biological sequences whose length is either not
-known at compile time, or that is larger than about 100 symbols.
-
+# Extended help
 `LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
 `Alphabet` type `A` that defines the domain (or set) of biological symbols
 permitted.
