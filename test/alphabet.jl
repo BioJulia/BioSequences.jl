@@ -36,6 +36,14 @@
     end
 end
 
+@testset "Basic" begin
+    @test length(DNAAlphabet{4}()) == 16
+    @test length(RNAAlphabet{2}()) == 4
+    @test length(AminoAcidAlphabet()) == 28
+
+    @test BioSequences.symbols(RNAAlphabet{2}()) == (RNA_A, RNA_C, RNA_G, RNA_U)
+end
+
 encode = BioSequences.encode
 EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
