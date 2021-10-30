@@ -22,7 +22,7 @@ end
     # Check that sequences in strings survive round trip conversion:
     #   String → LongSequence → String
     function test_string_construction(A::Type, seq::AbstractString)
-        @test convert(String, LongSequence{A}(seq)) == uppercase(seq)
+        @test String(LongSequence{A}(seq)) == uppercase(seq)
     end
 
     function test_string_parse(A::Type, seq::AbstractString)

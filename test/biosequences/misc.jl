@@ -1,18 +1,10 @@
 @testset "Convert to String or Vector" begin
     seq = SimpleSeq("ACGUAAUUUCA")
 
-    @test convert(String, seq) == "ACGUAAUUUCA"
-    @test String(seq) == convert(String, seq)
-    @test convert(Vector, seq) == map(collect(convert(String, seq))) do char
-        convert(RNA, char)
-    end
-    @test convert(Vector, seq) == convert(Vector{RNA}, seq)
+    @test String(seq) == "ACGUAAUUUCA"
 
     seq = SimpleSeq(RNA[])
-    @test String(seq) == convert(String, seq)
-    @test convert(String, seq) == ""
-    @test convert(Vector, seq) == RNA[]
-    @test convert(Vector{RNA}, seq) == RNA[]
+    @test isempty(seq)
 end
 
 @testset "Counting" begin

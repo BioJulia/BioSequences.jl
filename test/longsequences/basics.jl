@@ -179,7 +179,7 @@ end
         end
         str = string([chunk[parts[i]] for (i, chunk) in enumerate(chunks)]...)
         seq = *([LongSequence{A}(chunk)[parts[i]] for (i, chunk) in enumerate(chunks)]...)
-        @test convert(String, seq) == uppercase(str)
+        @test String(seq) == uppercase(str)
     end
 
     for _ in [1, 2, 5, 10, 18, 32, 55, 64, 70]
@@ -209,7 +209,7 @@ end
         n = rand(1:10)
         str = chunk[start:stop] ^ n
         seq = LongSequence{A}(chunk)[start:stop] ^ n
-        @test convert(String, seq) == uppercase(str)
+        @test String(seq) == uppercase(str)
     end
 
     for _ in 1:10

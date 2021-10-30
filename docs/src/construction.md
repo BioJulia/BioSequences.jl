@@ -112,34 +112,23 @@ true
 
 ## Conversion of sequence types
 
-You can convert between sequence types.
+You can convert between sequence types, if the sequences are compatible - that is, if the source sequence does not contain symbols that are un-encodable by the destination type.
 ```jldoctest
-julia> dna = dna"TTANGTAGACCG"
+julia> dna = dna"TTACGTAGACCG"
 12nt DNA Sequence:
-TTANGTAGACCG
+TTACGTAGACCG
 
-julia> rna = convert(LongRNA{4}, dna)
-12nt RNA Sequence:
-UUANGUAGACCG
-
+julia> dna2 = convert(LongDNA{2}, dna)
+12nt DNA Sequence:
+TTACGTAGACCG
 ```
 
-Sequences can be converted explicitly and implicitly, into arrays and strings:
-
+DNA/RNA are special in that they can be converted to each other, despite containing distinct symbols.
+When doing so, `DNA_T` is converted to `RNA_U` and vice versa.
 ```jldoctest
-julia> dna = dna"TTANGTAGACCG"
-12nt DNA Sequence:
-TTANGTAGACCG
-
-julia> dnastr = convert(String, dna)
-"TTANGTAGACCG"
-
-julia> # Implicit conversion to string - putting dna sequence in String vector 
-
-julia> arr = String[dna]
-1-element Vector{String}:
- "TTANGTAGACCG"
- 
+julia> convert(LongRNA{2}, dna"TAGCTAGG")
+8nt RNA Sequence:
+UAGCUAGG
 ```
 
 ## String literals
