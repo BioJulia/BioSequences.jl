@@ -91,6 +91,10 @@ struct ReducedAAAlphabet <: Alphabet end
         @test encode(ReducedAAAlphabet(), aa) === data
         @test decode(ReducedAAAlphabet(), data) === aa
     end
+
+    str = "NSTPHML"
+    @test String(LongSequence{ReducedAAAlphabet}(str)) == str
+
     @test_throws EncodeError encode(ReducedAAAlphabet(), AA_V)
     @test_throws EncodeError encode(ReducedAAAlphabet(), AA_I)
     @test_throws EncodeError encode(ReducedAAAlphabet(), AA_R)
