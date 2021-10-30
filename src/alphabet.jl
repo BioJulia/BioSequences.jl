@@ -39,6 +39,30 @@ For increased performance, see `AsciiAlphabet`
 abstract type Alphabet end
 
 """
+    function has_interface(::Type{Alphabet}, A::Alphabet)
+
+Returns whether `A` conforms to the `Alphabet` interface.
+"""
+function has_interface(::Type{Alphabet}, A::Alphabet)
+    try
+        eltype(typeof(A)) <: BioSymbol || return false
+        syms = symbols(A)
+        (syms isa Tuple{Vararg{eltype(typeof(A))}} && length(syms) > 0) || return false
+        codes = map(i -> encode(A, i), syms)
+        codes isa (NTuple{N, T} where {N, T <: Union{UInt8, UInt16, UInt32, UInt64}}) || return false
+        recodes = map(i -> decode(A, i), codes)
+        syms == recodes || return false
+        bps = BitsPerSymbol(A)
+        bps isa BitsPerSymbol || return false
+        in(BioSequences.bits_per_symbol(A), (0, 1, 2, 4, 8, 16, 32, 64)) || return false
+    catch error
+        error isa MethodError && return false
+        rethrow(error)
+    end
+    return true
+end
+
+"""
 The number of bits required to represent a packed symbol encoding in a vector of bits.
 """
 bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))

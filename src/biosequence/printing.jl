@@ -54,17 +54,16 @@ end
 
 # Generic method. The different name allows subtypes of BioSequence to
 # selectively call the generic print despite being more specific type
-function _print(buffer::SimpleBuffer, seq::BioSequence, width::Integer, ::UnicodeAlphabet)
+function _print(io::IO, seq::BioSequence, width::Integer, ::UnicodeAlphabet)
     col = 0
     for x in seq
         col += 1
         if (width > 0) & (col > width)
-            write(buffer, '\n')
+            write(io, '\n')
             col = 1
         end
-        print(buffer, x)
+        print(io, x)
     end
-    close(buffer)
     return nothing
 end
 

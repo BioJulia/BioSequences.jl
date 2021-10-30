@@ -19,6 +19,8 @@ Base.resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len); x)
 random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
 
 @testset "Basics" begin
+    @test BioSequences.has_interface(BioSequence, SimpleSeq, [RNA_C], true)
+
     seq = SimpleSeq([RNA_C, RNA_G, RNA_U])
     
     @test seq isa BioSequence{RNAAlphabet{2}}

@@ -44,36 +44,36 @@ DecodeError = BioSequences.DecodeError
 # NOTE: See the docs for the interface of Alphabet
 struct ReducedAAAlphabet <: Alphabet end
 
+Base.eltype(::Type{ReducedAAAlphabet}) = AminoAcid
+BioSequences.BitsPerSymbol(::ReducedAAAlphabet) = BioSequences.BitsPerSymbol{4}()
+function BioSequences.symbols(::ReducedAAAlphabet)
+    (AA_L, AA_C, AA_A, AA_G, AA_S, AA_T, AA_P, AA_F,
+    AA_W, AA_E, AA_D, AA_N, AA_Q, AA_K, AA_H, AA_M)
+end
+
+(ENC_LUT, DEC_LUT) = let
+    enc_lut = fill(0xff, length(alphabet(AminoAcid)))
+    dec_lut = fill(AA_A, length(symbols(ReducedAAAlphabet())))
+    for (i, aa) in enumerate(symbols(ReducedAAAlphabet()))
+        enc_lut[reinterpret(UInt8, aa) + 0x01] = i - 1
+        dec_lut[i] = aa
+    end
+    (Tuple(enc_lut), Tuple(dec_lut))
+end
+
+function BioSequences.encode(::ReducedAAAlphabet, aa::AminoAcid)
+    i = reinterpret(UInt8, aa)
+    (i ≥ length(ENC_LUT) || ENC_LUT[i + 0x01] === 0xff) && throw(EncodeError(ReducedAAAlphabet(), aa))
+    ENC_LUT[i + 0x01] % UInt
+end
+
+function BioSequences.decode(::ReducedAAAlphabet, x::UInt)
+    x ≥ length(DEC_LUT) && throw(DecodeError(ReducedAAAlphabet(), x))
+    DEC_LUT[x + UInt(1)]
+end
+
 @testset "Custom Alphabet" begin
-    Base.eltype(::Type{ReducedAAAlphabet}) = AminoAcid
-    BioSequences.BitsPerSymbol(::ReducedAAAlphabet) = BioSequences.BitsPerSymbol{4}()
-    function BioSequences.symbols(::ReducedAAAlphabet)
-        (AA_L, AA_C, AA_A, AA_G, AA_S, AA_T, AA_P, AA_F,
-        AA_W, AA_E, AA_D, AA_N, AA_Q, AA_K, AA_H, AA_M)
-    end
-
-    (ENC_LUT, DEC_LUT) = let
-        enc_lut = fill(0xff, length(alphabet(AminoAcid)))
-        dec_lut = fill(AA_A, length(symbols(ReducedAAAlphabet())))
-        for (i, aa) in enumerate(symbols(ReducedAAAlphabet()))
-            enc_lut[reinterpret(UInt8, aa) + 0x01] = i - 1
-            dec_lut[i] = aa
-        end
-        (Tuple(enc_lut), Tuple(dec_lut))
-    end
-
-    function BioSequences.encode(::ReducedAAAlphabet, aa::AminoAcid)
-        i = reinterpret(UInt8, aa)
-        (i ≥ length(ENC_LUT) || ENC_LUT[i + 0x01] === 0xff) && throw(EncodeError(ReducedAAAlphabet(), aa))
-        ENC_LUT[i + 0x01] % UInt
-    end
-
-    function BioSequences.decode(::ReducedAAAlphabet, x::UInt)
-        x ≥ length(DEC_LUT) && throw(DecodeError(ReducedAAAlphabet(), x))
-        DEC_LUT[x + UInt(1)]
-    end
-
-    #### Tests
+    @test BioSequences.has_interface(Alphabet, ReducedAAAlphabet())
     @test length(symbols(ReducedAAAlphabet())) == 16
     @test all(i isa AminoAcid for i in symbols(ReducedAAAlphabet()))
     @test length(Set(symbols(ReducedAAAlphabet()))) == 16
@@ -179,4 +179,12 @@ end
         end
         @test_throws BioSequences.DecodeError decode(AminoAcidAlphabet(), 0x1c)
     end
+end
+
+@testset "Interface" begin
+    @test BioSequences.has_interface(Alphabet, DNAAlphabet{2}())
+    @test BioSequences.has_interface(Alphabet, DNAAlphabet{4}())
+    @test BioSequences.has_interface(Alphabet, RNAAlphabet{2}())
+    @test BioSequences.has_interface(Alphabet, RNAAlphabet{4}())
+    @test BioSequences.has_interface(Alphabet, AminoAcidAlphabet())
 end

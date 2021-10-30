@@ -1,4 +1,10 @@
 @testset "Basics" begin
+    @test BioSequences.has_interface(BioSequence, LongDNA{2}, [DNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongDNA{4}, [DNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongRNA{2}, [RNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongRNA{4}, [RNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongAA, [AA_G], true)
+
 	seq = LongSequence{DNAAlphabet{2}}()
 	@test isempty(seq)
 
@@ -326,4 +332,26 @@ end
         """
         @test a == b
     end
+end
+
+@testset "Custom ASCII alphabet" begin
+    @test string(LongSequence{ReducedAAAlphabet}("FSPMKH")) == "FSPMKH"
+    buf = IOBuffer()
+    print(buf, LongSequence{ReducedAAAlphabet}("AGTDNWLE"))
+    @test String(take!(buf)) == "AGTDNWLE"
+
+    #### Now add AsciiAlphabet capacity
+    BioSequences.codetype(::ReducedAAAlphabet) = BioSequences.AsciiAlphabet()
+    function BioSequences.ascii_encode(::ReducedAAAlphabet, x::UInt8)
+        for sym in symbols(ReducedAAAlphabet())
+            if UInt8(Char(sym)) == x
+                return UInt8(encode(ReducedAAAlphabet(), sym))
+            end
+        end
+    end
+
+    @test string(LongSequence{ReducedAAAlphabet}("FSPMKH")) == "FSPMKH"
+    buf = IOBuffer()
+    print(buf, LongSequence{ReducedAAAlphabet}("AGTDNWLE"))
+    @test String(take!(buf)) == "AGTDNWLE"
 end
