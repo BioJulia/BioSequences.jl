@@ -51,6 +51,12 @@ random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
     @test join!(SimpleSeq([]), gen) == SimpleSeq([RNA(i) for i in "CGUUCU"])
     @test join(SimpleSeq, [seq, seq2]) == join!(SimpleSeq([]), [seq, seq2])
     @test join(SimpleSeq, gen) == join!(SimpleSeq([]), gen)
+
+    @test copy!(SimpleSeq([]), seq) == seq
+    seq3 = copy(seq2)
+    @test copyto!(seq3, seq) == seq
+    seq3 = copy(seq2)
+    @test copyto!(seq3, 2, seq, 3, 1) == SimpleSeq([RNA(i) for i in "UUU"])
     
     @test_throws EncodeError SimpleSeq([RNA_C, RNA_G, RNA_M])
     @test_throws EncodeError SimpleSeq([RNA_Gap])
