@@ -10,6 +10,14 @@
 	sim = similar(seq)
 	@test typeof(sim) == typeof(seq)
 	@test length(sim) == length(seq)
+
+    # Construct from other sequences
+    seq = LongAA("AGCTVMN")
+    @test LongSequence(seq) == LongAA("AGCTVMN")
+    @test LongSequence(seq, 2:5) == LongAA("GCTV")
+    @test LongSequence(SimpleSeq("AUCGU")) isa LongRNA{2}
+    @test LongSequence(SimpleSeq("AUCGU")) == LongRNA{2}("AUCGU")
+    LongDNA{4}(LongRNA{4}("AUCGUA")) == LongDNA{4}("ATCGTA")
 end
 
 @testset "Copy sequence" begin
