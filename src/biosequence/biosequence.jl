@@ -41,6 +41,43 @@ For compatibility with existing `Alphabet`s, the encoded data eltype must be `UI
 """
 abstract type BioSequence{A<:Alphabet} end
 
+"""
+    has_interface(::Type{BioSequence}, ::T, syms::Vector, mutable::Bool, compat::Bool=true)
+
+Check if type `T` conforms to the `BioSequence` interface. A `T` is constructed from the vector
+of element types `syms` which must not be empty.
+If the `mutable` flag is set, also check the mutable interface.
+If the `compat` flag is set, check for compatibility with existing alphabets.
+"""
+function has_interface(
+    ::Type{BioSequence},
+    ::Type{T},
+    syms::Vector,
+    mutable::Bool,
+    compat::Bool=true
+) where {T <: BioSequence}
+    try
+        isempty(syms) && error("Vector syms must not be empty")
+        first(syms) isa eltype(T) || error("Vector is of wrong element type")
+        seq = T(syms)
+        length(seq) > 0 || return false
+        E = encoded_data_eltype(T)
+        e = extract_encoded_element(seq, 1)
+        e isa E || return false
+        (!compat || E == UInt) || return false
+        copy(seq) isa typeof(seq) || return false
+        if mutable
+            encoded_setindex!(seq, e, 1)
+            T(undef, 5) isa T || return false
+            isempty(resize!(seq, 0)) || return false
+        end
+    catch error
+        error isa MethodError && return false
+        rethrow(error)
+    end
+    return true
+end
+
 Base.eachindex(x::BioSequence) = Base.OneTo(length(x))
 Base.firstindex(::BioSequence) = 1
 Base.lastindex(x::BioSequence) = length(x)
