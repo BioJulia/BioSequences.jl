@@ -192,3 +192,10 @@ end
     complement!(seq)
     @test seq == SimpleSeq([RNA(i) for i in "GAACUA"])
 end
+
+@testset "Ungap" begin
+    seq = SimpleSeq([RNA(i) for i in "UAGUUC"])
+    @test ungap(seq) == seq
+    cp = copy(seq)
+    @test ungap!(seq) == cp
+end
