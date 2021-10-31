@@ -32,7 +32,7 @@ julia> copyto!(seq, 2, rna"UUUU", 1, 4)
 TTTTTM
 ```
 """
-function _copyto!(dst::BioSequence{A}, doff::Integer,
+function Base.copyto!(dst::BioSequence{A}, doff::Integer,
     src::BioSequence, soff::Integer,
     N::Integer) where {A <: Alphabet}
 

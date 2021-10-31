@@ -76,6 +76,13 @@ end
         @test LongSequence{A}(xs) == LongSequence{A}(seq)
     end
 
+    # Construct from abstract vector
+    LongDNA{4}(0x61:0x64) == LongDNA{4}("ABCD")
+    LongDNA{4}(0x61:0x64, 3:4) == LongDNA{4}("CD")
+    LongRNA{2}(0x61:0x61) == LongRNA{2}("A")
+    LongDNA{4}(Test.GenericString("AGCTMYWK")) == LongDNA{4}("AGCTMYWK")
+    LongAA(Test.GenericString("KMSPIYT")) == LongAA("KMSPIYT")
+
     for len in [0, 1, 10, 32, 1000]
         test_vector_construction(DNAAlphabet{4}, random_dna(len))
         test_vector_construction(RNAAlphabet{4}, random_rna(len))

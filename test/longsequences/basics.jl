@@ -16,6 +16,14 @@
 	sim = similar(seq)
 	@test typeof(sim) == typeof(seq)
 	@test length(sim) == length(seq)
+
+    # Construct from other sequences
+    seq = LongAA("AGCTVMN")
+    @test LongSequence(seq) == LongAA("AGCTVMN")
+    @test LongSequence(seq, 2:5) == LongAA("GCTV")
+    @test LongSequence(SimpleSeq("AUCGU")) isa LongRNA{2}
+    @test LongSequence(SimpleSeq("AUCGU")) == LongRNA{2}("AUCGU")
+    LongDNA{4}(LongRNA{4}("AUCGUA")) == LongDNA{4}("ATCGTA")
 end
 
 @testset "Copy sequence" begin
@@ -60,8 +68,8 @@ end # testset
     end
 
     # Doesn't work for wrong types
-    @test_throws MethodError copy!(LongDNA{4}("TAG"), LongAA("WGM"))
-    @test_throws MethodError copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
+    @test_throws Exception copy!(LongDNA{4}("TAG"), LongAA("WGM"))
+    @test_throws Exception copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
 end
 
 @testset "Copyto! sequence" begin
@@ -96,6 +104,10 @@ end
     src = LongDNA{4}("A"^16 * "C"^16 * "A"^16)
     copyto!(src, 17, src, 1, 32)
     @test String(src) == "A"^32 * "C"^16
+
+    # Can't copy over edge
+    dst = LongDNA{4}("TAGCA")
+    @test_throws Exception copyto!(dst, 1, fill(0x61, 2), 2, 3)
 end
 
 @testset "Copy! data" begin

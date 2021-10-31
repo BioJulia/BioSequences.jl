@@ -28,7 +28,13 @@
         end
     end
     
-    function testcounter(pred::Function, alias::Function, seqa::BioSequence, seqb::BioSequence)
+    function testcounter(
+        pred::Function,
+        alias::Function,
+        seqa::BioSequence,
+        seqb::BioSequence,
+        singlearg::Bool
+    )
         # Test that order does not matter.
         @test count(pred, seqa, seqb) == count(pred, seqb, seqa)
         @test BioSequences.count_naive(pred, seqa, seqb) == BioSequences.count_naive(pred, seqb, seqa)
@@ -39,10 +45,21 @@
         # Test that the alias function works.
         @test count(pred, seqa, seqb) == alias(seqa, seqb)
         @test count(pred, seqb, seqa) == alias(seqb, seqa)
+        if singlearg
+            @test count(pred, seqa) == count(pred, (i for i in seqa))
+            @test BioSequences.count_naive(pred, seqa) == BioSequences.count(pred, seqa)
+        end
     end
     
-    function counter_random_tests(pred::Function, alias::Function, alphx::Type{<:Alphabet}, alphy::Type{<:Alphabet}, subset::Bool)
-        for _ in 1:50
+    function counter_random_tests(
+        pred::Function,
+        alias::Function,
+        alphx::Type{<:Alphabet},
+        alphy::Type{<:Alphabet},
+        subset::Bool,
+        singlearg::Bool
+    )
+        for _ in 1:10
             seqA = random_seq(alphx, rand(10:100))
             seqB = random_seq(alphy, rand(10:100))
             sa = seqA
@@ -50,24 +67,25 @@
             if subset
                 intA = random_interval(1, length(seqA))
                 intB = random_interval(1, length(seqB))
-                subA = seqA[intA]
-                subB = seqB[intB]
+                subA = view(seqA, intA)
+                subB = view(seqB, intB)
                 sa = subA
                 sb = subB
             end
-            testcounter(pred, alias, sa, sb)
+            testcounter(pred, alias, sa, sb, singlearg)
         end
     end
     
     @testset "Mismatches" begin
         for a in (DNAAlphabet, RNAAlphabet)
+            # Can't promote views
             for sub in (true, false)
                 for n in (4, 2)
-                    counter_random_tests(!=, mismatches, a{n}, a{n}, sub)
+                    counter_random_tests(!=, mismatches, a{n}, a{n}, sub, false)
                 end
-                counter_random_tests(!=, mismatches, a{4}, a{2}, sub)
-                counter_random_tests(!=, mismatches, a{2}, a{4}, sub)
             end
+            counter_random_tests(!=, mismatches, a{4}, a{2}, false, false)
+            counter_random_tests(!=, mismatches, a{2}, a{4}, false, false)
         end
     end
     
@@ -75,47 +93,48 @@
         for a in (DNAAlphabet, RNAAlphabet)
             for sub in (true, false)
                 for n in (4, 2)
-                    counter_random_tests(==, matches, a{n}, a{n}, sub)
+                    counter_random_tests(==, matches, a{n}, a{n}, sub, false)
                 end
-                counter_random_tests(==, matches, a{4}, a{2}, sub)
-                counter_random_tests(==, matches, a{2}, a{4}, sub)
             end
+            counter_random_tests(==, matches, a{4}, a{2}, false, false)
+            counter_random_tests(==, matches, a{2}, a{4}, false, false)
         end
     end
     
     @testset "Ambiguous" begin
         for a in (DNAAlphabet, RNAAlphabet)
-            for sub in (true, false)
-                for n in (4, 2)
-                    counter_random_tests(isambiguous, n_ambiguous, a{n}, a{n}, sub)
+            # Can't promote views
+            for n in (4, 2)
+                for sub in (true, false)
+                    counter_random_tests(isambiguous, n_ambiguous, a{n}, a{n}, sub, true)
                 end
-                counter_random_tests(isambiguous, n_ambiguous, a{4}, a{2}, sub)
-                counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, sub)
             end
+            counter_random_tests(isambiguous, n_ambiguous, a{4}, a{2}, false, true)
+            counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, false, true)
         end
     end
     
     @testset "Certain" begin
         for a in (DNAAlphabet, RNAAlphabet)
-            for sub in (true, false)
-                for n in (4, 2)
-                    counter_random_tests(iscertain, n_certain, a{n}, a{n}, sub)
+            for n in (4, 2)
+                for sub in (true, false)
+                    counter_random_tests(iscertain, n_certain, a{n}, a{n}, sub, true)
                 end
-                counter_random_tests(iscertain, n_certain, a{4}, a{2}, sub)
-                counter_random_tests(iscertain, n_certain, a{2}, a{4}, sub)
             end
+            counter_random_tests(iscertain, n_certain, a{4}, a{2}, false, true)
+            counter_random_tests(iscertain, n_certain, a{2}, a{4}, false, true)
         end
     end
     
     @testset "Gap" begin
         for a in (DNAAlphabet, RNAAlphabet)
-            for sub in (true, false)
-                for n in (4, 2)
-                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub)
+            for n in (4, 2)
+                for sub in (true, false)
+                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub, true)
                 end
-                counter_random_tests(isgap, n_gaps, a{4}, a{2}, sub)
-                counter_random_tests(isgap, n_gaps, a{2}, a{4}, sub)
             end
+            counter_random_tests(isgap, n_gaps, a{4}, a{2}, false, true)
+            counter_random_tests(isgap, n_gaps, a{2}, a{4}, false, true)
         end
     end
     

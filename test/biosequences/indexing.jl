@@ -173,3 +173,12 @@ end
         @test seq == SimpleSeq(map(RNA, collect("AACCGCAUCAGGAUCUG")))
     end
 end
+
+@testset "BitIndex" begin
+    ind = BioSequences.BitIndex{4, UInt64}(16)
+    BioSequences.BitsPerSymbol(ind) = BioSequences.BitsPerSymbol{4}()
+    BioSequences.bitwidth(UInt64) = 64
+    BioSequences.bitwidth(UInt16) = 16
+    BioSequences.prevposition(ind) == BioSequences.BitIndex{4, UInt64}(12)
+    BioSequences.nextposition(ind) == BioSequences.BitIndex{4, UInt64}(20)
+end

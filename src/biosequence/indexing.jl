@@ -101,9 +101,6 @@ Base.@propagate_inbounds function Base.setindex!(seq::BioSequence, x, locs::Abst
     return seq
 end
 
-# For backwards compatibility
-unsafe_setindex!(seq::BioSequence, x, i) = @inbounds seq[i] = x
-
 function Base.setindex!(seq::BioSequence, x, ::Colon)
     return setindex!(seq, x, 1:lastindex(seq))
 end

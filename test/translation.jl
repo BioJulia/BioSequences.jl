@@ -44,6 +44,19 @@
         @test translate!(aas, seq) == translate(seq)
     end
 
+    # Basics
+    @test length(BioSequences.standard_genetic_code) == 64
+    buf = IOBuffer()
+    show(buf, BioSequences.standard_genetic_code)
+    @test !iszero(length(take!(buf))) # just test it doesn't error
+
+    # TransTables
+    @test BioSequences.TransTables() isa BioSequences.TransTables
+    @test BioSequences.ncbi_trans_table[1] === BioSequences.standard_genetic_code
+    buf = IOBuffer()
+    show(buf, BioSequences.ncbi_trans_table)
+    @test !iszero(length(take!(buf)))
+
     # ambiguous codons
     @test translate(rna"YUGMGG") == aa"LR"
     @test translate(rna"GAYGARGAM") == aa"DEX"

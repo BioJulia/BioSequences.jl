@@ -22,7 +22,6 @@ function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
 end
 
 # Generic constructor
-LongSequence(it) = LongSequence{eltype(it)}(it)
 function LongSequence{A}(it) where {A <: Alphabet}
     len = length(it)
     data = Vector{UInt64}(undef, seq_data_len(A, len))
@@ -63,16 +62,16 @@ function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) w
 end
 
 function LongSequence{A}(
-        src::Union{AbstractString,AbstractVector{UInt8}},
-        startpos::Integer=1,
-        stoppos::Integer=length(src)) where {A<:Alphabet}
-    len = stoppos - startpos + 1
+    src::Union{AbstractString,AbstractVector{UInt8}},
+    part::AbstractUnitRange{<:Integer}=1:length(src)
+) where {A<:Alphabet}
+    len = length(part)
     seq = LongSequence{A}(undef, len)
-    return copyto!(seq, 1, src, startpos, len)
+    return copyto!(seq, 1, src, first(part), len)
 end
 
 # create a subsequence
-function LongSequence(other::LongSequence, part::UnitRange{<:Integer})
+function LongSequence(other::LongSequence, part::AbstractUnitRange{<:Integer})
     checkbounds(other, part)
     subseq = typeof(other)(undef, length(part))
     copyto!(subseq, 1, other, first(part), length(part))
