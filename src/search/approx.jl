@@ -12,17 +12,16 @@ Query type for approximate sequence search.
 struct ApproximateSearchQuery{S<:BioSequence}
     seq::S          # query sequence
     k::Int          # number of mismatches permitted
-    fPcom::Vector   # compatibility vector for forward search
-    bPcom::Vector   # compatibility vector for backward search
+    fPcom::Vector{UInt64}   # compatibility vector for forward search
+    bPcom::Vector{UInt64}   # compatibility vector for backward search
     H::Vector{Int}  # distance vector for alignback function
 
     function ApproximateSearchQuery{S}(seq::BioSequence, k::Integer) where S
         if k < 0
             throw(ArgumentError("the number of errors must be non-negative"))
         end
-        fPcom = approx_preprocess(seq, true)
-        bPcom = approx_preprocess(seq, false)
         H = Vector{Int}(undef, length(seq) + 1)
+        fPcom, bPcom = approx_preprocess(seq)
         return new{S}(copy(seq), k, fPcom, bPcom, H)
     end
 end
@@ -43,23 +42,43 @@ function ApproximateSearchQuery(pat::BioSequence, k::Integer, direction::Symbol 
     return ApproximateSearchQuery{typeof(pat)}(pat, k, direction)
 end
 
-function approx_preprocess(pat, forward)
-    # select a bit vector type
-    # TODO: BigInt is very slow, consider implementing "4.2 THE BLOCKS MODEL"
+function approx_preprocess(pat)
     m = length(pat)
-    T = m ≤ 64 ? UInt64 : m ≤ 128 ? UInt128 : BigInt
+    if m ≤ 64
+        throw(ArgumentEror("query pattern sequence must have length of 64 or less"))
+    end
     Σ = alphabet(eltype(pat))
-    Pcom = zeros(T, length(Σ))
+    fw = zeros(UInt64, length(Σ))
     for i in 1:m
-        y = forward ? pat[i] : pat[end - i + 1]
+        y = pat[i]
         for x in Σ
             if BioSequences.iscompatible(x, y)
-                Pcom[reinterpret(UInt8, x) + 0x01] |= one(T) << (i - 1)
+                fw[encoded_data(x) + 0x01] |= UInt(1) << (i - 1)
             end
         end
     end
-    return Pcom
+    shift = 64 - m
+    bw = [bitreverse(i) >>> (shift & 63) for i in fw]
+    return fw, bw
 end
+
+#function approx_preprocess(pat, forward)
+#    # select a bit vector type
+#    # TODO: BigInt is very slow, consider implementing "4.2 THE BLOCKS MODEL"
+#    m = length(pat)
+#    T = m ≤ 64 ? UInt64 : m ≤ 128 ? UInt128 : BigInt
+#    Σ = alphabet(eltype(pat))
+#    Pcom = zeros(T, length(Σ))
+#    for i in 1:m
+#        y = forward ? pat[i] : pat[end - i + 1]
+#        for x in Σ
+#            if BioSequences.iscompatible(x, y)
+#                Pcom[reinterpret(UInt8, x) + 0x01] |= one(T) << (i - 1)
+#            end
+#        end
+#    end
+#    return Pcom
+#end
 
 """
     findnext(query, seq[, start=firstindex(seq)])
@@ -128,7 +147,7 @@ end
 # Myers, Gene. "A fast bit-vector algorithm for approximate string matching
 # based on dynamic programming." Journal of the ACM (JACM) 46.3 (1999): 395-415.
 # NOTE: `Pcom` corresponds to `Peq` in the paper.
-function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward) where {T}
+function search_approx_suffix(Pcom::Vector{UInt64}, pat, seq, k, start, stop, forward)
     # TODO: Remove this check? This is an internal kernal function  that we don't
     # export, and since k is now part of the query struct, we ought to just check it once
     # on construction, not once for every search?
@@ -137,10 +156,9 @@ function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward
     #end
     m = length(pat)
     n = length(seq)
-    @assert T == BigInt || m ≤ sizeof(T) * 8
 
-    Pv::T = (one(T) << m) - one(T)
-    Mv::T = zero(T)
+    Pv::UInt64 = (one(UInt64) << m) - one(UInt64)
+    Mv::UInt64 = zero(UInt64)
     dist = m
     j = forward ? max(start, 1) : min(start, n)
 
