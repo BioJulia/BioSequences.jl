@@ -150,29 +150,11 @@ end
 
 ########
 
-for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
-    RNAAlphabet{2}, AminoAcidAlphabet))
-    tablename = Symbol("BYTE_TO_ALPHABET_CHAR" * string(anum))
-    @eval begin
-        alph = $(atype)()
-        syms = symbols(alph)
-        const $(tablename) = let
-            bytes = fill(0x80, 256)
-            for symbol in syms
-                bytes[UInt8(Char(symbol)) + 1] = encode(alph, symbol)
-                bytes[UInt8(lowercase(Char(symbol))) + 1] = encode(alph, symbol)
-            end
-            Tuple(bytes)
-        end
-        stringbyte(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
-    end
-end
-
 # This is used to effectively scan an array of UInt8 for invalid bytes, when one is detected
 @noinline function throw_encode_error(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer)
     for i in 1:div(64, bits_per_symbol(A))
         sym = src[soff+i-1]
-        stringbyte(A, sym) & 0x80 == 0x80 && error("Cannot encode $(repr(sym)) to $A")
+        ascii_encode(A, sym) & 0x80 == 0x80 && error("Cannot encode $(repr(sym)) to $A")
     end
 end
 
@@ -180,7 +162,7 @@ end
     chunk = zero(UInt64)
     check = 0x00
     @inbounds for i in 1:N
-        enc = stringbyte(A, src[soff+i-1])
+        enc = ascii_encode(A, src[soff+i-1])
         check |= enc
         chunk |= UInt64(enc) << (bits_per_symbol(A) * (i-1))
     end

@@ -9,17 +9,17 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Twiddle = "7200193e-83a8-5a55-b20d-5d36d44a0795"
 
 [compat]
-BioSymbols = "5.0.0"
+BioSymbols = "5.1.0"
 StableRNGs = "0.1, 1.0"
 Twiddle = "1.1.1"
 julia = "1"
 
 [extras]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
-StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 
 [targets]
 test = ["Test", "StatsBase", "YAML", "LinearAlgebra", "StableRNGs"]
