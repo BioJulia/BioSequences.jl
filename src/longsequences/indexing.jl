@@ -27,7 +27,7 @@ end
 end
 
 # More efficient due to copyto!
-function Base.getindex(seq::LongSequence, part::UnitRange{<:Integer})
+function Base.getindex(seq::LongSequence, part::AbstractUnitRange{<:Integer})
 	@boundscheck checkbounds(seq, part)
 	newseq = typeof(seq)(undef, length(part))
 	return copyto!(newseq, 1, seq, first(part), length(part))
@@ -37,7 +37,7 @@ end
 function Base.setindex!(
     seq::SeqOrView{A},
     other::SeqOrView{A},
-    locs::UnitRange{<:Integer}
+    locs::AbstractUnitRange{<:Integer}
 ) where {A <: Alphabet}
     @boundscheck checkbounds(seq, locs)
     @boundscheck if length(other) != length(locs)
@@ -48,7 +48,7 @@ end
 
 @inline function encoded_setindex!(
     seq::SeqOrView{A},
-	bin::Unsigned, 
+    bin::Unsigned, 
     i::Integer
 ) where {A <: Alphabet}
 	return encoded_setindex!(seq, bin, bitindex(seq, i))

@@ -63,16 +63,15 @@ end
 
 function LongSequence{A}(
     src::Union{AbstractString,AbstractVector{UInt8}},
-    part::UnitRange{<:Integer}=1:length(src)
+    part::AbstractUnitRange{<:Integer}=1:length(src)
 ) where {A<:Alphabet}
     len = length(part)
     seq = LongSequence{A}(undef, len)
     return copyto!(seq, 1, src, first(part), len)
 end
 
-
 # create a subsequence
-function LongSequence(other::LongSequence, part::UnitRange{<:Integer})
+function LongSequence(other::LongSequence, part::AbstractUnitRange{<:Integer})
     checkbounds(other, part)
     subseq = typeof(other)(undef, length(part))
     copyto!(subseq, 1, other, first(part), length(part))
