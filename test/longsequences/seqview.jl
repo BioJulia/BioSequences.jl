@@ -77,6 +77,13 @@ end
 	@test seq2[3:15] == complement(seq[3:15])
 	@test seq2[1:2] == dna"TG"
 	@test seq2[16:end] == seq[16:end]
+
+	# A longer example to engage some inner loops
+	seq = randdnaseq(38)
+	seq2 = copy(seq)
+	v = LongSubSeq(seq, 3:36)
+	complement!(v)
+	@test v == complement(seq2[3:36])
 end
 
 @testset "Copying" begin
