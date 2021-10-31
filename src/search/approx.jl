@@ -16,21 +16,14 @@ struct ApproximateSearchQuery{S<:BioSequence}
     bPcom::Vector   # compatibility vector for backward search
     H::Vector{Int}  # distance vector for alignback function
 
-    function ApproximateSearchQuery{S}(seq::BioSequence, k::Integer, direction::Symbol) where S
-        if direction == :forward
-            fPcom = approx_preprocess(seq, true)
-            bPcom = []
-        elseif direction == :backward
-            fPcom = []
-            bPcom = approx_preprocess(seq, false)
-        elseif direction == :both
-            fPcom = approx_preprocess(seq, true)
-            bPcom = approx_preprocess(seq, false)
-        else
-            throw(ArgumentError("direction '$direction' is invalid"))
+    function ApproximateSearchQuery{S}(seq::BioSequence, k::Integer) where S
+        if k < 0
+            throw(ArgumentError("the number of errors must be non-negative"))
         end
+        fPcom = approx_preprocess(seq, true)
+        bPcom = approx_preprocess(seq, false)
         H = Vector{Int}(undef, length(seq) + 1)
-        return new{S}(seq, k, fPcom, bPcom, H)
+        return new{S}(copy(seq), k, fPcom, bPcom, H)
     end
 end
 
@@ -58,10 +51,10 @@ function approx_preprocess(pat, forward)
     Σ = alphabet(eltype(pat))
     Pcom = zeros(T, length(Σ))
     for i in 1:m
-        y = forward ? pat[i] : pat[end-i+1]
+        y = forward ? pat[i] : pat[end - i + 1]
         for x in Σ
             if BioSequences.iscompatible(x, y)
-                Pcom[reinterpret(UInt8, x)+0x01] |= one(T) << (i - 1)
+                Pcom[reinterpret(UInt8, x) + 0x01] |= one(T) << (i - 1)
             end
         end
     end
@@ -97,12 +90,14 @@ end
 Base.findlast(query::ApproximateSearchQuery, seq::BioSequence) = findprev(query, seq)
 
 function _approxsearch(query, seq, start, stop, forward)
-    if forward && isempty(query.fPcom)
-        throw(ArgumentError("query is not preprocessed for forward search"))
-    end
-    if !forward && isempty(query.bPcom)
-        throw(ArgumentError("query is not preprocessed for backward search"))
-    end
+    #if forward && isempty(query.fPcom)
+    #    query.fPcom = approx_preprocess(seq, true)
+        #throw(ArgumentError("query is not preprocessed for forward search"))
+    #end
+    #if !forward && isempty(query.bPcom)
+    #    query.bPcom = approx_preprocess(seq, false)
+        #throw(ArgumentError("query is not preprocessed for backward search"))
+    #end
 
     if query.k ≥ length(query.seq)
         return start:start-1
@@ -134,10 +129,12 @@ end
 # based on dynamic programming." Journal of the ACM (JACM) 46.3 (1999): 395-415.
 # NOTE: `Pcom` corresponds to `Peq` in the paper.
 function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward) where {T}
-    if k < 0
-        throw(ArgumentError("the number of errors must be non-negative"))
-    end
-
+    # TODO: Remove this check? This is an internal kernal function  that we don't
+    # export, and since k is now part of the query struct, we ought to just check it once
+    # on construction, not once for every search?
+    #if k < 0
+    #    throw(ArgumentError("the number of errors must be non-negative"))
+    #end
     m = length(pat)
     n = length(seq)
     @assert T == BigInt || m ≤ sizeof(T) * 8
@@ -152,7 +149,7 @@ function search_approx_suffix(Pcom::Vector{T}, pat, seq, k, start, stop, forward
     end
 
     while (forward && j ≤ min(stop, n)) || (!forward && j ≥ max(stop, 1))
-        Eq = Pcom[reinterpret(UInt8, seq[j])+0x01]
+        Eq = Pcom[reinterpret(UInt8, seq[j]) + 0x01]
         Xv = Eq | Mv
         Xh = (((Eq & Pv) + Pv) ⊻ Pv) | Eq
 
