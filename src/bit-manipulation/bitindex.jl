@@ -48,7 +48,6 @@ Base.:-(i::BitIndex{N,W}, n::Integer) where {N,W} = BitIndex{N,W}(i.val - n)
 Base.:-(i1::BitIndex, i2::BitIndex) = i1.val - i2.val
 Base.:(==)(i1::BitIndex, i2::BitIndex) = i1.val == i2.val
 Base.isless(i1::BitIndex, i2::BitIndex) = isless(i1.val, i2.val)
-Base.cmp(i1::BitIndex, i2::BitIndex) = cmp(i1.val, i2.val)
 
 @inline function nextposition(i::BitIndex{N,W}) where {N,W}
     return i + N
@@ -76,13 +75,6 @@ Base.show(io::IO, i::BitIndex) = print(io, '(', index(i), ", ", offset(i), ')')
     return chunk & bitmask(bidx)
 end
 
-"Extract the element stored in a packed bitarray referred to by bidx."
-@inline function extract_encoded_element(bidx::BitIndex{N,W}, data::NTuple{n,W}) where {N,n,W}
-    @inbounds chunk = data[index(bidx)]
-    offchunk = chunk >> (bitwidth(bidx) - N - offset(bidx))
-    return offchunk & bitmask(bidx)
-end
-
 # Create a bit mask that fills least significant `n` bits (`n` must be a
 # non-negative integer).
 "Create a bit mask covering the least significant `n` bits."
@@ -95,4 +87,3 @@ end
 # This is used in the extract_encoded_element function.
 bitmask(::BitIndex{N,W}) where {N, W} = bitmask(W, N)
 bitmask(n::Integer) = bitmask(UInt64, n)
-bitmask(::Type{T}, ::Val{N}) where {T, N} = (one(T) << N) - one(T)
