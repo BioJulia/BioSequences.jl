@@ -35,8 +35,9 @@ Base.copy(v::LongSubSeq{A}) where A = LongSequence{A}(v)
  
 encoded_data_eltype(::Type{<:LongSubSeq}) = encoded_data_eltype(LongSequence)
 
-@inline function bitindex(x::LongSubSeq{A}, i::Integer) where A
-	bitindex(BitsPerSymbol(A), encoded_data_eltype(typeof(x)), i - first(x.part) + 1)
+@inline function bitindex(x::LongSubSeq, i::Integer)
+    N = BitsPerSymbol(Alphabet(typeof(x)))
+    bitindex(N, encoded_data_eltype(typeof(x)), i % UInt + first(x.part) - 1)
 end
 
 # Constructors
@@ -48,12 +49,12 @@ function LongSubSeq{A}(seq::LongSubSeq{A}) where A
     return LongSubSeq{A}(seq.data, seq.part)
 end
 
-function LongSubSeq{A}(seq::LongSequence{A}, part::UnitRange{<:Integer}) where A
+function LongSubSeq{A}(seq::LongSequence{A}, part::AbstractUnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
-    return LongSubSeq{A}(seq.data, part)
+    return LongSubSeq{A}(seq.data, UnitRange{Int}(part))
 end
 
-function LongSubSeq{A}(seq::LongSubSeq{A}, part::UnitRange{<:Integer}) where A
+function LongSubSeq{A}(seq::LongSubSeq{A}, part::AbstractUnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
     newpart = first(part) + first(seq.part) - 1 : last(part) + first(seq.part) - 1
     return LongSubSeq{A}(seq.data, newpart)
@@ -66,7 +67,7 @@ end
 LongSubSeq(seq::SeqOrView, ::Colon) = LongSubSeq(seq, 1:lastindex(seq))
 LongSubSeq(seq::BioSequence{A}) where A = LongSubSeq{A}(seq)
 
-Base.view(seq::SeqOrView, part::UnitRange) = LongSubSeq(seq, part)
+Base.view(seq::SeqOrView, part::AbstractUnitRange) = LongSubSeq(seq, part)
 
 # Conversion
 function LongSequence(s::LongSubSeq{A}) where A
@@ -95,6 +96,6 @@ function Base.convert(::Type{T1}, seq::T2) where
 end
 
 # Indexing
-function Base.getindex(seq::LongSubSeq, part::UnitRange{<:Integer})
+function Base.getindex(seq::LongSubSeq, part::AbstractUnitRange{<:Integer})
 	return LongSubSeq(seq, part)
 end

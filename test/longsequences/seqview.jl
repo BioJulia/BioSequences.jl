@@ -22,6 +22,8 @@
 	@test vv == vv2 == vv3
 	vv[1] = AA_V
 	@test vv == vv2 == vv3
+
+	@test LongSubSeq{AminoAcidAlphabet}(seq) == view(seq, eachindex(seq))
 end
 
 @testset "Basics" begin
@@ -81,6 +83,9 @@ end
 	seq = LongRNA{4}("UAUUAACCGGAGAUCAUUCAGGUAA")
 	v1 = view(seq, 1:3)
 	v2 = view(seq, 4:11)
+
+	@test copy(v1) == seq[1:3]
+	@test copy(v2) == seq[4:11]
 
 	# Can't resize views
 	@test_throws Exception copy!(v1, v2)

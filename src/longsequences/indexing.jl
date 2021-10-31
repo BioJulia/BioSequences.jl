@@ -10,21 +10,12 @@
     bitindex(N, encoded_data_eltype(typeof(x)), i)
 end
 
-@inline function bitindex(x::LongSubSeq, i::Integer)
-    N = BitsPerSymbol(Alphabet(typeof(x)))
-    bitindex(N, encoded_data_eltype(typeof(x)), i % UInt + first(x.part) - 1)
-end
-
 firstbitindex(s::SeqOrView) = bitindex(s, firstindex(s))
 lastbitindex(s::SeqOrView) = bitindex(s, lastindex(s))
 
 @inline function extract_encoded_element(x::SeqOrView, i::Integer)
     bi = bitindex(x, i % UInt)
     extract_encoded_element(bi, x.data)
-end
-
-@inline function encoded_setindex!(seq::SeqOrView, bin::Unsigned, i::Integer)
-    encoded_setindex!(seq, UInt64(bin), bitindex(seq, i))
 end
 
 @inline function encoded_setindex!(s::SeqOrView, v::UInt64, i::BitIndex)
@@ -43,9 +34,11 @@ function Base.getindex(seq::LongSequence, part::UnitRange{<:Integer})
 end
 
 # More efficient due to copyto!
-function Base.setindex!(seq::SeqOrView{A},
-                        other::SeqOrView{A},
-                        locs::UnitRange{<:Integer}) where {A <: Alphabet}
+function Base.setindex!(
+    seq::SeqOrView{A},
+    other::SeqOrView{A},
+    locs::UnitRange{<:Integer}
+) where {A <: Alphabet}
     @boundscheck checkbounds(seq, locs)
     @boundscheck if length(other) != length(locs)
         throw(DimensionMismatch("Attempt to assign $(length(locs)) values to $(length(seq)) destinations"))
@@ -53,8 +46,11 @@ function Base.setindex!(seq::SeqOrView{A},
     return copyto!(seq, locs.start, other, 1, length(locs))
 end
 
-@inline function encoded_setindex!(seq::SeqOrView{A},
-				   bin::Unsigned, i::Integer) where {A <: Alphabet}
+@inline function encoded_setindex!(
+    seq::SeqOrView{A},
+	bin::Unsigned, 
+    i::Integer
+) where {A <: Alphabet}
 	return encoded_setindex!(seq, bin, bitindex(seq, i))
 end
 
