@@ -128,6 +128,12 @@ end
     @test iscanonical(SimpleSeq("AAUU"))
     @test !iscanonical(SimpleSeq("UGGA"))
     @test !iscanonical(SimpleSeq("CGAU"))
+
+    @test canonical(SimpleSeq("UGGA")) == SimpleSeq("UCCA")
+    @test canonical(SimpleSeq("GCAC")) == SimpleSeq("GCAC")
+    seq = SimpleSeq("CGAU")
+    canonical!(seq)
+    @test seq == SimpleSeq("AUCG")
 end
 
 @testset "Ispalindromic" begin
@@ -160,4 +166,29 @@ end
     @test !hasambiguity(SimpleSeq(""))
     @test !hasambiguity(SimpleSeq("A"))
     @test !hasambiguity(SimpleSeq("ACGU"))
+end
+
+@testset "Shuffle" begin
+    function test_same(a, b)
+        @test all(symbols(Alphabet(a))) do i
+            count(isequal(i), a) == count(isequal(i), b)
+        end
+    end
+    seq = SimpleSeq([RNA(i) for i in "AGCGUUAUGCUGAUUAGGAC"])
+    seq2 = Random.shuffle(seq)
+    test_same(seq, seq2)
+    Random.shuffle!(seq)
+    test_same(seq, seq2)
+end
+
+@testset "Reverse-complement" begin
+    seq = SimpleSeq([RNA(i) for i in "UAGUUC"])
+    @test reverse(seq) == SimpleSeq([RNA(i) for i in "CUUGAU"])
+    @test complement(seq) == SimpleSeq([RNA(i) for i in "AUCAAG"])
+    @test reverse_complement(seq) == reverse(complement(seq))
+
+    reverse!(seq)
+    @test seq == SimpleSeq([RNA(i) for i in "CUUGAU"])
+    complement!(seq)
+    @test seq == SimpleSeq([RNA(i) for i in "GAACUA"])
 end
