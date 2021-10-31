@@ -45,4 +45,8 @@
     @test hash(rna"AAUUAA"[3:5]) === hash(rna"UUA")
     @test hash(aa"MTTQAPMFTQPLQ") === hash(aa"MTTQAPMFTQPLQ")
     @test hash(aa"MTTQAPMFTQPLQ"[5:10]) === hash(aa"APMFTQ")
+
+	# Test hash of longer view to engange some inner loops
+	seq = randdnaseq(250)
+	@test hash(seq[33:201]) == hash(view(seq, 33:201))
 end

@@ -98,6 +98,10 @@ end
     src = LongDNA{4}("A"^16 * "C"^16 * "A"^16)
     copyto!(src, 17, src, 1, 32)
     @test String(src) == "A"^32 * "C"^16
+
+    # Can't copy over edge
+    dst = LongDNA{4}("TAGCA")
+    @test_throws Exception copyto!(dst, 1, fill(0x61, 2), 2, 3)
 end
 
 @testset "Copy! data" begin
