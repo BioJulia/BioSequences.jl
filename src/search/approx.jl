@@ -41,7 +41,7 @@ function ApproximateSearchQuery(pat::BioSequence, k::Integer)
     return ApproximateSearchQuery{typeof(pat)}(pat, k)
 end
 
-function approx_preprocess(pat)
+function approx_preprocess(pat::BioSequence)
     m = length(pat)
     if m > 64
         throw(ArgumentEror("query pattern sequence must have length of 64 or less"))
@@ -60,24 +60,6 @@ function approx_preprocess(pat)
     bw = [bitreverse(i) >>> (shift & 63) for i in fw]
     return fw, bw
 end
-
-#function approx_preprocess(pat, forward)
-#    # select a bit vector type
-#    # TODO: BigInt is very slow, consider implementing "4.2 THE BLOCKS MODEL"
-#    m = length(pat)
-#    T = m ≤ 64 ? UInt64 : m ≤ 128 ? UInt128 : BigInt
-#    Σ = alphabet(eltype(pat))
-#    Pcom = zeros(T, length(Σ))
-#    for i in 1:m
-#        y = forward ? pat[i] : pat[end - i + 1]
-#        for x in Σ
-#            if BioSequences.iscompatible(x, y)
-#                Pcom[reinterpret(UInt8, x) + 0x01] |= one(T) << (i - 1)
-#            end
-#        end
-#    end
-#    return Pcom
-#end
 
 """
     findnext(query, seq[, start=firstindex(seq)])
@@ -108,15 +90,6 @@ end
 Base.findlast(query::ApproximateSearchQuery, seq::BioSequence) = findprev(query, seq)
 
 function _approxsearch(query, seq, start, stop, forward)
-    #if forward && isempty(query.fPcom)
-    #    query.fPcom = approx_preprocess(seq, true)
-        #throw(ArgumentError("query is not preprocessed for forward search"))
-    #end
-    #if !forward && isempty(query.bPcom)
-    #    query.bPcom = approx_preprocess(seq, false)
-        #throw(ArgumentError("query is not preprocessed for backward search"))
-    #end
-
     if query.k ≥ length(query.seq)
         return start:start-1
     end
