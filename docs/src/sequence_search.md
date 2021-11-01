@@ -16,7 +16,9 @@ There are many ways to search for particular motifs in biological sequences:
 3. Searches where you are looking for sequences that conform to some sort of
    pattern.
 
-All these kinds of searches are provided in BioSequences.jl
+All these kinds of searches are provided in BioSequences.jl, and they all 
+conform to the `findnext` and `findprev` pattern established in `Base` for
+`String` and collections like `Vector`.
 
 
 ## Exact search
@@ -82,7 +84,7 @@ typically defined according to the IUPAC alphabets.
 To perform such a search that returns compatible results, simply wrap your
 query pattern in a `SearchQuery` before passing it to one of the find functions.
 
-   !!! tip
+!!! tip
    Constructing `SearchQuery`s requires some preprocessing, so if you're running
    the same query across many sequences, try constructing it first, and then
    passing it as a variable to `findfirst`!
@@ -149,6 +151,14 @@ julia> approxsearch(dna"ACTACGT", query, 2)
 4:6
 
 ```
+
+!!! note
+   This method of searching for motifs was implemented with smaller query motifs
+   in mind.
+   
+   If you are looking to search for imperfect matches of longer sequences in this
+   manner, you are likely better off using some kind of local-alignment algorithm
+   or one of the BLAST variants.
 
 ## Searching according to a pattern
 

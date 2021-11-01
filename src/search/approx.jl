@@ -62,32 +62,30 @@ function approx_preprocess(pat::BioSequence)
 end
 
 """
-    findnext(query, seq[, start=firstindex(seq)])
+    findnext(query, seq, start)
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findnext(query::ApproximateSearchQuery, seq::BioSequence,
-                       start::Integer = firstindex(seq))
+function Base.findnext(query::ApproximateSearchQuery, seq::BioSequence, start::Integer)
     return _approxsearch(query, seq, start, lastindex(seq), true)
 end
 
 # TODO: Needed?
-Base.findfirst(query::ApproximateSearchQuery, seq::BioSequence) = findnext(query, seq)
+Base.findfirst(query::ApproximateSearchQuery, seq::BioSequence) = findnext(query, seq, firstindex(seq))
 
 """
-    findprev(query, seq, k[, start=lastindex(seq)[, stop=lastindex(seq)]])
+    findprev(query, seq, start)
 
 Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findprev(query::ApproximateSearchQuery, seq::BioSequence,
-                       start::Integer = lastindex(seq))
+function Base.findprev(query::ApproximateSearchQuery, seq::BioSequence, start::Integer)
     return _approxsearch(query, seq, start, firstindex(seq), false)
 end
 
 # TODO: Needed?
-Base.findlast(query::ApproximateSearchQuery, seq::BioSequence) = findprev(query, seq)
+Base.findlast(query::ApproximateSearchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
 
 function _approxsearch(query, seq, start, stop, forward)
     if query.k ≥ length(query.seq)
