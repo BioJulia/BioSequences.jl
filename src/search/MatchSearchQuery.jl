@@ -54,16 +54,16 @@ end
 """
 Query type for exact sequence search.
 """
-struct MatchQuery{S<:BioSequence}
+struct MatchSearchQuery{S<:BioSequence}
     seq::S         # query sequence
     cbits::UInt32  # compatibility bits / bloom mask
     fshift::Int    # shift length for forward search
     bshift::Int    # shift length for backward search
 end
 
-function MatchQuery(query::BioSequence)
+function MatchSearchQuery(query::BioSequence)
     cbits, fshift, bshift = match_preprocess(query)
-    return MatchQuery(query, cbits, fshift, bshift)
+    return MatchSearchQuery(query, cbits, fshift, bshift)
 end
 
 """
@@ -110,7 +110,7 @@ end
 
 # This algorithm is borrowed from base/strings/search.jl, which looks similar to
 # Sunday's Quick Search algorithm.
-function quicksearch(query::MatchQuery, seq, start, stop)
+function quicksearch(query::MatchSearchQuery, seq, start, stop)
     pat = query.seq
     m = length(pat)
     n = length(seq)
@@ -156,13 +156,13 @@ function quicksearch(query::MatchQuery, seq, start, stop)
 end
 
 """
-    findnext(query::MatchQuery, seq::BioSequence, start::Integer)
+    findnext(query::MatchSearchQuery, seq::BioSequence, start::Integer)
 
 Return the index of the first occurrence of `query` in `seq`.
 
 Symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findnext(query::MatchQuery, seq::BioSequence, start::Integer)
+function Base.findnext(query::MatchSearchQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
     i = quicksearch(query, seq, start, lastindex(seq))
     if i == 0
@@ -172,13 +172,13 @@ function Base.findnext(query::MatchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-Base.findfirst(pat::MatchQuery, seq::BioSequence) = findnext(pat, seq, firstindex(seq))
+Base.findfirst(pat::MatchSearchQuery, seq::BioSequence) = findnext(pat, seq, firstindex(seq))
 
 
 # Backward
 # --------
 
-function quickrsearch(query::MatchQuery, seq, start, stop)
+function quickrsearch(query::MatchSearchQuery, seq, start, stop)
     pat = query.seq
     m = length(pat)
     n = length(seq)
@@ -222,12 +222,12 @@ function quickrsearch(query::MatchQuery, seq, start, stop)
 end
 
 """
-    findprev(query::MatchQuery, seq::BioSequence, start::Integer)
+    findprev(query::MatchSearchQuery, seq::BioSequence, start::Integer)
 
 Return the index of the last occurrence of `query` in `seq`.
 Symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findprev(query::MatchQuery, seq::BioSequence, start::Integer)
+function Base.findprev(query::MatchSearchQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
     i = quickrsearch(query, seq, start, 1)
     if i == 0
@@ -237,11 +237,11 @@ function Base.findprev(query::MatchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-Base.findlast(query::MatchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
+Base.findlast(query::MatchSearchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
 
 """
-    occursin(x::MatchQuery, y::BioSequence)
+    occursin(x::MatchSearchQuery, y::BioSequence)
 
 Return Bool indicating presence of exact match of x in y.
 """
-Base.occursin(x::MatchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0
+Base.occursin(x::MatchSearchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0
