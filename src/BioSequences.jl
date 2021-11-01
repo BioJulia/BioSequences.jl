@@ -179,8 +179,8 @@ export
     ncbi_trans_table,
     
     # Search
-    MatchQuery,
-    SearchQuery,
+    MatchSearchQuery,
+    SearchSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
     approxsearchindex,
