@@ -51,5 +51,7 @@
             @test p == pos[j]
             j += 1
         end
+
+        @test collect(each(isambiguous, rna_seq)) == collect(zip(pos, (RNA(i) for i in "NRY")))
     end
 end

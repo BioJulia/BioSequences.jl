@@ -106,6 +106,8 @@ export
     ###
     ### BioSequences
     ###
+
+    join!,
     
     # Type & aliases
     BioSequence,
@@ -146,6 +148,7 @@ export
     LongRNASeq,
     LongAminoAcidSeq,
     LongCharSeq,
+    LongSubSeq,
     
     # Random
     SamplerUniform,
@@ -213,7 +216,8 @@ export
     Composition,
     composition,
     NucleicAcidCounts,
-    
+
+    translate!,
     translate,
     ncbi_trans_table,
     

@@ -46,7 +46,7 @@ end
 RNAMer(nts::Vararg{RNA,K}) where {K} = RNAMer{K}(nts)
 BigRNAMer(nts::Vararg{RNA,K}) where {K} = BigRNAMer{K}(nts)
 
-(::Type{T})(i::Integer) where {T<:AbstractMer} = T(unsigned(i))
+(::Type{T})(i::Signed) where {T<:AbstractMer} = T(unsigned(i))
 
 LongSequence{A}(x::AbstractMer{DNAAlphabet{2},K}) where {A<:DNAAlphabet,K} = LongSequence{A}([nt for nt in x])
 LongSequence{A}(x::AbstractMer{RNAAlphabet{2},K}) where {A<:RNAAlphabet,K} = LongSequence{A}([nt for nt in x])

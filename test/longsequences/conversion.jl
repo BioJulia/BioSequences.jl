@@ -92,7 +92,7 @@ end
 @testset "Encode_copy!" begin
     # Note: Other packages use this function, so we need to test it
     # Even though this is NOT exported or part of the API in a normal sense
-    function test_copyto!(dst::LongSequence{}, doff, src, soff, N)
+    function test_copyto!(dst::LongSequence, doff, src, soff, N)
         BioSequences.copyto!(dst, doff, src, soff, N)
         @test String(dst[doff:doff+N-1]) == String(src[soff:soff+N-1])
     end
@@ -119,6 +119,17 @@ end
             test_copyto!(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
         end
     end
+end
+
+@testset "Convert to same type" begin
+	function test_same_conversion(seq)
+		@test convert(typeof(seq), seq) === seq
+	end
+
+	test_same_conversion(random_dna(20))
+	test_same_conversion(random_rna(20))
+	test_same_conversion(random_aa(20))
+	test_same_conversion(LongSequence{CharAlphabet}("∈α"))
 end
 
 @testset "Conversion between 2-bit and 4-bit encodings" begin

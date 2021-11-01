@@ -1,3 +1,18 @@
+@testset "Basics" begin
+	seq = LongSequence()
+	@test seq isa LongSequence{BioSequences.VoidAlphabet}
+	@test isempty(seq)
+
+	@test similar(seq) == seq
+
+	seq = LongSequence{DNAAlphabet{2}}([DNA(i) for i in "TAGCA"])
+	@test seq isa LongSequence
+	@test seq isa LongSequence{DNAAlphabet{2}}
+	sim = similar(seq)
+	@test typeof(sim) == typeof(seq)
+	@test length(sim) == length(seq)
+end
+
 @testset "Copy sequence" begin
     # Test copy from sequence to sequence
     function test_copy(A, str)
@@ -12,11 +27,6 @@
         test_copy(AminoAcidAlphabet, random_aa(len))
         test_copy(CharAlphabet, random_aa(len))
     end
-
-    # Test copying shared seq
-    seq = LongSequence{DNAAlphabet{2}}(random_dna(50, [0.25, 0.25, 0.25, 0.25]))
-    seq2 = seq[5:44]
-    @test String(seq)[5:44] == String(seq2)
 end # testset
 
 @testset "Copy! sequence" begin
@@ -231,6 +241,29 @@ end
         chunk = random_rna(rand(1:100), probs)
         test_repetition(RNAAlphabet{2}, chunk)
     end
+end
+
+@testset "Join" begin
+    function test_join(::Type{T}, seqs, result) where T
+        @test join(T, seqs) == result
+        @test join!(T(), seqs) == result
+        long_seq = T(1000)
+        @test join!(long_seq, seqs) == result
+    end
+
+    base_seq = dna"TGATGCTAVWMMKACGAS" # used for seqviews in testing
+    test_join(LongDNASeq, [dna"TACG", mer"ACCTGT", @view(base_seq[16:18])], dna"TACGACCTGTGAS")
+    test_join(LongRNASeq, Set([]), LongRNASeq())
+
+    base_aa_seq = aa"KMAEEHPAIYWLMN"
+    test_join(LongAminoAcidSeq, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
+
+    test_join(LongSequence{DNAAlphabet{2}},
+        Iterators.filter(x -> true, map(each(DNAMer{3}, dna"ACGTAGC")) do kmer
+            kmer.fw
+        end),
+        LongSequence{DNAAlphabet{2}}("ACGCGTGTATAGAGC")
+    )
 end
 
 @testset "Length" begin

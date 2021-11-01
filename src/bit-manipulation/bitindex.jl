@@ -68,7 +68,10 @@ end
 # Create a bit mask that fills least significant `n` bits (`n` must be a
 # non-negative integer).
 "Create a bit mask covering the least significant `n` bits."
-bitmask(::Type{T}, n::Integer) where {T} = (one(T) << n) - one(T)
+function bitmask(::Type{T}, n::Integer) where {T}
+    topshift = 8 * sizeof(T) - 1
+    return ifelse(n > topshift, typemax(T), one(T) << (n & topshift) - one(T))
+end
 
 # Create a bit mask filling least significant N bits.
 # This is used in the extract_encoded_element function.
