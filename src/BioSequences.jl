@@ -180,7 +180,7 @@ export
     
     # Search
     MatchSearchQuery,
-    SearchSearchQuery,
+    CompatibleSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
     approxsearchindex,
