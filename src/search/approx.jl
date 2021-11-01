@@ -35,11 +35,10 @@ Create an query object for approximate sequence search from the `pat` sequence.
 
 # Arguments
 * `pat`: Query sequence.
-* `k`: The number of mismatches /errors permitted.
-* `direction=:both`: Search direction (`:forward`, `:backward`, or `:both`).
+* `k`: The number of mismatches / errors permitted.
 """
-function ApproximateSearchQuery(pat::BioSequence, k::Integer, direction::Symbol = :both)
-    return ApproximateSearchQuery{typeof(pat)}(pat, k, direction)
+function ApproximateSearchQuery(pat::BioSequence, k::Integer)
+    return ApproximateSearchQuery{typeof(pat)}(pat, k)
 end
 
 function approx_preprocess(pat)
