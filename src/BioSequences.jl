@@ -228,6 +228,7 @@ include("geneticcode.jl")
 
 
 # Pattern searching in sequences...
+include("search/exact.jl")
 include("search/searchquery.jl")
 include("search/approx.jl")
 include("search/re.jl")

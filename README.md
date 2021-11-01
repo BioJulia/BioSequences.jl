@@ -33,6 +33,7 @@ BioSequences is tested against Julia `1.X` on Linux, OS X, and Windows.
 [![Unit tests](https://github.com/BioJulia/BioSequences.jl/workflows/Unit%20tests/badge.svg?branch=master)](https://github.com/BioJulia/BioSequences.jl/actions?query=workflow%3A%22Unit+tests%22+branch%3Amaster)
 [![Documentation](https://github.com/BioJulia/BioSequences.jl/workflows/Documentation/badge.svg?branch=master)](https://github.com/BioJulia/BioSequences.jl/actions?query=workflow%3ADocumentation+branch%3Amaster)
 [![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)
+[![Downstream](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml/badge.svg)](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml)
 
 
 ## Contributing
