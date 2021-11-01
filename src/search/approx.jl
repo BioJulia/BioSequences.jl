@@ -44,7 +44,7 @@ end
 
 function approx_preprocess(pat)
     m = length(pat)
-    if m ≤ 64
+    if m > 64
         throw(ArgumentEror("query pattern sequence must have length of 64 or less"))
     end
     Σ = alphabet(eltype(pat))
