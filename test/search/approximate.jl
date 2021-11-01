@@ -2,11 +2,11 @@
     seq = dna"ACGTACG"
 
     @testset "forward" begin
-        @test findnext(ApproximateSearchQuery(dna"", 0), seq, 1) === 1:0
+        @test findnext(ApproximateSearchQuery(dna"", 0), seq, 1) === nothing
         @test findnext(ApproximateSearchQuery(dna"AC", 0), seq, 1) === 1:2
         @test findnext(ApproximateSearchQuery(dna"AC", 0), seq, 2) === 5:6
         #@test approxsearch(seq, dna"AC", 0, 2, 5) === 0:-1 make as view
-        @test findnext(ApproximateSearchQuery(dna"AT", 0), seq, 1) === 0:-1
+        @test findnext(ApproximateSearchQuery(dna"AT", 0), seq, 1) === nothing
         @test findnext(ApproximateSearchQuery(dna"AT", 1), seq, 1) === 1:1
         @test findnext(ApproximateSearchQuery(dna"AT", 1), seq, 2) === 3:4
         #@test approxsearch(seq, dna"AT", 1, 2, 3) === 0:-1 make as view
@@ -25,11 +25,11 @@
     @testset "backward" begin
         # TODO: maybe this should return 8:7 like rsearch
         
-        @test findprev(ApproximateSearchQuery(dna"", 0), seq, 7) === 7:6
+        @test findprev(ApproximateSearchQuery(dna"", 0), seq, 7) === nothing
         @test findprev(ApproximateSearchQuery(dna"AC", 0), seq, 7) === 5:6
         @test findprev(ApproximateSearchQuery(dna"AC", 0), seq, 5) === 1:2
         #@test approxsearch(seq, dna"AC", 0, 5, 2) === 0:-1 make as view
-        @test findprev(ApproximateSearchQuery(dna"AT", 0), seq, 7) === 0:-1
+        @test findprev(ApproximateSearchQuery(dna"AT", 0), seq, 7) === nothing
         @test findprev(ApproximateSearchQuery(dna"AT", 1), seq, 7) === 5:6
         @test findprev(ApproximateSearchQuery(dna"AT", 1), seq, 6) === 5:6
         @test findprev(ApproximateSearchQuery(dna"AT", 1), seq, 5) === 5:5
