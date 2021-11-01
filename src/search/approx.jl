@@ -68,7 +68,8 @@ Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function Base.findnext(query::ApproximateSearchQuery, seq::BioSequence, start::Integer)
-    return _approxsearch(query, seq, start, lastindex(seq), true)
+    r = _approxsearch(query, seq, start, lastindex(seq), true)
+    return ifelse(isempty(r), nothing, r)
 end
 
 # TODO: Needed?
@@ -81,7 +82,8 @@ Return the range of the last occurrence of `pat` in `seq[stop:start]` allowing
 up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
 """
 function Base.findprev(query::ApproximateSearchQuery, seq::BioSequence, start::Integer)
-    return _approxsearch(query, seq, start, firstindex(seq), false)
+    r = _approxsearch(query, seq, start, firstindex(seq), false)
+    return ifelse(isempty(r), nothing, r)
 end
 
 # TODO: Needed?
