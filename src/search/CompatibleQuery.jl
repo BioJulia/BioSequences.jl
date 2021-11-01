@@ -51,18 +51,18 @@ end
 # ---------------------
 
 """
-Query type for exact sequence search.
+Query type for compatible sequence search.
 """
-struct SearchQuery{S<:BioSequence}
+struct CompatibleQuery{S<:BioSequence}
     seq::S         # query sequence
     cbits::UInt32  # compatibility bits
     fshift::Int    # shift length for forward search
     bshift::Int    # shift length for backward search
 end
 
-function SearchQuery(query::BioSequence)
-    cbits, fshift, bshift = preprocess(query)
-    return SearchQuery(query, cbits, fshift, bshift)
+function CompatibleQuery(query::BioSequence)
+    cbits, fshift, bshift = search_preprocess(query)
+    return CompatibleQuery(query, cbits, fshift, bshift)
 end
 
 #  n = length(t)
@@ -76,7 +76,7 @@ end
 #      end
 #  end
 
-function preprocess(query::SearchQuery)
+function search_preprocess(query)
     if length(query) == 0
         return UInt32(0), 0, 0
     end
@@ -113,7 +113,7 @@ end
 
 # This algorithm is borrowed from base/strings/search.jl, which looks similar to
 # Sunday's Quick Search algorithm.
-function quicksearch(query::SearchQuery, seq, start, stop)
+function quicksearch(query::CompatibleQuery, seq, start, stop)
     pat = query.seq
     m = length(pat)
     n = length(seq)
@@ -157,13 +157,13 @@ function quicksearch(query::SearchQuery, seq, start, stop)
 end
 
 """
-    findnext(query::SearchQuery, seq::BioSequence, start::Integer)
+    findnext(query::CompatibleQuery, seq::BioSequence, start::Integer)
 
 Return the index of the first occurrence of `query` in `seq`.
 
 Symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findnext(query::SearchQuery, seq::BioSequence, start::Integer)
+function Base.findnext(query::CompatibleQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
     i = quicksearch(query, seq, start, lastindex(seq))
     if i == 0
@@ -173,13 +173,13 @@ function Base.findnext(query::SearchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-Base.findfirst(query::SearchQuery, seq::BioSequence) = findnext(query, seq, firstindex(seq))
+Base.findfirst(query::CompatibleQuery, seq::BioSequence) = findnext(query, seq, firstindex(seq))
 
 
 # Backward
 # --------
 
-function quickrsearch(query::SearchQuery, seq, start, stop)
+function quickrsearch(query::CompatibleQuery, seq, start, stop)
     pat = query.seq
     m = length(pat)
     n = length(seq)
@@ -223,12 +223,12 @@ function quickrsearch(query::SearchQuery, seq, start, stop)
 end
 
 """
-    findprev(query::SearchQuery, seq::BioSequence, start::Integer)
+    findprev(query::CompatibleQuery, seq::BioSequence, start::Integer)
 
 Return the index of the last occurrence of `query` in `seq`.
 Symbol comparison is done using `BioSequences.iscompatible`.
 """
-function Base.findprev(query::SearchQuery, seq::BioSequence, start::Integer)
+function Base.findprev(query::CompatibleQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
     i = quickrsearch(query, seq, start, 1)
     if i == 0
@@ -238,11 +238,11 @@ function Base.findprev(query::SearchQuery, seq::BioSequence, start::Integer)
     end
 end
 
-Base.findlast(query::SearchQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
+Base.findlast(query::CompatibleQuery, seq::BioSequence) = findprev(query, seq, lastindex(seq))
 
 """
-    occursin(x::SearchQuery, y::BioSequence)
+    occursin(x::CompatibleQuery, y::BioSequence)
 
 Return Bool indicating presence of exact match of x in y.
 """
-Base.occursin(x::SearchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0
+Base.occursin(x::CompatibleQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0

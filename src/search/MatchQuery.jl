@@ -62,18 +62,18 @@ struct MatchQuery{S<:BioSequence}
 end
 
 function MatchQuery(query::BioSequence)
-    cbits, fshift, bshift = preprocess(query)
+    cbits, fshift, bshift = match_preprocess(query)
     return MatchQuery(query, cbits, fshift, bshift)
 end
 
 """
-    preprocess(query::MatchQuery)
+    match_preprocess(query)
 
 Preprocesses a search query by building the bloom mask
 and computing shift values for quicksearch algorithm in
 advance.
 """
-function preprocess(query::MatchQuery)
+function match_preprocess(query)
     if length(query) == 0
         return UInt32(0), 0, 0
     end
