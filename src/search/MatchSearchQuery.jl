@@ -229,7 +229,7 @@ Symbol comparison is done using `BioSequences.iscompatible`.
 """
 function Base.findprev(query::MatchQuery, seq::BioSequence, start::Integer)
     checkeltype(seq, query.seq)
-    i = quickrsearch(seq, query, start, 1)
+    i = quickrsearch(query, seq, start, 1)
     if i == 0
         return nothing
     else
