@@ -171,28 +171,19 @@ export
     n_ambiguous,
     n_gaps,
     n_certain,
-    
     gc_content,
-
     translate!,
     translate,
     ncbi_trans_table,
     
     # Search
-    #MatchSearchQuery,
     ExactSearchQuery,
-    #CompatibleSearchQuery,
     ApproximateSearchQuery,
-    approxsearch,
-    approxsearchindex,
-    approxrsearch,
-    approxrsearchindex,
     PFM,
     PWM,
     PWMSearchQuery,
     maxscore,
     scoreat,
-    
     seqmatrix,
     majorityvote
 
