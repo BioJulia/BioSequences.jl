@@ -61,10 +61,9 @@ julia> occursin(query, seq)
 true
 ```
 
-By default `ExactSearchQuery` uses `isequal` as the function to compare symbols.
-However in biology, sometimes we want to be a little bit flexible, and perhaps
-find subsequences where the symbols are _compatible_ with each other. To do this,
-we can specify the `iscompatible` function in the constructor of `ExactSearchQuery`.
+By default, `ExactSearchQuery` uses the `isequal` function to compare symbols. 
+However, in biology, sometimes we want a more flexible comparison to find subsequences of _compatible_ symbols. 
+To do this, we can specify the `iscompatible` function in the constructor of `ExactSearchQuery`.
 
 ```jldoctest
 julia> findfirst(ExactSearchQuery(dna"CGT", iscompatible), dna"ACNT")  # 'N' matches 'G'
