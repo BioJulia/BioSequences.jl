@@ -360,10 +360,6 @@ struct PWMSearchQuery{S,T,R<:Real}
     threshold::R
 end
 
-function PWMSearchQuery(pwm::PWM{S,T}, threshold::R) where {S,T,R<:Real}
-    return PWMSearchQuery{S,T,R}(pwm, threshold)
-end
-
 function PWMSearchQuery(sequences, threshold::Real, prior = fill(1 / 4, 4))
     pfm = PFM(sequences)
     pwm = PWM(pfm .+ 0.01, prior = prior)
