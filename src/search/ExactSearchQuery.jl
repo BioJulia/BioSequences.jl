@@ -161,7 +161,8 @@ end
 
 Return the index of the first occurrence of `query` in `seq`.
 
-Symbol comparison is done using `BioSequences.iscompatible`.
+Symbol comparison is done using the predicate supplied to the query.
+By default, `ExactSearchQuery`'s predicate is `isequal`.
 """
 function Base.findnext(query::ExactSearchQuery, seq::BioSequence, start::Integer)
     i = quicksearch(query, seq, start, lastindex(seq))
