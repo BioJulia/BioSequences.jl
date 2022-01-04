@@ -42,6 +42,9 @@ julia> findfirst(query, 2, seq)  # seq[1:4] matches with two errors
 You can pass a comparator function such as `isequal` or `iscompatible` to its
 constructor to modify the search behaviour.
 
+The default is `isequal`, however, in biology, sometimes we want a more flexible
+comparison to find subsequences of _compatible_ symbols.
+
 ```jldoctest
 julia> query = ApproximateSearchQuery(dna"AGGG", iscompatible);
 

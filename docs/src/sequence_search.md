@@ -16,66 +16,22 @@ There are many ways to search for particular motifs in biological sequences:
 3. Searches where you are looking for sequences that conform to some sort of
    pattern.
 
+Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern. 
+
 All these kinds of searches are provided in BioSequences.jl, and they all 
 conform to the `findnext`, `findprev`, and `occursin` patterns established in `Base` for
-`String` and collections like `Vector`. The exception is searching using the specialised
+`String` and collections like `Vector`.
+
+The exception is searching using the specialised
 regex provided in this package, which as you shall see, conforms to the `match`
 pattern established in `Base` for pcre and `String`s.
 
 
 ## Exact search
 
-Exact searches, are where you are looking for exact matches of a particular
-character of substring.
-
-Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern. 
-The method applies the predicate function to elements in the collection, and when the predicate evaluates as `true`, the method returns the index of the element. 
-If the predicate does not evaluate as `true` for any elements in the collection, the method returns `nothing`.
-
-For example, the following will find the first exact match of a specific
-symbol.
-
-```jldoctest
-julia> findfirst(isequal(DNA_A), dna"GCTTAG")
-5
-
-julia> findfirst(isequal(DNA_M), dna"GCTTAG") === nothing
-true
+```@docs
+ExactSearchQuery
 ```
-
-To search for a subsequence, first, construct an `ExactSearchQuery` to pass to
-the findX functions.
-
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT";
-
-julia> query = ExactSearchQuery(dna"AGC");
-
-julia> findfirst(query, seq)
-3:5
-
-julia> findlast(query, seq)
-8:10
-
-julia> occursin(query, seq)
-true
-```
-
-By default, `ExactSearchQuery` uses the `isequal` function to compare symbols. 
-However, in biology, sometimes we want a more flexible comparison to find subsequences of _compatible_ symbols. 
-To do this, we can specify the `iscompatible` function in the constructor of `ExactSearchQuery`.
-
-```jldoctest
-julia> findfirst(ExactSearchQuery(dna"CGT", iscompatible), dna"ACNT")  # 'N' matches 'G'
-2:4
-
-julia> findfirst(ExactSearchQuery(dna"CNT", iscompatible), dna"ACGT")  # 'G' matches 'N'
-2:4
-
-julia> occursin(ExactSearchQuery(dna"CNT", iscompatible), dna"ACNT")
-true
-```
-
 
 ## Allowing mismatches
 

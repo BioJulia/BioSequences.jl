@@ -1,5 +1,49 @@
 """
+    ExactSearchQuery{F<:Function,S<:BioSequence}
+
 Query type for exact sequence search.
+
+An exact search, is one where are you are looking in some given sequence, for
+exact instances of some given substring.
+
+These queries are used as a predicate for the `Base.findnext`, `Base.findprev`,
+`Base.occursin`, `Base.findfirst`, and `Base.findlast` functions.
+
+# Examples
+
+```jldoctest
+julia> seq = dna"ACAGCGTAGCT";
+
+julia> query = ExactSearchQuery(dna"AGC");
+
+julia> findfirst(query, seq)
+3:5
+
+julia> findlast(query, seq)
+8:10
+
+julia> occursin(query, seq)
+true
+
+```
+
+You can pass a comparator function such as `isequal` or `iscompatible` to its
+constructor to modify the search behaviour.
+
+The default is `isequal`, however, in biology, sometimes we want a more flexible
+comparison to find subsequences of _compatible_ symbols.
+
+```jldoctest
+julia> findfirst(ExactSearchQuery(dna"CGT", iscompatible), dna"ACNT")  # 'N' matches 'G'
+2:4
+
+julia> findfirst(ExactSearchQuery(dna"CNT", iscompatible), dna"ACGT")  # 'G' matches 'N'
+2:4
+
+julia> occursin(ExactSearchQuery(dna"CNT", iscompatible), dna"ACNT")
+true
+
+```
 """
 struct ExactSearchQuery{F<:Function,S<:BioSequence}
     comparator::F       # comparator function
@@ -9,35 +53,44 @@ struct ExactSearchQuery{F<:Function,S<:BioSequence}
     bshift::Int         # shift length for backward search
 end
 
-function ExactSearchQuery(query::BioSequence, comparator::Function = isequal)
-    T = ExactSearchQuery{typeof(comparator),typeof(query)}
+"""
+    ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
+
+Construct an [`ExactSearchQuery`](@ref) predicate for use with Base find functions.
+
+# Arguments
+- `pat`: A concrete BioSequence that is the sub-sequence you want to search for.
+- `comparator`: A function used to compare the symbols between sequences. `isequal` by default.
+"""
+function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
+    T = ExactSearchQuery{typeof(comparator),typeof(pat)}
     
-    m = length(query)
+    m = length(pat)
     if m == 0
-        return T(comparator, query, UInt64(0), 0, 0)
+        return T(comparator, pat, UInt64(0), 0, 0)
     end
     
-    first = query[1]
-    last = query[end]
+    first = pat[1]
+    last = pat[end]
     bloom_mask = zero(UInt64)
     fshift = bshift = m
     
     for i in 1:lastindex(query)
-        x = query[i]
+        x = pat[i]
         bloom_mask |= _bloom_bits(typeof(comparator), x)
         if comparator(x, last) && i < m
             fshift = m - i
         end
     end
     
-    for i in lastindex(query):-1:1
-        x = query[i]
+    for i in lastindex(pat):-1:1
+        x = pat[i]
         if comparator(x, first) && i > 1
             bshift = i - 1
         end
     end
     
-    return T(comparator, query, bloom_mask, fshift, bshift)
+    return T(comparator, pat, bloom_mask, fshift, bshift)
 end
 
 
