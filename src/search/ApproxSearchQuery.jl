@@ -57,7 +57,8 @@ Base.findfirst(query::ApproximateSearchQuery, k::Integer, seq::BioSequence) = fi
     findprev(query, k, seq, start)
 
 Return the range of the last occurrence of `query` in `seq[stop:start]` allowing
-up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
+up to `k` errors; symbol comparison is done using the predicate function supplied to the query. 
+By default, `ApproxSearchQuery`'s predicate is`BioSequences.iscompatible`.
 """
 function Base.findprev(query::ApproximateSearchQuery, k::Integer, seq::BioSequence, start::Integer)
     return _approxsearch(query, k, seq, start, firstindex(seq), false)
