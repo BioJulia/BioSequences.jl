@@ -79,7 +79,6 @@ true
 
 ## Allowing mismatches
 
-
 ```@docs
 ApproximateSearchQuery
 ```
