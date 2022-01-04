@@ -17,8 +17,10 @@ There are many ways to search for particular motifs in biological sequences:
    pattern.
 
 All these kinds of searches are provided in BioSequences.jl, and they all 
-conform to the `findnext` and `findprev` pattern established in `Base` for
-`String` and collections like `Vector`.
+conform to the `findnext`, `findprev`, and `occursin` patterns established in `Base` for
+`String` and collections like `Vector`. The exception is searching using the specialised
+regex provided in this package, which as you shall see, conforms to the `match`
+pattern established in `Base` for pcre and `String`s.
 
 
 ## Exact search
@@ -43,11 +45,13 @@ julia> findfirst(isequal(DNA_M), dna"GCTTAG") === nothing
 true
 ```
 
-Sequences may also be effectively searched for the occurence of subsequences:
+To search for a subsequence, first, construct an `ExactSearchQuery` to pass to
+the findX functions.
+
 ```jldoctest
 julia> seq = dna"ACAGCGTAGCT";
 
-julia> query = dna"AGC";
+julia> query = ExactSearchQuery(dna"AGC");
 
 julia> findfirst(query, seq)
 3:5
@@ -59,96 +63,74 @@ julia> occursin(query, seq)
 true
 ```
 
-
-## Approximate search
-
-An approximate search is for when you are looking for sequences that are 
-sufficiently similar to a given sequence or family of sequences.
-
-
-### Compatible sequences
-
-Sometimes, instead of searching for an exact match for a symbol or subsequence,
-you are happy for your search to return symbols or subsequences that are
-_compatible_ with your query.
-
-Searching for _compatible_ symbols or subsequences means simply taking ambiguous
-symbols into account.
-
-That is, if two symbols are compatible (e.g. `DNA_A` and `DNA_N`), they match
-when searching an occurrence, whereas they would not in an exact search.
-In the following example, 'N' is a wild card that matches any symbols.
-The compatibility of symbols can be checked with `iscompatible`, and is
-typically defined according to the IUPAC alphabets.
-
-To perform such a search that returns compatible results, simply wrap your
-query pattern in a `SearchQuery` before passing it to one of the find functions.
-
-!!! tip
-   Constructing `SearchQuery`s requires some preprocessing, so if you're running
-   the same query across many sequences, try constructing it first, and then
-   passing it as a variable to `findfirst`!
+By default `ExactSearchQuery` uses `isequal` as the function to compare symbols.
+However in biology, sometimes we want to be a little bit flexible, and perhaps
+find subsequences where the symbols are _compatible_ with each other. To do this,
+we can specify the `iscompatible` function in the constructor of `ExactSearchQuery`.
 
 ```jldoctest
-julia> findfirst(SearchQuery(dna"CGT"), dna"ACNT")  # 'N' matches 'G'
+julia> findfirst(ExactSearchQuery(dna"CGT", iscompatible), dna"ACNT")  # 'N' matches 'G'
 2:4
 
-julia> findfirst(SearchQuery(dna"CNT"), dna"ACGT")  # 'G' matches 'N'
+julia> findfirst(ExactSearchQuery(dna"CNT", iscompatible), dna"ACGT")  # 'G' matches 'N'
 2:4
 
-julia> occursin(SearchQuery(dna"CNT"), dna"ACNT")
+julia> occursin(ExactSearchQuery(dna"CNT", iscompatible), dna"ACNT")
 true
 ```
 
 
-### Allowing mismatches
+## Allowing mismatches
 
 The approximate search is similar to the exact search but allows a specific
 number of errors. That is, it tries to find a subsequence of the target sequence
 within a specific [Levenshtein
 distance](https://en.wikipedia.org/wiki/Levenshtein_distance) of the query
 sequence:
+
 ```jldoctest
 julia> seq = dna"ACAGCGTAGCT";
 
-julia> approxsearch(seq, dna"AGGG", 0)  # nothing matches with no errors
+julia> query = ApproximateSearchQuery(dna"AGGG");
 
-julia> approxsearch(seq, dna"AGGG", 1)  # seq[3:6] matches with one error
+julia> findfirst(query, 0, seq)  # nothing matches with no errors
+nothing
+
+julia> findfirst(query, 1, seq)  # seq[3:6] matches with one error
 3:6
 
-julia> approxsearch(seq, dna"AGGG", 2)  # seq[1:4] matches with two errors
+julia> findfirst(query, 2, seq)  # seq[1:4] matches with two errors
 1:4
 
 ```
 
-Like the exact search functions, four kinds of functions (`approxsearch`,
-`approxsearchindex`, `approxrsearch`, and `approxrsearchindex`) are available:
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT"; pat = dna"AGGG";
+Like the `ExactSearchQuery`, all the findX functions including `findfirst`,
+`findlast`, `findnext`, `findprev`, and `occursin` can be used with
+`ApproximateSearchQuery`, you simply have to provide the query as the first parameter,
+and the number of mismatches you will allow as the second.
 
-julia> approxsearch(seq, pat, 2)        # return the range (forward)
-1:4
-
-julia> approxsearchindex(seq, pat, 2)   # return the starting index (forward)
-1
-
-julia> approxrsearch(seq, pat, 2)       # return the range (backward)
-8:11
-
-julia> approxrsearchindex(seq, pat, 2)  # return the starting index (backward)
-8
-
-```
-
-Preprocessing can be cached in an `ApproximateSearchQuery` object:
 ```jldoctest
 julia> query = ApproximateSearchQuery(dna"AGGG");
 
-julia> approxsearch(dna"AAGAGG", query, 1)
-2:5
+julia> occursin(query, 1, dna"AAGAGG")
+true
 
-julia> approxsearch(dna"ACTACGT", query, 2)
+julia> findnext(query, 2, dna"ACTACGT", 1)
 4:6
+
+```
+
+Also, like the `ExactSearchQuery`, you can pass a comparator function such as
+`isequal` or `iscompatible` to its constructor to modify the search behaviour.
+
+```jldoctest
+julia> query = ApproximateSearchQuery(dna"AGGG", iscompatible);
+
+julia> occursin(query, 1, dna"AAGNGG")    # 1 mismatch permitted (A vs G) & matched N
+true
+
+julia> findnext(query, 1, dna"AAGNGG", 1) # 1 mismatch permitted (A vs G) & matched N
+1:4
 
 ```
 
@@ -210,7 +192,8 @@ The table below summarizes available syntax elements.
 | `(...)` | pattern grouping | `"(TA)+"` matches `"TA"` and `"TATA"` |
 | `[...]` | one of symbols | `"[ACG]+"` matches `"AGGC"` |
 
-`eachmatch` and `findfirst` are also defined like usual strings:
+`eachmatch` and `findfirst` are also defined, just like usual regex and strings
+found in `Base`.
 
 ```jldoctest
 julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap

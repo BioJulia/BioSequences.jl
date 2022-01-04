@@ -630,7 +630,7 @@ function Base.:(==)(x::Regex, y::Regex)
 end
 
 """
-    BioRegexMatch
+    RegexMatch
 
 Result of matching by `Regex`.
 

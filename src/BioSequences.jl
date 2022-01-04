@@ -179,8 +179,9 @@ export
     ncbi_trans_table,
     
     # Search
-    MatchSearchQuery,
-    CompatibleSearchQuery,
+    #MatchSearchQuery,
+    ExactSearchQuery,
+    #CompatibleSearchQuery,
     ApproximateSearchQuery,
     approxsearch,
     approxsearchindex,
@@ -229,9 +230,8 @@ include("geneticcode.jl")
 
 
 # Pattern searching in sequences...
-include("search/MatchSearchQuery.jl")
-include("search/CompatibleSearchQuery.jl")
-include("search/approx.jl")
+include("search/ExactSearchQuery.jl")
+include("search/ApproxSearchQuery.jl")
 include("search/re.jl")
 include("search/pwm.jl")
 
