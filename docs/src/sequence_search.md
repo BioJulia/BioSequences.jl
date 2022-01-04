@@ -101,10 +101,9 @@ julia> findfirst(query, 2, seq)  # seq[1:4] matches with two errors
 
 ```
 
-Like the `ExactSearchQuery`, all the findX functions including `findfirst`,
-`findlast`, `findnext`, `findprev`, and `occursin` can be used with
-`ApproximateSearchQuery`, you simply have to provide the query as the first parameter,
-and the number of mismatches you will allow as the second.
+Like the `ExactSearchQuery`, all the findX methods, including `findfirst`,
+ `findlast`, `findnext`, `findprev`, and `occursin` can be used with
+ `ApproximateSearchQuery`, you simply have to provide the query as the first parameter and the number of mismatches you will allow as the second.
 
 ```jldoctest
 julia> query = ApproximateSearchQuery(dna"AGGG");
