@@ -75,7 +75,7 @@ function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
     bloom_mask = zero(UInt64)
     fshift = bshift = m
     
-    for i in 1:lastindex(query)
+    for i in 1:lastindex(pat)
         x = pat[i]
         bloom_mask |= _bloom_bits(typeof(comparator), x)
         if comparator(x, last) && i < m
