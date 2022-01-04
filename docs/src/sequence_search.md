@@ -306,8 +306,8 @@ probability ``p(s)`` as follows ([Wasserman2004]):
 \end{align}
 ```
 
-However, if you just want to quickly conduct a search, constructing the pfm and
-pwm is done for you as a convenience if you build a `PWMSearchQuery`, using a
+However, if you just want to quickly conduct a search, constructing the PFM and
+PWM is done for you as a convenience if you build a `PWMSearchQuery`, using a
 collection of sequences:
 
 ```jldoctest
