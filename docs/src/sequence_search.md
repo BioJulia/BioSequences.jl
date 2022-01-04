@@ -28,11 +28,9 @@ pattern established in `Base` for pcre and `String`s.
 Exact searches, are where you are looking for exact matches of a particular
 character of substring.
 
-Similar to other Julia sequences like `Vector`, a `BioSequence` can be searched
-using a function. This returns the index of the element matching where the
-function returns `true`, or `nothing` if no elements were found:
-
-Therefore you can search using the `findfirst(predicate, collection)` pattern.
+Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern. 
+The method applies the predicate function to elements in the collection, and when the predicate evaluates as `true`, the method returns the index of the element. 
+If the predicate does not evaluate as `true` for any elements in the collection, the method returns `nothing`.
 
 For example, the following will find the first exact match of a specific
 symbol.
