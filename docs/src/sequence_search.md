@@ -79,64 +79,10 @@ true
 
 ## Allowing mismatches
 
-The approximate search is similar to the exact search but allows a specific
-number of errors. That is, it tries to find a subsequence of the target sequence
-within a specific [Levenshtein
-distance](https://en.wikipedia.org/wiki/Levenshtein_distance) of the query
-sequence:
 
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT";
-
-julia> query = ApproximateSearchQuery(dna"AGGG");
-
-julia> findfirst(query, 0, seq)  # nothing matches with no errors
-nothing
-
-julia> findfirst(query, 1, seq)  # seq[3:6] matches with one error
-3:6
-
-julia> findfirst(query, 2, seq)  # seq[1:4] matches with two errors
-1:4
-
+```@docs
+ApproximateSearchQuery
 ```
-
-Like the `ExactSearchQuery`, all the findX methods, including `findfirst`,
- `findlast`, `findnext`, `findprev`, and `occursin` can be used with
- `ApproximateSearchQuery`, you simply have to provide the query as the first parameter and the number of mismatches you will allow as the second.
-
-```jldoctest
-julia> query = ApproximateSearchQuery(dna"AGGG");
-
-julia> occursin(query, 1, dna"AAGAGG")
-true
-
-julia> findnext(query, 2, dna"ACTACGT", 1)
-4:6
-
-```
-
-Also, like the `ExactSearchQuery`, you can pass a comparator function such as
-`isequal` or `iscompatible` to its constructor to modify the search behaviour.
-
-```jldoctest
-julia> query = ApproximateSearchQuery(dna"AGGG", iscompatible);
-
-julia> occursin(query, 1, dna"AAGNGG")    # 1 mismatch permitted (A vs G) & matched N
-true
-
-julia> findnext(query, 1, dna"AAGNGG", 1) # 1 mismatch permitted (A vs G) & matched N
-1:4
-
-```
-
-!!! note
-   This method of searching for motifs was implemented with smaller query motifs
-   in mind.
-   
-   If you are looking to search for imperfect matches of longer sequences in this
-   manner, you are likely better off using some kind of local-alignment algorithm
-   or one of the BLAST variants.
 
 ## Searching according to a pattern
 
