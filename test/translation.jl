@@ -33,16 +33,29 @@
     end
 
     function check_translate(seq::AbstractString)
-        return string_translate(seq) == String(translate(LongRNASeq(seq)))
+        return string_translate(seq) == String(translate(LongRNA{4}(seq)))
     end
 
     aas = aa""
     global reps = 10
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_translate(random_translatable_rna(len)) for _ in 1:reps])
-        seq = LongDNASeq(LongRNASeq(random_translatable_rna(len)))
+        seq = LongDNA{4}(LongRNA{4}(random_translatable_rna(len)))
         @test translate!(aas, seq) == translate(seq)
     end
+
+    # Basics
+    @test length(BioSequences.standard_genetic_code) == 64
+    buf = IOBuffer()
+    show(buf, BioSequences.standard_genetic_code)
+    @test !iszero(length(take!(buf))) # just test it doesn't error
+
+    # TransTables
+    @test BioSequences.TransTables() isa BioSequences.TransTables
+    @test BioSequences.ncbi_trans_table[1] === BioSequences.standard_genetic_code
+    buf = IOBuffer()
+    show(buf, BioSequences.ncbi_trans_table)
+    @test !iszero(length(take!(buf)))
 
     # ambiguous codons
     @test translate(rna"YUGMGG") == aa"LR"
@@ -52,7 +65,7 @@
     @test translate(LongSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
     @test translate(LongSequence{DNAAlphabet{2}}("AAATTTGGGCCC")) == translate(dna"AAATTTGGGCCC")
 
-    # LongDNASeq
+    # LongDNA{4}
     @test translate(dna"ATGTAA") == aa"M*"
 
     # Alternative start codons
@@ -64,11 +77,4 @@
 
     # issue #133
     @test translate(rna"GAN") == aa"X"
-
-    # Translate kmers
-    for T in (RNACodon, DNACodon)
-        @test translate(T(mer"TAG")) == AA_Term
-        @test translate(T(mer"AAC")) == AA_N
-        @test translate(T(mer"CCT")) == AA_P
-    end
 end

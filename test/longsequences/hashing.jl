@@ -19,15 +19,15 @@
 	@test hash(s[2:4]) == hash(v[2:4])
 
 	for i in 1:4
-		s1 = LongDNASeq("A"^(i-1))
-		s2 = LongDNASeq("A"^i)
+		s1 = LongDNA{4}("A"^(i-1))
+		s2 = LongDNA{4}("A"^i)
 		@test hash(s1) != hash(s2)
 		v1 = view(s2, 1:lastindex(s2) - 1)
 		v2 = view(s2, 1:lastindex(s2))
 		@test hash(v1) != hash(v2)
 	end
 
-    for n in 1:20, seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
+    for n in [1, 2, 3, 6, 8, 9, 11, 15, 16, 20], seq in [dna"A", dna"AC", dna"ACG", dna"ACGT", dna"ACGTN"]
         @test hash(seq^n) === hash((dna""     * seq^n)[1:end])
         @test hash(seq^n) === hash((dna"T"    * seq^n)[2:end])
         @test hash(seq^n) === hash((dna"TT"   * seq^n)[3:end])
@@ -46,14 +46,7 @@
     @test hash(aa"MTTQAPMFTQPLQ") === hash(aa"MTTQAPMFTQPLQ")
     @test hash(aa"MTTQAPMFTQPLQ"[5:10]) === hash(aa"APMFTQ")
 
-    @testset "MinHash" begin
-        seq = LongDNASeq(random_dna(1000))
-        h = minhash(seq, 10, 100)
-
-        @test length(h) == 100
-        @test h == minhash(seq, 10, 100)
-
-        @test_throws BoundsError h[101]
-    end
-
+	# Test hash of longer view to engange some inner loops
+	seq = randdnaseq(250)
+	@test hash(seq[33:201]) == hash(view(seq, 33:201))
 end

@@ -5,138 +5,50 @@ DocTestSetup = quote
 end
 ```
 
-# Sequence search
+# Searching for sequence motifs
 
-Three kinds of on-line search functions are provided:
+There are many ways to search for particular motifs in biological sequences:
 
-1. Exact search
-2. Approximate search
-3. Regular expression search
+1. Exact searches, where you are looking for exact matches of a particular
+   character of substring.
+2. Approximate searches, where you are looking for sequences that are
+   sufficiently similar to a given sequence or family of sequences.
+3. Searches where you are looking for sequences that conform to some sort of
+   pattern.
 
-These are all specialized for biological sequences and ambiguities of symbols
-are considered.
+Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern. 
+
+All these kinds of searches are provided in BioSequences.jl, and they all 
+conform to the `findnext`, `findprev`, and `occursin` patterns established in `Base` for
+`String` and collections like `Vector`.
+
+The exception is searching using the specialised
+regex provided in this package, which as you shall see, conforms to the `match`
+pattern established in `Base` for pcre and `String`s.
+
 
 ## Exact search
 
-Exact search functions search for an occurrence of the query symbol or
-sequence.
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT";
-
-julia> findfirst(DNA_G, seq)
-4
-
-julia> query = dna"AGC";
-
-julia> findfirst(query, seq)
-3:5
-
-julia> findlast(query, seq)
-8:10
-
-julia> occursin(query, seq)
-true
+```@docs
+ExactSearchQuery
 ```
 
-These search functions take ambiguous symbols into account.
-That is, if two symbols are compatible (e.g. `DNA_A` and `DNA_N`),
-they match when searching an occurrence.
-In the following example, 'N' is a wild card that matches any symbols.
+## Allowing mismatches
 
-```jldoctest
-julia> findfirst(dna"CGT", dna"ACNT")  # 'N' matches 'G'
-2:4
-
-julia> findfirst(dna"CNT", dna"ACGT")  # 'G' matches 'N'
-2:4
-
-julia> occursin(dna"CNT", dna"ACNT")
-true
+```@docs
+ApproximateSearchQuery
 ```
 
-The exception to this behaviour is if you are finding a single 'character',
-in which case an ambiguous symbol is matched exactly:
+## Searching according to a pattern
 
-```jldoctest
-julia> findfirst(DNA_N, dna"ACNT")
-3
-
-```
-
-The exact sequence search needs a preprocessing phase of query sequence before
-the searching phase. This would be fast enough for most search applications.
-But when searching a query sequence to many target sequences, caching
-the result of preprocessing may save time. You can do this by creating an
-`ExactSearchQuery` object and re-use it for each search:
-```jldoctest
-julia> query = ExactSearchQuery(dna"ATT");
-
-julia> findfirst(query, dna"ATTTATT")
-1:3
-
-julia> findlast(query, dna"ATTTATT")
-5:7
-
-julia> occursin(query, dna"ATTTATT")
-true
-```
-
-## Approximate search
-
-The approximate search is similar to the exact search but allows a specific
-number of errors. That is, it tries to find a subsequence of the target sequence
-within a specific [Levenshtein
-distance](https://en.wikipedia.org/wiki/Levenshtein_distance) of the query
-sequence:
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT";
-
-julia> approxsearch(seq, dna"AGGG", 0)  # nothing matches with no errors
-0:-1
-
-julia> approxsearch(seq, dna"AGGG", 1)  # seq[3:6] matches with one error
-3:6
-
-julia> approxsearch(seq, dna"AGGG", 2)  # seq[1:4] matches with two errors
-1:4
-
-```
-
-Like the exact search functions, four kinds of functions (`approxsearch`,
-`approxsearchindex`, `approxrsearch`, and `approxrsearchindex`) are available:
-```jldoctest
-julia> seq = dna"ACAGCGTAGCT"; pat = dna"AGGG";
-
-julia> approxsearch(seq, pat, 2)        # return the range (forward)
-1:4
-
-julia> approxsearchindex(seq, pat, 2)   # return the starting index (forward)
-1
-
-julia> approxrsearch(seq, pat, 2)       # return the range (backward)
-8:11
-
-julia> approxrsearchindex(seq, pat, 2)  # return the starting index (backward)
-8
-
-```
-
-Preprocessing can be cached in an `ApproximateSearchQuery` object:
-```jldoctest
-julia> query = ApproximateSearchQuery(dna"AGGG");
-
-julia> approxsearch(dna"AAGAGG", query, 1)
-2:5
-
-julia> approxsearch(dna"ACTACGT", query, 2)
-4:6
-
-```
-
-## Regular expression search
+### Regular expression search
 
 Query patterns can be described in regular expressions. The syntax supports
 a subset of Perl and PROSITE's notation.
+
+Biological regexes can be constructed using the `BioRegex` constructor, for
+example by doing `BioRegex{AminoAcid}("MV+")`. For bioregex literals, it is
+instead recommended using the `@biore_str` macro:
 
 The Perl-like syntax starts with `biore` (BIOlogical REgular expression)
 and ends with a symbol option: "dna", "rna" or "aa". For example, `biore"A+"dna`
@@ -160,8 +72,7 @@ false
 
 ```
 
-`match` will return a `RegexMatch` if a match is found, otherwise it will return
-`nothing` if no match is found.
+`match` will return a `RegexMatch` if a match is found, otherwise it will return `nothing` if no match is found.
 
 The table below summarizes available syntax elements.
 
@@ -178,18 +89,19 @@ The table below summarizes available syntax elements.
 | `(...)` | pattern grouping | `"(TA)+"` matches `"TA"` and `"TATA"` |
 | `[...]` | one of symbols | `"[ACG]+"` matches `"AGGC"` |
 
-`eachmatch` and `findfirst` are also defined like usual strings:
+`eachmatch` and `findfirst` are also defined, just like usual regex and strings
+found in `Base`.
 
 ```jldoctest
 julia> collect(matched(x) for x in eachmatch(biore"TATA*?"d, dna"TATTATAATTA")) # overlap
-4-element Array{LongSequence{DNAAlphabet{4}},1}:
+4-element Vector{LongSequence{DNAAlphabet{4}}}:
  TAT  
  TAT
  TATA
  TATAA
 
 julia> collect(matched(x) for x in eachmatch(biore"TATA*"d, dna"TATTATAATTA", false)) # no overlap
-2-element Array{LongSequence{DNAAlphabet{4}},1}:
+2-element Vector{LongSequence{DNAAlphabet{4}}}:
  TAT  
  TATAA
 
@@ -222,21 +134,22 @@ RegexMatch("CPVPQARG")
 ```
 
 
-## Position weight matrix search
+### Position weight matrix search
 
-A motif can also be specified using [position weight
+A motif can be specified using [position weight
 matrix](https://en.wikipedia.org/wiki/Position_weight_matrix) (PWM) in a
-probabilistic way. `search(seq, pwm, threshold)` method searches for the first
-position in the sequence where a score calculated using the PWM is greater than
-or equal to the threshold. More formally, denoting the sequence as ``S`` and the
-PWM value of symbol ``s`` at position ``j`` as ``M_{s,j}``, the score starting
-from a position ``p`` is defined as
+probabilistic way. 
+This method searches for the first position in the sequence where a score
+calculated using a PWM is greater than or equal to a threshold.
+More formally, denoting the sequence as ``S`` and the PWM value of symbol ``s``
+at position ``j`` as ``M_{s,j}``, the score starting from a position ``p`` is
+defined as
 
 ```math
 \operatorname{score}(S, p) = \sum_{i=1}^L M_{S[p+i-1],i}
 ```
 
-and `search(S, M, t)` returns the smallest ``p`` that satisfies
+and the search returns the smallest ``p`` that satisfies
 ``\operatorname{score}(S, p) \ge t``.
 
 There are two kinds of matrices in this package: `PFM` and `PWM`. The `PFM` type
@@ -246,37 +159,37 @@ position. You can create a `PFM` from a set of sequences with the same length
 and then create a `PWM` from the `PFM` object.
 
 ```jldoctest
-julia> kmers = DNAMer.(["TTA", "CTA", "ACA", "TCA", "GTA"])
-5-element Array{Mer{DNAAlphabet{2},3},1}:
+julia> motifs = [dna"TTA", dna"CTA", dna"ACA", dna"TCA", dna"GTA"]
+5-element Vector{LongSequence{DNAAlphabet{4}}}:
  TTA
  CTA
  ACA
  TCA
  GTA
 
-julia> pfm = PFM(kmers)  # sequence set => PFM
-4×3 PFM{DNA,Int64}:
+julia> pfm = PFM(motifs)  # sequence set => PFM
+4×3 PFM{DNA, Int64}:
  A  1  0  5
  C  1  2  0
  G  1  0  0
  T  2  3  0
 
 julia> pwm = PWM(pfm)  # PFM => PWM
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.321928 -Inf       2.0
  C -0.321928  0.678072 -Inf
  G -0.321928 -Inf      -Inf
  T  0.678072  1.26303  -Inf
 
 julia> pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A -0.319068 -6.97728   1.99139
  C -0.319068  0.673772 -6.97728
  G -0.319068 -6.97728  -6.97728
  T  0.673772  1.25634  -6.97728
 
 julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
-4×3 PWM{DNA,Float64}:
+4×3 PWM{DNA, Float64}:
  A  0.00285965 -6.65535   2.31331
  C -0.582103    0.410737 -7.24031
  G -0.582103   -7.24031  -7.24031
@@ -286,11 +199,34 @@ julia> pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
 
 The ``PWM_{s,j}`` matrix is computed from ``PFM_{s,j}`` and the prior
 probability ``p(s)`` as follows ([Wasserman2004]):
+
 ```math
 \begin{align}
     PWM_{s,j} &= \log_2 \frac{p(s,j)}{p(s)} \\
     p(s,j)  &= \frac{PFM_{s,j}}{\sum_{s'} PFM_{s',j}}.
 \end{align}
+```
+
+However, if you just want to quickly conduct a search, constructing the PFM and
+PWM is done for you as a convenience if you build a `PWMSearchQuery`, using a
+collection of sequences:
+
+```jldoctest
+julia> motifs = [dna"TTA", dna"CTA", dna"ACA", dna"TCA", dna"GTA"]
+5-element Vector{LongSequence{DNAAlphabet{4}}}:
+ TTA
+ CTA
+ ACA
+ TCA
+ GTA
+
+julia> subject = dna"TATTATAATTA";
+
+julia> qa = PWMSearchQuery(motifs, 1.0);
+
+julia> findfirst(qa, subject)
+3
+
 ```
 
 [Wasserman2004]: https://doi.org/10.1038/nrg1315

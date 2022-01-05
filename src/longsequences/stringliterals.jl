@@ -11,60 +11,45 @@ remove_newlines(s) = replace(s, r"\r|\n" => "")
 
 macro dna_str(seq, flag)
     if flag == "s"
-        return LongDNASeq(remove_newlines(seq))
+        return LongDNA{4}(remove_newlines(seq))
     elseif flag == "d"
         return quote
-            LongDNASeq($(remove_newlines(seq)))
+            LongDNA{4}($(remove_newlines(seq)))
         end
     end
     error("Invalid DNA flag: '$(flag)'")
 end
 
 macro dna_str(seq)
-    return LongDNASeq(remove_newlines(seq))
+    return LongDNA{4}(remove_newlines(seq))
 end
 
 macro rna_str(seq, flag)
     if flag == "s"
-        return LongRNASeq(remove_newlines(seq))
+        return LongRNA{4}(remove_newlines(seq))
     elseif flag == "d"
         return quote
-            LongRNASeq($(remove_newlines(seq)))
+            LongRNA{4}($(remove_newlines(seq)))
         end
     end
     error("Invalid RNA flag: '$(flag)'")
 end
 
 macro rna_str(seq)
-    return LongRNASeq(remove_newlines(seq))
+    return LongRNA{4}(remove_newlines(seq))
 end
 
 macro aa_str(seq, flag)
     if flag == "s"
-        return LongAminoAcidSeq(remove_newlines(seq))
+        return LongAA(remove_newlines(seq))
     elseif flag == "d"
         return quote
-            LongAminoAcidSeq($(remove_newlines(seq)))
+            LongAA($(remove_newlines(seq)))
         end
     end
     error("Invalid Amino Acid flag: '$(flag)'")
 end
 
 macro aa_str(seq)
-    return LongAminoAcidSeq(remove_newlines(seq))
-end
-
-macro char_str(seq, flag)
-    if flag == "s"
-        return LongCharSeq(remove_newlines(seq))
-    elseif flag == "d"
-        return quote
-            LongCharSeq($(remove_newlines(seq)))
-        end
-    end
-    error("Invalid Char flag: '$(flag)'")
-end
-
-macro char_str(seq)
-    return LongCharSeq(remove_newlines(seq))
+    return LongAA(remove_newlines(seq))
 end

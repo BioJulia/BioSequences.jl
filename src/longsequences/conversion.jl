@@ -27,9 +27,4 @@ function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
     return T(seq)
 end
 
-# Convert from a LongSequence to to a DNA or RNA vector
-function Base.convert(::Type{LongSequence{A}}, seq::Vector) where A<:Alphabet
-    return LongSequence{A}(seq)
-end
-
 Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)

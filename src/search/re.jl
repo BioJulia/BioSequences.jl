@@ -9,6 +9,12 @@
 # String Decorators
 # -----------------
 
+"""
+    biore"PAT"sym
+
+Construct a PCRE `BioRegex` from pattern `PAT`. `sym` can be any of `d`/`dna`, `r`/`rna`,
+or `a`/`aa`. BioRegex can also be constructed directly using e.g. `BioRegex{DNA}("[TA]G")`.
+"""
 macro biore_str(pat, opt...)
     if isempty(opt)
         error("symbol option is required: d(na), r(na), or a(a)")
@@ -27,6 +33,11 @@ macro biore_str(pat, opt...)
     end
 end
 
+"""
+    prosite"PAT"
+
+Equivalent to `BioRegex{AminoAcid}("PAT", syntax=:prosite)`, but evaluated at parse-time.
+"""
 macro prosite_str(pat)
     :($(RE.Regex{AminoAcid}(pat, :prosite)))
 end
@@ -34,9 +45,7 @@ end
 
 module RE
 
-using Printf: @sprintf
-
-import BioGenerics, BioSequences
+import BioSequences
 
 # Syntax tree
 # -----------
@@ -335,7 +344,7 @@ function bits2sym(::Type{T}, bits::UInt32) where {T}
 end
 
 mask(::Type{T}) where {T<:BioSequences.NucleicAcid} = (UInt32(1) << 4) - one(UInt32)
-@assert convert(Int, BioSequences.AA_U) + 1 == 22  # check there are 22 unambiguous amino acids
+@assert Int(reinterpret(UInt8, BioSequences.AA_U)) + 1 == 22  # check there are 22 unambiguous amino acids
 mask(::Type{BioSequences.AminoAcid}) = (UInt32(1) << 22) - one(UInt32)
 
 function desugar(::Type{T}, tree::SyntaxTree) where {T}
@@ -483,7 +492,7 @@ function Base.show(io::IO, op::Op)
     if t == MatchTag
         print(io, "match")
     elseif t == BitsTag
-        print(io, "bits ", @sprintf("0x%08x", x))
+        print(io, "bits ", repr(x))
     elseif t == JumpTag
         print(io, "jump ", x)
     elseif t == PushTag
@@ -570,7 +579,11 @@ end
 # ---------------
 
 """
-Regular expression for `DNA`, `RNA`, and `AminoAcid`.
+    Regex{T}(pattern::AbstractString, syntax=:pcre)
+
+Biological regular expression to seatch for `pattern` in sequences of type `T`, where
+`T` can be `DNA`, `RNA`, and `AminoAcid`. `syntax` can be `:pcre` or `:prosite` for AminoAcid
+acids.
 """
 struct Regex{T}
     pat::String       # regular expression pattern (for printing)
@@ -611,8 +624,18 @@ function Base.show(io::IO, re::Regex{T}) where {T}
     print(io, "biore\"", re.pat, "\"", opt)
 end
 
+# This is useful when testing
+function Base.:(==)(x::Regex, y::Regex)
+    typeof(x) == typeof(y) && x.pat == y.pat && x.code == y.code && x.nsaves == y.nsaves
+end
+
 """
+    RegexMatch
+
 Result of matching by `Regex`.
+
+julia> match(biore"A(C[TG])+N(CA)"d, dna"ACGACA")
+RegexMatch("ACGACA", 1="CG", 2="", 3="CA")
 """
 struct RegexMatch{S}
     seq::S
@@ -631,9 +654,9 @@ function Base.show(io::IO, m::RegexMatch)
 end
 
 """
-    matched(match)
+    matched(match::BioRegexMatch)
 
-Return a matched pattern.
+Return the matched pattern as a `BioSequence`.
 """
 function matched(m::RegexMatch{S}) where {S}
     return m.seq[m.captured[1]:m.captured[2]-1]
@@ -641,9 +664,17 @@ end
 
 
 """
-    captured(match)
+    captured(match::BioRegexMatch)
 
-Retrun a vector of captured patterns.
+Return a vector of the captured patterns, where a pattern not captured is `nothing`.
+
+# Examples:
+```
+julia> captured(biore"A(C[TG])+N"d, dna"ACGAA"")
+2-element Vector{Union{Nothing, LongDNA{4}, LongNuc{4, DNAAlphabet{4}}}}:
+ CG
+ nothing
+```
 """
 function captured(m::RegexMatch{S}) where {S}
     return [m.captured[2k-1] != 0 && m.captured[2k] != 0 ?
@@ -674,7 +705,7 @@ function Base.match(re::Regex{T}, seq::BioSequences.BioSequence, start::Integer=
     s = start
     while true
         if firstsym != BioSequences.gap(T)
-            s = findnext(firstsym, seq, s)
+            s = findnext(isequal(firstsym), seq, s)
             if s == nothing
                 break
             end
@@ -867,3 +898,5 @@ end  # module RE
 # exported from BioSequences
 const matched = RE.matched
 const captured = RE.captured
+const BioRegex = RE.Regex
+const BioRegexMatch = RE.RegexMatch

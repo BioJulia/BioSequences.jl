@@ -101,7 +101,6 @@ export
     DNAAlphabet,
     RNAAlphabet,
     AminoAcidAlphabet,
-    CharAlphabet,
     
     ###
     ### BioSequences
@@ -111,11 +110,8 @@ export
     
     # Type & aliases
     BioSequence,
-    NucleotideSeq,
-    AminoAcidSeq,
-    
-    # Indexing
-    unsafe_setindex!,
+    NucSeq,
+    AASeq,
     
     # Predicates
     ispalindromic,
@@ -132,11 +128,7 @@ export
     reverse_complement!,
     ungap,
     ungap!,
-    
-    # Iteration
-    each,
-    fwmer,
-    bwmer,
+    join!,
     
     ###
     ### LongSequence
@@ -144,10 +136,10 @@ export
     
     # Type & aliases
     LongSequence,
-    LongDNASeq,
-    LongRNASeq,
-    LongAminoAcidSeq,
-    LongCharSeq,
+    LongNuc,
+    LongDNA,
+    LongRNA,
+    LongAA,
     LongSubSeq,
     
     # Random
@@ -159,42 +151,18 @@ export
     randaaseq,
     
     ###
-    ### Mers
-    ###
-    
-    # Type & aliases
-    AbstractMer,
-    Mer,
-    DNAMer,
-    RNAMer,
-    DNAKmer,
-    RNAKmer,
-    
-    BigMer,
-    BigDNAMer,
-    BigRNAMer,
-    BigDNAKmer,
-    BigRNAKmer,
-    
-    DNACodon,
-    RNACodon,
-    
-    # Iteration
-    neighbors,
-    
-    ###
     ### Sequence literals
     ###
     
     @dna_str,
     @rna_str,
     @aa_str,
-    @char_str,
+
     @biore_str,
     @prosite_str,
-    @mer_str,
-    @bigmer_str,
     
+    BioRegex,
+    BioRegexMatch,
     matched,
     captured,
     alphabet, # TODO: Resolve the use of alphabet - it's from BioSymbols.jl
@@ -205,59 +173,23 @@ export
     n_ambiguous,
     n_gaps,
     n_certain,
-    
     gc_content,
-    
-    eachcanonical,
-    
-    ###
-    ### Composition
-    ###
-    Composition,
-    composition,
-    NucleicAcidCounts,
-
     translate!,
     translate,
     ncbi_trans_table,
     
-    
     # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
-    approxsearch,
-    approxsearchindex,
-    approxrsearch,
-    approxrsearchindex,
     PFM,
     PWM,
+    PWMSearchQuery,
     maxscore,
     scoreat,
-    
-    ReferenceSequence,
-    
-    ###
-    ### Demultiplexing
-    ###
-    Demultiplexer,
-    demultiplex,
-    
     seqmatrix,
-    majorityvote,
-    MinHashSketch,
-    minhash,
-    Site,
-    Certain,
-    Ambiguous,
-    Gap,
-    Match,
-    Mismatch,
-    count_pairwise
+    majorityvote
 
-using BioGenerics
 using BioSymbols
-import Combinatorics
-import IndexableBitVectors
 import Twiddle: enumerate_nibbles,
     nibble_mask,
     count_0000_nibbles,
@@ -270,7 +202,6 @@ import Twiddle: enumerate_nibbles,
     count_nonzero_bitpairs,
     repeatpattern
 using Random
-using StableRNGs
 
 BioSymbols.gap(::Type{Char}) = '-'
 
@@ -283,33 +214,18 @@ include("bit-manipulation/bit-manipulation.jl")
 include("biosequence/biosequence.jl")
 
 # The definition of the LongSequence concrete type, and its method overloads...
+
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
-# The definition of the Skipmer concrete type, and its method overloads...
-include("mers/mer.jl")
-
-# The definition of the ReferenceSequence concrete type, and its method overloads...
-include("nmask.jl")
-include("refseq/refseq.jl")
-
-# The generic iterators for any BioSequence...
-include("iterators/condition.jl")
-include("iterators/eachmer.jl")
-include("iterators/skipmerfactory.jl")
-
-include("composition.jl")
-
 include("geneticcode.jl")
-include("demultiplexer.jl")
+
 
 # Pattern searching in sequences...
-include("search/exact.jl")
-include("search/approx.jl")
+include("search/ExactSearchQuery.jl")
+include("search/ApproxSearchQuery.jl")
 include("search/re.jl")
 include("search/pwm.jl")
-
-include("minhash.jl")
 
 end  # module BioSequences

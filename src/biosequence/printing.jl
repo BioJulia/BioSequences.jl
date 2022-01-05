@@ -4,7 +4,6 @@
 Base.summary(seq::BioSequence{<:DNAAlphabet}) = string(length(seq), "nt ", "DNA Sequence")
 Base.summary(seq::BioSequence{<:RNAAlphabet}) = string(length(seq), "nt ", "RNA Sequence")
 Base.summary(seq::BioSequence{<:AminoAcidAlphabet}) = string(length(seq), "aa ", "Amino Acid Sequence")
-Base.summary(seq::BioSequence{<:CharAlphabet}) = string(length(seq), "char ", "Char Sequence")
 
 # Buffer type. Not exposed to user, so code should be kept simple and performant.
 # B is true if it is buffered and false if it is not
@@ -44,24 +43,55 @@ function Base.close(sb::SimpleBuffer)
     sb.len = 0
 end
 
-Base.print(io::IO, seq::BioSequence; width::Integer = 0) = _print(SimpleBuffer(io), seq, width)
-
 function padded_length(len::Integer, width::Integer)
     den = ifelse(width < 1, typemax(Int), width)
     return len + div(len-1, den)
 end
 
+function Base.print(io::IO, seq::BioSequence{A}; width::Integer = 0) where {A<:Alphabet}
+    return _print(io, seq, width, codetype(A()))
+end
+
 # Generic method. The different name allows subtypes of BioSequence to
 # selectively call the generic print despite being more specific type
-function _print(buffer::SimpleBuffer, seq::BioSequence, width::Integer)
+function _print(io::IO, seq::BioSequence, width::Integer, ::UnicodeAlphabet)
     col = 0
     for x in seq
         col += 1
         if (width > 0) & (col > width)
-            write(buffer, '\n')
+            write(io, '\n')
             col = 1
         end
-        print(buffer, x)
+        print(io, x)
+    end
+    return nothing
+end
+
+# Specialized method for ASCII alphabet
+function _print(io::IO, seq::BioSequence, width::Integer, ::AsciiAlphabet)
+    # If seq is large, always buffer for memory efficiency
+    if length(seq) ≥ 4096
+        return _print(SimpleBuffer(io), seq, width, AsciiAlphabet())
+    end
+    if (width < 1) | (length(seq) ≤ width)
+        # Fastest option
+        return print(io, String(seq))
+    else
+        # Second fastest option
+        buffer = SimpleBuffer(io, padded_length(length(seq), width))
+        return _print(buffer, seq, width, AsciiAlphabet())
+    end
+end
+
+function _print(buffer::SimpleBuffer, seq::BioSequence, width::Integer, ::AsciiAlphabet)
+    col = 0
+    @inbounds for i in eachindex(seq)
+        col += 1
+        if (width > 0) & (col > width)
+            write(buffer, UInt8('\n'))
+            col = 1
+        end
+        write(buffer, stringbyte(seq[i]))
     end
     close(buffer)
     return nothing
@@ -91,9 +121,7 @@ function showcompact(io::IO, seq::BioSequence)
                 print(io, seq[i])
             end
         else
-            for x in seq
-                print(io, convert(Char, x))
-            end
+            print(io, seq)
         end
     end
 end
@@ -103,5 +131,3 @@ function string_compact(seq::BioSequence)
     showcompact(buf, seq)
     return String(take!(buf))
 end
-
-Base.parse(::Type{S}, str::AbstractString) where {S<:BioSequence} = convert(S, str)

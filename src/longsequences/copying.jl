@@ -7,8 +7,6 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-# TODO: Add generic emethods for other bioseqs like mers and refseqs
-##########
 """
     copy!(dst::LongSequence, src::BioSequence)
 
@@ -57,40 +55,6 @@ function _copy!(dst::SeqOrView{A}, src::SeqOrView) where {A <: Alphabet}
 	return copyto!(dst, 1, src_, 1, length(src))
 end
 
-
-"""
-    copyto!(dst::LongSequence, src::BioSequence)
-
-Equivalent to `copyto!(dst, 1, src, 1, length(src))`
-"""
-function Base.copyto!(dst::SeqOrView{A}, src::SeqOrView{A}) where {A <: Alphabet}
-    return copyto!(dst, 1, src, 1, length(src))
-end
-
-function Base.copyto!(dst::SeqOrView{<:NucleicAcidAlphabet{N}},
-                      src::SeqOrView{<:NucleicAcidAlphabet{N}}) where N
-    return copyto!(dst, 1, src, 1, length(src))
-end
-
-"""
-    copyto!(dst::LongSequence, soff, src::BioSequence, doff, N)
-
-In-place copy `N` elements from `src` starting at `soff` to `dst`, starting at `doff`.
-The length of `dst` must be greater than or equal to `N + doff - 1`.
-The first N elements of `dst` are overwritten,
-the other elements are left untouched. The alphabets of `src` and `dst` must be compatible.
-
-# Examples
-```
-julia> seq = copyto!(dna"AACGTM", 1, dna"TAG", 1, 3)
-6nt DNA Sequence:
-TAGGTM
-
-julia> copyto!(seq, 2, rna"UUUU", 1, 4)
-6nt DNA Sequence:
-TTTTTM
-```
-"""
 function Base.copyto!(dst::SeqOrView{A}, doff::Integer,
                       src::SeqOrView{A}, soff::Integer,
                       N::Integer) where {A <: Alphabet}
@@ -142,8 +106,6 @@ function _copyto!(dst::SeqOrView{A}, doff::Integer,
     return dst
 end
 
-Base.copy(seq::LongSequence) = typeof(seq)(copy(seq.data), seq.len)
-
 #########
 const SeqLike = Union{AbstractVector, AbstractString}
 const ASCIILike = Union{String, SubString{String}}
@@ -188,29 +150,11 @@ end
 
 ########
 
-for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
-    RNAAlphabet{2}, AminoAcidAlphabet))
-    tablename = Symbol("BYTE_TO_ALPHABET_CHAR" * string(anum))
-    @eval begin
-        alph = $(atype)()
-        syms = symbols(alph)
-        const $(tablename) = let
-            bytes = fill(0x80, 256)
-            for symbol in syms
-                bytes[UInt8(Char(symbol)) + 1] = encode(alph, symbol)
-                bytes[UInt8(lowercase(Char(symbol))) + 1] = encode(alph, symbol)
-            end
-            Tuple(bytes)
-        end
-        stringbyte(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
-    end
-end
-
 # This is used to effectively scan an array of UInt8 for invalid bytes, when one is detected
 @noinline function throw_encode_error(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer)
     for i in 1:div(64, bits_per_symbol(A))
         sym = src[soff+i-1]
-        stringbyte(A, sym) & 0x80 == 0x80 && error("Cannot encode $sym to $A")
+        ascii_encode(A, sym) & 0x80 == 0x80 && error("Cannot encode $(repr(sym)) to $A")
     end
 end
 
@@ -218,7 +162,7 @@ end
     chunk = zero(UInt64)
     check = 0x00
     @inbounds for i in 1:N
-        enc = stringbyte(A, src[soff+i-1])
+        enc = ascii_encode(A, src[soff+i-1])
         check |= enc
         chunk |= UInt64(enc) << (bits_per_symbol(A) * (i-1))
     end

@@ -4,20 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.0]
+### Removed
+- Removed minhashing functionality
+- Removed composition functionality
+- Removed ReferenceSequence functionality
+- Removed demultiplexer functionality
+- Removed kmer functionality - this is moved to Kmers.jl
+- Exact sequence search for single biosymbols have been removed. Instead of `findfirst(DNA_A, my_seq)`, use `findfirst(isequal(DNA_A), my_seq)`.
+- Removed VoidAlphabet and CharAlphabet
+- Removed ConditionIterator
+
 ### Added
-- Ability to take a slice of an AbstractMer over a range
+- Added method `masked(::Type{<:Mer}, x::UInt)` and equivalent for `BigMer`. Use this method to convert an integer to a kmer.
+- Added type `LongSubSeq`, a view into a `LongSequence`.
 - Added method `translate!(::LongAminoAcidSeq, ::LongNucleotideSeq; kwargs...)`
-- Added method `translate(::Union{DNACodon, RNACodon}, ::GeneticCode)`
 - Added method `join(::Type{T<:BioSeuence}, it)` to join an iterable of biosequences
 to a new instance of T.
 - Added method `join!(s::BioSequence, it)`, an in-place version of `join`
 
-### Deprecated
-- `minhash` functionality is now deprecated and will be removed in v3.
-
 ### Changed
-- Fix `ReferenceSequence` slicing bug where the wrapped data is sliced instead.
+- `LongSequence` is no longer copy-on-write. For views, use `LongSubSeq`.
+- Renamed `LongAminoAcidSeq` -> `LongAA`, `LongNucleotideSeq` -> `LongNuc`
+  `LongRNASeq` -> `LongRNA` and `LongDNASeq` -> `LongDNA`
+- The interface for `Alphabet` and `BioSequence` is now more clearly defined, documented, and tested.
+- The constructor `LongSequence{A}(::Integer)` has been removed in favor of `LongSequence{A}(undef, ::Integer)`.
+- Biological sequences can no longer be converted to/from strings and vectors.
 
 ## [2.0.1]
 ### Changed

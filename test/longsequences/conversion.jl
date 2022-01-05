@@ -1,36 +1,35 @@
 @testset "Constructing empty sequences" begin
-    @test LongDNASeq() == LongSequence(DNA)
-    @test LongRNASeq() == LongSequence(RNA)
-    @test LongAminoAcidSeq() == LongSequence(AminoAcid)
-    @test LongCharSeq() == LongSequence(Char)
+    @test isempty(LongDNA{4}())
+    @test isempty(LongRNA{4}())
+    @test isempty(LongAA())
 end
 
 @testset "Constructing uninitialized sequences" begin
-    @test isa(LongSequence{DNAAlphabet{2}}(0), LongSequence)
-    @test isa(LongSequence{DNAAlphabet{4}}(10), LongSequence)
-    @test isa(LongSequence{RNAAlphabet{2}}(0), LongSequence)
-    @test isa(LongSequence{RNAAlphabet{4}}(10), LongSequence)
-    @test isa(LongSequence{AminoAcidAlphabet}(10), LongSequence)
+    @test isa(LongSequence{DNAAlphabet{2}}(undef, 0), LongSequence)
+    @test isa(LongSequence{DNAAlphabet{4}}(undef, 10), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{2}}(undef, 0), LongSequence)
+    @test isa(LongSequence{RNAAlphabet{4}}(undef, 10), LongSequence)
+    @test isa(LongSequence{AminoAcidAlphabet}(undef, 10), LongSequence)
 
-    @test_throws ArgumentError LongSequence{DNAAlphabet{2}}(-1)
-    @test_throws ArgumentError LongSequence{DNAAlphabet{4}}(-1)
-    @test_throws ArgumentError LongSequence{RNAAlphabet{2}}(-1)
-    @test_throws ArgumentError LongSequence{RNAAlphabet{4}}(-1)
-    @test_throws ArgumentError LongSequence{AminoAcidAlphabet}(-1)
+    @test_throws ArgumentError LongSequence{DNAAlphabet{2}}(undef, -1)
+    @test_throws ArgumentError LongSequence{DNAAlphabet{4}}(undef, -1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{2}}(undef, -1)
+    @test_throws ArgumentError LongSequence{RNAAlphabet{4}}(undef, -1)
+    @test_throws ArgumentError LongSequence{AminoAcidAlphabet}(undef, -1)
 end
 
 @testset "Conversion from/to strings" begin
     # Check that sequences in strings survive round trip conversion:
     #   String → LongSequence → String
     function test_string_construction(A::Type, seq::AbstractString)
-        @test convert(String, LongSequence{A}(seq)) == uppercase(seq)
+        @test String(LongSequence{A}(seq)) == uppercase(seq)
     end
 
     function test_string_parse(A::Type, seq::AbstractString)
         @test parse(LongSequence{A}, seq) == LongSequence{A}(seq)
     end
 
-    for len in [0, 1, 2, 3, 10, 32, 1000, 10000]
+    for len in [0, 1, 3, 10, 32, 100]
         test_string_construction(DNAAlphabet{4}, random_dna(len))
         test_string_construction(DNAAlphabet{4}, SubString(random_dna(len), 1:len))
         test_string_construction(DNAAlphabet{4}, lowercase(random_dna(len)))
@@ -60,15 +59,14 @@ end
     end
 
     # non-standard string literal
-    @test isa(dna"ACGTMRWSYKVHDBN-", LongDNASeq)
-    @test isa(rna"ACGUMRWSYKVHDBN-", LongRNASeq)
-    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAminoAcidSeq)
-    @test isa(char"いろは αβγ 甲乙丙", LongCharSeq)
+    @test isa(dna"ACGTMRWSYKVHDBN-", LongDNA{4})
+    @test isa(rna"ACGUMRWSYKVHDBN-", LongRNA{4})
+    @test isa(aa"ARNDCQEGHILKMFPSTWYVBJZXOU*-", LongAA)
 
     # Non-nucleotide characters should throw
-    @test_throws Exception LongDNASeq("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception LongRNASeq("ACCNNCATTTTTTAGATXATAG")
-    @test_throws Exception LongAminoAcidSeq("ATGHLMY@ZACAGNM")
+    @test_throws Exception LongDNA{4}("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongRNA{4}("ACCNNCATTTTTTAGATXATAG")
+    @test_throws Exception LongAA("ATGHLMY@ZACAGNM")
 end
 
 @testset "Construction from vectors" begin
@@ -78,7 +76,14 @@ end
         @test LongSequence{A}(xs) == LongSequence{A}(seq)
     end
 
-    for len in [0, 1, 10, 32, 1000, 10000]
+    # Construct from abstract vector
+    LongDNA{4}(0x61:0x64) == LongDNA{4}("ABCD")
+    LongDNA{4}(0x61:0x64, 3:4) == LongDNA{4}("CD")
+    LongRNA{2}(0x61:0x61) == LongRNA{2}("A")
+    LongDNA{4}(Test.GenericString("AGCTMYWK")) == LongDNA{4}("AGCTMYWK")
+    LongAA(Test.GenericString("KMSPIYT")) == LongAA("KMSPIYT")
+
+    for len in [0, 1, 10, 32, 1000]
         test_vector_construction(DNAAlphabet{4}, random_dna(len))
         test_vector_construction(RNAAlphabet{4}, random_rna(len))
         test_vector_construction(AminoAcidAlphabet, random_aa(len))
@@ -98,25 +103,23 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25]
-    for len in [0, 1, 2, 10, 100]
+    for len in [0, 1, 10, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_copyto!(LongSequence{DNAAlphabet{2}}(len), 1, f(random_dna(len, probs)), 1, len)
-            test_copyto!(LongSequence{RNAAlphabet{2}}(len), 1, f(random_rna(len, probs)), 1, len)
-            test_copyto!(LongSequence{DNAAlphabet{4}}(len), 1, f(random_dna(len)), 1, len)
-            test_copyto!(LongSequence{RNAAlphabet{4}}(len), 1, f(random_rna(len)), 1, len)
-            test_copyto!(LongSequence{AminoAcidAlphabet}(len), 1, f(random_aa(len)), 1, len)
-            test_copyto!(LongSequence{CharAlphabet}(len), 1, f(random_aa(len)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(undef, len), 1, f(random_dna(len, probs)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(undef, len), 1, f(random_rna(len, probs)), 1, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len), 1, f(random_dna(len)), 1, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len), 1, f(random_rna(len)), 1, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len), 1, f(random_aa(len)), 1, len)
         end
     end
 
     for len in [10, 32, 100]
         for f in [identity, Vector{Char}, Vector{UInt8}]
-            test_copyto!(LongSequence{DNAAlphabet{2}}(len+7), 5, f(random_dna(len+11, probs)), 3, len)
-            test_copyto!(LongSequence{RNAAlphabet{2}}(len+7), 5, f(random_rna(len+11, probs)), 3, len)
-            test_copyto!(LongSequence{DNAAlphabet{4}}(len+7), 5, f(random_dna(len+11)), 3, len)
-            test_copyto!(LongSequence{RNAAlphabet{4}}(len+7), 5, f(random_rna(len+11)), 3, len)
-            test_copyto!(LongSequence{AminoAcidAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
-            test_copyto!(LongSequence{CharAlphabet}(len+7), 5, f(random_aa(len+11)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{2}}(undef, len+7), 5, f(random_dna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{2}}(undef, len+7), 5, f(random_rna(len+11, probs)), 3, len)
+            test_copyto!(LongSequence{DNAAlphabet{4}}(undef, len+7), 5, f(random_dna(len+11)), 3, len)
+            test_copyto!(LongSequence{RNAAlphabet{4}}(undef, len+7), 5, f(random_rna(len+11)), 3, len)
+            test_copyto!(LongSequence{AminoAcidAlphabet}(undef, len+7), 5, f(random_aa(len+11)), 3, len)
         end
     end
 end
@@ -129,7 +132,6 @@ end
 	test_same_conversion(random_dna(20))
 	test_same_conversion(random_rna(20))
 	test_same_conversion(random_aa(20))
-	test_same_conversion(LongSequence{CharAlphabet}("∈α"))
 end
 
 @testset "Conversion between 2-bit and 4-bit encodings" begin
@@ -170,8 +172,8 @@ end
 end
 
 @testset "Conversion between RNA and DNA" begin
-    @test convert(LongRNASeq, LongDNASeq("ACGTN")) == rna"ACGUN"
-    @test convert(LongDNASeq, LongRNASeq("ACGUN")) == dna"ACGTN"
+    @test convert(LongRNA{4}, LongDNA{4}("ACGTN")) == rna"ACGUN"
+    @test convert(LongDNA{4}, LongRNA{4}("ACGUN")) == dna"ACGTN"
 end
 
 @testset "Conversion to Matrices" begin
@@ -253,7 +255,7 @@ end
     @test_throws ArgumentError seqmatrix(rnathrow, :seq)
     @test_throws ArgumentError seqmatrix(dna, :lol)
     @test_throws MethodError seqmatrix(AminoAcid, dna, :site)
-    @test_throws ArgumentError seqmatrix(LongDNASeq[], :site)
-    @test_throws ArgumentError seqmatrix(LongDNASeq[], :seq)
+    @test_throws ArgumentError seqmatrix(LongDNA{4}[], :site)
+    @test_throws ArgumentError seqmatrix(LongDNA{4}[], :seq)
 
 end

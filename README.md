@@ -3,7 +3,8 @@
 [![Latest Release](https://img.shields.io/github/release/BioJulia/BioSequences.jl.svg)](https://github.com/BioJulia/BioSequences.jl/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioSequences.jl/stable)
-[![Pkg Status](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Pkg Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Chat](https://img.shields.io/gitter/room/BioJulia/BioSequences.svg)](https://gitter.im/BioJulia/BioSequences.jl)
 
 ## Description
 
@@ -31,6 +32,7 @@ BioSequences is tested against Julia `1.X` on Linux, OS X, and Windows.
 [![Unit tests](https://github.com/BioJulia/BioSequences.jl/workflows/Unit%20tests/badge.svg?branch=master)](https://github.com/BioJulia/BioSequences.jl/actions?query=workflow%3A%22Unit+tests%22+branch%3Amaster)
 [![Documentation](https://github.com/BioJulia/BioSequences.jl/workflows/Documentation/badge.svg?branch=master)](https://github.com/BioJulia/BioSequences.jl/actions?query=workflow%3ADocumentation+branch%3Amaster)
 [![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)
+[![Downstream](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml/badge.svg)](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml)
 
 
 ## Contributing

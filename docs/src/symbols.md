@@ -15,9 +15,8 @@ that are provided by [BioSymbols.jl:](https://biojulia.net/BioSymbols.jl/)
 | `RNA`           | RNA nucleotide |
 | `AminoAcid`     | Amino acid     |
 
-These symbols are elements of biological sequences, just as characters are
-elements of strings. See sections beginning from
-[Sequence Types](@ref) section for details.
+These symbols are elements of biological sequence types, just as characters are
+elements of strings.
 
 
 ## DNA and RNA nucleotides

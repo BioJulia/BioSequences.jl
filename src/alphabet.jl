@@ -8,159 +8,82 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 """
-# Alphabets of biological symbols.
+    Alphabet
 
-`Alphabet` is perhaps the most important type trait for biological sequences in
-BioSequences.jl.
+`Alphabet` is the most important type trait for `BioSequence`. An `Alphabet`
+represents a set of biological symbols encoded by a sequence, e.g. A, C, G
+and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
 
-An `Alphabet` represents a domain of biological symbols.
+# Extended help
+* Subtypes of Alphabet are singleton structs that may or may not be parameterized.
+* Alphabets span over a *finite* set of biological symbols.
+* The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
+  of the alphabet's element type, as well as the decoding, the inverse process.
+* An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
 
-For example, `DNAAlphabet{2}` has a domain of unambiguous nucleotides
-(i.e. A, C, G, and T).
+Every subtype `A` of `Alphabet` must implement:
+* `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
+* `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
+* `encode(::A, ::S)::E` encodes a symbol to an internal data eltype `E`.
+* `decode(::A, ::E)::S` decodes an internal data eltype `E` to a symbol `S`.
+* Except for `eltype` which must follow Base conventions, all functions operating
+  on `Alphabet` should operate on instances of the alphabet, not the type.
 
-Alphabet types restrict and define the set of biological symbols,
-that can be encoded in a given biological sequence type.
-They ALSO define *HOW* that encoding is done.
+If you want interoperation with existing subtypes of `BioSequence`,
+the encoded representation `E` must be of type `UInt`, and you must also implement:
+* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
+  or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 
-An `Alphabet` type defines the encoding of biological symbols with a pair
-of associated `encoder` and `decoder` methods. These paired methods map
-between biological symbol values and a binary representation of the symbol.
-
-Any type A <: Alphabet, is expected to implement the `Base.eltype` method
-for itself.
-It is also expected to implement the `BitsPerSymbol` method.
+For increased performance, see `AsciiAlphabet`
 """
 abstract type Alphabet end
-Base.eltype(::A) where A <: Alphabet = eltype(A)
-Base.firstindex(x::Alphabet) = 1
-Base.lastindex(x::Alphabet) = length(x)
-symbols(x::Alphabet) = tuple(collect(x)...)
-
 
 """
-The number of bits required to represent a packed symbol in a vector of bits.
+    function has_interface(::Type{Alphabet}, A::Alphabet)
+
+Returns whether `A` conforms to the `Alphabet` interface.
 """
+function has_interface(::Type{Alphabet}, A::Alphabet)
+    try
+        eltype(typeof(A)) <: BioSymbol || return false
+        syms = symbols(A)
+        (syms isa Tuple{Vararg{eltype(typeof(A))}} && length(syms) > 0) || return false
+        codes = map(i -> encode(A, i), syms)
+        codes isa (NTuple{N, T} where {N, T <: Union{UInt8, UInt16, UInt32, UInt64}}) || return false
+        recodes = map(i -> decode(A, i), codes)
+        syms == recodes || return false
+        bps = BitsPerSymbol(A)
+        bps isa BitsPerSymbol || return false
+        in(BioSequences.bits_per_symbol(A), (0, 1, 2, 4, 8, 16, 32, 64)) || return false
+    catch error
+        error isa MethodError && return false
+        rethrow(error)
+    end
+    return true
+end
+
+"""
+The number of bits required to represent a packed symbol encoding in a vector of bits.
+"""
+bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))
+Base.length(A::Alphabet) = length(symbols(A))
+
+## Bits per symbol
+
 struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
-bits_per_symbol(::A) where A <: Alphabet = bits_per_symbol(BitsPerSymbol(A()))
 
-###
-### Nucleic acid alphabets
-###
+"Compute whether all bitpatterns represent valid symbols for an alphabet"
+iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 
-"""
-Alphabet of nucleic acids.
-"""
-abstract type NucleicAcidAlphabet{n} <: Alphabet end
-
-BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{2} = BitsPerSymbol{2}()
-BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{4} = BitsPerSymbol{4}()
-
-@inline function Base.iterate(x::A, state::UInt8 = 0x00) where {A <: NucleicAcidAlphabet{4}}
-    state > 0x0F ? nothing : (reinterpret(eltype(x), state), state + 0x01)
-end
-
-@inline function Base.iterate(x::A, state::UInt8 = 0x01) where {A <: NucleicAcidAlphabet{2}}
-    state > 0x08 ? nothing : (reinterpret(eltype(x), state), state << 0x01)
-end
-
-Base.length(x::A) where {A <: NucleicAcidAlphabet{2}} = 4
-Base.length(x::A) where {A <: NucleicAcidAlphabet{4}} = 16
-
-@inline function Base.getindex(x::NucleicAcidAlphabet{2}, i::Int)
-    return reinterpret(eltype(x), 0x01 << (i - 1))
-end
-@inline function Base.getindex(x::NucleicAcidAlphabet{4}, i::Int)
-    return reinterpret(eltype(x), UInt8(i - 1))
-end
-
+## Encoders & Decoders
 
 """
-DNA nucleotide alphabet.
-"""
-struct DNAAlphabet{n} <: NucleicAcidAlphabet{n} end
-Base.eltype(::Type{A}) where A <: DNAAlphabet = DNA
+    encode(::Alphabet, x::S)
 
 
-"""
-RNA nucleotide alphabet.
-"""
-struct RNAAlphabet{n} <: NucleicAcidAlphabet{n} end
-Base.eltype(::Type{A}) where A <: RNAAlphabet = RNA
-
-###
-### Promotion of Alphabets
-###
-
-for alph in (DNAAlphabet, RNAAlphabet)
-    @eval function Base.promote_rule(::Type{A}, ::Type{B}) where {A<:$alph,B<:$alph}
-        # TODO: Resolve this use of bits_per_symbol.
-        return $alph{max(bits_per_symbol(A()),bits_per_symbol(B()))}
-    end
-end
-
-minimal_alphabet(::Type{A}) where A <: DNAAlphabet = DNAAlphabet{2}
-minimal_alphabet(::Type{A}) where A <: RNAAlphabet = RNAAlphabet{2}
-minimal_alphabet(x::A) where A <: NucleicAcidAlphabet = minimal_alphabet(typeof(x))
-
-###
-### Amino acid alphabet
-###
-
-"""
-Amino acid alphabet.
-"""
-struct AminoAcidAlphabet <: Alphabet end
-BitsPerSymbol(::AminoAcidAlphabet) = BitsPerSymbol{8}()
-Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
-Base.length(x::AminoAcidAlphabet) = 28
-
-@inline function Base.iterate(x::AminoAcidAlphabet, state::UInt8 = 0x00)
-    state > 0x1b ? nothing : (reinterpret(AminoAcid, state), state + 0x01)
-end
-
-@inline function Base.getindex(x::AminoAcidAlphabet, i)
-    return reinterpret(AminoAcid, UInt8(i - 1))
-end
-
-###
-### Generic character alphabet
-###
-
-"""
-General character alphabet.
-"""
-struct CharAlphabet <: Alphabet end
-BitsPerSymbol(::CharAlphabet) = BitsPerSymbol{32}()
-Base.eltype(::Type{CharAlphabet}) = Char
-Base.length(::CharAlphabet) = 1114112
-
-@inline function Base.iterate(::CharAlphabet, state::Char = '\0')
-    state > '\U10ffff' ? nothing : (state, state + UInt32(1))
-end
-
-@inline function Base.getindex(::CharAlphabet, i)
-    return reinterpret(Char, i - 1)
-end
-
-###
-### The void alphabet
-###
-
-"""
-Void alphabet (internal use only).
-"""
-struct VoidAlphabet <: Alphabet end
-BitsPerSymbol(::VoidAlphabet) = BitsPerSymbol{0}()
-Base.eltype(::Type{VoidAlphabet}) = Nothing
-symbols(::VoidAlphabet) = nothing
-
-###
-### Encoders & Decoders
-###
-
-"""
-Encode biological symbols to binary representation.
+Encode BioSymbol `S` to an internal representation using an `Alphabet`.
+This decoding is checked to enforce valid data element.
 """
 function encode end
 
@@ -175,7 +98,10 @@ function Base.showerror(io::IO, err::EncodeError{A}) where {A}
 end
 
 """
-Decode biological symbols from binary representation.
+    decode(::Alphabet, x::E)
+
+Decode internal representation `E` to a `BioSymbol` using an `Alphabet`.
+This decoding is checked to enforce valid biosymbols.
 """
 function decode end
 
@@ -189,9 +115,50 @@ function Base.showerror(io::IO, err::DecodeError{A}) where {A}
     print(io, "cannot decode ", err.val, " in ", A)
 end
 
-###
-### DNA and RNA alphabets
-###
+## Nucleic acid alphabets
+
+"""
+Alphabet of nucleic acids. Parameterized by the number of bits per symbol, by
+default only `2` or `4`-bit variants exists.
+"""
+abstract type NucleicAcidAlphabet{N} <: Alphabet end
+
+"""
+DNA nucleotide alphabet.
+
+`DNAAlphabet` has a parameter `N` which is a number that determines the
+`BitsPerSymbol` trait. Currently supported values of `N` are 2 and 4.
+"""
+struct DNAAlphabet{N} <: NucleicAcidAlphabet{N} end
+Base.eltype(::Type{<:DNAAlphabet}) = DNA
+
+"""
+RNA nucleotide alphabet.
+
+`RNAAlphabet` has a parameter `N` which is a number that determines the
+`BitsPerSymbol` trait. Currently supported values of `N` are 2 and 4.
+"""
+struct RNAAlphabet{N} <: NucleicAcidAlphabet{N} end
+Base.eltype(::Type{<:RNAAlphabet}) = RNA
+
+symbols(::DNAAlphabet{2}) = (DNA_A, DNA_C, DNA_G, DNA_T)
+symbols(::RNAAlphabet{2}) = (RNA_A, RNA_C, RNA_G, RNA_U)
+
+function symbols(::DNAAlphabet{4})
+    (DNA_Gap, DNA_A, DNA_C, DNA_M, DNA_G, DNA_R, DNA_S, DNA_V,
+    DNA_T, DNA_W, DNA_Y, DNA_H, DNA_K, DNA_D, DNA_B, DNA_N)
+end
+
+function symbols(::RNAAlphabet{4})
+    (RNA_Gap, RNA_A, RNA_C, RNA_M, RNA_G, RNA_R, RNA_S, RNA_V,
+    RNA_U, RNA_W, RNA_Y, RNA_H, RNA_K, RNA_D, RNA_B, RNA_N)
+end
+
+BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{2} = BitsPerSymbol{2}()
+BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{4} = BitsPerSymbol{4}()
+
+
+## Encoding and decoding DNA and RNA alphabet symbols
 
 # A nucleotide with bitvalue B has kmer-bitvalue kmerbits[B+1].
 # ambiguous nucleotides have no kmervalue, here set to 0xff
@@ -201,100 +168,98 @@ const twobitnucs = (0xff, 0x00, 0x01, 0xff,
                     0xff, 0xff, 0xff, 0xff)
 
 for A in (DNAAlphabet, RNAAlphabet)
-
     T = eltype(A)
-
     @eval begin
 
-	# 2-bit encoding
+	    # 2-bit encoding
         @inline function encode(::$(A){2}, nt::$(T))
             if count_ones(nt) != 1 || !isvalid(nt)
                 throw(EncodeError($(A){2}(), nt))
             end
-            return convert(UInt8, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
+            return convert(UInt, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
         end
 
-        @inline function decode(::$(A){2}, x::UInt8)
-            if x > 0x03
+        @inline function decode(::$(A){2}, x::UInt)
+            if x > UInt(3)
                 throw(DecodeError($(A){2}(), x))
             end
-            return reinterpret($(T), 0x01 << x)
+            return reinterpret($(T), 0x01 << (x & 0x03))
         end
 
-	    @inline decode(::$(A){2}, x::Unsigned) = decode($(A){2}(), UInt8(x))
+	    @inline decode(::$(A){2}, x::Unsigned) = decode($(A){2}(), UInt(x))
 
         # 4-bit encoding
         @inline function encode(::$(A){4}, nt::$(T))
             if !isvalid(nt)
                 throw(EncodeError($(A){4}(), nt))
             end
-            return reinterpret(UInt8, nt)
+            return convert(UInt, reinterpret(UInt8, nt))
         end
 
-        @inline function decode(::$(A){4}, x::UInt8)
+        @inline function decode(::$(A){4}, x::UInt)
             if !isvalid($(T), x)
                 throw(DecodeError($(A){4}(), x))
             end
-            return reinterpret($(T), x)
+            return reinterpret($(T), x % UInt8)
         end
 
-        @inline decode(::$(A){4}, x::Unsigned) = decode($(A){4}(), UInt8(x))
+        @inline decode(::$(A){4}, x::Unsigned) = decode($(A){4}(), UInt(x))
     end
 end
 
-###
-### AminoAcidAlphabet
-###
+### Promotion of nucletid acid alphabets
+
+for alph in (DNAAlphabet, RNAAlphabet)
+    @eval function Base.promote_rule(::Type{A}, ::Type{B}) where {A<:$alph,B<:$alph}
+        # TODO: Resolve this use of bits_per_symbol.
+        return $alph{max(bits_per_symbol(A()),bits_per_symbol(B()))}
+    end
+end
+
+## Amino acid alphabet
+
+"""
+Amino acid alphabet.
+"""
+struct AminoAcidAlphabet <: Alphabet end
+BitsPerSymbol(::AminoAcidAlphabet) = BitsPerSymbol{8}()
+Base.eltype(::Type{AminoAcidAlphabet}) = AminoAcid
+
+function symbols(::AminoAcidAlphabet)
+    (AA_A, AA_R, AA_N, AA_D, AA_C, AA_Q, AA_E, AA_G, AA_H,
+    AA_I, AA_L, AA_K, AA_M, AA_F, AA_P, AA_S, AA_T, AA_W,
+    AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
+end
 
 @inline function encode(::AminoAcidAlphabet, aa::AminoAcid)
-    if aa > AA_Gap
+    if reinterpret(UInt8, aa) > reinterpret(UInt8, AA_Gap)
         throw(EncodeError(AminoAcidAlphabet(), aa))
     end
-    return reinterpret(UInt8, aa)
+    return convert(UInt, reinterpret(UInt8, aa))
 end
 
-@inline function decode(::AminoAcidAlphabet, x::UInt8)
+@inline function decode(::AminoAcidAlphabet, x::UInt)
     if x > 0x1b
         throw(DecodeError(AminoAcidAlphabet(), x))
     end
-    return reinterpret(AminoAcid, x)
+    return reinterpret(AminoAcid, x % UInt8)
 end
 
 @inline function decode(::AminoAcidAlphabet, x::Unsigned)
-    return decode(AminoAcidAlphabet(), UInt8(x))
-end
-
-###
-### CharAlphabet
-###
-
-@inline function encode(::CharAlphabet, char::Char)
-    if char > '\U10ffff'
-        throw(EncodeError(CharAlphabet(), char))
-    end
-    return reinterpret(UInt32, char)
-end
-
-@inline function decode(::CharAlphabet, x::UInt32)
-    c = reinterpret(Char, x)
-    if !isvalid(c)
-        throw(DecodeError(CharAlphabet(), x))
-    end
-    return c
-end
-
-@inline function decode(::CharAlphabet, x::Unsigned)
-    return decode(CharAlphabet(), UInt32(x))
+    return decode(AminoAcidAlphabet(), UInt(x))
 end
 
 # AsciiAlphabet trait - add to user defined type to use speedups.
-# Must define methods codetype, stringbyte,
+# Must define methods codetype, BioSymbols.stringbyte, ascii_encode
 "Abstract trait for ASCII/Unicode dispatch. See `AsciiAlphabet`"
 abstract type AlphabetCode end
 
-"""Trait for alphabet using ASCII characters as String representation.
+"""
+    AsciiAlphabet
+
+Trait for alphabet using ASCII characters as String representation.
 Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` A to gain speed.
-Methods needed: `stringbyte(::eltype(A))` and `stringbyte(A, ::UInt8)`.
+Methods needed: `BioSymbols.stringbyte(::eltype(A))` and `ascii_encode(A, ::UInt8)`.
 """
 struct AsciiAlphabet <: AlphabetCode end
 
@@ -308,23 +273,32 @@ function codetype(::A) where {A <: Union{DNAAlphabet{2}, DNAAlphabet{4},
 end
 codetype(::Alphabet) = UnicodeAlphabet()
 
-# Create a lookup table from biosymbol to the UInt8 for the character that would
-# represent it in a string, e.g. DNA_G -> UInt8('G')
-for alphabettype in ("DNA", "RNA", "AminoAcid")
-    tablename = Symbol(uppercase(alphabettype), "_TO_BYTE")
-    typ = Symbol(alphabettype)
+"""
+	ascii_encode(::Alphabet, b::UInt8)::UInt8
+
+Encode the ASCII character represented by `b` to the internal alphabet encoding.
+For example, the input byte `UInt8('C')` is encoded to `0x01` and `0x02` for
+2- and 4-bit DNA alphabets, reprectively.
+This method is only needed if the `Alphabet` is an `AsciiAlphabet`.
+
+See also: [`AsciiAlphabet`](@ref)
+"""
+function ascii_encode end
+
+for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
+    RNAAlphabet{2}, AminoAcidAlphabet))
+    tablename = Symbol("BYTE_TO_ALPHABET_CHAR" * string(anum))
     @eval begin
+        alph = $(atype)()
+        syms = symbols(alph)
         const $(tablename) = let
-            alph = alphabet($(typ))
-            bytes = zeros(UInt8, length(alph))
-            @inbounds for letter in alph
-                bytes[reinterpret(UInt8, letter) + 1] = UInt8(Char(letter))
+            bytes = fill(0x80, 256)
+            for symbol in syms
+                bytes[UInt8(Char(symbol)) + 1] = encode(alph, symbol)
+                bytes[UInt8(lowercase(Char(symbol))) + 1] = encode(alph, symbol)
             end
             Tuple(bytes)
         end
-        stringbyte(x::$(typ)) = @inbounds $(tablename)[reinterpret(UInt8, x) + 1]
+        ascii_encode(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
     end
 end
-
-# Less efficient fallback. Should only be called for symbols of AsciiAlphabet
-stringbyte(x::BioSymbol) = UInt8(Char(x))
