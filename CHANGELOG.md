@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.0]
 ### Removed
-- Removed minhashing functionality
-- Removed composition functionality
+- Removed `unsafe_setindex!`. Instead, use normal setindex with `@inbounds`.
+- Removed minhashing functionality - see package MinHash.jl
+- Removed composition functionality - see package Kmers.jl
 - Removed ReferenceSequence functionality
 - Removed demultiplexer functionality
 - Removed kmer functionality - this is moved to Kmers.jl
@@ -16,7 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed ConditionIterator
 
 ### Added
-- Added method `masked(::Type{<:Mer}, x::UInt)` and equivalent for `BigMer`. Use this method to convert an integer to a kmer.
 - Added type `LongSubSeq`, a view into a `LongSequence`.
 - Added method `translate!(::LongAminoAcidSeq, ::LongNucleotideSeq; kwargs...)`
 - Added method `join(::Type{T<:BioSeuence}, it)` to join an iterable of biosequences

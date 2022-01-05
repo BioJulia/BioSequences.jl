@@ -253,23 +253,16 @@ end
     function test_join(::Type{T}, seqs, result) where T
         @test join(T, seqs) == result
         @test join!(T(), seqs) == result
-        long_seq = T(1000)
+        long_seq = T(undef, 1000)
         @test join!(long_seq, seqs) == result
     end
 
     base_seq = dna"TGATGCTAVWMMKACGAS" # used for seqviews in testing
-    test_join(LongDNASeq, [dna"TACG", mer"ACCTGT", @view(base_seq[16:18])], dna"TACGACCTGTGAS")
-    test_join(LongRNASeq, Set([]), LongRNASeq())
+    test_join(LongDNA{4}, [dna"TACG", dna"ACCTGT", @view(base_seq[16:18])], dna"TACGACCTGTGAS")
+    test_join(LongRNA{4}, Set([]), LongRNA{4}())
 
     base_aa_seq = aa"KMAEEHPAIYWLMN"
-    test_join(LongAminoAcidSeq, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
-
-    test_join(LongSequence{DNAAlphabet{2}},
-        Iterators.filter(x -> true, map(each(DNAMer{3}, dna"ACGTAGC")) do kmer
-            kmer.fw
-        end),
-        LongSequence{DNAAlphabet{2}}("ACGCGTGTATAGAGC")
-    )
+    test_join(LongAA, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
 end
 
 @testset "Length" begin
