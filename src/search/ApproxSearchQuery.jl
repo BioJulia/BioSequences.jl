@@ -108,7 +108,10 @@ end
     findnext(query, k, seq, start)
 
 Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
-up to `k` errors; symbol comparison is done using `BioSequences.iscompatible`.
+up to `k` errors.
+
+Symbol comparison is done using the predicate supplied to the query.
+By default, `ApproximateSearchQuery`'s predicate is `isequal`.
 """
 function Base.findnext(query::ApproximateSearchQuery, k::Integer, seq::BioSequence, start::Integer)
     return _approxsearch(query, k, seq, start, lastindex(seq), true)
@@ -118,8 +121,10 @@ end
     findprev(query, k, seq, start)
 
 Return the range of the last occurrence of `query` in `seq[stop:start]` allowing
-up to `k` errors; symbol comparison is done using the predicate function supplied to the query. 
-By default, `ApproxSearchQuery`'s predicate is`BioSequences.iscompatible`.
+up to `k` errors.
+
+Symbol comparison is done using the predicate supplied to the query.
+By default, `ApproximateSearchQuery`'s predicate is `isequal`.
 """
 function Base.findprev(query::ApproximateSearchQuery, k::Integer, seq::BioSequence, start::Integer)
     return _approxsearch(query, k, seq, start, firstindex(seq), false)

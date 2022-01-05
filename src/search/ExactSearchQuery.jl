@@ -232,7 +232,9 @@ Base.findfirst(pat::ExactSearchQuery, seq::BioSequence) = findnext(pat, seq, fir
     findprev(query::ExactSearchQuery, seq::BioSequence, start::Integer)
 
 Return the index of the last occurrence of `query` in `seq`.
-Symbol comparison is done using `BioSequences.iscompatible`.
+
+Symbol comparison is done using the predicate supplied to the query.
+By default, `ExactSearchQuery`'s predicate is `isequal`.
 """
 function Base.findprev(query::ExactSearchQuery, seq::BioSequence, start::Integer)
     i = quickrsearch(query, seq, start, 1)
