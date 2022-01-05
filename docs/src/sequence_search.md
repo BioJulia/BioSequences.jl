@@ -212,6 +212,14 @@ PWM is done for you as a convenience if you build a `PWMSearchQuery`, using a
 collection of sequences:
 
 ```jldoctest
+julia> motifs = [dna"TTA", dna"CTA", dna"ACA", dna"TCA", dna"GTA"]
+5-element Vector{LongSequence{DNAAlphabet{4}}}:
+ TTA
+ CTA
+ ACA
+ TCA
+ GTA
+
 julia> subject = dna"TATTATAATTA";
 
 julia> qa = PWMSearchQuery(motifs, 1.0);
