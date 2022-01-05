@@ -212,9 +212,13 @@ PWM is done for you as a convenience if you build a `PWMSearchQuery`, using a
 collection of sequences:
 
 ```jldoctest
-subject = dna"TATTATAATTA"
-qa = PWMSearchQuery(motifs)
-findfirst(qa, subject)
+julia> subject = dna"TATTATAATTA";
+
+julia> qa = PWMSearchQuery(motifs, 1.0);
+
+julia> findfirst(qa, subject)
+3
+
 ```
 
 [Wasserman2004]: https://doi.org/10.1038/nrg1315
