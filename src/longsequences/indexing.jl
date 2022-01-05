@@ -62,3 +62,17 @@ end
     @inbounds data[vi] = (v_ << off) | (bits & ~(bitmask(i) << off))
     return s
 end
+
+# Broadcasting
+
+#Base.axes(x::BioSymbol) = ()
+#Base.ndims(::Type{<:BioSymbol}) = 0
+#Base.ndims(x::BioSymbol) = 0
+#Base.broadcastable(x::BioSymbol) = x
+
+#Base.broadcastable(x::LongSequence) = x
+#Base.getindex(x::LongSequence, i::Base.CartesianIndex{1}) = x[first(i.I)]
+
+#Base.BroadcastStyle(::Type{T}) where {T<:LongSequence} = Broadcast.Style{T}()
+
+#Base.BroadcastStyle(::Broadcast.Style{<:LongSequence}, ::Broadcast.DefaultArrayStyle{N}) where {N} = Broadcast.DefaultArrayStyle{N}()
