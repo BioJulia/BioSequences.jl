@@ -171,9 +171,7 @@ export
     n_ambiguous,
     n_gaps,
     n_certain,
-    
     gc_content,
-
     translate!,
     translate,
     ncbi_trans_table,
@@ -181,15 +179,11 @@ export
     # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
-    approxsearch,
-    approxsearchindex,
-    approxrsearch,
-    approxrsearchindex,
     PFM,
     PWM,
+    PWMSearchQuery,
     maxscore,
     scoreat,
-    
     seqmatrix,
     majorityvote
 
@@ -227,8 +221,8 @@ include("geneticcode.jl")
 
 
 # Pattern searching in sequences...
-include("search/exact.jl")
-include("search/approx.jl")
+include("search/ExactSearchQuery.jl")
+include("search/ApproxSearchQuery.jl")
 include("search/re.jl")
 include("search/pwm.jl")
 

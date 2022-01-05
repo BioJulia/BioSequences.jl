@@ -44,8 +44,8 @@ include("translation.jl")
 include("counting.jl")
 
 @testset "Search" begin
-    include("search/exact.jl")
-    include("search/approximate.jl")
+    include("search/ExactSearchQuery.jl")
+    include("search/ApproximateSearchQuery.jl")
     include("search/regex.jl")
     include("search/pwm.jl")
 end
