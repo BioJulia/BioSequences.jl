@@ -57,12 +57,12 @@ julia> findnext(query, 1, dna"AAGNGG", 1) # 1 mismatch permitted (A vs G) & matc
 ```
 
 !!! note
-   This method of searching for motifs was implemented with smaller query motifs
-   in mind.
-   
-   If you are looking to search for imperfect matches of longer sequences in this
-   manner, you are likely better off using some kind of local-alignment algorithm
-   or one of the BLAST variants.
+    This method of searching for motifs was implemented with smaller query motifs
+    in mind.
+    
+    If you are looking to search for imperfect matches of longer sequences in this
+    manner, you are likely better off using some kind of local-alignment algorithm
+    or one of the BLAST variants.
 """
 struct ApproximateSearchQuery{F<:Function,S<:BioSequence}
     comparator::F           # comparator function
