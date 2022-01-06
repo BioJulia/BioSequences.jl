@@ -6,8 +6,7 @@
 
 # Counting GC positions
 let
-    @info "Compiling bit-parallel GC counter for LongSequence{<:NucleicAcidAlphabet}"
-    counter = :(n += gc_bitcount(chunk, BitsPerSymbol(seq)))
+    counter = :(n += gc_bitcount(chunk, Alphabet(seq)))
     compile_bitpar(
         :count_gc_bitpar,
         arguments   = (:(seq::SeqOrView{<:NucleicAcidAlphabet}),),
@@ -23,8 +22,6 @@ Base.count(::typeof(isGC), seq::SeqOrView{<:NucleicAcidAlphabet}) = count_gc_bit
 
 # Counting mismatches
 let
-    @info "Compiling bit-parallel mismatch counter for LongSequence{<:NucleicAcidAlphabet}"
-    
     counter = :(count += mismatch_bitcount(x, y, A()))
     
     compile_2seq_bitpar(
@@ -43,13 +40,11 @@ Base.count(::typeof(!=), seqa::NucleicSeqOrView, seqb::NucleicSeqOrView) = count
 
 # Counting matches
 let
-    @info "Compiling bit-parallel match counter for LongSequence{<:NucleicAcidAlphabet}"
-    
     counter = :(count += match_bitcount(x, y, A()))
     
     count_empty = quote
         count += match_bitcount(x, y, A())
-        nempty = div(64, bits_per_symbol(A())) - div(offs, bits_per_symbol(A()))
+        nempty = div(64, bits_per_symbol(A())) - div(Int(offs), bits_per_symbol(A()))
         count -= nempty
     end
     
@@ -70,9 +65,6 @@ Base.count(::typeof(==), seqa::NucleicSeqOrView, seqb::NucleicSeqOrView) = count
 # Counting ambiguous sites
 # ------------------------
 let
-    @info "Compiling bit-parallel ambiguity counter..."
-    @info "\tFor a single LongSequence{<:NucleicAcidAlphabet}"
-    
     counter = :(count += ambiguous_bitcount(chunk, Alphabet(seq)))
     
     compile_bitpar(
@@ -84,8 +76,6 @@ let
         tail_code   = counter,
         return_code = :(return count)
     ) |> eval
-    
-    @info "\tFor a pair of LongSequence{<:NucleicAcidAlphabet}s"
     
     counter = :(count += ambiguous_bitcount(x, y, A()))
     
@@ -116,8 +106,6 @@ Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seq
 
 # Counting certain sites
 let
-    @info "Compiling bit-parallel certainty counter for LongSequence{<:NucleicAcidAlphabet}"
-    
     counter = :(count += certain_bitcount(x, y, A()))
     
     compile_2seq_bitpar(
@@ -137,8 +125,6 @@ Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb:
 
 # Counting gap sites
 let
-    @info "Compiling bit-parallel gap counter for LongSequence{<:NucleicAcidAlphabet}"
-    
     counter = :(count += gap_bitcount(x, y, A()))
     
     count_empty = quote

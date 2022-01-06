@@ -1,4 +1,12 @@
 @testset "Regular Expression" begin
+    # First test the biore syntax works as intended
+    @test biore"A+[CG]N"d == BioRegex{DNA}("A+[CG]N")
+    @test biore"A+[CG]N"d != BioRegex{DNA}("A*[CG]N")
+    @test biore"MV?(I|L)W{3,5}$"a == BioRegex{AminoAcid}("MV?(I|L)W{3,5}\$")
+    @test biore"MV?(I|L)W{3,5}$"a != BioRegex{AminoAcid}("MV?(I|L)W{3,4}\$")
+    @test biore"A+UUC*"r == BioRegex{RNA}("A+UUC*")
+    @test biore"A+UC*"r != BioRegex{RNA}("A+UUC*")
+
     @test isa(biore"A+"d, BioSequences.RE.Regex{DNA})
     @test isa(biore"A+"r, BioSequences.RE.Regex{RNA})
     @test isa(biore"A+"a, BioSequences.RE.Regex{AminoAcid})

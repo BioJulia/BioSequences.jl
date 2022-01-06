@@ -42,7 +42,7 @@ DNA_A
 ```
 
 !!! note
-    Some types such as `Kmer` can be indexed using integers but not using ranges.
+    Some types such can be indexed using integers but not using ranges.
 
     
 For `LongSequence` types, indexing a sequence by range creates a copy of the
@@ -57,15 +57,15 @@ biological sequences such as `push!`, `pop!`, and `insert!`, which should be
 familiar to anyone used to editing arrays.
 
 ```@docs
-push!
-pop!
-pushfirst!
-popfirst!
-insert!
+push!(::BioSequences.BioSequence, ::Any)
+pop!(::BioSequences.BioSequence)
+pushfirst!(::BioSequences.BioSequence, ::Any)
+popfirst!(::BioSequences.BioSequence)
+insert!(::BioSequences.BioSequence, ::Integer, ::Any)
 deleteat!(::BioSequences.BioSequence, ::Integer)
-append!
-resize!
-empty!
+append!(::BioSequences.BioSequence, ::BioSequences.BioSequence)
+resize!(::BioSequences.LongSequence, ::Integer)
+empty!(::BioSequences.BioSequence)
 ```
 
 Here are some examples:

@@ -1,6 +1,11 @@
 @testset "Basics" begin
-	seq = LongSequence()
-	@test seq isa LongSequence{BioSequences.VoidAlphabet}
+    @test BioSequences.has_interface(BioSequence, LongDNA{2}, [DNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongDNA{4}, [DNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongRNA{2}, [RNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongRNA{4}, [RNA_G], true)
+    @test BioSequences.has_interface(BioSequence, LongAA, [AA_G], true)
+
+	seq = LongSequence{DNAAlphabet{2}}()
 	@test isempty(seq)
 
 	@test similar(seq) == seq
@@ -11,6 +16,14 @@
 	sim = similar(seq)
 	@test typeof(sim) == typeof(seq)
 	@test length(sim) == length(seq)
+
+    # Construct from other sequences
+    seq = LongAA("AGCTVMN")
+    @test LongSequence(seq) == LongAA("AGCTVMN")
+    @test LongSequence(seq, 2:5) == LongAA("GCTV")
+    @test LongSequence(SimpleSeq("AUCGU")) isa LongRNA{2}
+    @test LongSequence(SimpleSeq("AUCGU")) == LongRNA{2}("AUCGU")
+    LongDNA{4}(LongRNA{4}("AUCGUA")) == LongDNA{4}("ATCGTA")
 end
 
 @testset "Copy sequence" begin
@@ -25,14 +38,13 @@ end
         test_copy(DNAAlphabet{4}, random_dna(len))
         test_copy(RNAAlphabet{2}, random_rna(len, [0.25, 0.25, 0.25, 0.25]))
         test_copy(AminoAcidAlphabet, random_aa(len))
-        test_copy(CharAlphabet, random_aa(len))
     end
 end # testset
 
 @testset "Copy! sequence" begin
     function test_copy!(A, srctxt)
         src = LongSequence{A}(srctxt)
-        dst = LongSequence{A}(0)
+        dst = LongSequence{A}(undef, 0)
         for len in [max(0, length(src) - 3), length(src), length(src) + 4]
             resize!(dst, len)
             copy!(dst, src)
@@ -43,12 +55,11 @@ end # testset
     test_copy!(DNAAlphabet{4}, random_dna(14))
     test_copy!(RNAAlphabet{2}, random_rna(55, [0.25, 0.25, 0.25, 0.25]))
     test_copy!(AminoAcidAlphabet, random_aa(18))
-    test_copy!(CharAlphabet, random_aa(9))
 
     #  Also works across nucleotide types!
     for N in (2,4)
-        src = LongSequence{DNAAlphabet{N}}(random_dna(33, [0.25, 0.25, 0.25, 0.25]))
-        dst = LongSequence{RNAAlphabet{N}}(random_rna(31, [0.25, 0.25, 0.25, 0.25]))
+        src = LongDNA{N}(random_dna(33, [0.25, 0.25, 0.25, 0.25]))
+        dst = LongRNA{N}(random_rna(31, [0.25, 0.25, 0.25, 0.25]))
         copy!(dst, src)
         @test String(typeof(dst)(src)) == String(dst)
         resize!(dst, 16)
@@ -57,8 +68,8 @@ end # testset
     end
 
     # Doesn't work for wrong types
-    @test_throws MethodError copy!(LongDNASeq("TAG"), LongAminoAcidSeq("WGM"))
-    @test_throws MethodError copy!(LongSequence{DNAAlphabet{2}}("TAG"), LongRNASeq("UGM"))
+    @test_throws Exception copy!(LongDNA{4}("TAG"), LongAA("WGM"))
+    @test_throws Exception copy!(LongDNA{2}("TAG"), LongRNA{4}("UGM"))
 end
 
 @testset "Copyto! sequence" begin
@@ -88,12 +99,15 @@ end
     test_copyto2!(DNAAlphabet{2}, len -> random_dna(len, [0.25, 0.25, 0.25, 0.25]))
     test_copyto2!(RNAAlphabet{4}, random_rna)
     test_copyto2!(AminoAcidAlphabet, random_aa)
-    test_copyto2!(CharAlphabet, random_aa)
 
     # Test bug when copying to self
-    src = LongDNASeq("A"^16 * "C"^16 * "A"^16)
+    src = LongDNA{4}("A"^16 * "C"^16 * "A"^16)
     copyto!(src, 17, src, 1, 32)
     @test String(src) == "A"^32 * "C"^16
+
+    # Can't copy over edge
+    dst = LongDNA{4}("TAGCA")
+    @test_throws Exception copyto!(dst, 1, fill(0x61, 2), 2, 3)
 end
 
 @testset "Copy! data" begin
@@ -106,23 +120,20 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(6)
-    dna4 = LongSequence{DNAAlphabet{4}}(6)
-    rna2 = LongSequence{RNAAlphabet{2}}(6)
-    rna4 = LongSequence{RNAAlphabet{4}}(6)
-    aa = LongSequence{AminoAcidAlphabet}(6)
-    charseq = LongSequence{CharAlphabet}(6)
+    dna2 = LongDNA{2}(undef, 6)
+    dna4 = LongDNA{4}(undef, 6)
+    rna2 = LongRNA{2}(undef, 6)
+    rna4 = LongRNA{4}(undef, 6)
+    aa = LongAA(undef, 6)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
-        for len in [0, 1, 10, 16, 32, 100, 5]
+        for len in [0, 1, 5, 16, 32, 100]
             test_copy!(dna2, dtype(random_dna(len, probs)))
             test_copy!(dna4, dtype(random_dna(len)))
             test_copy!(rna2, dtype(random_rna(len, probs)))
             test_copy!(rna4, dtype(random_rna(len)))
             test_copy!(aa, dtype(random_aa(len)))
-            test_copy!(charseq, dtype(random_aa(len)))
         end
     end
-    test_copy!(charseq, "ϐʌ⨝W")
 end
 
 @testset "Copyto! data" begin
@@ -137,12 +148,11 @@ end
     end
 
     probs = [0.25, 0.25, 0.25, 0.25, 0.00]
-    dna2 = LongSequence{DNAAlphabet{2}}(50)
-    dna4 = LongSequence{DNAAlphabet{4}}(50)
-    rna2 = LongSequence{RNAAlphabet{2}}(50)
-    rna4 = LongSequence{RNAAlphabet{4}}(50)
-    aa = LongSequence{AminoAcidAlphabet}(50)
-    charseq = LongSequence{CharAlphabet}(50)
+    dna2 = LongDNA{2}(undef, 50)
+    dna4 = LongDNA{4}(undef, 50)
+    rna2 = LongRNA{2}(undef, 50)
+    rna4 = LongRNA{4}(undef, 50)
+    aa = LongAA(undef, 50)
     for dtype in [Vector{UInt8}, Vector{Char}, String, Test.GenericString]
         for len in [0, 1, 10, 16, 32, 5]
             test_twoarg_copyto!(dna2, dtype(random_dna(len, probs)))
@@ -150,11 +160,8 @@ end
             test_twoarg_copyto!(rna2, dtype(random_rna(len, probs)))
             test_twoarg_copyto!(rna4, dtype(random_rna(len)))
             test_twoarg_copyto!(aa, dtype(random_aa(len)))
-            test_twoarg_copyto!(charseq, dtype(random_aa(len)))
         end
     end
-    copyto!(charseq, "ϐʌ⨝W")
-    @test collect(charseq[1:4]) == collect("ϐʌ⨝W")
 
     # Five-arg copyto!
     function test_fivearg_copyto!(seq, src)
@@ -174,7 +181,6 @@ end
         test_fivearg_copyto!(rna2, dtype(random_rna(60, probs)))
         test_fivearg_copyto!(rna4, dtype(random_rna(60)))
         test_fivearg_copyto!(aa, dtype(random_aa(60)))
-        test_fivearg_copyto!(charseq, dtype(random_aa(60)))
     end
 
 end
@@ -191,10 +197,10 @@ end
         end
         str = string([chunk[parts[i]] for (i, chunk) in enumerate(chunks)]...)
         seq = *([LongSequence{A}(chunk)[parts[i]] for (i, chunk) in enumerate(chunks)]...)
-        @test convert(String, seq) == uppercase(str)
+        @test String(seq) == uppercase(str)
     end
 
-    for _ in 1:100
+    for _ in [1, 2, 5, 10, 18, 32, 55, 64, 70]
         n = rand(1:10)
         chunks = [random_dna(rand(1:100)) for _ in 1:n]
         test_concatenation(DNAAlphabet{4}, chunks)
@@ -221,7 +227,7 @@ end
         n = rand(1:10)
         str = chunk[start:stop] ^ n
         seq = LongSequence{A}(chunk)[start:stop] ^ n
-        @test convert(String, seq) == uppercase(str)
+        @test String(seq) == uppercase(str)
     end
 
     for _ in 1:10
@@ -247,38 +253,29 @@ end
     function test_join(::Type{T}, seqs, result) where T
         @test join(T, seqs) == result
         @test join!(T(), seqs) == result
-        long_seq = T(1000)
+        long_seq = T(undef, 1000)
         @test join!(long_seq, seqs) == result
     end
 
     base_seq = dna"TGATGCTAVWMMKACGAS" # used for seqviews in testing
-    test_join(LongDNASeq, [dna"TACG", mer"ACCTGT", @view(base_seq[16:18])], dna"TACGACCTGTGAS")
-    test_join(LongRNASeq, Set([]), LongRNASeq())
+    test_join(LongDNA{4}, [dna"TACG", dna"ACCTGT", @view(base_seq[16:18])], dna"TACGACCTGTGAS")
+    test_join(LongRNA{4}, Set([]), LongRNA{4}())
 
     base_aa_seq = aa"KMAEEHPAIYWLMN"
-    test_join(LongAminoAcidSeq, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
-
-    test_join(LongSequence{DNAAlphabet{2}},
-        Iterators.filter(x -> true, map(each(DNAMer{3}, dna"ACGTAGC")) do kmer
-            kmer.fw
-        end),
-        LongSequence{DNAAlphabet{2}}("ACGCGTGTATAGAGC")
-    )
+    test_join(LongAA, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
 end
 
 @testset "Length" begin
-    for len in [0, 1, 2, 3, 10, 16, 32, 1000, 10000]
-        seq = LongDNASeq(random_dna(len))
+    for len in [0, 1, 2, 10, 16, 32, 1000]
+        seq = LongDNA{4}(random_dna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = LongRNASeq(random_rna(len))
+        seq = LongRNA{4}(random_rna(len))
         @test length(seq) === lastindex(seq) === len
 
-        seq = LongAminoAcidSeq(random_aa(len))
+        seq = LongAA(random_aa(len))
         @test length(seq) === lastindex(seq) === len
     end
-
-    @test length(char"いろはabc") === 6
 end
 
 @testset "Access" begin
@@ -312,7 +309,6 @@ end
     @test rna"ACUGNACUGN"[5:1] == rna""
 
     @test aa"KSAAV"[3] == AA_A
-    @test char"いろはにほ"[3] == 'は'
 end
 
 @testset "Equality" begin
@@ -364,4 +360,26 @@ end
         """
         @test a == b
     end
+end
+
+@testset "Custom ASCII alphabet" begin
+    @test string(LongSequence{ReducedAAAlphabet}("FSPMKH")) == "FSPMKH"
+    buf = IOBuffer()
+    print(buf, LongSequence{ReducedAAAlphabet}("AGTDNWLE"))
+    @test String(take!(buf)) == "AGTDNWLE"
+
+    #### Now add AsciiAlphabet capacity
+    BioSequences.codetype(::ReducedAAAlphabet) = BioSequences.AsciiAlphabet()
+    function BioSequences.ascii_encode(::ReducedAAAlphabet, x::UInt8)
+        for sym in symbols(ReducedAAAlphabet())
+            if UInt8(Char(sym)) == x
+                return UInt8(encode(ReducedAAAlphabet(), sym))
+            end
+        end
+    end
+
+    @test string(LongSequence{ReducedAAAlphabet}("FSPMKH")) == "FSPMKH"
+    buf = IOBuffer()
+    print(buf, LongSequence{ReducedAAAlphabet}("AGTDNWLE"))
+    @test String(take!(buf)) == "AGTDNWLE"
 end

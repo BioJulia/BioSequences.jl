@@ -20,37 +20,6 @@ function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) wh
     end
 end
 
-function Base.filter!(f, seq::LongSequence)
-    writeindex = bitindex(seq, 0)
-    chunk = zero(UInt64)
-    bps = bits_per_symbol(seq)
-    for i in eachindex(seq)
-        encoded_symbol = extract_encoded_element(bitindex(seq, i), encoded_data(seq))
-        symbol = decode(Alphabet(seq), encoded_symbol)
-        if f(symbol)
-            writeindex += bps
-            chunk |= encoded_symbol << offset(writeindex)
-            # If the offset is now zero, the chunk is full
-            if iszero(offset(writeindex + bps))
-                seq.data[index(writeindex)] = chunk
-                chunk = zero(UInt64)
-            end
-        end
-    end
-    # If it's not zero, we need to write the first chunk
-    if !iszero(offset(writeindex + bps))
-        seq.data[index(writeindex)] = chunk
-    end
-    resize!(seq, div((writeindex + bps).val, bps))
-end
-
-function Base.map!(f, seq::LongSequence)
-    for i in 1:lastindex(seq)
-        unsafe_setindex!(seq, f(inbounds_getindex(seq, i)), i)
-    end
-    return seq
-end
-
 """
     reverse!(seq::LongSequence)
 
@@ -68,7 +37,7 @@ Base.reverse(seq::LongSequence{<:Alphabet}) = _reverse(seq, BitsPerSymbol(seq))
 # Fast path for non-inplace reversion
 @inline function _reverse(seq::LongSequence{A}, B::BT) where {A <: Alphabet,
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
-    cp = LongSequence{A}(unsigned(length(seq)))
+    cp = LongSequence{A}(undef, unsigned(length(seq)))
     reverse_data_copy!(identity, cp.data, seq.data, seq_data_len(seq) % UInt, B)
     return zero_offset!(cp)
 end
@@ -98,11 +67,13 @@ end
 # all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
+    isempty(seq) && return seq
     offs = (64 - offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))) % UInt
     zero_offset!(seq, offs) 
 end
 
 @inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
+    isempty(seq) && return seq
     rshift = offs
     lshift = 64 - rshift
     len = length(seq.data)
@@ -180,7 +151,7 @@ function reverse_complement!(seq::LongSequence{<:NucleicAcidAlphabet})
 end
 
 function reverse_complement(seq::LongSequence{<:NucleicAcidAlphabet})
-    cp = typeof(seq)(unsigned(length(seq)))
+    cp = typeof(seq)(undef, unsigned(length(seq)))
     pred = x -> complement_bitpar(x, Alphabet(seq))
     reverse_data_copy!(pred, cp.data, seq.data, seq_data_len(seq) % UInt, BitsPerSymbol(seq))
     return zero_offset!(cp)

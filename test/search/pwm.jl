@@ -34,7 +34,7 @@
         @test pfm .+ [0,1,2,3] isa PFM{DNA,Int}
         @test pfm .+ [0,1,2,3] == PFM{DNA}(m .+ [0,1,2,3])
 
-        set = DNAMer.(split(
+        set = LongDNA{4}.(split(
         """
         ACG
         ATG
@@ -49,10 +49,10 @@
             0 1 0  # T
         ]
         @test pfm == PFM(Set(set))
-        @test_throws ArgumentError PFM(DNAKmer[])
+        @test_throws ArgumentError PFM(LongDNA{4}[])
         @test_throws ArgumentError PFM(["foo"])
-        @test_throws ArgumentError PFM([DNAMer("AA"), RNAMer("AA")])
-        @test_throws ArgumentError PFM([DNAMer("AA"), DNAMer("AAA")])
+#        @test_throws ArgumentError PFM([LongDNA{4}("AA"), LongDNA{4}("AA")])
+        @test_throws ArgumentError PFM([LongDNA{4}("AA"), LongDNA{4}("AAA")])
     end
 
     @testset "PWM" begin
@@ -81,7 +81,7 @@
         @test startswith(sprint(show, pwm), string(summary(pwm), ":\n"))
     end
 
-    @testset "findfirst" begin
+    @testset "findfirst and findlast" begin
         seq = dna"ACGATNATCGCGTANTG"
         data = [
             1.0 0.1 0.2
@@ -92,10 +92,15 @@
         pwm = PWM{DNA}(data)
         @test maxscore(pwm) == 1.8
         @test scoreat(seq, pwm, 1) === 1.2
-        @test findfirst(pwm, seq, 1.0) === 1
-        @test findfirst(pwm, seq, 1.4) === 4
-        @test findfirst(pwm, seq, 1.8) === 7
-        @test findfirst(pwm, seq, 2.0) === nothing
-        @test_throws ArgumentError findfirst(pwm, LongRNASeq(seq), 1.0)
+        @test findfirst(PWMSearchQuery(pwm, 1.0), seq) === 1
+        @test findfirst(PWMSearchQuery(pwm, 1.4), seq) === 4
+        @test findfirst(PWMSearchQuery(pwm, 1.8), seq) === 7
+        @test findfirst(PWMSearchQuery(pwm, 2.0), seq) === nothing
+        @test_throws ArgumentError findfirst(PWMSearchQuery(pwm, 1.0), LongRNA{4}(seq))
+        @test findlast(PWMSearchQuery(pwm, 1.0), seq) == 14
+        @test findlast(PWMSearchQuery(pwm, 1.4), seq) === 7
+        @test findlast(PWMSearchQuery(pwm, 1.8), seq) === 7
+        @test findlast(PWMSearchQuery(pwm, 2.0), seq) === nothing
+        @test_throws ArgumentError findlast(PWMSearchQuery(pwm, 1.0), LongRNA{4}(seq))
     end
 end

@@ -124,13 +124,13 @@ function seqmatrix(::Type{T}, vseq::AbstractVector{LongSequence{A}}, major::Symb
     if major == :site
         mat = Matrix{T}(undef, (nseqs, nsites))
         @inbounds for seq in 1:nseqs, site in 1:nsites
-            mat[seq, site] = convert(T, vseq[seq][site])
+            mat[seq, site] = convert(T, reinterpret(UInt8, vseq[seq][site]))
         end
         return mat
     elseif major == :seq
         mat = Matrix{T}(undef, (nsites, nseqs))
         @inbounds for seq in 1:nseqs, site in 1:nsites
-            mat[site, seq] = convert(T, vseq[seq][site])
+            mat[site, seq] = convert(T, reinterpret(UInt8, vseq[seq][site]))
         end
         return mat
     else
@@ -194,4 +194,40 @@ function majorityvote(seqs::AbstractVector{LongSequence{A}}) where {A<:NucleicAc
         result[site] = reinterpret(eltype(A), merged)
     end
     return result
+end
+
+### Comparisons
+function Base.:(==)(seq1::SeqOrView{A}, seq2::SeqOrView{A}) where {A <: Alphabet}
+    length(seq1) == length(seq2) || false
+
+    # If they share the same data
+    if seq1.data === seq2.data && firstbitindex(seq1) == firstbitindex(seq2)
+        return true
+    end
+
+    # Fallback
+    for (i, j) in zip(seq1, seq2)
+        i == j || return false
+    end
+    return true
+end
+
+function Base.:(==)(seq1::LongSequence{A}, seq2::LongSequence{A}) where {A <: Alphabet}
+    length(seq1) == length(seq2) || return false
+    isempty(seq1) && return true
+
+    # Check all filled UInts
+    nextind = nextposition(lastbitindex(seq1))
+    @inbounds for i in 1:index(nextind) - 1
+        seq1.data[i] == seq2.data[i] || return false
+    end
+
+    # Check last coding UInt, if any
+    @inbounds if !iszero(offset(nextind))
+        mask = bitmask(offset(nextind))
+        i = index(nextind)
+        (seq1.data[i] & mask) == (seq2.data[i] & mask) || return false
+    end
+
+    return true
 end

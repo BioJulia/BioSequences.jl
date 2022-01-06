@@ -17,7 +17,7 @@ types in BioSequences.
 Sequences can be constructed from strings using their constructors:
 
 ```jldoctest
-julia> LongDNASeq("TTANC")
+julia> LongDNA{4}("TTANC")
 5nt DNA Sequence:
 TTANC
 
@@ -25,7 +25,7 @@ julia> LongSequence{DNAAlphabet{2}}("TTAGC")
 5nt DNA Sequence:
 TTAGC
 
-julia> LongRNASeq("UUANC")
+julia> LongRNA{4}("UUANC")
 5nt RNA Sequence:
 UUANC
 
@@ -33,57 +33,34 @@ julia> LongSequence{RNAAlphabet{2}}("UUAGC")
 5nt RNA Sequence:
 UUAGC
 
-julia> DNAMer{8}("ATCGATCG")
-DNA 8-mer:
-ATCGATCG
-
-julia> # The following works, but is not type-stable...
-
-julia> DNAMer("ATCGATCG")
-DNA 8-mer:
-ATCGATCG
-
-julia> RNAMer{8}("AUCGAUCG")
-RNA 8-mer:
-AUCGAUCG
-
-julia> # The following works, but is not type-stable...
-
-julia> RNAMer(LongRNASeq("AUCGAUCG"))
-RNA 8-mer:
-AUCGAUCG
-
-julia> seq = ReferenceSequence("NNCGTATTTTCN")
-12nt Reference Sequence:
-NNCGTATTTTCN
-
 ```
 
-!!! note 
-    From version 2.0 onwards, the `convert` methods for converting a
-    string or vector of symbols into a sequence type have been removed. These
-    convert methods did nothing but pass their arguments to the appropriate
-    constructor.
-    
-    These specific `convert` methods have been removed due to the semantics of
-    `convert`: Even though `convert(LongDNASeq, "ATCG")` was previously the same
-    as `LongDNASeq("ATCG")`, unlike constructors, `convert` is sometimes
-    implicitly called. So it's methods should be restricted to cases that are
-    considered safe or unsurprising. `convert` should convert between types that
-    represent the same basic kind of thing, like different representations of
-    numbers. It is also usually lossless. Not all strings are valid sequences,
-    and depending on the sequence type, not all vectors of BioSymbols are valid
-    sequences either. A string only represents the "same kind of thing" as a
-    biological sequence in some cases, so implicitly `convert`ing them to a
-    sequence type was never safe or unsurprising. These `convert` methods have
-    been renamed to `Base.parse` methods.
+Type alias' can also be used for brevity.
+
+```jldoctest
+julia> LongDNA{4}("TTANC")
+5nt DNA Sequence:
+TTANC
+
+julia> LongDNA{2}("TTAGC")
+5nt DNA Sequence:
+TTAGC
+
+julia> LongRNA{4}("UUANC")
+5nt RNA Sequence:
+UUANC
+
+julia> LongRNA{2}("UUAGC")
+5nt RNA Sequence:
+UUAGC
+```
 
 ### Constructing sequences from arrays of BioSymbols
 
 Sequences can be constructed using vectors or arrays of a `BioSymbol` type:
 
 ```jldoctest
-julia> LongDNASeq([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
+julia> LongDNA{4}([DNA_T, DNA_T, DNA_A, DNA_N, DNA_C])
 5nt DNA Sequence:
 TTANC
 
@@ -91,70 +68,31 @@ julia> LongSequence{DNAAlphabet{2}}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
 5nt DNA Sequence:
 TTAGC
 
-julia> DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> RNAMer{5}([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
-RNA 5-mer:
-UUAGC
-
-julia> # Works, but is not type-stable
-
-julia> DNAMer([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> RNAMer([RNA_U, RNA_U, RNA_A, RNA_G, RNA_C])
-RNA 5-mer:
-UUAGC
 ```
 
 ### Constructing sequences from other sequences
 
 You can create sequences, by concatenating other sequences together:
 ```jldoctest
-julia> LongDNASeq(LongDNASeq("ACGT"), LongDNASeq("NNNN"), LongDNASeq("TGCA"))
-12nt DNA Sequence:
-ACGTNNNNTGCA
-
-julia> LongDNASeq("ACGT") * LongDNASeq("TGCA")
+julia> LongDNA{2}("ACGT") * LongDNA{2}("TGCA")
 8nt DNA Sequence:
 ACGTTGCA
 
-julia> repeat(LongDNASeq("TA"), 10)
+julia> repeat(LongDNA{4}("TA"), 10)
 20nt DNA Sequence:
 TATATATATATATATATATA
 
-julia> LongDNASeq("TA") ^ 10
+julia> LongDNA{4}("TA") ^ 10
 20nt DNA Sequence:
 TATATATATATATATATATA
 
-```
-
-You can also construct long sequences from kmer sequences, and vice versa:
-
-```jldoctest
-julia> m = DNAMer{5}([DNA_T, DNA_T, DNA_A, DNA_G, DNA_C])
-DNA 5-mer:
-TTAGC
-
-julia> LongSequence(m)
-5nt DNA Sequence:
-TTAGC
-
-julia> # round trip from mer to long sequence back to mer.
-
-julia> DNAMer(LongSequence(m))
-DNA 5-mer:
-TTAGC
 ```
 
 Sequence views (`LongSubSeq`s) are special, in that they do not own their own data,
 and must be constructed from a `LongSequence` or another `LongSubSeq`:
 
 ```jdoctest
-julia> seq = LongDNASeq("TACGGACATTA")
+julia> seq = LongDNA{4}("TACGGACATTA")
 11nt DNA Sequence:
 TACGGACATTA
 
@@ -174,40 +112,23 @@ true
 
 ## Conversion of sequence types
 
-Sometimes you can convert between sequence types without construction / having
-to copy data. for example, despite being separate types, `LongDNASeq` and
-`LongRNASeq` can freely be converted between efficiently, without copying the
-underlying data:
+You can convert between sequence types, if the sequences are compatible - that is, if the source sequence does not contain symbols that are un-encodable by the destination type.
 ```jldoctest
-julia> dna = dna"TTANGTAGACCG"
+julia> dna = dna"TTACGTAGACCG"
 12nt DNA Sequence:
-TTANGTAGACCG
+TTACGTAGACCG
 
-julia> rna = convert(LongRNASeq, dna)
-12nt RNA Sequence:
-UUANGUAGACCG
-
-julia> dna.data === rna.data  # underlying data are same
-true
-
+julia> dna2 = convert(LongDNA{2}, dna)
+12nt DNA Sequence:
+TTACGTAGACCG
 ```
 
-Sequences can be converted explicitly and implicitly, into arrays and strings:
-
+DNA/RNA are special in that they can be converted to each other, despite containing distinct symbols.
+When doing so, `DNA_T` is converted to `RNA_U` and vice versa.
 ```jldoctest
-julia> dna = dna"TTANGTAGACCG"
-12nt DNA Sequence:
-TTANGTAGACCG
-
-julia> dnastr = convert(String, dna)
-"TTANGTAGACCG"
-
-julia> # Implicit conversion to string - putting dna sequence in String vector 
-
-julia> arr = String[dna]
-1-element Array{String,1}:
- "TTANGTAGACCG"
- 
+julia> convert(LongRNA{2}, dna"TAGCTAGG")
+8nt RNA Sequence:
+UAGCUAGG
 ```
 
 ## String literals
@@ -231,11 +152,6 @@ AUUUGNCCANU
 julia> aa"ARNDCQEGHILKMFPSTWYVX"
 21aa Amino Acid Sequence:
 ARNDCQEGHILKMFPSTWYVX
-
-julia> char"αβγδϵ"
-5char Char Sequence:
-αβγδϵ
-
 ```
 
 However, it should be noted that by default these sequence literals
@@ -380,42 +296,15 @@ Be careful when you are using sequence literals inside of functions, and inside
 the bodies of things like for loops. And if you use them and are unsure, use the
  's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
 
-### Kmer literals
-
-You can create literals for `Mer`s and `BigMer`s as well:
-
+## Comparison to other sequence types
+Following Base standards, BioSequences do not compare equal to other containers even if they have the same elements.
+To e.g. compare a BioSequence with a vector of DNA, compare the elements themselves:
 ```jldoctest
-julia> mer"ATCG"
-DNA 4-mer:
-ATCG
+julia> seq = dna"GAGCTGA"; vec = collect(seq);
 
-julia> mer"ATCG"dna
-DNA 4-mer:
-ATCG
+julia> seq == vec, isequal(seq, vec)
+(false, false)
 
-julia> mer"AUCG"rna
-RNA 4-mer:
-AUCG
-
-```
-
-By using a flag at the end of the literal, you can set whether the kmer should
-be a DNA kmer or an RNA kmer. If you don't set the flag, then by default it will
-try to make a dna kmer from the string.
-
-Literals for `BigMer`s are also available:
-
-```jldoctest
-julia> bigmer"ATCG"
-DNA 4-mer:
-ATCG
-
-julia> bigmer"ATCG"dna
-DNA 4-mer:
-ATCG
-
-julia> bigmer"AUCG"rna
-RNA 4-mer:
-AUCG
-
+julia> length(seq) == length(vec) && all(i == j for (i, j) in zip(seq, vec))
+true 
 ```

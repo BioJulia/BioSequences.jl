@@ -25,7 +25,7 @@
 #     decode(A, (seq.data[index(j)] >> offset(j)) & mask(A))
 #
 #  index :        index(j) - 1       index(j)       index(j) + 1
-#   data : ....|xxxxx...........|xxXxxxxxxxxxxxxx|............xxxx|....
+#   data :     |xxxxxxxxxxxxxxxx|xxXxxxxxxxxxxxxx|............xxxx|....
 # offset :                          |<-offset(j)-|
 #  width :      |<---- 64 ---->| |<---- 64 ---->| |<---- 64 ---->|
 #
@@ -34,50 +34,89 @@
 #  * 'X' : used and pointed by index `i`
 
 """
-Biological sequence data structure indexed by an alphabet type `A`.
+    LongSequence{A <: Alphabet}
+
+General-purpose `BioSequence`. This type is mutable and variable-length, and should
+be preferred for most use cases.
+
+# Extended help
+`LongSequence{A<:Alphabet} <: BioSequence{A}` is parameterized by a concrete
+`Alphabet` type `A` that defines the domain (or set) of biological symbols
+permitted.
+
+As the [`BioSequence`](@ref) interface definition implies, `LongSequence`s store
+the biological symbol elements that they contain in a succinct encoded form that
+permits many operations to be done in an efficient bit-parallel manner. As per
+the interface of [`BioSequence`](@ref), the [`Alphabet`](@ref) determines how
+an element is encoded or decoded when it is inserted or extracted from the
+sequence.
+
+For example, [`AminoAcidAlphabet`](@ref) is associated with `AminoAcid` and hence
+an object of the `LongSequence{AminoAcidAlphabet}` type represents a sequence of
+amino acids.
+
+Symbols from multiple alphabets can't be intermixed in one sequence type.
+
+The following table summarizes common LongSequence types that have been given
+aliases for convenience.
+
+| Type                                | Symbol type | Type alias   |
+| :---------------------------------- | :---------- | :----------- |
+| `LongSequence{DNAAlphabet{N}}`      | `DNA`       | `LongDNA{N}` |
+| `LongSequence{RNAAlphabet{N}}`      | `RNA`       | `LongRNA{N}` |
+| `LongSequence{AminoAcidAlphabet}`   | `AminoAcid` | `LongAA`     |
+
+The `LongDNA` and `LongRNA` aliases use a DNAAlphabet{4}.
+
+`DNAAlphabet{4}` permits ambiguous nucleotides, and a sequence must use at least
+4 bits to internally store each element (and indeed `LongSequence` does).
+
+If you are sure that you are working with sequences with no ambiguous nucleotides,
+you can use `LongSeqeunces` parameterised with `DNAAlphabet{2}` instead.
+
+`DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
+unambiguous nucleotide symbols (A,C,G,T).
+
+Changing this single parameter, is all you need to do in order to benefit from memory savings.
+Some computations that use bitwise operations will also be dramatically faster.
+
+The same applies with `LongSeqeunce{RNAAlphabet{4}}`, simply replace the alphabet
+parameter with `RNAAlphabet{2}` in order to benefit.
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
     data::Vector{UInt64}  # encoded character sequence data
-    len::Int
+    len::UInt
 
-    function LongSequence{A}(data::Vector{UInt64}, len::Int) where {A <: Alphabet}
-        return new(data, len)
+    function LongSequence{A}(data::Vector{UInt64}, len::UInt) where {A <: Alphabet}
+        new{A}(data, len)
     end
 end
 
-const LongNucleotideSequence = LongSequence{<:NucleicAcidAlphabet}
-const LongDNASeq       = LongSequence{DNAAlphabet{4}}
-const LongRNASeq       = LongSequence{RNAAlphabet{4}}
-const LongAminoAcidSeq = LongSequence{AminoAcidAlphabet}
-const LongCharSeq      = LongSequence{CharAlphabet}
+"An alias for LongSequence{<:NucleicAcidAlpabet{N}}"
+const LongNuc{N} = LongSequence{<:NucleicAcidAlphabet{N}}
 
-###
-### Required type traits and methods
-###
+"An alias for LongSequence{DNAAlphabet{N}}"
+const LongDNA{N} = LongSequence{DNAAlphabet{N}}
 
-"Gets the alphabet encoding of a given BioSequence."
-BioSymbols.alphabet(::Type{LongSequence{A}}) where {A} = alphabet(A)
-Alphabet(::Type{LongSequence{A}}) where {A <: Alphabet} = A()
-Base.length(seq::LongSequence) = seq.len
-bindata(seq::LongSequence) = seq.data
-Base.eltype(::Type{LongSequence{A}}) where {A} = eltype(A)
+"An alias for LongSequence{RNAAlphabet{N}}"
+const LongRNA{N} = LongSequence{RNAAlphabet{N}}
 
-@inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
-@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
-	iszero(bits_per_symbol(A())) && return 0
-    return cld(len, div(64, bits_per_symbol(A())))
-end
+"An alias for LongSequence{AminoAcidAlphabet}"
+const LongAA = LongSequence{AminoAcidAlphabet}
 
-@inline function encoded_data(seq::LongSequence)
-    return seq.data
-end
+# Basic attributes
+Base.length(seq::LongSequence) = seq.len % Int
+encoded_data_eltype(::Type{<:LongSequence}) = UInt64
+Base.copy(x::LongSequence) = typeof(x)(copy(x.data), x.len)
+
+# Derived basic attributes
+symbols_per_data_element(x::LongSequence) = div(64, bits_per_symbol(Alphabet(x)))
 
 include("seqview.jl")
 include("indexing.jl")
 include("constructors.jl")
-include("printing.jl")
-include("copying.jl")
 include("conversion.jl")
+include("copying.jl")
 include("stringliterals.jl")
 include("transformations.jl")
 include("operators.jl")

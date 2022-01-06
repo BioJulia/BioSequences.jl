@@ -19,14 +19,3 @@ randaaseq
 SamplerUniform
 SamplerWeighted
 ```
-
-## Kmer sequences
-
-You can make random `Mer` quite simply using `Base.rand`:
-
-```@repl
-using BioSequences # hide
-rand(DNAMer{7})
-rand(RNAMer{8})
-rand(BigDNAMer{63})
-```

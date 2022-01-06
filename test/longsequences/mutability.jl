@@ -13,31 +13,31 @@
         @test_throws BoundsError s[5]
 
         s = dna"ACGTACGT"
-        s[3:5] = DNA_A
+        s[3:5] = dna"AAA"
         @test s == dna"ACAAACGT"
-        s[3:5] = DNA_T
+        s[3:5] = dna"TTT"
         @test s == dna"ACTTTCGT"
-        s[1:8] = DNA_C
+        s[1:8] = dna"CCCCCCCC"
         @test s == dna"CCCCCCCC"
-        s[:] = DNA_G
+        s[:] = repeat([DNA_G], length(s))
         @test s == dna"GGGGGGGG"
         @test_throws BoundsError s[0:3]
         @test_throws BoundsError s[5:10]
 
         s = dna"ACGTACGT"
-        s[[1,2,3]] = DNA_T
+        s[[1,2,3]] = dna"TTT"
         @test s == dna"TTTTACGT"
-        s[[1,5,8]] = DNA_C
+        s[[1,5,8]] = dna"CCC"
         @test s == dna"CTTTCCGC"
         @test_throws BoundsError s[[3,9]] = DNA_A
 
         s = dna"ACGT"
-        s[[true, false, false, true]] = DNA_G
+        s[[true, false, false, true]] = [DNA_G, DNA_G]
         @test s == dna"GCGG"
-        s[trues(4)] = DNA_A
+        s[trues(4)] = repeat([DNA_A], 4)
         @test s == dna"AAAA"
-        @test_throws BoundsError s[[true, false, false]] = DNA_G
-        @test_throws BoundsError s[[true, false, false, false, true]] = DNA_G
+        @test_throws BoundsError s[[true, false, false]] = dna"G"
+        @test_throws BoundsError s[[true, false, false, false, true]] = dna"GG"
 
         s = dna"ACGTACGT"
         s[2:3] = dna"AA"

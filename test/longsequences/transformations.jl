@@ -1,37 +1,36 @@
 @testset "Transformations" begin
     function test_reverse(A, seq)
         revseq = reverse(LongSequence{A}(seq))
-        @test convert(String, revseq) == reverse(seq)
+        @test String(revseq) == reverse(seq)
         revseq = reverse!(LongSequence{A}(seq))
-        @test convert(String, revseq) == reverse(seq)
+        @test String(revseq) == reverse(seq)
     end
 
     function test_dna_complement(A, seq)
         comp = complement(LongSequence{A}(seq))
-        @test convert(String, comp) == dna_complement(seq)
+        @test String(comp) == dna_complement(seq)
     end
 
     function test_rna_complement(A, seq)
         comp = complement(LongSequence{A}(seq))
-        @test convert(String, comp) == rna_complement(seq)
+        @test String(comp) == rna_complement(seq)
     end
 
     function test_dna_revcomp(A, seq)
         revcomp = reverse_complement(LongSequence{A}(seq))
-        @test convert(String, revcomp) == reverse(dna_complement(seq))
+        @test String(revcomp) == reverse(dna_complement(seq))
     end
 
     function test_rna_revcomp(A, seq)
         revcomp = reverse_complement(LongSequence{A}(seq))
-        @test convert(String, revcomp) == reverse(rna_complement(seq))
+        @test String(revcomp) == reverse(rna_complement(seq))
     end
 
     @testset "Reverse" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 32, 1000], _ in 1:5
             test_reverse(DNAAlphabet{4}, random_dna(len))
             test_reverse(RNAAlphabet{4}, random_rna(len))
             test_reverse(AminoAcidAlphabet, random_aa(len))
-            test_reverse(CharAlphabet, random_aa(len))
 
             probs = [0.25, 0.25, 0.25, 0.25, 0.00]
             test_reverse(DNAAlphabet{2}, random_dna(len, probs))
@@ -40,7 +39,7 @@
     end
 
     @testset "Complement" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 10, 32, 1000], _ in 1:5
             test_dna_complement(DNAAlphabet{4}, random_dna(len))
             test_rna_complement(RNAAlphabet{4}, random_rna(len))
 
@@ -58,7 +57,7 @@
     end
 
     @testset "Reverse complement" begin
-        for len in [0, 1, 10, 32, 1000, 10000, 100000], _ in 1:10
+        for len in [0, 1, 10, 32, 1000], _ in 1:5
             test_dna_revcomp(DNAAlphabet{4}, random_dna(len))
             test_rna_revcomp(RNAAlphabet{4}, random_rna(len))
 
@@ -139,13 +138,13 @@
         @test filter!(x -> x != DNA_N, seq) == seq
         @test seq == dna"ACGTACGT"
 
-        for len in 1:50, _ in 1:10
+        for len in [1, 2, 3, 5, 8, 9, 15, 19, 31, 32, 33, 50], _ in 1:5
             str = random_dna(len)
-            seq = LongDNASeq(str)
+            seq = LongDNA{4}(str)
             @test filter(x -> x == DNA_N, seq) ==
-                LongDNASeq(filter(x -> x == 'N', str))
+                LongDNA{4}(filter(x -> x == 'N', str))
             @test filter(x -> x != DNA_N, seq) ==
-                LongDNASeq(filter(x -> x != 'N', str))
+                LongDNA{4}(filter(x -> x != 'N', str))
         end
 
         seq = rna""

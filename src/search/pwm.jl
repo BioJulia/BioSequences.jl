@@ -39,9 +39,7 @@ function Base.convert(::Type{Matrix{T}}, m::PFM) where T
     return convert(Matrix{T}, m.data)
 end
 
-function PFM(set)
-    return PFM(collect(set))
-end
+PFM(set) = PFM(collect(set))
 
 function PFM(set::Vector)
     if isempty(set)
@@ -73,7 +71,7 @@ end
 # Broadcasting
 struct PFMBroadcastStyle{S} <: Broadcast.BroadcastStyle end
 Base.BroadcastStyle(::Type{PFM{S,T}}) where {S,T} = PFMBroadcastStyle{S}()
-Base.BroadcastStyle(s1::PFMBroadcastStyle, s2::Base.BroadcastStyle) where {S,T} = s1
+Base.BroadcastStyle(s1::PFMBroadcastStyle, s2::Base.BroadcastStyle) = s1
 function Base.similar(bc::Broadcast.Broadcasted{PFMBroadcastStyle{S}}, elt::Type{T}) where {S, T}
     return PFM{S, T}(similar(Array{T}, axes(bc)))
 end
@@ -144,13 +142,13 @@ Create a position weight matrix from a position frequency matrix `pfm`.
 
 The positive weight matrix will be `log2.((pfm ./ sum(pfm, 1)) ./ prior)`.
 """
-function PWM(pfm::PFM{S}; prior=fill(1/4, 4)) where S <: Union{DNA,RNA}
+function PWM(pfm::PFM{S}; prior = fill(1/4, 4)) where S <: Union{DNA,RNA}
     if !all(x -> x > 0, prior)
         throw(ArgumentError("prior must be positive"))
     elseif sum(prior) ≉ 1
         throw(ArgumentError("prior must be sum to 1"))
     end
-    prob = pfm ./ sum(pfm, dims=1)
+    prob = pfm ./ sum(pfm, dims = 1)
     return PWM{S,Float64}(log2.(prob ./ prior))
 end
 
@@ -254,18 +252,10 @@ function scoreat(seq::BioSequence, pwm::PWM, start::Integer)
     checkbounds(seq, start:start+pwmlen-1)
     score = zero(eltype(pwm))
     @inbounds for j in 0:pwmlen-1
-        x = seq[start+j]
-        score += iscertain(x) ? pwm[j<<2+trailing_zeros(x)+1] : zero(score)
+        x = seq[start + j]
+        score += iscertain(x) ? pwm[j << 2 + trailing_zeros(x) + 1] : zero(score)
     end
     return score
-end
-
-function Base.findfirst(pwm::PWM, seq::BioSequence, threshold::Real, start = 1, stop=lastindex(seq))
-    if eltype(seq) == DNA || eltype(seq) == RNA
-        return search_nuc(seq, start:stop, pwm, convert(eltype(pwm), threshold))
-    else
-        throw(ArgumentError("no search algorithm for '$(typeof(seq))'"))
-    end
 end
 
 function check_pwm(seq, pwm::PWM{S}) where S <: Union{DNA,RNA}
@@ -276,18 +266,19 @@ function check_pwm(seq, pwm::PWM{S}) where S <: Union{DNA,RNA}
     end
 end
 
-function search_nuc(seq::BioSequence, range::UnitRange{Int}, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
+# TODO: Have one version of search_nuc that searches backwards as well as forwards?
+function search_nuc(seq::BioSequence, first::Int, last::Int, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
     check_pwm(seq, pwm)
-    checkbounds(seq, range)
+    checkbounds(seq, first:last)
     pwmlen = size(pwm, 2)
-    for p in range.start:range.stop-pwmlen+1
+    for p in first:last-pwmlen+1
         score = zero(eltype(pwm))
         @inbounds for j in 0:pwmlen-1
-            if score + pwm.maxscore[j+1] < threshold
+            if score + pwm.maxscore[j + 1] < threshold
                 break
             end
-            x = seq[p+j]
-            score += iscertain(x) ? pwm[j<<2+trailing_zeros(x)+1] : zero(score)
+            x = seq[p + j]
+            score += iscertain(x) ? pwm[j << 2 + trailing_zeros(x) + 1] : zero(score)
         end
         if score ≥ threshold
             return p
@@ -295,6 +286,54 @@ function search_nuc(seq::BioSequence, range::UnitRange{Int}, pwm::PWM{<:Union{DN
     end
     return nothing
 end
+
+function rsearch_nuc(seq::BioSequence, first::Int, last::Int, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
+    check_pwm(seq, pwm)
+    checkbounds(seq, last:first)
+    pwmlen = size(pwm, 2)
+    for p in first-pwmlen+1:-1:last
+        score = zero(eltype(pwm))
+        @inbounds for j in 0:pwmlen-1
+            if score + pwm.maxscore[j + 1] < threshold
+                break
+            end
+            x = seq[p + j]
+            score += iscertain(x) ? pwm[j << 2 + trailing_zeros(x) + 1] : zero(score)
+        end
+        if score ≥ threshold
+            return p
+        end
+    end
+    return nothing
+end
+
+#= TODO: Replace forward and back function with this one?
+function search_nuc2(seq::BioSequence, first::Integer, last::Integer, pwm::PWM{<:Union{DNA,RNA},S}, threshold::S) where S<:Real
+    check_pwm(seq, pwm)
+    rev = first > last
+    checkbounds(seq, ifelse(rev, last:first, first:last)
+    pwmlen = size(pwm, 2)
+    interval′ = range(
+        ifelse(rev, first - pwmlen + 1, first),
+        step = ifelse(rev, -1, 1),
+        ifelse(rev, last, last - pwmlen + 1)
+    )
+    for p in interval′
+        score = zero(eltype(pwm))
+        @inbounds for j in 0:pwmlen-1
+            if score + pwm.maxscore[j + 1] < threshold
+                break
+            end
+            x = seq[p + j]
+            score += iscertain(x) ? pwm[j << 2 + trailing_zeros(x) + 1] : zero(score)
+        end
+        if score ≥ threshold
+            return p
+        end
+    end
+    return nothing
+end
+=#
 
 function index_nuc(s::Union{DNA,RNA}, j::Integer)
     if !iscertain(s)
@@ -314,4 +353,39 @@ function show_nuc_matrix(io::IO, m::Union{PFM{S},PWM{S}}) where S<:Union{DNA,RNA
             print(io, rpad(cells[i,j], width[j]+1))
         end
     end
+end
+
+struct PWMSearchQuery{S,T,R<:Real}
+    pwm::PWM{S,T}
+    threshold::R
+end
+
+function PWMSearchQuery(sequences, threshold::Real, prior = fill(1 / 4, 4))
+    pfm = PFM(sequences)
+    pwm = PWM(pfm .+ 0.01, prior = prior)
+    return PWMSearchQuery(pwm, threshold)
+end
+
+function Base.findnext(query::PWMSearchQuery, seq::BioSequence, start)
+    if eltype(seq) == DNA || eltype(seq) == RNA
+        return search_nuc(seq, start, lastindex(seq), query.pwm, convert(eltype(query.pwm), query.threshold))
+    else
+        throw(ArgumentError("no search algorithm for '$(typeof(seq))'"))
+    end
+end
+
+function Base.findfirst(query::PWMSearchQuery, seq::BioSequence)
+    return findnext(query, seq, firstindex(seq))
+end
+
+function Base.findprev(query::PWMSearchQuery, seq::BioSequence, start)
+    if eltype(seq) == DNA || eltype(seq) == RNA
+        return rsearch_nuc(seq, start, firstindex(seq), query.pwm, convert(eltype(query.pwm), query.threshold))
+    else
+        throw(ArgumentError("no search algorithm for '$(typeof(seq))'"))
+    end
+end
+
+function Base.findlast(query::PWMSearchQuery, seq::BioSequence)
+    return findprev(query, seq, lastindex(seq))
 end

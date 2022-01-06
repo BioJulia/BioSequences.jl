@@ -6,7 +6,7 @@
 	v2 = LongSubSeq(seq, 2:4)
 	v3 = view(seq, 2:4)
 	v4 = @view seq[2:4]
-	v5 = LongSubSeq(seq)
+	v5 = LongSubSeq(seq, :)
 	vv = LongSubSeq(v1, 2:3)
 	vv2 = v1[2:3]
 	vv3 = LongSubSeq(vv)
@@ -22,6 +22,8 @@
 	@test vv == vv2 == vv3
 	vv[1] = AA_V
 	@test vv == vv2 == vv3
+
+	@test LongSubSeq{AminoAcidAlphabet}(seq) == view(seq, eachindex(seq))
 end
 
 @testset "Basics" begin
@@ -40,7 +42,7 @@ end
 end
 
 @testset "Conversion" begin
-	seq = LongDNASeq("TAGTATCGAAMYCGNA")
+	seq = LongDNA{4}("TAGTATCGAAMYCGNA")
 	v = LongSubSeq(seq, 3:14)
 
 	@test LongSequence(v) == seq[3:14]
@@ -54,33 +56,43 @@ end
 @testset "Transformations" begin
 	# Reverse!
 	str = "SKVANNSFDGRKIQAWPSRQ"
-	seq = LongAminoAcidSeq(str)
+	seq = LongAA(str)
 	seq2 = copy(seq)
 	v = view(seq, 1:lastindex(seq))
 
 	reverse!(v)
-	@test seq == LongAminoAcidSeq(reverse(str))
+	@test seq == LongAA(reverse(str))
 	@test seq == v
 	@test seq != seq2
 
 	reverse!(v)
-	@test seq == LongAminoAcidSeq(str)
+	@test seq == LongAA(str)
 	@test seq == v
 	@test seq == seq2
 
-	seq = LongDNASeq("TGAGTCGTAGGAAGGACCTAAA")
+	seq = LongDNA{4}("TGAGTCGTAGGAAGGACCTAAA")
 	seq2 = copy(seq)
 	v = LongSubSeq(seq2, 3:15)
 	complement!(v)
 	@test seq2[3:15] == complement(seq[3:15])
 	@test seq2[1:2] == dna"TG"
 	@test seq2[16:end] == seq[16:end]
+
+	# A longer example to engage some inner loops
+	seq = randdnaseq(38)
+	seq2 = copy(seq)
+	v = LongSubSeq(seq, 3:36)
+	complement!(v)
+	@test v == complement(seq2[3:36])
 end
 
 @testset "Copying" begin
-	seq = LongRNASeq("UAUUAACCGGAGAUCAUUCAGGUAA")
+	seq = LongRNA{4}("UAUUAACCGGAGAUCAUUCAGGUAA")
 	v1 = view(seq, 1:3)
 	v2 = view(seq, 4:11)
+
+	@test copy(v1) == seq[1:3]
+	@test copy(v2) == seq[4:11]
 
 	# Can't resize views
 	@test_throws Exception copy!(v1, v2)
