@@ -15,9 +15,9 @@ makedocs(
         "Iteration"                      => "iteration.md",
         "Counting"                       => "counting.md",
         "I/O"                            => "io.md",
-        "Interfaces"                     => "interfaces.md"
+        "Implementing custom types"      => "interfaces.md"
     ],
-    authors = "Ben J. Ward, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors."
+    authors = "Sabrina Jaye Ward, Jakob Nissen, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors."
 )
 
 deploydocs(

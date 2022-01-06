@@ -34,7 +34,7 @@ the encoded representation `E` must be of type `UInt`, and you must also impleme
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
   or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 
-For increased performance, see `AsciiAlphabet`
+For increased performance, see [`AsciiAlphabet`](@ref)
 """
 abstract type Alphabet end
 
