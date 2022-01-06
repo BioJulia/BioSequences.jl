@@ -125,12 +125,13 @@ function Codon(iterable)
     for (i, nt) in enumerate(iterable)
         x |= BioSequences.encode(Alphabet(Codon), convert(RNA, nt)) << (6-2i)
     end
-    Codon(x)
-end 
+    Codon(x % UInt8)
+end
 
 Base.length(::Codon) = 3
 BioSequences.encoded_data_eltype(::Type{Codon}) = UInt
+
 function BioSequences.extract_encoded_element(x::Codon, i::Int)
-    (x.x >>> ((i-1) & 7)) % UInt
+    ((x.x >>> (6-2i)) & 3) % UInt
 end
 ```
