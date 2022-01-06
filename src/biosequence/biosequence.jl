@@ -100,11 +100,27 @@ end
 
 # Fast path for iterables we know are stateless
 function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
-    _join!(resize!(seq, sum(length, it)), it, Val(true))
+    _join!(resize!(seq, sum(length, it, init=0)), it, Val(true))
 end
 
+"""
+    join!(seq::BioSequence, iter)
+
+Concatenate all biosequences in `iter` into `seq`, resizing it to fit.
+
+# Examples
+```
+julia> join(LongDNA(), [dna"TAG", dna"AAC"])
+6nt DNA Sequence:
+TAGAAC
+```
+
+see also [`join`](@ref)
+"""
 join!(seq::BioSequence, it) = _join!(seq, it, Val(false))
 
+# B is whether the size of the destination seq is already
+# known to be the final size
 function _join!(seq::BioSequence, it, ::Val{B}) where B
     index = 1
     for i in it
@@ -115,8 +131,22 @@ function _join!(seq::BioSequence, it, ::Val{B}) where B
     seq
 end
 
+"""
+    join(::Type{T <: BioSequence}, seqs)
+
+Concatenate all the `seqs` to a biosequence of type `T`.
+
+# Examples
+```
+julia> join(LongDNA, [dna"TAG", dna"AAC"])
+6nt DNA Sequence:
+TAGAAC
+```
+
+see also [`join!`](@ref)
+"""
 function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
-    _join!(T(undef, sum(length, it)), it, Val(true))
+    _join!(T(undef, sum(length, it, init=0)), it, Val(true))
 end
 
 function Base.join(::Type{T}, it) where {T <: BioSequence}
@@ -184,40 +214,6 @@ const RNASeq{N} = BioSequence{RNAAlphabet{N}}
 An alias for `BioSequence{AminoAcidAlphabet}`
 """
 const AASeq = BioSequence{AminoAcidAlphabet}
-
-"""
-    join(::Type{T <: BioSequence}, seqs)
-
-Concatenate all the `seqs` to a biosequence of type `T`.
-
-# Examples
-```julia> join(LongDNASeq, [dna"TAG", mer"AAC"])
-"""
-Base.join(::Type{T}, seqs) where {T <: BioSequence} = join!(T(), seqs)
-
-function _join!(result::BioSequence, seqs, ::Val{resize}) where resize
-    offset = 0
-    for seq in seqs
-        seqlen = length(seq)
-        resize && length(result) < (offset + seqlen) && resize!(result, offset + seqlen)
-        result[offset+1:offset+seqlen] = seq
-        offset += seqlen
-    end
-    resize && resize!(result, offset)
-    result
-end
-
-# This Union is the closest I can get to specifying a stateless iterator,
-# such that we can iterate over it twice.
-function join!(result::BioSequence, seqs::Union{AbstractArray, Tuple, AbstractSet, AbstractDict}
-)
-    # This early return is needed, because sum for empty iterables fail
-    isempty(seqs) && return resize!(result, 0)
-    resize!(result, sum(length, seqs))
-    _join!(result, seqs, Val(false))
-end
-
-join!(result::BioSequence, seqs) = _join!(result, seqs, Val(true))
 
 # The generic functions for any BioSequence...
 include("indexing.jl")
