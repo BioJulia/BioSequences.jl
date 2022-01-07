@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed ReferenceSequence functionality
 - Removed demultiplexer functionality
 - Removed kmer functionality - this is moved to Kmers.jl
-- Exact sequence search for single biosymbols have been removed. Instead of `findfirst(DNA_A, my_seq)`, use `findfirst(isequal(DNA_A), my_seq)`.
 - Removed VoidAlphabet and CharAlphabet
 - Removed ConditionIterator
 
@@ -30,6 +29,7 @@ to a new instance of T.
 - The interface for `Alphabet` and `BioSequence` is now more clearly defined, documented, and tested.
 - The constructor `LongSequence{A}(::Integer)` has been removed in favor of `LongSequence{A}(undef, ::Integer)`.
 - Biological sequences can no longer be converted to/from strings and vectors.
+- Updated the element and substring search API to conform to `Base.find*` patterns.
 
 ## [2.0.1]
 ### Changed
