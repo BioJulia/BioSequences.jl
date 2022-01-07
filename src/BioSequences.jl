@@ -191,7 +191,6 @@ export
 
 using BioSymbols
 import Twiddle: enumerate_nibbles,
-    nibble_mask,
     count_0000_nibbles,
     count_1111_nibbles,
     count_nonzero_nibbles,

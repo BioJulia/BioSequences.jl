@@ -73,7 +73,7 @@
     @test findfirst(biore"A+"d, dna"ACGTAAT") == 1:1
     @test findfirst(biore"A+"d, dna"ACGTAAT", 1) == 1:1
     @test findfirst(biore"A+"d, dna"ACGTAAT", 2) == 5:6
-    @test findfirst(biore"A+"d, dna"ACGTAAT", 7) == nothing
+    @test findfirst(biore"A+"d, dna"ACGTAAT", 7) === nothing
 
     # eachmatch
     matches = [dna"CG", dna"GC", dna"GC", dna"CG"]
