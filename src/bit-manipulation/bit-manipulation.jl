@@ -72,7 +72,7 @@ end
 end
 
 @inline function gap_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    return count_zero_nibbles(x)
+    return count_0000_nibbles(x)
 end
 
 @inline function gap_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}

@@ -25,7 +25,9 @@ function compile_bitpar(funcname::Symbol;
             if !iszero(offset(ind)) & (ind < stop)
                 # align the bit index to the beginning of a block boundary
                 o = offset(ind)
-                chunk = (data[index(ind)] >> o) & bitmask(stop - ind)
+                mask = bitmask(stop - ind)
+                n_bits_masked = ifelse(index(stop) == index(ind), count_zeros(mask), o)
+                chunk = (data[index(ind)] >> o) & mask
                 $(head_code)
                 ind += 64 - o
             end
@@ -39,7 +41,8 @@ function compile_bitpar(funcname::Symbol;
             end
             
             if ind < stop
-                chunk = data[index(ind)] & bitmask(offset(stop))
+                n_bits_masked = 64 - offset(stop)
+                chunk = data[index(ind)] & bitmask(64 - n_bits_masked)
                 $(tail_code)
             end
         end

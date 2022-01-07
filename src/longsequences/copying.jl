@@ -132,8 +132,7 @@ function Base.copy!(dst::SeqOrView{A}, src::SeqLike) where {A <: Alphabet}
 end
 
 function Base.copy!(dst::SeqOrView{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
-    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
-    return copy!(dst, v, C)
+    return copy!(dst, codeunits(src), C)
 end
 
 function Base.copy!(dst::SeqOrView{<:Alphabet}, src::AbstractVector{UInt8}, ::AsciiAlphabet)
@@ -199,11 +198,10 @@ function Base.copyto!(dst::SeqOrView{A}, src::SeqLike) where {A <: Alphabet}
 end
 
 # Specialized method to avoid O(N) length call for string-like src
-function Base.copyto!(dst::SeqOrView{<:Alphabet}, src::ASCIILike, C::AsciiAlphabet)
+function Base.copyto!(dst::SeqOrView{<:Alphabet}, src::ASCIILike, ::AsciiAlphabet)
     len = ncodeunits(src)
     @boundscheck checkbounds(dst, 1:len)
-    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
-    encode_chunks!(dst, 1, v, 1, len)
+    encode_chunks!(dst, 1, codeunits(src), 1, len)
     return dst
 end
 
@@ -241,8 +239,7 @@ end
 function Base.copyto!(dst::SeqOrView{A}, doff::Integer,
                       src::ASCIILike, soff::Integer,
                       N::Integer, C::AsciiAlphabet) where {A <: Alphabet}
-    v = GC.@preserve src unsafe_wrap(Vector{UInt8}, pointer(src), ncodeunits(src))
-    return Base.copyto!(dst, doff, v, soff, N, C)
+    return Base.copyto!(dst, doff, codeunits(src), soff, N, C)
 end
 
 @noinline function throw_enc_indexerr(N::Integer, len::Integer, soff::Integer)

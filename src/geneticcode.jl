@@ -378,7 +378,7 @@ function translate!(aaseq::LongAA,
                 if allow_ambiguous_codons
                     aa = AA_X
                 else
-                    error("codon ", x, y, z, " cannot be unambiguously translated")
+                    error("codon ", a, b, c, " cannot be unambiguously translated")
                 end
             end
             aaseq[i] = aa

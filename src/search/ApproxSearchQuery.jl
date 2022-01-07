@@ -84,7 +84,7 @@ Construct an [`ApproximateSearchQuery`](@ref) predicate for use with Base find f
 function ApproximateSearchQuery(pat::S, comparator::F = isequal) where {F<:Function,S<:BioSequence}
     m = length(pat)
     if m > 64
-        throw(ArgumentEror("query pattern sequence must have length of 64 or less"))
+        throw(ArgumentError("query pattern sequence must have length of 64 or less"))
     end
     Σ = alphabet(eltype(pat))
     fw = zeros(UInt64, length(Σ))

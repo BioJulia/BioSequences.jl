@@ -88,8 +88,3 @@ function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
          {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
     return T(copy(seq.data), seq.len)
 end
-
-# This exists to fix ambiguity errors with Julia 1.0
-function LongSequence{A}(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where {N, A <: NucleicAcidAlphabet{N}}
-	return LongSequence{A}(copy(seq.data), seq.len)
-end
