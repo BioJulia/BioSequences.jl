@@ -11,7 +11,7 @@ export
     ###
     ### Symbols
     ###
-    
+
     # Types & aliases
     NucleicAcid,
     DNA,
@@ -81,7 +81,7 @@ export
     AA_X,
     AA_Term,
     AA_Gap,
-    
+
     # Predicates
     isGC,
     iscompatible,
@@ -90,35 +90,35 @@ export
     isgap,
     ispurine,
     ispyrimidine,
-    
+
     ###
     ### Alphabets
     ###
-    
+
     # Types & aliases
     Alphabet,
     NucleicAcidAlphabet,
     DNAAlphabet,
     RNAAlphabet,
     AminoAcidAlphabet,
-    
+
     ###
     ### BioSequences
     ###
 
     join!,
-    
+
     # Type & aliases
     BioSequence,
     NucSeq,
     AASeq,
-    
+
     # Predicates
     ispalindromic,
     hasambiguity,
     isrepetitive,
     iscanonical,
-    
+
     # Transformations
     canonical,
     canonical!,
@@ -129,11 +129,11 @@ export
     ungap,
     ungap!,
     join!,
-    
+
     ###
     ### LongSequence
     ###
-    
+
     # Type & aliases
     LongSequence,
     LongNuc,
@@ -141,7 +141,7 @@ export
     LongRNA,
     LongAA,
     LongSubSeq,
-    
+
     # Random
     SamplerUniform,
     SamplerWeighted,
@@ -149,18 +149,18 @@ export
     randdnaseq,
     randrnaseq,
     randaaseq,
-    
+
     ###
     ### Sequence literals
     ###
-    
+
     @dna_str,
     @rna_str,
     @aa_str,
 
     @biore_str,
     @prosite_str,
-    
+
     BioRegex,
     BioRegexMatch,
     matched,
@@ -177,7 +177,7 @@ export
     translate!,
     translate,
     ncbi_trans_table,
-    
+
     # Search
     ExactSearchQuery,
     ApproximateSearchQuery,
@@ -226,5 +226,47 @@ include("search/ExactSearchQuery.jl")
 include("search/ApproxSearchQuery.jl")
 include("search/re.jl")
 include("search/pwm.jl")
+
+
+
+struct Search{Q,I}
+    query::Q
+    itr::I
+    start::Integer
+    stop::Integer
+    overlap::Bool
+end
+
+const default_overlap = true
+
+search(query, itr, start=firstindex(itr); overlap = default_overlap, stop = lastindex(itr)) = Search(query, itr, start, stop, overlap)
+
+function Base.iterate(itr::Search, state=itr.start)
+    val = findnext(itr.query, itr.itr, state)
+    val === nothing && return nothing
+    last(val) > itr.stop && return nothing
+    state = itr.overlap ? first(val) + 1 : last(val) + 1
+    return val, state
+end
+
+const HasRangeEltype = Union{<:ExactSearchQuery, <:ApproximateSearchQuery, <:Regex}
+
+Base.eltype(::Type{Search{Q,I}}) where {Q<:HasRangeEltype,I} = UnitRange{Int}
+Base.IteratorEltype(::Type{Search{Q,I}}) where {Q<:HasRangeEltype,I} = Base.IteratorEltype(UnitRange{Int})
+
+Base.eltype(::Type{<:Search}) = Int
+Base.IteratorEltype(::Type{<:Search}) = Base.IteratorEltype(Int)
+
+Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
+
+function Base.findall(pat, seq::BioSequence, start::Integer=firstindex(seq); overlap::Bool = default_overlap, stop::Integer = lastindex(seq))
+    return collect(search(pat, seq, start; overlap, stop))
+end
+
+function Base.findall(pat, seq::BioSequence, range::UnitRange{<:Integer}; kwargs...)
+    start = first(range)
+    stop = last(range)
+    return findall(pat, seq, start; stop, kwargs...)
+end
 
 end  # module BioSequences
