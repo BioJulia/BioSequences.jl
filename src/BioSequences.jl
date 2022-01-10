@@ -251,12 +251,8 @@ end
 
 const HasRangeEltype = Union{<:ExactSearchQuery, <:ApproximateSearchQuery, <:Regex}
 
-Base.eltype(::Type{Search{Q,I}}) where {Q<:HasRangeEltype,I} = UnitRange{Int}
-Base.IteratorEltype(::Type{Search{Q,I}}) where {Q<:HasRangeEltype,I} = Base.IteratorEltype(UnitRange{Int})
-
+Base.eltype(::Type{<:Search{Q}}) where {Q<:HasRangeEltype} = UnitRange{Int}
 Base.eltype(::Type{<:Search}) = Int
-Base.IteratorEltype(::Type{<:Search}) = Base.IteratorEltype(Int)
-
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
 function Base.findall(pat, seq::BioSequence, start::Integer=firstindex(seq); overlap::Bool = DEFAULT_OVERLAP, stop::Integer = lastindex(seq))
