@@ -30,21 +30,21 @@
     @test findlast(isequal(DNA_T), seq) === nothing
 
 
-    @test findall(DNA_A, dna"GATC") == [2]
-
     #         0000000001111
     #         1234567890123
     seq = dna"NNNNNGATCGATC"
 
-    @test findall(ExactSearchQuery(dna"GATC"), seq) == [6:9, 10:13]
+    # Check default search.
+    @test findall(DNA_A, seq) == [7, 11]
+    @test findall(ExactSearchQuery(dna"A"), seq) == [7:7, 11:11]
 
     # Check overlap key argument.
-    @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap=false) == [1:4, 6:9, 10:13]
-    @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap=true) == [1:4, 2:5, 6:9, 10:13]
+    @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap = false) == [1:4, 6:9, 10:13]
+    @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap = true) == [1:4, 2:5, 6:9, 10:13]
 
-    # Check start/stop delimiter.
-    @test findall(ExactSearchQuery(dna"A", iscompatible), seq) == [1:1, 2:2, 3:3, 4:4, 5:5, 7:7, 11:11]
-    @test findall(ExactSearchQuery(dna"A", iscompatible), seq * dna"AA", 6:13) == findall(ExactSearchQuery(dna"A"), seq)
+    # Check mapping of indices.
+    @test findall(DNA_A, seq, 7:11) == [7, 11]
+    @test findall(ExactSearchQuery(dna"A"), seq, 7:11) == [7:7, 11:11]
 
     # Check empty return type.
     @test findall(DNA_A, dna"GGGG") |> typeof == Vector{Int}

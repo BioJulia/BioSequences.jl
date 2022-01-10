@@ -32,7 +32,7 @@ const NucleicSeqOrView = SeqOrView{<:NucleicAcidAlphabet}
 
 Base.length(v::LongSubSeq) = last(v.part) - first(v.part) + 1
 Base.copy(v::LongSubSeq{A}) where A = LongSequence{A}(v)
- 
+
 encoded_data_eltype(::Type{<:LongSubSeq}) = encoded_data_eltype(LongSequence)
 symbols_per_data_element(x::LongSubSeq) = div(64, bits_per_symbol(Alphabet(x)))
 
@@ -74,7 +74,7 @@ Base.view(seq::SeqOrView, part::AbstractUnitRange) = LongSubSeq(seq, part)
 function LongSequence(s::LongSubSeq{A}) where A
 	_copy_seqview(LongSequence{A}, s)
 end
-	
+
 function LongSequence{A}(seq::LongSubSeq{A}) where {A<:NucleicAcidAlphabet}
 	_copy_seqview(LongSequence{A}, seq)
 end
@@ -100,3 +100,5 @@ end
 function Base.getindex(seq::LongSubSeq, part::AbstractUnitRange{<:Integer})
 	return LongSubSeq(seq, part)
 end
+
+Base.parentindices(seq::LongSubSeq) = (seq.part,)

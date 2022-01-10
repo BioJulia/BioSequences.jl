@@ -232,19 +232,16 @@ include("search/pwm.jl")
 struct Search{Q,I}
     query::Q
     itr::I
-    start::Integer
-    stop::Integer
     overlap::Bool
 end
 
 const DEFAULT_OVERLAP = true
 
-search(query, itr, start=firstindex(itr); overlap = DEFAULT_OVERLAP, stop = lastindex(itr)) = Search(query, itr, start, stop, overlap)
+search(query, itr; overlap = DEFAULT_OVERLAP) = Search(query, itr, overlap)
 
-function Base.iterate(itr::Search, state=itr.start)
+function Base.iterate(itr::Search, state=firstindex(itr.itr))
     val = findnext(itr.query, itr.itr, state)
     val === nothing && return nothing
-    last(val) > itr.stop && return nothing
     state = itr.overlap ? first(val) + 1 : last(val) + 1
     return val, state
 end
@@ -255,14 +252,14 @@ Base.eltype(::Type{<:Search{Q}}) where {Q<:HasRangeEltype} = UnitRange{Int}
 Base.eltype(::Type{<:Search}) = Int
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
-function Base.findall(pat, seq::BioSequence, start::Integer=firstindex(seq); overlap::Bool = DEFAULT_OVERLAP, stop::Integer = lastindex(seq))
-    return collect(search(pat, seq, start; overlap, stop))
+function Base.findall(pat, seq::BioSequence; overlap::Bool = DEFAULT_OVERLAP)
+    return collect(search(pat, seq; overlap))
 end
 
-function Base.findall(pat, seq::BioSequence, range::UnitRange{<:Integer}; kwargs...)
-    start = first(range)
-    stop = last(range)
-    return findall(pat, seq, start; stop, kwargs...)
+function Base.findall(pat, seq::BioSequence, rng::UnitRange{Int}; overlap::Bool = DEFAULT_OVERLAP)
+    v = view(seq, rng)
+    itr = search(pat, v; overlap)
+    return map(x->parentindices(v)[1][x], itr)
 end
 
 end  # module BioSequences
