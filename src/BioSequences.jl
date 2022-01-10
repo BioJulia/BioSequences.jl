@@ -237,9 +237,9 @@ struct Search{Q,I}
     overlap::Bool
 end
 
-const default_overlap = true
+const DEFAULT_OVERLAP = true
 
-search(query, itr, start=firstindex(itr); overlap = default_overlap, stop = lastindex(itr)) = Search(query, itr, start, stop, overlap)
+search(query, itr, start=firstindex(itr); overlap = DEFAULT_OVERLAP, stop = lastindex(itr)) = Search(query, itr, start, stop, overlap)
 
 function Base.iterate(itr::Search, state=itr.start)
     val = findnext(itr.query, itr.itr, state)
@@ -259,7 +259,7 @@ Base.IteratorEltype(::Type{<:Search}) = Base.IteratorEltype(Int)
 
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
-function Base.findall(pat, seq::BioSequence, start::Integer=firstindex(seq); overlap::Bool = default_overlap, stop::Integer = lastindex(seq))
+function Base.findall(pat, seq::BioSequence, start::Integer=firstindex(seq); overlap::Bool = DEFAULT_OVERLAP, stop::Integer = lastindex(seq))
     return collect(search(pat, seq, start; overlap, stop))
 end
 
