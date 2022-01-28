@@ -229,7 +229,8 @@ include("search/pwm.jl")
 
 
 
-struct Search{Q,I}
+struct Search{F,Q,I}
+    findfunc::F
     query::Q
     itr::I
     overlap::Bool
@@ -237,18 +238,25 @@ end
 
 const DEFAULT_OVERLAP = true
 
-search(query, itr; overlap = DEFAULT_OVERLAP) = Search(query, itr, overlap)
+search(query, itr; overlap = DEFAULT_OVERLAP, rev=false) = Search(rev ? findprev : findnext, query, itr, overlap)
 
-function Base.iterate(itr::Search, state=firstindex(itr.itr))
-    val = findnext(itr.query, itr.itr, state)
+function Base.iterate(itr::Search{typeof(findnext)}, state=firstindex(itr.itr))
+    val = itr.findfunc(itr.query, itr.itr, state)
     val === nothing && return nothing
     state = itr.overlap ? first(val) + 1 : last(val) + 1
     return val, state
 end
 
+function Base.iterate(itr::Search{typeof(findprev)}, state=firstindex(itr.itr))
+    val = itr.findfunc(itr.query, itr.itr, state)
+    val === nothing && return nothing
+    state = itr.overlap ? last(val) - 1 : first(val) - 1
+    return val, state
+end
+
 const HasRangeEltype = Union{<:ExactSearchQuery, <:ApproximateSearchQuery, <:Regex}
 
-Base.eltype(::Type{<:Search{Q}}) where {Q<:HasRangeEltype} = UnitRange{Int}
+Base.eltype(::Type{<:Search{F,Q}}) where {F,Q<:HasRangeEltype} = UnitRange{Int}
 Base.eltype(::Type{<:Search}) = Int
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
