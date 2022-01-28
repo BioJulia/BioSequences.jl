@@ -1,6 +1,8 @@
 module TestBioSequences
 
 using Test
+using Documenter
+
 using Random
 using StableRNGs
 using LinearAlgebra: normalize
@@ -49,5 +51,9 @@ include("counting.jl")
     include("search/regex.jl")
     include("search/pwm.jl")
 end
+
+# Include doctests.
+DocMeta.setdocmeta!(BioSequences, :DocTestSetup, :(using BioSequences); recursive=true)
+doctest(BioSequences; manual = false)
 
 end
