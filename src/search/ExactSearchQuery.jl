@@ -34,10 +34,12 @@ The default is `isequal`, however, in biology, sometimes we want a more flexible
 comparison to find subsequences of _compatible_ symbols.
 
 ```jldoctest
-julia> findfirst(ExactSearchQuery(dna"CGT", iscompatible), dna"ACNT")  # 'N' matches 'G'
+julia> query = ExactSearchQuery(dna"CGT", iscompatible);
+
+julia> findfirst(query, dna"ACNT")  # 'N' matches 'G'
 2:4
 
-julia> findfirst(ExactSearchQuery(dna"CNT", iscompatible), dna"ACGT")  # 'G' matches 'N'
+julia> findfirst(query, dna"ACGT")  # 'G' matches 'N'
 2:4
 
 julia> occursin(ExactSearchQuery(dna"CNT", iscompatible), dna"ACNT")
