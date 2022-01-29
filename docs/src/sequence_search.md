@@ -250,6 +250,11 @@ julia> qa = PWMSearchQuery(motifs, 1.0);
 julia> findfirst(qa, subject)
 3
 
+julia> findall(qa, subject)
+3-element Vector{Int64}:
+ 3
+ 5
+ 9
 ```
 
 [Wasserman2004]: https://doi.org/10.1038/nrg1315

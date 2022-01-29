@@ -22,6 +22,17 @@ julia> findfirst(query, seq)
 julia> findlast(query, seq)
 8:10
 
+julia> findnext(query, seq, 6)
+8:10
+
+julia> findprev(query, seq, 7)
+3:5
+
+julia> findall(query, seq)
+2-element Vector{UnitRange{Int64}}:
+ 3:5
+ 8:10
+
 julia> occursin(query, seq)
 true
 
@@ -66,17 +77,17 @@ Construct an [`ExactSearchQuery`](@ref) predicate for use with Base find functio
 """
 function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
     T = ExactSearchQuery{typeof(comparator),typeof(pat)}
-    
+
     m = length(pat)
     if m == 0
         return T(comparator, pat, UInt64(0), 0, 0)
     end
-    
+
     first = pat[1]
     last = pat[end]
     bloom_mask = zero(UInt64)
     fshift = bshift = m
-    
+
     for i in 1:lastindex(pat)
         x = pat[i]
         bloom_mask |= _bloom_bits(typeof(comparator), x)
@@ -84,14 +95,14 @@ function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
             fshift = m - i
         end
     end
-    
+
     for i in lastindex(pat):-1:1
         x = pat[i]
         if comparator(x, first) && i > 1
             bshift = i - 1
         end
     end
-    
+
     return T(comparator, pat, bloom_mask, fshift, bshift)
 end
 
@@ -117,9 +128,9 @@ function quicksearch(query::ExactSearchQuery, seq::BioSequence, start::Integer, 
     comparator = query.comparator
     bloom_mask = query.bloom_mask
     ambig_check = _check_ambiguous(query)
-    
+
     checkeltype(seq, pat)
-    
+
     m = length(pat)
     n = length(seq)
     stop′ = min(stop, n) - m
@@ -166,9 +177,9 @@ function quickrsearch(query::ExactSearchQuery, seq::BioSequence, start::Integer,
     comparator = query.comparator
     bloom_mask = query.bloom_mask
     ambig_check = _check_ambiguous(query)
-    
+
     checkeltype(seq, pat)
-    
+
     m = length(pat)
     n = length(seq)
     stop′ = max(stop - 1, 0)
@@ -255,4 +266,3 @@ Base.findlast(query::ExactSearchQuery, seq::BioSequence) = findprev(query, seq, 
 Return Bool indicating presence of exact match of x in y.
 """
 Base.occursin(x::ExactSearchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0
-
