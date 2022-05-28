@@ -115,7 +115,7 @@ two i.e. `canonical_seq < other_seq`.
 function iscanonical(seq::NucleotideSeq)
     i = 1
     j = lastindex(seq)
-    @inbounds while i < j
+    @inbounds while i <= j
         f = seq[i]
         r = complement(seq[j])
         f < r && return true
