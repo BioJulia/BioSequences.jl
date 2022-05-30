@@ -75,4 +75,8 @@
     @test  isrepetitive(aa"PGQQ", 2)
     @test !isrepetitive(aa"PPQQ", 3)
     @test  isrepetitive(aa"PPPQQ", 3)
+
+    # iscanonical
+    @test iscanonical(dna"TCA")
+    @test !iscanonical(dna"TGA")
 end

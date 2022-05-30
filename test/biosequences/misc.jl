@@ -126,6 +126,9 @@ end
     seq = SimpleSeq("CGAU")
     canonical!(seq)
     @test seq == SimpleSeq("AUCG")
+
+    @test iscanonical(SimpleSeq("UCA"))
+    @test !iscanonical(SimpleSeq("UGA"))
 end
 
 @testset "Ispalindromic" begin
