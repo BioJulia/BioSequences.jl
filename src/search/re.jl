@@ -585,7 +585,7 @@ Biological regular expression to seatch for `pattern` in sequences of type `T`, 
 `T` can be `DNA`, `RNA`, and `AminoAcid`. `syntax` can be `:pcre` or `:prosite` for AminoAcid
 acids.
 """
-struct Regex{T}
+struct Regex{T <: Union{BioSequences.DNA, BioSequences.RNA, BioSequences.AminoAcid}}
     pat::String       # regular expression pattern (for printing)
     code::Vector{Op}  # compiled code
     nsaves::Int       # the number of `save` operations in `code`
@@ -616,10 +616,8 @@ function Base.show(io::IO, re::Regex{T}) where {T}
         opt = "dna"
     elseif T == BioSequences.RNA
         opt = "rna"
-    elseif T == BioSequences.AminoAcid
+    else T == BioSequences.AminoAcid
         opt = "aa"
-    else
-        assert(false)
     end
     print(io, "biore\"", re.pat, "\"", opt)
 end
