@@ -33,7 +33,7 @@ function Base.getindex(code::GeneticCode, codon::UInt64)
     return @inbounds code.tbl[codon + one(UInt64)]
 end
 
-Base.copy(code::GeneticCode) = GeneticCode(copy(code.name), copy(code.tbl))
+Base.copy(code::GeneticCode) = code
 Base.length(code::GeneticCode) = 64
 
 Base.show(io::IO, code::GeneticCode) = print(io, code.name)
