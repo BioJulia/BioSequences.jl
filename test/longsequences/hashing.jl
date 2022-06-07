@@ -50,6 +50,6 @@
 	seq = randdnaseq(250)
 	@test hash(seq[33:201]) == hash(view(seq, 33:201))
     @test hash(seq[23:201]) == hash(view(seq, 23:201))
-    @test hash(seq[37:249]) == hash(view(seq, 23:249))
+    @test hash(seq[37:249]) == hash(view(seq, 37:249))
     @test hash(seq[50:250]) == hash(view(seq, 50:250))
 end
