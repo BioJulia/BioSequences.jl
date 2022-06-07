@@ -18,10 +18,6 @@
 const c1 = 0x87c37b91114253d5
 const c2 = 0x4cf5ad432745937f
 
-@inline function rotl64(x::UInt64, r)
-    return (x << (r & 63)) | (x >>> (-r & 63))
-end
-
 @inline function fmix64(k::UInt64)
     k = k ⊻ k >> 33
     k *= 0xff51afd7ed558ccd
@@ -33,28 +29,28 @@ end
 
 @inline function murmur1(h1, k1)
     k1 *= c1
-    k1 = rotl64(k1, 31)
+    k1 = bitrotate(k1, 31)
     k1 *= c2
     h1 = h1 ⊻ k1
     return (h1, k1)
 end
 
-@inline function murmur2(h1, h2, k2)
+@inline function murmur2(h2, k2)
     k2 *= c2
-    k2 = rotl64(k2, 33)
+    k2 = bitrotate(k2, 33)
     k2 *= c1
-    h2 = h1 ⊻ k2
+    h2 = h2 ⊻ k2
     return (h2, k2)
 end
 
 @inline function murmur(h1, h2, k1, k2)
     h1, k1 = murmur1(h1, k1)
-    h1 = rotl64(h1, 27)
+    h1 = bitrotate(h1, 27)
     h1 += h2
     h1 = h1 * 5 + 0x52dce729
 
-    h2, k2 = murmur2(h1, h2, k2)
-    h2 = rotl64(h2, 31)
+    h2, k2 = murmur2(h2, k2)
+    h2 = bitrotate(h2, 31)
     h2 += h1
     h2 = h2 * 5 + 0x38495ab5
 
@@ -71,6 +67,8 @@ function finalize(h1, h2, len)
     h1 += h2
     h2 += h1
 
+    # Ref. implementation returns (h1, h2) for 128 bits, but we truncate to 64.
+    # last needless modification of h2 is optimised away by the compiler
     return h1
 end
 
@@ -90,7 +88,7 @@ function tail(::Type{<:LongSequence}, data, next, stop, h1, h2)
     end
     
     h1, k1 = murmur1(h1, k1)
-    h2, k2 = murmur2(h1, h2, k2)
+    h2, k2 = murmur2(h2, k2)
     return (h1, h2)
 end
 
@@ -158,17 +156,15 @@ function tail(::Type{<:LongSubSeq}, data, next, stop, h1, h2)
 	end
     
     h1, k1 = murmur1(h1, k1)
-    h2, k2 = murmur2(h1, h2, k2)
+    h2, k2 = murmur2(h2, k2)
     
     return (h1, h2)
 end
 
 function Base.hash(seq::SeqOrView, seed::UInt64)
-    # Mix sequence length so that dna"A" and dna"AA"
-    # return the different hash values.
-    h1::UInt64 = h2::UInt64 = hash(length(seq), seed)
+    h1, h2 = UInt64(0), seed
     next = bitindex(seq, 1)
-    stop = bitindex(seq, lastindex(seq) + 1)
+    stop = bitindex(seq, (lastindex(seq) + 1) % UInt)
     data = seq.data
     
     h1, h2, next = body(typeof(seq), next, stop, data, h1, h2)
