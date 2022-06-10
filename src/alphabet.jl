@@ -116,8 +116,9 @@ function Base.showerror(io::IO, err::DecodeError{A}) where {A}
 end
 
 function Base.iterate(a::Alphabet, state = 1)
-	state > length(symbols(a)) && return nothing
-	return @inbounds symbols(a)[state], state += 1
+	state > length(a) && return nothing
+	s = symbols(a)
+	return @inbounds s[state], state += 1
 end
 
 ## Nucleic acid alphabets
