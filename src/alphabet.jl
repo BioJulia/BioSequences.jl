@@ -117,8 +117,8 @@ end
 
 function Base.iterate(a::Alphabet, state = 1)
 	state > length(a) && return nothing
-	s = symbols(a)
-	return @inbounds s[state], state += 1
+	@inbounds sym = symbols(a)[state]
+	return sym, state + 1
 end
 
 ## Nucleic acid alphabets
