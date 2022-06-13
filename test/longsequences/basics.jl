@@ -263,6 +263,11 @@ end
 
     base_aa_seq = aa"KMAEEHPAIYWLMN"
     test_join(LongAA, (aa"KMVLE", aa"", (@view base_aa_seq[3:6])), aa"KMVLEAEEH")
+
+    # Joining seqs and symbols
+    test_join(LongAA, [AA_G, AA_P, AA_L, aa"MNVWEED", AA_K], aa"GPLMNVWEEDK")
+    test_join(LongRNA{4}, [RNA_M, RNA_U, RNA_S, rna"AGCGSK"], rna"MUSAGCGSK")
+    test_join(LongDNA{2}, [dna"ATGCTTA", DNA_G, DNA_G, DNA_A, DNA_A, DNA_A], dna"ATGCTTAGGAAA")
 end
 
 @testset "Length" begin

@@ -49,10 +49,16 @@ random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
 
     seq2 = SimpleSeq([RNA_U, RNA_C, RNA_U])
     gen = (i for i in [seq, seq2])
-    @test join!(SimpleSeq([]), [seq, seq2]) == SimpleSeq([RNA(i) for i in "CGUUCU"])
-    @test join!(SimpleSeq([]), gen) == SimpleSeq([RNA(i) for i in "CGUUCU"])
+    newseq = SimpleSeq([])
+    join!(newseq, [seq, seq2])
+    @test newseq == SimpleSeq([RNA(i) for i in "CGUUCU"]) 
+    join!(newseq, gen)
+    @test newseq == SimpleSeq([RNA(i) for i in "CGUUCU"])
+    join!(newseq, [RNA_U, RNA_C, SimpleSeq([RNA_G, RNA_C])])
+    @test newseq == SimpleSeq([RNA(i) for i in "UCGC"])
     @test join(SimpleSeq, [seq, seq2]) == join!(SimpleSeq([]), [seq, seq2])
     @test join(SimpleSeq, gen) == join!(SimpleSeq([]), gen)
+    @test join(SimpleSeq, [RNA_U, RNA_G, seq, RNA_U]) == SimpleSeq([RNA(i) for i in "UGCGUU"]) 
 
     @test copy!(SimpleSeq([]), seq) == seq
     seq3 = copy(seq2)

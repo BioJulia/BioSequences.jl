@@ -100,13 +100,13 @@ end
 
 # Fast path for iterables we know are stateless
 function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
-    _join!(resize!(seq, sum(length, it, init=0)), it, Val(true))
+    _join!(resize!(seq, sum(joinlen, it, init=0)), it, Val(true))
 end
 
 """
     join!(seq::BioSequence, iter)
 
-Concatenate all biosequences in `iter` into `seq`, resizing it to fit.
+Concatenate all biosequences/biosymbols in `iter` into `seq`, resizing it to fit.
 
 # Examples
 ```
@@ -122,11 +122,19 @@ join!(seq::BioSequence, it) = _join!(seq, it, Val(false))
 # B is whether the size of the destination seq is already
 # known to be the final size
 function _join!(seq::BioSequence, it, ::Val{B}) where B
-    index = 1
+    len = 0
+    oldlen = length(seq)
     for i in it
-        B || resize!(seq, length(seq) + length(i))
-        copyto!(seq, index, i, 1, length(i))
-        index += length(i)
+        pluslen = joinlen(i)
+        if !B && oldlen < (len + pluslen)
+            resize!(seq, len + pluslen)
+        end
+        if i isa BioSymbol
+            seq[len + 1] = i
+        else
+            copyto!(seq, len + 1, i, 1, length(i))
+        end
+        len += pluslen
     end
     seq
 end
@@ -134,7 +142,7 @@ end
 """
     join(::Type{T <: BioSequence}, seqs)
 
-Concatenate all the `seqs` to a biosequence of type `T`.
+Concatenate all the biosequences/biosymbols in `seqs` to a biosequence of type `T`.
 
 # Examples
 ```
@@ -146,8 +154,11 @@ TAGAAC
 see also [`join!`](@ref)
 """
 function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
-    _join!(T(undef, sum(length, it, init=0)), it, Val(true))
+    _join!(T(undef, sum(joinlen, it, init=0)), it, Val(true))
 end
+
+# length is intentionally not implemented for BioSymbol
+joinlen(x::Union{BioSequence, BioSymbol}) = x isa BioSymbol ? 1 : length(x)
 
 function Base.join(::Type{T}, it) where {T <: BioSequence}
     _join!(empty(T), it, Val(false))
