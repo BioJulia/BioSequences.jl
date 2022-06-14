@@ -256,6 +256,9 @@ function Base.findall(pat, seq::BioSequence; overlap::Bool = DEFAULT_OVERLAP)
     return collect(search(pat, seq; overlap))
 end
 
+# Fix ambiguity with Base's findall
+Base.findall(f::Function, seq::BioSequence) = collect(search(f, seq; overlap=DEFAULT_OVERLAP))
+
 function Base.findall(pat, seq::BioSequence, rng::UnitRange{Int}; overlap::Bool = DEFAULT_OVERLAP)
     v = view(seq, rng)
     itr = search(pat, v; overlap)

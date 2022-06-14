@@ -50,4 +50,8 @@
     @test findall(DNA_A, dna"GGGG") |> typeof == Vector{Int}
     @test findall(ExactSearchQuery(dna"A"), dna"GGGG") |> typeof == Vector{UnitRange{Int}}
 
+    @test findall(isequal(DNA_A), dna"ACGTAC") == [1, 5]
+    @test findall(i -> true, aa"ACGTA") == collect(1:5)
+    @test findall(i -> true, aa"") == Int[]
+    @test findall(i -> i == AA_A, rna"AGCA") == Int[]
 end

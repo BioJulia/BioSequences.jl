@@ -11,6 +11,10 @@ function (::Type{S})(seq::BioSequence) where {S <: AbstractString}
     _string(S, seq, codetype(Alphabet(seq)))
 end
 
+@static if VERSION >= v"1.8"
+    LazyString(seq::BioSequence) = LazyString(string(seq))
+end
+
 function _string(::Type{S}, seq::BioSequence, ::AlphabetCode) where {S<:AbstractString}
     return S([Char(x) for x in seq])
 end
