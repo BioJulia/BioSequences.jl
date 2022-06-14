@@ -67,6 +67,11 @@ end
     @test_throws Exception LongDNA{4}("ACCNNCATTTTTTAGATXATAG")
     @test_throws Exception LongRNA{4}("ACCNNCATTTTTTAGATXATAG")
     @test_throws Exception LongAA("ATGHLMY@ZACAGNM")
+
+    # LazyString from BioSequence
+    @static if VERSION >= v"1.8"
+        @test string(LazyString(aa"MQLLCP")) == "MQLLCP"
+    end
 end
 
 @testset "Construction from vectors" begin
