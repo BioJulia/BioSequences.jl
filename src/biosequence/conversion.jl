@@ -12,7 +12,7 @@ function (::Type{S})(seq::BioSequence) where {S <: AbstractString}
 end
 
 @static if VERSION >= v"1.8"
-    LazyString(seq::BioSequence) = LazyString(string(seq))
+    Base.LazyString(seq::BioSequence) = LazyString(string(seq))
 end
 
 function _string(::Type{S}, seq::BioSequence, ::AlphabetCode) where {S<:AbstractString}
