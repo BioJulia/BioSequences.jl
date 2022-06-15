@@ -22,6 +22,12 @@ julia> findfirst(query, seq)
 julia> findlast(query, seq)
 8:10
 
+julia> findnext(query, seq, 6)
+8:10
+
+julia> findprev(query, seq, 7)
+3:5
+
 julia> occursin(query, seq)
 true
 
