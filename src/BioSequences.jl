@@ -252,6 +252,52 @@ Base.eltype(::Type{<:Search{Q}}) where {Q<:HasRangeEltype} = UnitRange{Int}
 Base.eltype(::Type{<:Search}) = Int
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
+"""
+    findall(pattern, sequence::BioSequence[,rng::UnitRange{Int}]; overlap::Bool=true)::Vector
+
+Find all occurrences of `pattern` in `sequence`.
+
+The return value is a vector of ranges of indices where the matching sequences were found.
+If there are no matching sequences, the return value is an empty vector.
+
+The search is restricted to the specified range when `rng` is set.
+
+With the keyword argument `overlap` set as `true`, the start index for the next search gets set to the start of the current match plus one; if set to `false`, the start index for the next search gets set to the end of the current match plus one.
+The default value for the keyword argument `overlap` is `true`.
+
+The `pattern` can be a `Biosymbol` or a predicate.
+
+See also [`ExactSearchQuery`](@ref), [`ApproximateSearchQuery`](@ref), [`PWMSearchQuery`](@ref).
+
+# Examples
+```jldoctest
+julia> seq = dna"ACACACAC"
+8nt DNA Sequence:
+ACACACAC
+
+julia> findall(DNA_A, seq)
+4-element Vector{Int64}:
+ 1
+ 3
+ 5
+ 7
+
+julia> findall(ExactSearchQuery(dna"ACAC"), seq)
+3-element Vector{UnitRange{Int64}}:
+ 1:4
+ 3:6
+ 5:8
+
+julia> findall(ExactSearchQuery(dna"ACAC"), seq; overlap=false)
+2-element Vector{UnitRange{Int64}}:
+ 1:4
+ 5:8
+
+julia> findall(ExactSearchQuery(dna"ACAC"), seq, 2:7; overlap=false)
+1-element Vector{UnitRange{Int64}}:
+ 3:6
+```
+"""
 function Base.findall(pat, seq::BioSequence; overlap::Bool = DEFAULT_OVERLAP)
     return collect(search(pat, seq; overlap))
 end
