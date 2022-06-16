@@ -107,8 +107,6 @@ function _copyto!(dst::SeqOrView{A}, doff::Integer,
 end
 
 #########
-const SeqLike = Union{AbstractVector, AbstractString}
-const ASCIILike = Union{String, SubString{String}}
 
 """
     copy!(dst::LongSequence, src)
