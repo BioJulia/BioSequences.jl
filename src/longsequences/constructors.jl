@@ -45,9 +45,12 @@ Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
 (::Type{T})() where {T <: LongSequence} = empty(T)
 
 # Constructors from other sequences
-# TODO: Remove this method, since the user can just slice
-LongSequence(s::LongSequence, xs::AbstractUnitRange{<:Integer}) = s[xs]
 
+@static if VERSION < v"2"
+    # TODO: Remove this method, since the user can just slice
+    LongSequence(s::LongSequence, xs::AbstractUnitRange{<:Integer}) = s[xs]
+end
+        
 function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
     return LongSequence{A}(seq)
 end
