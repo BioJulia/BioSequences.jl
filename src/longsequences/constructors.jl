@@ -46,12 +46,7 @@ Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
 
 # Constructors from other sequences
 # TODO: Remove this method, since the user can just slice
-function LongSequence(other::LongSequence, part::AbstractUnitRange{<:Integer})
-    checkbounds(other, part)
-    subseq = typeof(other)(undef, length(part))
-    copyto!(subseq, 1, other, first(part), length(part))
-    return subseq
-end
+LongSequence(s::LongSequence, xs::AbstractUnitRange{<:Integer}) = s[xs]
 
 function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
     return LongSequence{A}(seq)
