@@ -27,7 +27,7 @@ function LongSequence{A}(it) where {A <: Alphabet}
     data = Vector{UInt64}(undef, seq_data_len(A, len))
     bits = zero(UInt)
     bitind = bitindex(BitsPerSymbol(A()), encoded_data_eltype(LongSequence{A}), 1)
-    @inbounds for (i, x) in enumerate(it)
+    @inbounds for x in it
         xT = convert(eltype(A), x)
         enc = encode(A(), xT)
         bits |= enc << offset(bitind)
@@ -44,6 +44,22 @@ end
 Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
 (::Type{T})() where {T <: LongSequence} = empty(T)
 
+# Constructors from other sequences
+# TODO: Remove this method, since the user can just slice
+LongSequence(s::LongSequence, xs::AbstractUnitRange{<:Integer}) = s[xs]
+
+function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
+    return LongSequence{A}(seq)
+end
+
+LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet} = copy(seq)
+
+function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
+         {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
+    return T(copy(seq.data), seq.len)
+end
+
+# Constructors from strings
 function LongSequence{A}(s::Union{String, SubString{String}}) where {A<:Alphabet}
     return LongSequence{A}(s, codetype(A()))
 end
@@ -69,21 +85,4 @@ function LongSequence{A}(
     return copyto!(seq, 1, src, first(part), len)
 end
 
-# create a subsequence
-function LongSequence(other::LongSequence, part::AbstractUnitRange{<:Integer})
-    checkbounds(other, part)
-    subseq = typeof(other)(undef, length(part))
-    copyto!(subseq, 1, other, first(part), length(part))
-    return subseq
-end
-
-function LongSequence(seq::BioSequence{A}) where {A <: Alphabet}
-    return LongSequence{A}(seq)
-end
-
-LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet} = copy(seq)
-
-function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
-         {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
-    return T(copy(seq.data), seq.len)
-end
+Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)

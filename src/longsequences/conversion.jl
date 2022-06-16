@@ -26,5 +26,3 @@ function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
          {T<:LongSequence{<:NucleicAcidAlphabet}}
     return T(seq)
 end
-
-Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
