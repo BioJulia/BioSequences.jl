@@ -27,7 +27,7 @@ function LongSequence{A}(it) where {A <: Alphabet}
     data = Vector{UInt64}(undef, seq_data_len(A, len))
     bits = zero(UInt)
     bitind = bitindex(BitsPerSymbol(A()), encoded_data_eltype(LongSequence{A}), 1)
-    @inbounds for (i, x) in enumerate(it)
+    @inbounds for x in it
         xT = convert(eltype(A), x)
         enc = encode(A(), xT)
         bits |= enc << offset(bitind)
