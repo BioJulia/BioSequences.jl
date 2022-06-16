@@ -22,6 +22,7 @@ and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
   of the alphabet's element type, as well as the decoding, the inverse process.
 * An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
 
+### Requires methods
 Every subtype `A` of `Alphabet` must implement:
 * `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
 * `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
@@ -31,11 +32,13 @@ Every subtype `A` of `Alphabet` must implement:
   on `Alphabet` should operate on instances of the alphabet, not the type.
 
 If you want interoperation with existing subtypes of `BioSequence`,
-the encoded representation `E` must be of type `UInt`, and you must also implement:
-* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
-  or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
+the encoded representation `E` must be of type `UInt`, and you must also implement
+`BitsPerSymbol`
 
-For increased performance, see [`AsciiAlphabet`](@ref)
+### Optional methods
+* `BitsPerSymbol` for compatibility with existing `BioSequence`s
+* `AsciiAlphabet` for increased printing/writing efficiency
+* `tryencode` and `trydecode` for fallible de/encoding.
 """
 abstract type Alphabet end
 
@@ -69,8 +72,16 @@ The number of bits required to represent a packed symbol encoding in a vector of
 bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))
 Base.length(A::Alphabet) = length(symbols(A))
 
-## Bits per symbol
+"""
+    BitsPerSymbol{N}
 
+A trait object specifying the number of bits it takes to encode a biosymbol in an `Alphabet`
+Alphabets `A` should implement `BitsPerSymbol(::A)`.
+For compatibility with existing BioSequences, the number of bits should be a power of two
+between 1 and 32, both inclusive.
+
+See also: [`Alphabet`](@ref)
+"""
 struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
 
