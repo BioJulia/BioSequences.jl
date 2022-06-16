@@ -96,6 +96,8 @@ iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 
 Encode BioSymbol `S` to an internal representation using an `Alphabet`.
 This decoding is checked to enforce valid data element.
+
+See also: `decode`[@ref], `tryencode`[@ref], `trydecode`[@ref]
 """
 @inline function encode(A::Alphabet, s::BioSymbol)
     y = tryencode(A, s)
@@ -107,6 +109,8 @@ end
 
 Try encoding BioSymbol `S` to the internal representation of `Alphabet`,
 returning `nothing` if not successful.
+
+See also: `encode`[@ref], `decode`[@ref], `trydecode`[@ref]
 """
 function tryencode end
 
@@ -125,11 +129,23 @@ end
 
 Decode internal representation `E` to a `BioSymbol` using an `Alphabet`.
 This decoding is checked to enforce valid biosymbols.
+
+See also: `encode`[@ref], `trydecode`[@ref], `tryencode`[@ref]
 """
 @inline function decode(A::Alphabet, x)
     y = trydecode(A, x)
     y === nothing ? throw(DecodeError(A, x)) : y
 end
+
+"""
+    trydecode(::Alphabet, x::E)
+
+Decode internal representation `E` to a `BioSymbol` using an `Alphabet`,
+returning `nothing` if not successful.
+
+See also: `decode`[@ref], `encode`[@ref], `tryencode`[@ref]
+"""
+function trydecode end
 
 struct DecodeError{A<:Alphabet,T} <: Exception
     val::T
