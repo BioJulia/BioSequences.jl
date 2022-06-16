@@ -56,9 +56,8 @@ function LongSequence{A}(s::Union{String, SubString{String}}, ::AlphabetCode) wh
 end
 
 function LongSequence{A}(s::Union{String, SubString{String}}, ::AsciiAlphabet) where {A<:Alphabet}
-    v = GC.@preserve s unsafe_wrap(Vector{UInt8}, pointer(s), ncodeunits(s))
-    seq = LongSequence{A}(undef, length(v))
-    return encode_chunks!(seq, 1, v, 1, length(v))
+    seq = LongSequence{A}(undef, ncodeunits(s))
+    return encode_chunks!(seq, 1, codeunits(s), 1, ncodeunits(s))
 end
 
 function LongSequence{A}(
