@@ -7,6 +7,7 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+# TODO: Make Alphabet require `tryencode/trydecode` and rely on the generic fallback for encode/decode.
 """
     Alphabet
 
@@ -21,6 +22,7 @@ and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
   of the alphabet's element type, as well as the decoding, the inverse process.
 * An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
 
+### Requires methods
 Every subtype `A` of `Alphabet` must implement:
 * `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
 * `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
@@ -30,11 +32,13 @@ Every subtype `A` of `Alphabet` must implement:
   on `Alphabet` should operate on instances of the alphabet, not the type.
 
 If you want interoperation with existing subtypes of `BioSequence`,
-the encoded representation `E` must be of type `UInt`, and you must also implement:
-* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
-  or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
+the encoded representation `E` must be of type `UInt`, and you must also implement
+`BitsPerSymbol`
 
-For increased performance, see [`AsciiAlphabet`](@ref)
+### Optional methods
+* `BitsPerSymbol` for compatibility with existing `BioSequence`s
+* `AsciiAlphabet` for increased printing/writing efficiency
+* `tryencode` and `trydecode` for fallible de/encoding.
 """
 abstract type Alphabet end
 
@@ -68,8 +72,16 @@ The number of bits required to represent a packed symbol encoding in a vector of
 bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))
 Base.length(A::Alphabet) = length(symbols(A))
 
-## Bits per symbol
+"""
+    BitsPerSymbol{N}
 
+A trait object specifying the number of bits it takes to encode a biosymbol in an `Alphabet`
+Alphabets `A` should implement `BitsPerSymbol(::A)`.
+For compatibility with existing BioSequences, the number of bits should be a power of two
+between 1 and 32, both inclusive.
+
+See also: [`Alphabet`](@ref)
+"""
 struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
 
@@ -84,8 +96,23 @@ iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 
 Encode BioSymbol `S` to an internal representation using an `Alphabet`.
 This decoding is checked to enforce valid data element.
+
+See also: `decode`[@ref], `tryencode`[@ref], `trydecode`[@ref]
 """
-function encode end
+@inline function encode(A::Alphabet, s::BioSymbol)
+    y = tryencode(A, s)
+    return y === nothing ? throw(EncodeError(A, s)) : y
+end
+
+"""
+    tryencode(::Alphabet, x::S)
+
+Try encoding BioSymbol `S` to the internal representation of `Alphabet`,
+returning `nothing` if not successful.
+
+See also: `encode`[@ref], `decode`[@ref], `trydecode`[@ref]
+"""
+function tryencode end
 
 struct EncodeError{A<:Alphabet,T} <: Exception
     val::T
@@ -102,8 +129,23 @@ end
 
 Decode internal representation `E` to a `BioSymbol` using an `Alphabet`.
 This decoding is checked to enforce valid biosymbols.
+
+See also: `encode`[@ref], `trydecode`[@ref], `tryencode`[@ref]
 """
-function decode end
+@inline function decode(A::Alphabet, x)
+    y = trydecode(A, x)
+    y === nothing ? throw(DecodeError(A, x)) : y
+end
+
+"""
+    trydecode(::Alphabet, x::E)
+
+Decode internal representation `E` to a `BioSymbol` using an `Alphabet`,
+returning `nothing` if not successful.
+
+See also: `decode`[@ref], `encode`[@ref], `tryencode`[@ref]
+"""
+function trydecode end
 
 struct DecodeError{A<:Alphabet,T} <: Exception
     val::T
@@ -172,38 +214,27 @@ for A in (DNAAlphabet, RNAAlphabet)
     @eval begin
 
 	    # 2-bit encoding
-        @inline function encode(::$(A){2}, nt::$(T))
+        @inline function tryencode(::$(A){2}, nt::$(T))
             if count_ones(nt) != 1 || !isvalid(nt)
-                throw(EncodeError($(A){2}(), nt))
+                return nothing
             end
             return convert(UInt, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
         end
 
-        @inline function decode(::$(A){2}, x::UInt)
-            if x > UInt(3)
-                throw(DecodeError($(A){2}(), x))
-            end
-            return reinterpret($(T), 0x01 << (x & 0x03))
+        @inline function trydecode(::$(A){2}, x::Unsigned)
+            xu = UInt(x)
+            return xu > UInt(3) ? nothing : reinterpret($(T), 0x01 << (xu & 0x03))
         end
-
-	    @inline decode(::$(A){2}, x::Unsigned) = decode($(A){2}(), UInt(x))
 
         # 4-bit encoding
-        @inline function encode(::$(A){4}, nt::$(T))
-            if !isvalid(nt)
-                throw(EncodeError($(A){4}(), nt))
-            end
-            return convert(UInt, reinterpret(UInt8, nt))
+        @inline function tryencode(::$(A){4}, nt::$(T))
+            return isvalid(nt) ? convert(UInt, reinterpret(UInt8, nt)) : nothing
         end
 
-        @inline function decode(::$(A){4}, x::UInt)
-            if !isvalid($(T), x)
-                throw(DecodeError($(A){4}(), x))
-            end
-            return reinterpret($(T), x % UInt8)
+        @inline function trydecode(::$(A){4}, x::Unsigned)
+            xu = UInt(x)
+            return isvalid($T, xu) ? reinterpret($T, xu % UInt8) : nothing
         end
-
-        @inline decode(::$(A){4}, x::Unsigned) = decode($(A){4}(), UInt(x))
     end
 end
 
@@ -231,22 +262,15 @@ function symbols(::AminoAcidAlphabet)
     AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
 end
 
-@inline function encode(::AminoAcidAlphabet, aa::AminoAcid)
+@inline function tryencode(::AminoAcidAlphabet, aa::AminoAcid)
     if reinterpret(UInt8, aa) > reinterpret(UInt8, AA_Gap)
-        throw(EncodeError(AminoAcidAlphabet(), aa))
+        return nothing
     end
     return convert(UInt, reinterpret(UInt8, aa))
 end
 
-@inline function decode(::AminoAcidAlphabet, x::UInt)
-    if x > 0x1b
-        throw(DecodeError(AminoAcidAlphabet(), x))
-    end
-    return reinterpret(AminoAcid, x % UInt8)
-end
-
-@inline function decode(::AminoAcidAlphabet, x::Unsigned)
-    return decode(AminoAcidAlphabet(), UInt(x))
+@inline function trydecode(::AminoAcidAlphabet, x::Unsigned)
+    return x > 0x1b ? nothing : reinterpret(AminoAcid, x % UInt8)
 end
 
 # AsciiAlphabet trait - add to user defined type to use speedups.
