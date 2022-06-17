@@ -46,7 +46,7 @@ Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
 
 # Constructors from other sequences
 
-@static if VERSION < v"2"
+@static if VERSION < v"4"
     # TODO: Remove this method, since the user can just slice
     LongSequence(s::LongSequence, xs::AbstractUnitRange{<:Integer}) = s[xs]
 end
