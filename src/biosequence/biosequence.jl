@@ -93,6 +93,7 @@ Base.isempty(x::BioSequence) = iszero(length(x))
 Base.empty(::Type{T}) where {T <: BioSequence} = T(eltype(T)[])
 Base.empty(x::BioSequence) = empty(typeof(x))
 BitsPerSymbol(x::BioSequence) = BitsPerSymbol(Alphabet(typeof(x)))
+Base.hash(s::BioSequence, x::UInt) = foldl((a, b) -> hash(b, a), s, init=x)
 
 function Base.similar(seq::BioSequence, len::Integer=length(seq))
     return typeof(seq)(undef, len)
