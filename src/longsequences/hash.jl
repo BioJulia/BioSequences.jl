@@ -15,6 +15,8 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+# NB NOTE: This entire file is commented out until issue #243 is resolved
+#=
 const c1 = 0x87c37b91114253d5
 const c2 = 0x4cf5ad432745937f
 
@@ -173,3 +175,4 @@ function Base.hash(seq::SeqOrView, seed::UInt64)
 
     return h1
 end
+=#
