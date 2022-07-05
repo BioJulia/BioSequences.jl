@@ -12,7 +12,7 @@ Twiddle = "7200193e-83a8-5a55-b20d-5d36d44a0795"
 BioSymbols = "5.1.0"
 StableRNGs = "0.1, 1.0"
 Twiddle = "1.1.1"
-julia = "1.6"
+julia = "1.5"
 
 [extras]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
