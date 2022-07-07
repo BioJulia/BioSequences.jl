@@ -101,7 +101,7 @@ end
 
 # Fast path for iterables we know are stateless
 function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
-    _join!(resize!(seq, sum(joinlen, it, init=0)), it, Val(true))
+    _join!(resize!(seq, reduce((a, b) -> a + joinlen(b), it, init=0)), it, Val(true))
 end
 
 """
@@ -155,7 +155,7 @@ TAGAAC
 see also [`join!`](@ref)
 """
 function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
-    _join!(T(undef, sum(joinlen, it, init=0)), it, Val(true))
+    _join!(T(undef, reduce((a, b) -> a + joinlen(b), it, init=0)), it, Val(true))
 end
 
 # length is intentionally not implemented for BioSymbol
