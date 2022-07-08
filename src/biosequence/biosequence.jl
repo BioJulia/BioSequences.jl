@@ -59,8 +59,9 @@ function has_interface(
     try
         isempty(syms) && error("Vector syms must not be empty")
         first(syms) isa eltype(T) || error("Vector is of wrong element type")
-        seq = T(syms)
+        seq = T((i for i in syms))
         length(seq) > 0 || return false
+        eachindex(seq) === Base.OneTo(length(seq)) || return false
         E = encoded_data_eltype(T)
         e = extract_encoded_element(seq, 1)
         e isa E || return false
