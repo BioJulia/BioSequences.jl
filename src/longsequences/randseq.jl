@@ -92,30 +92,15 @@ function Base.rand(rng::AbstractRNG, sp::SamplerWeighted)
 end
 Base.rand(sp::SamplerWeighted) = rand(GLOBAL_RNG, sp)
 
-"""
-    randseq([rng::AbstractRNG], A::Alphabet, sp::Sampler, len::Integer)
-
-Generate a LongSequence{A} of length `len` with elements drawn from
-the given sampler.
-
-# Example:
-```
-# Generate 1000-length RNA with 4% chance of N, 24% for A, C, G, or U
-julia> sp = SamplerWeighted(rna"ACGUN", fill(0.24, 4))
-julia> seq = randseq(RNAAlphabet{4}(), sp, 50)
-50nt RNA Sequence:
-CUNGGGCCCGGGNAAACGUGGUACACCCUGUUAAUAUCAACNNGCGCUNU
-```
-"""
-function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
-    seq = LongSequence{typeof(A)}(undef, len)
-    @inbounds for i in 1:len
-        letter = rand(rng, sp)
-        seq[i] = letter
-    end
-    return seq
-end
+###################### Generic longsequence methods ############################
+# If no RNG is passed, use the global one
+Random.rand!(seq::LongSequence) = rand!(GLOBAL_RNG, seq)
+Random.rand!(seq::LongSequence, sp::Sampler) = rand!(GLOBAL_RNG, seq, sp)
+randseq(A::Alphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
 randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(GLOBAL_RNG, A, sp, len)
+randdnaseq(len::Integer) = randdnaseq(GLOBAL_RNG, len)
+randrnaseq(len::Integer) = randrnaseq(GLOBAL_RNG, len)
+randaaseq(len::Integer) = randaaseq(GLOBAL_RNG, len)
 
 """
     randseq([rng::AbstractRNG], A::Alphabet, len::Integer)
@@ -137,8 +122,47 @@ julia> seq = randseq(AminoAcidAlphabet(), 50)
 VFMHSIRMIRLMVHRSWKMHSARHVNFIRCQDKKWKSADGIYTDICKYSM
 ```
 """
-function randseq(rng::AbstractRNG, A::NucleicAcidAlphabet{4}, len::Integer)
-    seq = LongSequence{typeof(A)}(undef, len)
+function randseq(rng::AbstractRNG, A::Alphabet, len::Integer)
+    rand!(rng, LongSequence{typeof(A)}(undef, len))
+end
+
+"""
+    randseq([rng::AbstractRNG], A::Alphabet, sp::Sampler, len::Integer)
+
+Generate a LongSequence{A} of length `len` with elements drawn from
+the given sampler.
+
+# Example:
+```
+# Generate 1000-length RNA with 4% chance of N, 24% for A, C, G, or U
+julia> sp = SamplerWeighted(rna"ACGUN", fill(0.24, 4))
+julia> seq = randseq(RNAAlphabet{4}(), sp, 50)
+50nt RNA Sequence:
+CUNGGGCCCGGGNAAACGUGGUACACCCUGUUAAUAUCAACNNGCGCUNU
+```
+"""
+function randseq(rng::AbstractRNG, A::Alphabet, sp::Sampler, len::Integer)
+    rand!(rng, LongSequence{typeof(A)}(undef, len), sp)
+end
+
+# The generic method dispatches to `iscomplete`, since then we don't need
+# to instantiate a sampler, and can use random bitpatterns
+Random.rand!(rng::AbstractRNG, seq::LongSequence{A}) where A = rand!(rng, iscomplete(A()), seq)
+
+####################### Implementations #######################################
+
+# If given a sampler explicitly, just draw from that
+function Random.rand!(rng::AbstractRNG, seq::LongSequence, sp::Sampler)
+    @inbounds for i in eachindex(seq)
+        letter = rand(rng, sp)
+        seq[i] = letter
+    end
+    return seq
+end
+
+# 4-bit nucleotides's default distribution are equal among
+# the non-ambiguous ones
+function Random.rand!(rng::AbstractRNG, seq::LongSequence{<:NucleicAcidAlphabet{4}})
     data = seq.data
     rand!(rng, data)
     @inbounds for i in eachindex(data)
@@ -151,31 +175,26 @@ function randseq(rng::AbstractRNG, A::NucleicAcidAlphabet{4}, len::Integer)
     end
     return seq
 end
-randseq(A::NucleicAcidAlphabet{4}, len::Integer) = randseq(GLOBAL_RNG, A, len)
 
-function randseq(rng::AbstractRNG, ::AminoAcidAlphabet, len::Integer)
-    return randseq(rng, AminoAcidAlphabet(), DefaultAASampler, len)
-end
-randseq(A::AminoAcidAlphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
+# Special AA implementation: Do not create the AA sampler, use the one
+# that's already included.
+Random.rand!(rng::AbstractRNG, seq::LongAA) = rand!(rng, seq, DefaultAASampler)
 
-# Generic fallback method.
-randseq(rng::AbstractRNG, A::Alphabet, len::Integer) = randseq(rng, iscomplete(A), A, len)
-
-# All bitpatterns are valid
-function randseq(rng::AbstractRNG, ::Val{true}, A::Alphabet, len::Integer)
-    vector = rand(rng, UInt64, seq_data_len(typeof(A), len))
-    return LongSequence{typeof(A)}(vector, UInt(len))
+# All bitpatterns are valid - we use built-in RNG on the data vector.
+function Random.rand!(rng::AbstractRNG, ::Val{true}, seq::LongSequence)
+    rand!(rng, seq.data)
+    seq
 end
 
-# Not all bitpatterns are valid
-function randseq(rng::AbstractRNG, ::Val{false}, A::Alphabet, len::Integer)
+# Not all bitpatterns are valid - default to using a SamplerUniform
+function Random.rand!(rng::AbstractRNG, ::Val{false}, seq::LongSequence)
+    A = Alphabet(seq)
     letters = symbols(A)
     sampler = SamplerUniform{eltype(A)}(letters)
-    return randseq(rng, A, sampler, len)
+    rand!(rng, seq, sampler)
 end
 
-randseq(A::Alphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
-
+############################ Aliases for convenience ########################
 """
     randdnaseq([rng::AbstractRNG], len::Integer)
 
@@ -183,7 +202,6 @@ Generate a random LongSequence{DNAAlphabet{4}} sequence of length `len`,
 with bases sampled uniformly from [A, C, G, T]
 """
 randdnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, DNAAlphabet{4}(), len)
-randdnaseq(len::Integer) = randseq(GLOBAL_RNG, DNAAlphabet{4}(), len)
 
 """
     randrnaseq([rng::AbstractRNG], len::Integer)
@@ -192,7 +210,6 @@ Generate a random LongSequence{RNAAlphabet{4}} sequence of length `len`,
 with bases sampled uniformly from [A, C, G, U]
 """
 randrnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, RNAAlphabet{4}(), len)
-randrnaseq(len::Integer) = randseq(GLOBAL_RNG, RNAAlphabet{4}(), len)
 
 """
     randaaseq([rng::AbstractRNG], len::Integer)
@@ -201,4 +218,3 @@ Generate a random LongSequence{AminoAcidAlphabet} sequence of length `len`,
 with amino acids sampled uniformly from the 20 standard amino acids.
 """
 randaaseq(rng::AbstractRNG, len::Integer) = randseq(rng, AminoAcidAlphabet(), len)
-randaaseq(len::Integer) = randseq(GLOBAL_RNG, AminoAcidAlphabet(), len)
