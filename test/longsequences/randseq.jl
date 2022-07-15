@@ -130,6 +130,15 @@ end # SamplerWeighted
     sampler = SamplerUniform(dna"AGC")
     seq = randseq(DNAAlphabet{2}(), sampler, 25)
     test_isseq(seq, DNAAlphabet{2}, 25)
+
+    # Test that rand! correctly works
+    seq = LongDNA{4}("ATGCTAMWKSSWKHHNNNATVVCGATC")
+    Random.rand!(seq)
+    @test Set(seq) == Set(symbols(DNAAlphabet{2}()))
+
+    Random.rand!(seq, sampler)
+    @test Set(seq) == Set([DNA_A, DNA_G, DNA_C])
+
 end # randseq Sampler
 
 @testset "randseq" begin

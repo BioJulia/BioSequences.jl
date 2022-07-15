@@ -24,7 +24,7 @@ struct SamplerUniform{T} <: Sampler{T}
     elems::Vector{T}
 
     function SamplerUniform{T}(elems) where {T}
-        elemsvector = convert(Vector{T}, collect(elems))
+        elemsvector = convert(Vector{T}, vec(collect(elems)))
         if length(elemsvector) < 1
             throw(ArgumentError("elements collection must be non-empty"))
         end
@@ -56,8 +56,8 @@ struct SamplerWeighted{T} <: Sampler{T}
     probs::Vector{Float64}
 
     function SamplerWeighted{T}(elems, probs) where {T}
-        elemsvector = convert(Vector{T}, collect(elems))
-        probsvector = convert(Vector{Float64}, collect(probs))
+        elemsvector = convert(Vector{T}, vec(collect(elems)))
+        probsvector = convert(Vector{Float64}, vec(collect(probs)))
         if !isempty(probsvector)
             probsum = sum(probsvector)
             if probsum > 1.0
@@ -83,10 +83,11 @@ Base.eltype(::Type{SamplerWeighted{T}}) where {T} = T
 function Base.rand(rng::AbstractRNG, sp::SamplerWeighted)
     r = rand(rng)
     j = 1
-    @inbounds cumulative_prob = sp.probs[j]
+    probs = sp.probs
+    @inbounds cumulative_prob = probs[j]
     while cumulative_prob < r
         j += 1
-        @inbounds cumulative_prob += sp.probs[j]
+        @inbounds cumulative_prob += probs[j]
     end
     return @inbounds sp.elems[j]
 end
