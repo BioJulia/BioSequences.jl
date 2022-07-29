@@ -6,16 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [UNRELEASED]
 
+## [3.1.0]
+### Added
+* Add `rand!([::AbstractRNG], ::LongSequence, [::Sampler])` methods
+
+## [3.0.2]
 ### Added
 * It is now possible to `join` BioSymbols into a BioSequence.
+* Add `findall` methods to `BioSequence`
 
 ## [3.0.1]
-### Removed
-
-### Added
-
-### Changed
-- Fixed a bug in `iscanonical`.
+Release has been yanked from General Registry
 
 ## [3.0]
 ### Removed
