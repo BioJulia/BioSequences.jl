@@ -57,6 +57,7 @@ of `T<:BioSequence{A<:Alphabet}` will get.
 
 ```@docs
 BioSequences.Alphabet
+BioSequences.AsciiAlphabet
 ```
 
 # Concrete types

@@ -101,7 +101,7 @@ julia> function BioSequences.extract_encoded_element(x::Codon, i::Int)
        end
 
 julia> Base.copy(seq::Codon) = Codon(seq.x)
-       
+
 julia> BioSequences.has_interface(BioSequence, Codon, [RNA_C, RNA_U, RNA_A], false)
 true
 ```
