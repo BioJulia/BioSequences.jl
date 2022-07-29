@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Implementing custom types · BioSequences.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="BioSequences.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">BioSequences.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../symbols/">Biological Symbols</a></li><li><a class="tocitem" href="../types/">BioSequences Types</a></li><li><a class="tocitem" href="../construction/">Constructing sequences</a></li><li><a class="tocitem" href="../transforms/">Indexing &amp; modifying sequences</a></li><li><a class="tocitem" href="../predicates/">Predicates</a></li><li><a class="tocitem" href="../random/">Random sequences</a></li><li><a class="tocitem" href="../sequence_search/">Pattern matching and searching</a></li><li><a class="tocitem" href="../iteration/">Iteration</a></li><li><a class="tocitem" href="../counting/">Counting</a></li><li><a class="tocitem" href="../io/">I/O</a></li><li class="is-active"><a class="tocitem" href>Implementing custom types</a><ul class="internal"><li><a class="tocitem" href="#Implementing-custom-Alphabets-1"><span>Implementing custom Alphabets</span></a></li><li><a class="tocitem" href="#Implementing-custom-BioSequences-1"><span>Implementing custom BioSequences</span></a></li><li><a class="tocitem" href="#Interface-checking-functions-1"><span>Interface checking functions</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Implementing custom types</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Implementing custom types</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/BioJulia/BioSequences.jl/blob/master/docs/src/interfaces.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Custom-BioSequences-types-1"><a class="docs-heading-anchor" href="#Custom-BioSequences-types-1">Custom BioSequences types</a><a class="docs-heading-anchor-permalink" href="#Custom-BioSequences-types-1" title="Permalink"></a></h1><p>If you&#39;re a developing your own Bioinformatics package or method, you may find that the reference implementation of concrete <code>LongSequence</code> types provided in this package are not optimal for your purposes.</p><p>This page describes the interfaces for BioSequences&#39; core types for developers or other packages implementing their own sequence types or extending BioSequences functionality.</p><h2 id="Implementing-custom-Alphabets-1"><a class="docs-heading-anchor" href="#Implementing-custom-Alphabets-1">Implementing custom Alphabets</a><a class="docs-heading-anchor-permalink" href="#Implementing-custom-Alphabets-1" title="Permalink"></a></h2><p>Recall the required methods that define the <a href="../types/#BioSequences.Alphabet"><code>Alphabet</code></a> interface. </p><p>To create an example custom alphabet, we need to create a singleton type, that implements a few methods in order to conform to the interface as described in the <a href="../types/#BioSequences.Alphabet"><code>Alphabet</code></a> documentation.</p><p>Let&#39;s do that for a restricted Amino Acid alphabet. We can test that it conforms to the interface with the <a href="#BioSequences.has_interface"><code>BioSequences.has_interface</code></a> function.</p><pre><code class="language-julia-repl">julia&gt; struct ReducedAAAlphabet &lt;: Alphabet end
+
+julia&gt; Base.eltype(::Type{ReducedAAAlphabet}) = AminoAcid
+
+julia&gt; BioSequences.BitsPerSymbol(::ReducedAAAlphabet) = BioSequences.BitsPerSymbol{4}()
+
+julia&gt; function BioSequences.symbols(::ReducedAAAlphabet)
+           (AA_L, AA_C, AA_A, AA_G, AA_S, AA_T, AA_P, AA_F,
+            AA_W, AA_E, AA_D, AA_N, AA_Q, AA_K, AA_H, AA_M)
+       end
+
+julia&gt; const (ENC_LUT, DEC_LUT) = let
+           enc_lut = fill(0xff, length(alphabet(AminoAcid)))
+           dec_lut = fill(AA_A, length(symbols(ReducedAAAlphabet())))
+           for (i, aa) in enumerate(symbols(ReducedAAAlphabet()))
+               enc_lut[reinterpret(UInt8, aa) + 0x01] = i - 1
+               dec_lut[i] = aa
+           end
+           (Tuple(enc_lut), Tuple(dec_lut))
+       end
+((0x02, 0xff, 0x0b, 0x0a, 0x01, 0x0c, 0x09, 0x03, 0x0e, 0xff, 0x00, 0x0d, 0x0f, 0x07, 0x06, 0x04, 0x05, 0x08, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff), (AA_L, AA_C, AA_A, AA_G, AA_S, AA_T, AA_P, AA_F, AA_W, AA_E, AA_D, AA_N, AA_Q, AA_K, AA_H, AA_M))
+
+julia&gt; function BioSequences.encode(::ReducedAAAlphabet, aa::AminoAcid)
+           i = reinterpret(UInt8, aa) + 0x01
+           (i ≥ length(ENC_LUT) || @inbounds ENC_LUT[i] === 0xff) &amp;&amp; throw(DomainError(aa))
+           (@inbounds ENC_LUT[i]) % UInt
+       end
+
+julia&gt; function BioSequences.decode(::ReducedAAAlphabet, x::UInt)
+           x ≥ length(DEC_LUT) &amp;&amp; throw(DomainError(aa))
+           @inbounds DEC_LUT[x + UInt(1)]
+       end
+
+julia&gt; BioSequences.has_interface(Alphabet, ReducedAAAlphabet())
+true
+</code></pre><h2 id="Implementing-custom-BioSequences-1"><a class="docs-heading-anchor" href="#Implementing-custom-BioSequences-1">Implementing custom BioSequences</a><a class="docs-heading-anchor-permalink" href="#Implementing-custom-BioSequences-1" title="Permalink"></a></h2><p>Recall the required methods that define the <a href="../types/#BioSequences.BioSequence"><code>BioSequence</code></a> interface. </p><p>To create an example custom alphabet, we need to create a singleton type, that implements a few methods in order to conform to the interface as described in the <a href="../types/#BioSequences.BioSequence"><code>BioSequence</code></a> documentation.</p><p>Let&#39;s do that for a custom sequence type that is optimised to represent a small sequence: A Codon. We can test that it conforms to the interface with the <a href="#BioSequences.has_interface"><code>BioSequences.has_interface</code></a> function.</p><pre><code class="language-julia-repl">julia&gt; struct Codon &lt;: BioSequence{RNAAlphabet{2}}
+           x::UInt8
+       end
+
+julia&gt; function Codon(iterable)
+           length(iterable) == 3 || error(&quot;Must have length 3&quot;)
+           x = zero(UInt)
+           for (i, nt) in enumerate(iterable)
+               x |= BioSequences.encode(Alphabet(Codon), convert(RNA, nt)) &lt;&lt; (6-2i)
+           end
+           Codon(x % UInt8)
+       end
+Codon
+
+julia&gt; Base.length(::Codon) = 3
+
+julia&gt; BioSequences.encoded_data_eltype(::Type{Codon}) = UInt
+
+julia&gt; function BioSequences.extract_encoded_element(x::Codon, i::Int)
+           ((x.x &gt;&gt;&gt; (6-2i)) &amp; 3) % UInt
+       end
+
+julia&gt; Base.copy(seq::Codon) = Codon(seq.x)
+
+julia&gt; BioSequences.has_interface(BioSequence, Codon, [RNA_C, RNA_U, RNA_A], false)
+true</code></pre><h2 id="Interface-checking-functions-1"><a class="docs-heading-anchor" href="#Interface-checking-functions-1">Interface checking functions</a><a class="docs-heading-anchor-permalink" href="#Interface-checking-functions-1" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="BioSequences.has_interface" href="#BioSequences.has_interface"><code>BioSequences.has_interface</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">function has_interface(::Type{Alphabet}, A::Alphabet)</code></pre><p>Returns whether <code>A</code> conforms to the <code>Alphabet</code> interface.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/16fe17810a3bbf8f0b01398cadf1bd6c9cf03188/src/alphabet.jl#L41-L45">source</a></section><section><div><pre><code class="language-none">has_interface(::Type{BioSequence}, ::T, syms::Vector, mutable::Bool, compat::Bool=true)</code></pre><p>Check if type <code>T</code> conforms to the <code>BioSequence</code> interface. A <code>T</code> is constructed from the vector of element types <code>syms</code> which must not be empty. If the <code>mutable</code> flag is set, also check the mutable interface. If the <code>compat</code> flag is set, check for compatibility with existing alphabets.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/BioJulia/BioSequences.jl/blob/16fe17810a3bbf8f0b01398cadf1bd6c9cf03188/src/biosequence/biosequence.jl#L44-L51">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../io/">« I/O</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 29 July 2022 09:35">Friday 29 July 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
