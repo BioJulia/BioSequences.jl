@@ -34,7 +34,7 @@ the encoded representation `E` must be of type `UInt`, and you must also impleme
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
   or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 
-For increased performance, see [`AsciiAlphabet`](@ref)
+For increased performance, see [`BioSequences.AsciiAlphabet`](@ref)
 """
 abstract type Alphabet end
 
@@ -281,7 +281,7 @@ For example, the input byte `UInt8('C')` is encoded to `0x01` and `0x02` for
 2- and 4-bit DNA alphabets, reprectively.
 This method is only needed if the `Alphabet` is an `AsciiAlphabet`.
 
-See also: [`AsciiAlphabet`](@ref)
+See also: [`BioSequences.AsciiAlphabet`](@ref)
 """
 function ascii_encode end
 

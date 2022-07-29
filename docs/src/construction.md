@@ -91,7 +91,7 @@ TATATATATATATATATATA
 Sequence views (`LongSubSeq`s) are special, in that they do not own their own data,
 and must be constructed from a `LongSequence` or another `LongSubSeq`:
 
-```jdoctest
+```jldoctest
 julia> seq = LongDNA{4}("TACGGACATTA")
 11nt DNA Sequence:
 TACGGACATTA
@@ -104,7 +104,7 @@ julia> seqview2 = @view seq[1:3]
 3nt DNA Sequence:
 TAC
 
-julia> typeof(seqview) == typeof(seqviev2) && typeof(seqview) <: LongSubSeq
+julia> typeof(seqview) == typeof(seqview2) && typeof(seqview) <: LongSubSeq
 true
 
 ```
