@@ -132,7 +132,7 @@ end # SamplerWeighted
     test_isseq(seq, DNAAlphabet{2}, 25)
 
     # Test that rand! correctly works
-    seq = LongDNA{4}("ATGCTAMWKSSWKHHNNNATVVCGATC")
+    seq = LongDNA{4}("ATGCTAMWKSSWKHHNNNATVVCGATADGCTTWWSYKMMNKATCGACTAYSWTACCCGATC")
     Random.rand!(seq)
     @test Set(seq) == Set(symbols(DNAAlphabet{2}()))
 
