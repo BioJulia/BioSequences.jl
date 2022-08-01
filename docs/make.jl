@@ -1,5 +1,7 @@
 using Documenter, BioSequences
 
+DocMeta.setdocmeta!(BioSequences, :DocTestSetup, :(using BioSequences); recursive=true)
+
 makedocs(
     format = Documenter.HTML(),
     sitename = "BioSequences.jl",
@@ -17,7 +19,8 @@ makedocs(
         "I/O"                            => "io.md",
         "Implementing custom types"      => "interfaces.md"
     ],
-    authors = "Sabrina Jaye Ward, Jakob Nissen, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors."
+    authors = "Sabrina Jaye Ward, Jakob Nissen, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors.",
+    checkdocs = :all,
 )
 
 deploydocs(

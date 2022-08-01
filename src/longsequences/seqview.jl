@@ -11,9 +11,11 @@ Modifying the view changes the sequence and vice versa.
 # Examples
 ```jldoctest
 julia> LongSubSeq(dna"TAGA", 2:3)
+2nt DNA Sequence:
 AG
 
-julia view(dna"TAGA", 2:3)
+julia> view(dna"TAGA", 2:3)
+2nt DNA Sequence:
 AG
 ```
 """

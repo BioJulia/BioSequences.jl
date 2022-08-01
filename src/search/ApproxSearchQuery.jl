@@ -28,8 +28,8 @@ julia> seq = dna"ACAGCGTAGCT";
 
 julia> query = ApproximateSearchQuery(dna"AGGG");
 
-julia> findfirst(query, 0, seq)  # nothing matches with no errors
-nothing
+julia> findfirst(query, 0, seq) == nothing # nothing matches with no errors
+true
 
 julia> findfirst(query, 1, seq)  # seq[3:6] matches with one error
 3:6
@@ -59,7 +59,7 @@ julia> findnext(query, 1, dna"AAGNGG", 1) # 1 mismatch permitted (A vs G) & matc
 !!! note
     This method of searching for motifs was implemented with smaller query motifs
     in mind.
-    
+
     If you are looking to search for imperfect matches of longer sequences in this
     manner, you are likely better off using some kind of local-alignment algorithm
     or one of the BLAST variants.
@@ -98,9 +98,9 @@ function ApproximateSearchQuery(pat::S, comparator::F = isequal) where {F<:Funct
     end
     shift = 64 - m
     bw = [bitreverse(i) >>> (shift & 63) for i in fw]
-    
+
     H = Vector{Int}(undef, length(pat) + 1)
-    
+
     return ApproximateSearchQuery{F,S}(comparator, copy(pat), fw, bw, H)
 end
 
@@ -169,7 +169,7 @@ function search_approx_suffix(Pcom::Vector{UInt64}, pat::BioSequence, seq::BioSe
     if k < 0
         throw(ArgumentError("the number of errors must be non-negative"))
     end
-    
+
     m = length(pat)
     n = length(seq)
 
@@ -214,15 +214,15 @@ function alignback!(query::ApproximateSearchQuery{<:Function,<:BioSequence}, seq
     comparator = query.comparator
     H = query.H
     pat = query.seq
-    
+
     m = length(pat)
     n = length(seq)
-    
+
     # initialize the cost column
     for i in 0:m
         H[i + 1] = i
     end
-    
+
     j = ret = matchstop
     found = false
     while (forward && j ≥ max(start, 1)) || (!forward && j ≤ min(start, n))

@@ -16,9 +16,9 @@ There are many ways to search for particular motifs in biological sequences:
 3. Searches where you are looking for sequences that conform to some sort of
    pattern.
 
-Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern. 
+Like other Julia sequences such as `Vector`, you can search a `BioSequence` with the `findfirst(predicate, collection)` method pattern.
 
-All these kinds of searches are provided in BioSequences.jl, and they all 
+All these kinds of searches are provided in BioSequences.jl, and they all
 conform to the `findnext`, `findprev`, and `occursin` patterns established in `Base` for
 `String` and collections like `Vector`.
 
@@ -26,6 +26,29 @@ The exception is searching using the specialised
 regex provided in this package, which as you shall see, conforms to the `match`
 pattern established in `Base` for pcre and `String`s.
 
+## Symbol search
+
+```jldoctest
+julia> seq = dna"ACAGCGTAGCT";
+
+julia> findfirst(DNA_A, seq)
+1
+
+julia> findlast(DNA_A, seq)
+8
+
+findnext(DNA_A, seq, 2)
+3
+
+julia> findprev(DNA_A, seq, 7)
+3
+
+julia> findall(DNA_A, seq)
+3-element Vector{Int64}:
+ 1
+ 3
+ 8
+```
 
 ## Exact search
 
@@ -138,7 +161,7 @@ RegexMatch("CPVPQARG")
 
 A motif can be specified using [position weight
 matrix](https://en.wikipedia.org/wiki/Position_weight_matrix) (PWM) in a
-probabilistic way. 
+probabilistic way.
 This method searches for the first position in the sequence where a score
 calculated using a PWM is greater than or equal to a threshold.
 More formally, denoting the sequence as ``S`` and the PWM value of symbol ``s``
