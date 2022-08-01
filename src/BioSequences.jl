@@ -265,7 +265,7 @@ The search is restricted to the specified range when `rng` is set.
 With the keyword argument `overlap` set as `true`, the start index for the next search gets set to the start of the current match plus one; if set to `false`, the start index for the next search gets set to the end of the current match plus one.
 The default value for the keyword argument `overlap` is `true`.
 
-The `pattern` can be a `Biosymbol` or a predicate.
+The `pattern` can be a `Biosymbol` or a search query.
 
 See also [`ExactSearchQuery`](@ref), [`ApproximateSearchQuery`](@ref), [`PWMSearchQuery`](@ref).
 
