@@ -271,9 +271,7 @@ See also [`ExactSearchQuery`](@ref), [`ApproximateSearchQuery`](@ref), [`PWMSear
 
 # Examples
 ```jldoctest
-julia> seq = dna"ACACACAC"
-8nt DNA Sequence:
-ACACACAC
+julia> seq = dna"ACACACAC";
 
 julia> findall(DNA_A, seq)
 4-element Vector{Int64}:
