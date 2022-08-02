@@ -28,6 +28,11 @@ julia> findnext(query, seq, 6)
 julia> findprev(query, seq, 7)
 3:5
 
+julia> findall(query, seq)
+2-element Vector{UnitRange{Int64}}:
+ 3:5
+ 8:10
+
 julia> occursin(query, seq)
 true
 
