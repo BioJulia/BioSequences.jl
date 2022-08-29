@@ -6,6 +6,7 @@ version = "3.1.0"
 [deps]
 BioSymbols = "3c28c6f8-a34d-59c4-9654-267d177fcfa9"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 Twiddle = "7200193e-83a8-5a55-b20d-5d36d44a0795"
 
 [compat]
@@ -13,6 +14,7 @@ BioSymbols = "5.1.0"
 StableRNGs = "0.1, 1.0"
 Twiddle = "1.1.1"
 julia = "1.5"
+SnoopPrecompile = "1"
 
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

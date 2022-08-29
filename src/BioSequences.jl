@@ -309,4 +309,6 @@ function Base.findall(pat, seq::BioSequence, rng::UnitRange{Int}; overlap::Bool 
     return map(x->parentindices(v)[1][x], itr)
 end
 
+include("workload.jl")
+
 end  # module BioSequences
