@@ -115,6 +115,12 @@ function Base.showerror(io::IO, err::DecodeError{A}) where {A}
     print(io, "cannot decode ", err.val, " in ", A)
 end
 
+function Base.iterate(a::Alphabet, state = 1)
+	state > length(a) && return nothing
+	@inbounds sym = symbols(a)[state]
+	return sym, state + 1
+end
+
 ## Nucleic acid alphabets
 
 """
