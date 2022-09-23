@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Pattern matching and searching · BioSequences.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="BioSequences.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">BioSequences.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../symbols/">Biological Symbols</a></li><li><a class="tocitem" href="../types/">BioSequences Types</a></li><li><a class="tocitem" href="../construction/">Constructing sequences</a></li><li><a class="tocitem" href="../transforms/">Indexing &amp; modifying sequences</a></li><li><a class="tocitem" href="../predicates/">Predicates</a></li><li><a class="tocitem" href="../random/">Random sequences</a></li><li class="is-active"><a class="tocitem" href>Pattern matching and searching</a><ul class="internal"><li><a class="tocitem" href="#Exact-search-1"><span>Exact search</span></a></li><li><a class="tocitem" href="#Approximate-search-1"><span>Approximate search</span></a></li><li><a class="tocitem" href="#Regular-expression-search-1"><span>Regular expression search</span></a></li><li><a class="tocitem" href="#Position-weight-matrix-search-1"><span>Position weight matrix search</span></a></li></ul></li><li><a class="tocitem" href="../demultiplexer/">Sequence Demultipllexing</a></li><li><a class="tocitem" href="../composition/">Sequence composition</a></li><li><a class="tocitem" href="../iteration/">Iteration</a></li><li><a class="tocitem" href="../counting/">Counting</a></li><li><a class="tocitem" href="../io/">I/O</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Pattern matching and searching</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Pattern matching and searching</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/BioJulia/BioSequences.jl/blob/master/docs/src/sequence_search.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Sequence-search-1"><a class="docs-heading-anchor" href="#Sequence-search-1">Sequence search</a><a class="docs-heading-anchor-permalink" href="#Sequence-search-1" title="Permalink"></a></h1><p>Three kinds of on-line search functions are provided:</p><ol><li>Exact search</li><li>Approximate search</li><li>Regular expression search</li></ol><p>These are all specialized for biological sequences and ambiguities of symbols are considered.</p><h2 id="Exact-search-1"><a class="docs-heading-anchor" href="#Exact-search-1">Exact search</a><a class="docs-heading-anchor-permalink" href="#Exact-search-1" title="Permalink"></a></h2><p>Exact search functions search for an occurrence of the query symbol or sequence.</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACAGCGTAGCT&quot;;
+
+julia&gt; findfirst(DNA_G, seq)
+4
+
+julia&gt; query = dna&quot;AGC&quot;;
+
+julia&gt; findfirst(query, seq)
+3:5
+
+julia&gt; findlast(query, seq)
+8:10
+
+julia&gt; occursin(query, seq)
+true</code></pre><p>These search functions take ambiguous symbols into account. That is, if two symbols are compatible (e.g. <code>DNA_A</code> and <code>DNA_N</code>), they match when searching an occurrence. In the following example, &#39;N&#39; is a wild card that matches any symbols.</p><pre><code class="language-julia-repl">julia&gt; findfirst(dna&quot;CGT&quot;, dna&quot;ACNT&quot;)  # &#39;N&#39; matches &#39;G&#39;
+2:4
+
+julia&gt; findfirst(dna&quot;CNT&quot;, dna&quot;ACGT&quot;)  # &#39;G&#39; matches &#39;N&#39;
+2:4
+
+julia&gt; occursin(dna&quot;CNT&quot;, dna&quot;ACNT&quot;)
+true</code></pre><p>The exception to this behaviour is if you are finding a single &#39;character&#39;, in which case an ambiguous symbol is matched exactly:</p><pre><code class="language-julia-repl">julia&gt; findfirst(DNA_N, dna&quot;ACNT&quot;)
+3
+</code></pre><p>The exact sequence search needs a preprocessing phase of query sequence before the searching phase. This would be fast enough for most search applications. But when searching a query sequence to many target sequences, caching the result of preprocessing may save time. You can do this by creating an <code>ExactSearchQuery</code> object and re-use it for each search:</p><pre><code class="language-julia-repl">julia&gt; query = ExactSearchQuery(dna&quot;ATT&quot;);
+
+julia&gt; findfirst(query, dna&quot;ATTTATT&quot;)
+1:3
+
+julia&gt; findlast(query, dna&quot;ATTTATT&quot;)
+5:7
+
+julia&gt; occursin(query, dna&quot;ATTTATT&quot;)
+true</code></pre><h2 id="Approximate-search-1"><a class="docs-heading-anchor" href="#Approximate-search-1">Approximate search</a><a class="docs-heading-anchor-permalink" href="#Approximate-search-1" title="Permalink"></a></h2><p>The approximate search is similar to the exact search but allows a specific number of errors. That is, it tries to find a subsequence of the target sequence within a specific <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> of the query sequence:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACAGCGTAGCT&quot;;
+
+julia&gt; approxsearch(seq, dna&quot;AGGG&quot;, 0)  # nothing matches with no errors
+0:-1
+
+julia&gt; approxsearch(seq, dna&quot;AGGG&quot;, 1)  # seq[3:6] matches with one error
+3:6
+
+julia&gt; approxsearch(seq, dna&quot;AGGG&quot;, 2)  # seq[1:4] matches with two errors
+1:4
+</code></pre><p>Like the exact search functions, four kinds of functions (<code>approxsearch</code>, <code>approxsearchindex</code>, <code>approxrsearch</code>, and <code>approxrsearchindex</code>) are available:</p><pre><code class="language-julia-repl">julia&gt; seq = dna&quot;ACAGCGTAGCT&quot;; pat = dna&quot;AGGG&quot;;
+
+julia&gt; approxsearch(seq, pat, 2)        # return the range (forward)
+1:4
+
+julia&gt; approxsearchindex(seq, pat, 2)   # return the starting index (forward)
+1
+
+julia&gt; approxrsearch(seq, pat, 2)       # return the range (backward)
+8:11
+
+julia&gt; approxrsearchindex(seq, pat, 2)  # return the starting index (backward)
+8
+</code></pre><p>Preprocessing can be cached in an <code>ApproximateSearchQuery</code> object:</p><pre><code class="language-julia-repl">julia&gt; query = ApproximateSearchQuery(dna&quot;AGGG&quot;);
+
+julia&gt; approxsearch(dna&quot;AAGAGG&quot;, query, 1)
+2:5
+
+julia&gt; approxsearch(dna&quot;ACTACGT&quot;, query, 2)
+4:6
+</code></pre><h2 id="Regular-expression-search-1"><a class="docs-heading-anchor" href="#Regular-expression-search-1">Regular expression search</a><a class="docs-heading-anchor-permalink" href="#Regular-expression-search-1" title="Permalink"></a></h2><p>Query patterns can be described in regular expressions. The syntax supports a subset of Perl and PROSITE&#39;s notation.</p><p>The Perl-like syntax starts with <code>biore</code> (BIOlogical REgular expression) and ends with a symbol option: &quot;dna&quot;, &quot;rna&quot; or &quot;aa&quot;. For example, <code>biore&quot;A+&quot;dna</code> is a regular expression for DNA sequences and <code>biore&quot;A+&quot;aa</code> is for amino acid sequences. The symbol options can be abbreviated to its first character: &quot;d&quot;, &quot;r&quot; or &quot;a&quot;, respectively.</p><p>Here are examples of using the regular expression for <code>BioSequence</code>s:</p><pre><code class="language-julia-repl">julia&gt; match(biore&quot;A+C*&quot;dna, dna&quot;AAAACC&quot;)
+RegexMatch(&quot;AAAACC&quot;)
+
+julia&gt; match(biore&quot;A+C*&quot;d, dna&quot;AAAACC&quot;)
+RegexMatch(&quot;AAAACC&quot;)
+
+julia&gt; occursin(biore&quot;A+C*&quot;dna, dna&quot;AAC&quot;)
+true
+
+julia&gt; occursin(biore&quot;A+C*&quot;dna, dna&quot;C&quot;)
+false
+</code></pre><p><code>match</code> will return a <code>RegexMatch</code> if a match is found, otherwise it will return <code>nothing</code> if no match is found.</p><p>The table below summarizes available syntax elements.</p><table><tr><th style="text-align: center">Syntax</th><th style="text-align: left">Description</th><th style="text-align: left">Example</th></tr><tr><td style="text-align: center"><code>|</code></td><td style="text-align: left">alternation</td><td style="text-align: left"><code>&quot;A|T&quot;</code> matches <code>&quot;A&quot;</code> and <code>&quot;T&quot;</code></td></tr><tr><td style="text-align: center"><code>*</code></td><td style="text-align: left">zero or more times repeat</td><td style="text-align: left"><code>&quot;TA*&quot;</code> matches <code>&quot;T&quot;</code>, <code>&quot;TA&quot;</code> and <code>&quot;TAA&quot;</code></td></tr><tr><td style="text-align: center"><code>+</code></td><td style="text-align: left">one or more times repeat</td><td style="text-align: left"><code>&quot;TA+&quot;</code> matches <code>&quot;TA&quot;</code> and <code>&quot;TAA&quot;</code></td></tr><tr><td style="text-align: center"><code>?</code></td><td style="text-align: left">zero or one time</td><td style="text-align: left"><code>&quot;TA?&quot;</code> matches <code>&quot;T&quot;</code> and <code>&quot;TA&quot;</code></td></tr><tr><td style="text-align: center"><code>{n,}</code></td><td style="text-align: left"><code>n</code> or more times repeat</td><td style="text-align: left"><code>&quot;A{3,}&quot;</code> matches <code>&quot;AAA&quot;</code> and <code>&quot;AAAA&quot;</code></td></tr><tr><td style="text-align: center"><code>{n,m}</code></td><td style="text-align: left"><code>n</code>-<code>m</code> times repeat</td><td style="text-align: left"><code>&quot;A{3,5}&quot;</code> matches <code>&quot;AAA&quot;</code>, <code>&quot;AAAA&quot;</code> and <code>&quot;AAAAA&quot;</code></td></tr><tr><td style="text-align: center"><code>^</code></td><td style="text-align: left">the start of the sequence</td><td style="text-align: left"><code>&quot;^TAN*&quot;</code> matches <code>&quot;TATGT&quot;</code></td></tr><tr><td style="text-align: center"><code>$</code></td><td style="text-align: left">the end of the sequence</td><td style="text-align: left"><code>&quot;N*TA$&quot;</code> matches <code>&quot;GCTA&quot;</code></td></tr><tr><td style="text-align: center"><code>(...)</code></td><td style="text-align: left">pattern grouping</td><td style="text-align: left"><code>&quot;(TA)+&quot;</code> matches <code>&quot;TA&quot;</code> and <code>&quot;TATA&quot;</code></td></tr><tr><td style="text-align: center"><code>[...]</code></td><td style="text-align: left">one of symbols</td><td style="text-align: left"><code>&quot;[ACG]+&quot;</code> matches <code>&quot;AGGC&quot;</code></td></tr></table><p><code>eachmatch</code> and <code>findfirst</code> are also defined like usual strings:</p><pre><code class="language-julia-repl">julia&gt; collect(matched(x) for x in eachmatch(biore&quot;TATA*?&quot;d, dna&quot;TATTATAATTA&quot;)) # overlap
+4-element Array{LongSequence{DNAAlphabet{4}},1}:
+ TAT  
+ TAT
+ TATA
+ TATAA
+
+julia&gt; collect(matched(x) for x in eachmatch(biore&quot;TATA*&quot;d, dna&quot;TATTATAATTA&quot;, false)) # no overlap
+2-element Array{LongSequence{DNAAlphabet{4}},1}:
+ TAT  
+ TATAA
+
+julia&gt; findfirst(biore&quot;TATA*&quot;d, dna&quot;TATTATAATTA&quot;)
+1:3
+
+julia&gt; findfirst(biore&quot;TATA*&quot;d, dna&quot;TATTATAATTA&quot;, 2)
+4:8
+</code></pre><p>Noteworthy differences from strings are:</p><ul><li>Ambiguous characters match any compatible characters (e.g. <code>biore&quot;N&quot;d</code> is equivalent to <code>biore&quot;[ACGT]&quot;d</code>).</li><li>Whitespaces are ignored (e.g. <code>biore&quot;A C G&quot;d</code> is equivalent to <code>biore&quot;ACG&quot;d</code>).</li></ul><p>The PROSITE notation is described in <a href="https://prosite.expasy.org/scanprosite/scanprosite_doc.html">ScanProsite - user manual</a>. The syntax supports almost all notations including the extended syntax. The PROSITE notation starts with <code>prosite</code> prefix and no symbol option is needed because it always describes patterns of amino acid sequences:</p><pre><code class="language-julia-repl">julia&gt; match(prosite&quot;[AC]-x-V-x(4)-{ED}&quot;, aa&quot;CPVPQARG&quot;)
+RegexMatch(&quot;CPVPQARG&quot;)
+
+julia&gt; match(prosite&quot;[AC]xVx(4){ED}&quot;, aa&quot;CPVPQARG&quot;)
+RegexMatch(&quot;CPVPQARG&quot;)
+</code></pre><h2 id="Position-weight-matrix-search-1"><a class="docs-heading-anchor" href="#Position-weight-matrix-search-1">Position weight matrix search</a><a class="docs-heading-anchor-permalink" href="#Position-weight-matrix-search-1" title="Permalink"></a></h2><p>A motif can also be specified using <a href="https://en.wikipedia.org/wiki/Position_weight_matrix">position weight matrix</a> (PWM) in a probabilistic way. <code>search(seq, pwm, threshold)</code> method searches for the first position in the sequence where a score calculated using the PWM is greater than or equal to the threshold. More formally, denoting the sequence as <span>$S$</span> and the PWM value of symbol <span>$s$</span> at position <span>$j$</span> as <span>$M_{s,j}$</span>, the score starting from a position <span>$p$</span> is defined as</p><div>\[\operatorname{score}(S, p) = \sum_{i=1}^L M_{S[p+i-1],i}\]</div><p>and <code>search(S, M, t)</code> returns the smallest <span>$p$</span> that satisfies <span>$\operatorname{score}(S, p) \ge t$</span>.</p><p>There are two kinds of matrices in this package: <code>PFM</code> and <code>PWM</code>. The <code>PFM</code> type is a position frequency matrix and stores symbol frequencies for each position. The <code>PWM</code> is a position weight matrix and stores symbol scores for each position. You can create a <code>PFM</code> from a set of sequences with the same length and then create a <code>PWM</code> from the <code>PFM</code> object.</p><pre><code class="language-julia-repl">julia&gt; kmers = DNAMer.([&quot;TTA&quot;, &quot;CTA&quot;, &quot;ACA&quot;, &quot;TCA&quot;, &quot;GTA&quot;])
+5-element Array{Mer{DNAAlphabet{2},3},1}:
+ TTA
+ CTA
+ ACA
+ TCA
+ GTA
+
+julia&gt; pfm = PFM(kmers)  # sequence set =&gt; PFM
+4×3 PFM{DNA,Int64}:
+ A  1  0  5
+ C  1  2  0
+ G  1  0  0
+ T  2  3  0
+
+julia&gt; pwm = PWM(pfm)  # PFM =&gt; PWM
+4×3 PWM{DNA,Float64}:
+ A -0.321928 -Inf       2.0
+ C -0.321928  0.678072 -Inf
+ G -0.321928 -Inf      -Inf
+ T  0.678072  1.26303  -Inf
+
+julia&gt; pwm = PWM(pfm .+ 0.01)  # add pseudo counts to avoid infinite values
+4×3 PWM{DNA,Float64}:
+ A -0.319068 -6.97728   1.99139
+ C -0.319068  0.673772 -6.97728
+ G -0.319068 -6.97728  -6.97728
+ T  0.673772  1.25634  -6.97728
+
+julia&gt; pwm = PWM(pfm .+ 0.01, prior=[0.2, 0.3, 0.3, 0.2])  # GC-rich prior
+4×3 PWM{DNA,Float64}:
+ A  0.00285965 -6.65535   2.31331
+ C -0.582103    0.410737 -7.24031
+ G -0.582103   -7.24031  -7.24031
+ T  0.9957      1.57827  -6.65535
+</code></pre><p>The <span>$PWM_{s,j}$</span> matrix is computed from <span>$PFM_{s,j}$</span> and the prior probability <span>$p(s)$</span> as follows ([Wasserman2004]):</p><div>\[\begin{align}
+    PWM_{s,j} &amp;= \log_2 \frac{p(s,j)}{p(s)} \\
+    p(s,j)  &amp;= \frac{PFM_{s,j}}{\sum_{s&#39;} PFM_{s&#39;,j}}.
+\end{align}\]</div><p>[Wasserman2004]: https://doi.org/10.1038/nrg1315</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../random/">« Random sequences</a><a class="docs-footer-nextpage" href="../demultiplexer/">Sequence Demultipllexing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 23 September 2022 12:02">Friday 23 September 2022</span>. Using Julia version 1.8.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
