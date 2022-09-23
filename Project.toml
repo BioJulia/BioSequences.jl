@@ -1,7 +1,7 @@
 name = "BioSequences"
 uuid = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 authors = ["Ben J. Ward <benjward@protonmail.com>"]
-version = "2.0.5"
+version = "2.0.6"
 
 [deps]
 BioGenerics = "47718e42-2ac5-11e9-14af-e5595289c2ea"

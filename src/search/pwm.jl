@@ -73,7 +73,7 @@ end
 # Broadcasting
 struct PFMBroadcastStyle{S} <: Broadcast.BroadcastStyle end
 Base.BroadcastStyle(::Type{PFM{S,T}}) where {S,T} = PFMBroadcastStyle{S}()
-Base.BroadcastStyle(s1::PFMBroadcastStyle, s2::Base.BroadcastStyle) where {S,T} = s1
+Base.BroadcastStyle(s1::PFMBroadcastStyle, s2::Base.BroadcastStyle) = s1
 function Base.similar(bc::Broadcast.Broadcasted{PFMBroadcastStyle{S}}, elt::Type{T}) where {S, T}
     return PFM{S, T}(similar(Array{T}, axes(bc)))
 end
