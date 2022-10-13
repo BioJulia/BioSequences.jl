@@ -72,7 +72,7 @@ The `LongDNA` and `LongRNA` aliases use a DNAAlphabet{4}.
 4 bits to internally store each element (and indeed `LongSequence` does).
 
 If you are sure that you are working with sequences with no ambiguous nucleotides,
-you can use `LongSeqeunces` parameterised with `DNAAlphabet{2}` instead.
+you can use `LongSequences` parameterised with `DNAAlphabet{2}` instead.
 
 `DNAAlphabet{2}` is an alphabet that uses two bits per base and limits to only
 unambiguous nucleotide symbols (A,C,G,T).
@@ -80,7 +80,7 @@ unambiguous nucleotide symbols (A,C,G,T).
 Changing this single parameter, is all you need to do in order to benefit from memory savings.
 Some computations that use bitwise operations will also be dramatically faster.
 
-The same applies with `LongSeqeunce{RNAAlphabet{4}}`, simply replace the alphabet
+The same applies with `LongSequence{RNAAlphabet{4}}`, simply replace the alphabet
 parameter with `RNAAlphabet{2}` in order to benefit.
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
