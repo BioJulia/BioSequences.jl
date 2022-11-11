@@ -101,8 +101,8 @@ Base.count(::typeof(isambiguous), seq::SeqOrView{<:NucleicAcidAlphabet{4}}) = co
 # A pair of 2-bit encoded sequences will never have ambiguous bases.
 Base.count(::typeof(isambiguous), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{2}} = 0
 Base.count(::typeof(isambiguous), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_ambiguous_bitpar(seqa, seqb)
-Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isambiguous, promote(seqa, seqb)...)
-Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isambiguous, promote(seqa, seqb)...)
+Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isambiguous_or, promote(seqa, seqb)...)
+Base.count(::typeof(isambiguous), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isambiguous_or, promote(seqa, seqb)...)
 
 # Counting certain sites
 let
@@ -120,8 +120,8 @@ let
     ) |> eval
 end
 Base.count(::typeof(iscertain), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_certain_bitpar(seqa, seqb)
-Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(iscertain, promote(seqa, seqb)...)
-Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(iscertain, promote(seqa, seqb)...)
+Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(iscertain_and, promote(seqa, seqb)...)
+Base.count(::typeof(iscertain), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(iscertain_and, promote(seqa, seqb)...)
 
 # Counting gap sites
 let
@@ -163,5 +163,5 @@ let
 end
 Base.count(::typeof(isgap), seqa::SeqOrView{A}, seqb::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_gap_bitpar(seqa, seqb)
 Base.count(::typeof(isgap), seqa::SeqOrView{A}) where {A<:NucleicAcidAlphabet{4}} = count_gap_bitpar(seqa)
-Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isgap, promote(seqa, seqb)...)
-Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isgap, promote(seqa, seqb)...)
+Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{4}}, seqb::SeqOrView{<:NucleicAcidAlphabet{2}}) = count(isgap_or, promote(seqa, seqb)...)
+Base.count(::typeof(isgap), seqa::SeqOrView{<:NucleicAcidAlphabet{2}}, seqb::SeqOrView{<:NucleicAcidAlphabet{4}}) = count(isgap_or, promote(seqa, seqb)...)

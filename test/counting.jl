@@ -33,15 +33,16 @@
         alias::Function,
         seqa::BioSequence,
         seqb::BioSequence,
-        singlearg::Bool
+        singlearg::Bool,
+        multi_alias::Function
     )
         # Test that order does not matter.
         @test count(pred, seqa, seqb) == count(pred, seqb, seqa)
-        @test BioSequences.count_naive(pred, seqa, seqb) == BioSequences.count_naive(pred, seqb, seqa)
+        @test BioSequences.count_naive(multi_alias, seqa, seqb) == BioSequences.count_naive(multi_alias, seqb, seqa)
         @test alias(seqa, seqb) == alias(seqb, seqa)
         # Test that result is the same as counting naively.
-        @test count(pred, seqa, seqb) == BioSequences.count_naive(pred, seqa, seqb)
-        @test count(pred, seqb, seqa) == BioSequences.count_naive(pred, seqb, seqa)
+        @test count(pred, seqa, seqb) == BioSequences.count_naive(multi_alias, seqa, seqb)
+        @test count(pred, seqb, seqa) == BioSequences.count_naive(multi_alias, seqb, seqa)
         # Test that the alias function works.
         @test count(pred, seqa, seqb) == alias(seqa, seqb)
         @test count(pred, seqb, seqa) == alias(seqb, seqa)
@@ -57,7 +58,8 @@
         alphx::Type{<:Alphabet},
         alphy::Type{<:Alphabet},
         subset::Bool,
-        singlearg::Bool
+        singlearg::Bool,
+        multi_alias::Function
     )
         for _ in 1:10
             seqA = random_seq(alphx, rand(10:100))
@@ -72,7 +74,7 @@
                 sa = subA
                 sb = subB
             end
-            testcounter(pred, alias, sa, sb, singlearg)
+            testcounter(pred, alias, sa, sb, singlearg, multi_alias)
         end
     end
     
@@ -81,11 +83,11 @@
             # Can't promote views
             for sub in (true, false)
                 for n in (4, 2)
-                    counter_random_tests(!=, mismatches, a{n}, a{n}, sub, false)
+                    counter_random_tests(!=, mismatches, a{n}, a{n}, sub, false, !=)
                 end
             end
-            counter_random_tests(!=, mismatches, a{4}, a{2}, false, false)
-            counter_random_tests(!=, mismatches, a{2}, a{4}, false, false)
+            counter_random_tests(!=, mismatches, a{4}, a{2}, false, false, !=)
+            counter_random_tests(!=, mismatches, a{2}, a{4}, false, false, !=)
         end
     end
     
@@ -93,11 +95,11 @@
         for a in (DNAAlphabet, RNAAlphabet)
             for sub in (true, false)
                 for n in (4, 2)
-                    counter_random_tests(==, matches, a{n}, a{n}, sub, false)
+                    counter_random_tests(==, matches, a{n}, a{n}, sub, false, ==)
                 end
             end
-            counter_random_tests(==, matches, a{4}, a{2}, false, false)
-            counter_random_tests(==, matches, a{2}, a{4}, false, false)
+            counter_random_tests(==, matches, a{4}, a{2}, false, false, ==)
+            counter_random_tests(==, matches, a{2}, a{4}, false, false, ==)
         end
     end
     
@@ -106,11 +108,11 @@
             # Can't promote views
             for n in (4, 2)
                 for sub in (true, false)
-                    counter_random_tests(isambiguous, n_ambiguous, a{n}, a{n}, sub, true)
+                    counter_random_tests(isambiguous, n_ambiguous, a{n}, a{n}, sub, false, BioSequences.isambiguous_or)
                 end
             end
-            counter_random_tests(isambiguous, n_ambiguous, a{4}, a{2}, false, true)
-            counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, false, true)
+            counter_random_tests(isambiguous, n_ambiguous, a{4}, a{2}, false, true, BioSequences.isambiguous_or)
+            counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, false, true, BioSequences.isambiguous_or)
         end
     end
     
@@ -118,11 +120,11 @@
         for a in (DNAAlphabet, RNAAlphabet)
             for n in (4, 2)
                 for sub in (true, false)
-                    counter_random_tests(iscertain, n_certain, a{n}, a{n}, sub, true)
+                    counter_random_tests(iscertain, n_certain, a{n}, a{n}, sub, true, BioSequences.iscertain_and)
                 end
             end
-            counter_random_tests(iscertain, n_certain, a{4}, a{2}, false, true)
-            counter_random_tests(iscertain, n_certain, a{2}, a{4}, false, true)
+            counter_random_tests(iscertain, n_certain, a{4}, a{2}, false, true, BioSequences.iscertain_and)
+            counter_random_tests(iscertain, n_certain, a{2}, a{4}, false, true, BioSequences.iscertain_and)
         end
     end
     
@@ -130,11 +132,11 @@
         for a in (DNAAlphabet, RNAAlphabet)
             for n in (4, 2)
                 for sub in (true, false)
-                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub, true)
+                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub, true, BioSequences.isgap_or)
                 end
             end
-            counter_random_tests(isgap, n_gaps, a{4}, a{2}, false, true)
-            counter_random_tests(isgap, n_gaps, a{2}, a{4}, false, true)
+            counter_random_tests(isgap, n_gaps, a{4}, a{2}, false, true, BioSequences.isgap_or)
+            counter_random_tests(isgap, n_gaps, a{2}, a{4}, false, true, BioSequences.isgap_or)
         end
     end
     
