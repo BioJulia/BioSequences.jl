@@ -202,8 +202,6 @@ import Twiddle: enumerate_nibbles,
     repeatpattern
 using Random
 
-BioSymbols.gap(::Type{Char}) = '-'
-
 include("alphabet.jl")
 
 # Load the bit-twiddling internals that optimised BioSequences methods depend on.

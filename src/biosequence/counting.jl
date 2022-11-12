@@ -36,9 +36,13 @@ Base.count(pred, seq::BioSequence) = count_naive(pred, seq)
 Base.count(pred, seqa::BioSequence, seqb::BioSequence) = count_naive(pred, seqa, seqb)
 
 # These functions are BioSequences-specific because they take two arguments
-BioSymbols.isambiguous(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) | isambiguous(y)
-BioSymbols.isgap(x::T, y::T) where {T<:NucleicAcid} = isgap(x) | isgap(y)
-BioSymbols.iscertain(x::T, y::T) where {T<:NucleicAcid} = iscertain(x) & iscertain(y)
+isambiguous_or(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) | isambiguous(y)
+isgap_or(x::T, y::T) where {T<:NucleicAcid} = isgap(x) | isgap(y)
+iscertain_and(x::T, y::T) where {T<:NucleicAcid} = iscertain(x) & iscertain(y)
+
+#BioSymbols.isambiguous(x::T, y::T) where {T<:NucleicAcid} = isambiguous(x) | isambiguous(y)
+#BioSymbols.isgap(x::T, y::T) where {T<:NucleicAcid} = isgap(x) | isgap(y)
+#BioSymbols.iscertain(x::T, y::T) where {T<:NucleicAcid} = iscertain(x) & iscertain(y)
 
 Base.count(::typeof(isambiguous), seqa::S, seqb::S) where {S<:BioSequence{<:NucleicAcidAlphabet{2}}} = 0
 Base.count(::typeof(isgap), seqa::S, seqb::S) where {S<:BioSequence{<:NucleicAcidAlphabet{2}}} = 0
@@ -56,13 +60,13 @@ Calculate GC content of `seq`.
 gc_content(seq::NucleotideSeq) = isempty(seq) ? 0.0 : count(isGC, seq) / length(seq)
 
 n_ambiguous(seq) = count(isambiguous, seq)
-n_ambiguous(seqa::BioSequence, seqb::BioSequence) = count(isambiguous, seqa, seqb)
+n_ambiguous(seqa::BioSequence, seqb::BioSequence) = count(isambiguous_or, seqa, seqb)
 
 n_certain(seq) = count(iscertain, seq)
-n_certain(seqa::BioSequence, seqb::BioSequence) = count(iscertain, seqa, seqb)
+n_certain(seqa::BioSequence, seqb::BioSequence) = count(iscertain_and, seqa, seqb)
 
 n_gaps(seq::BioSequence) = count(isgap, seq)
-n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap, seqa, seqb)
+n_gaps(seqa::BioSequence, seqb::BioSequence) = count(isgap_or, seqa, seqb)
 
 mismatches(seqa::BioSequence, seqb::BioSequence) = count(!=, seqa, seqb)
 matches(seqa::BioSequence, seqb::BioSequence) = count(==, seqa, seqb)
