@@ -41,6 +41,25 @@ end
 	@test String(seq) == "ANKYH"
 end
 
+# Added after issue 260
+@testset "Random construction" begin
+	for i in 1:100
+		seq = randdnaseq(rand(15:65))
+		begin_ = min(lastindex(seq), rand(10:30))
+		range = begin_:min(lastindex(seq), begin_ + rand(0:40))
+		seq2 = view(seq, range)
+		@test seq2 isa LongSubSeq{typeof(Alphabet(seq))}
+		seq3 = LongSequence(seq2)
+		@test typeof(seq) == typeof(seq3)
+		@test seq[range] == seq2 == seq3
+	end
+
+	# See issue 260
+	seq = dna"CATTTTTTTTTTTTTTT"
+	seq2 = LongSequence(LongSubSeq(seq, 1:17))
+	@test seq == seq2
+end
+
 @testset "Conversion" begin
 	seq = LongDNA{4}("TAGTATCGAAMYCGNA")
 	v = LongSubSeq(seq, 3:14)
