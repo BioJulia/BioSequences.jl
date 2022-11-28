@@ -74,6 +74,7 @@ end
 
 @inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
     isempty(seq) && return seq
+    iszero(offs) && return seq
     rshift = offs
     lshift = 64 - rshift
     len = length(seq.data)
