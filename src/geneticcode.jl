@@ -8,6 +8,11 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 const XNA = Union{DNA, RNA}
+const LongNucOrView{N} = Union{
+    LongSequence{<:NucleicAcidAlphabet{N}},
+    LongSubSeq{<:NucleicAcidAlphabet{N}}
+}
+
 function unambiguous_codon(a::XNA, b::XNA, c::XNA)
     @inbounds begin
     bits = twobitnucs[reinterpret(UInt8, a) + 0x01] << 4 |
@@ -29,8 +34,9 @@ end
 ### Basic Functions
 ###
 
-function Base.getindex(code::GeneticCode, codon::UInt64)
-    return @inbounds code.tbl[codon + one(UInt64)]
+function Base.getindex(code::GeneticCode, codon::Integer)
+    @boundscheck 0 ≤ codon < 64 || throw(BoundsError(code, codon))
+    @inbounds code.tbl[(codon % Int) + one(Int)]
 end
 
 Base.copy(code::GeneticCode) = code
@@ -46,7 +52,7 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
         print(io, "  ")
         for z in rna
             codon = unambiguous_codon(x, y, z)
-            aa = code[codon]
+            aa = @inbounds code[codon]
             print(io, x, y, z, ": ", aa)
             if z != RNA_U
                 print(io, "    ")
@@ -329,7 +335,7 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(ntseq::LongNuc{N};
+function translate(ntseq::LongNucOrView{N};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
@@ -340,7 +346,7 @@ function translate(ntseq::LongNuc{N};
 end
 
 function translate!(aaseq::LongAA,
-    ntseq::LongNuc{2};#Sequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
+    ntseq::LongNucOrView{2};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
@@ -360,7 +366,7 @@ function translate!(aaseq::LongAA,
 end
 
 function translate!(aaseq::LongAA,
-    ntseq::LongNuc{4};#Sequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
+    ntseq::LongNucOrView{4};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
