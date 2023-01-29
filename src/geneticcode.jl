@@ -35,8 +35,8 @@ end
 ###
 
 function Base.getindex(code::GeneticCode, codon::Integer)
-    @boundscheck 0 ≤ codon < 64 || throw(BoundsError(code, codon))
-    @inbounds code.tbl[(codon % Int) + one(Int)]
+    @boundscheck 0 < codon < 65 || throw(BoundsError(code, codon))
+    @inbounds code.tbl[(codon % Int)]
 end
 
 Base.copy(code::GeneticCode) = code
@@ -52,7 +52,7 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
         print(io, "  ")
         for z in rna
             codon = unambiguous_codon(x, y, z)
-            aa = @inbounds code[codon]
+            aa = @inbounds code[codon + one(codon)]
             print(io, x, y, z, ": ", aa)
             if z != RNA_U
                 print(io, "    ")
@@ -66,11 +66,11 @@ end
 ###
 
 
-function Base.iterate(code::GeneticCode, x = UInt64(0))
-    if x > UInt64(0b111111)
+function Base.iterate(code::GeneticCode, x=0)
+    if x > 63
         return nothing
     else
-        return (x, @inbounds code[x]), x + 1
+        return (x, @inbounds code[x + 1]), x + 1
     end
 end
 
@@ -359,7 +359,7 @@ function translate!(aaseq::LongAA,
         b = ntseq[3i-1]
         c = ntseq[3i]
         codon = unambiguous_codon(a, b, c)
-        aaseq[i] = code[codon]
+        aaseq[i] = code[codon + one(codon)]
     end
     alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
     aaseq
@@ -389,7 +389,8 @@ function translate!(aaseq::LongAA,
             end
             aaseq[i] = aa
         else
-            aaseq[i] = code[unambiguous_codon(a, b, c)]
+            codon = unambiguous_codon(a, b, c)
+            aaseq[i] = code[codon + one(codon)]
         end
     end
     alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
@@ -397,16 +398,18 @@ function translate!(aaseq::LongAA,
 end
 
 
-function try_translate_ambiguous_codon(code::GeneticCode,
-                                       x::RNA,
-                                       y::RNA,
-                                       z::RNA)
+function try_translate_ambiguous_codon(
+    code::GeneticCode,
+    x::RNA,
+    y::RNA,
+    z::RNA
+)
     @inbounds if !isambiguous(x) & !isambiguous(y)
         # try to translate a codon `(x, y, RNA_N)`
-        aa_a = code[unambiguous_codon(x, y, RNA_A)]
-        aa_c = code[unambiguous_codon(x, y, RNA_C)]
-        aa_g = code[unambiguous_codon(x, y, RNA_G)]
-        aa_u = code[unambiguous_codon(x, y, RNA_U)]
+        aa_a = code[unambiguous_codon(x, y, RNA_A) + 1]
+        aa_c = code[unambiguous_codon(x, y, RNA_C) + 1]
+        aa_g = code[unambiguous_codon(x, y, RNA_G) + 1]
+        aa_u = code[unambiguous_codon(x, y, RNA_U) + 1]
         if aa_a == aa_c == aa_g == aa_u
             return aa_a
         end
