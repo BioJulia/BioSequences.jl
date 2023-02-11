@@ -41,7 +41,7 @@
     for len in [1, 10, 32, 1000, 10000, 100000]
         @test all(Bool[check_translate(random_translatable_rna(len)) for _ in 1:reps])
         seq = LongDNA{4}(LongRNA{4}(random_translatable_rna(len)))
-        @test translate!(aas, seq) == translate(seq)
+        @test translate!(aas, seq) == translate(seq) == translate(view(seq, 1:lastindex(seq)))
     end
 
     # Basics

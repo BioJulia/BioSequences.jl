@@ -19,7 +19,6 @@ function unambiguous_codon(a::XNA, b::XNA, c::XNA)
     twobitnucs[reinterpret(UInt8, b) + 0x01] << 2 |
     twobitnucs[reinterpret(UInt8, c) + 0x01]
     end
-    #reinterpret(RNACodon, bits % UInt64)
     return bits % UInt64
 end
 
@@ -323,36 +322,43 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 ###
 
 """
-    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, alternative_start=false)
+    translate(seq::NucSeq; kwargs...)::AASeq
 
-Translate an `LongRNA` or a `LongDNA` to an `LongAA`.
+Translate a nucleic acid sequence to an amino acid sequence.
 
-Translation uses genetic code `code` to map codons to amino acids. See
-`ncbi_trans_table` for available genetic codes.
-If codons in the given sequence cannot determine a unique amino acid, they
-will be translated to `AA_X` if `allow_ambiguous_codons` is `true` and otherwise
-result in an error. For organisms that utilize alternative start codons, one
-can set `alternative_start=true`, in which case the first codon will always be
-converted to a methionine.
+If `seq` isa `Union{LongSequence, LongSubSeq}`, result is a `LongAA`.
+Keyword arguments:
+* `code::GeneticCode=standard_genetic_code`: Use `GeneticCode` to map codons to amino acids.
+  See `ncbi_trans_table` for available genetic codes.
+* `allow_ambiguous_codons::Bool=true`: If codon does not uniquely map to an amino acid, translate
+  to `AA_X`, else raise error.
+* `alternative_start::Bool=true` convert first amino acid to methionine, in case the organism
+  can use alternative start codons.
 """
-function translate(ntseq::LongNucOrView{N};
+function translate(
+    ntseq::LongNucOrView;
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
-) where N
-    len = div((length(ntseq) % UInt) * 11, 32)
-    translate!(LongAA(undef, len), ntseq; code = code,
-    allow_ambiguous_codons = allow_ambiguous_codons, alternative_start = alternative_start)
+)
+    translate!(
+        LongAA(undef, div(length(ntseq), 3)),
+        ntseq;
+        code=code,
+        allow_ambiguous_codons=allow_ambiguous_codons,
+        alternative_start=alternative_start
+    )
 end
 
-function translate!(aaseq::LongAA,
+function translate!(
+    aaseq::LongAA,
     ntseq::LongNucOrView{2};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
     n_aa, remainder = divrem(length(ntseq) % UInt, 3)
-    iszero(remainder) || error("LongRNA length is not divisible by three. Cannot translate.")
+    iszero(remainder) || error("Nucleic acid seq length is not divisible by three. Cannot translate.")
     resize!(aaseq, n_aa)
     @inbounds for i in 1:n_aa
         a = ntseq[3i-2]
@@ -365,14 +371,15 @@ function translate!(aaseq::LongAA,
     aaseq
 end
 
-function translate!(aaseq::LongAA,
+function translate!(
+    aaseq::LongAA,
     ntseq::LongNucOrView{4};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
 )
     n_aa, remainder = divrem(length(ntseq) % UInt, 3)
-    iszero(remainder) || error("LongRNA length is not divisible by three. Cannot translate.")
+    iszero(remainder) || error("Nucleic acid seq length is not divisible by three. Cannot translate.")
     resize!(aaseq, n_aa)
     @inbounds for i in 1:n_aa
         a = reinterpret(RNA, ntseq[3i-2])
