@@ -7,7 +7,7 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
-import Random: Sampler, rand!, GLOBAL_RNG
+import Random: Sampler, rand!, default_rng
 
 """
     SamplerUniform{T}
@@ -35,7 +35,7 @@ end
 SamplerUniform(elems) = SamplerUniform{eltype(elems)}(elems)
 Base.eltype(::Type{SamplerUniform{T}}) where {T} = T
 Base.rand(rng::AbstractRNG, sp::SamplerUniform) = rand(rng, sp.elems)
-Base.rand(sp::SamplerUniform) = rand(GLOBAL_RNG, sp.elems)
+Base.rand(sp::SamplerUniform) = rand(default_rng(), sp.elems)
 const DefaultAASampler = SamplerUniform(aa"ACDEFGHIKLMNPQRSTVWY")
 
 """
@@ -91,17 +91,17 @@ function Base.rand(rng::AbstractRNG, sp::SamplerWeighted)
     end
     return @inbounds sp.elems[j]
 end
-Base.rand(sp::SamplerWeighted) = rand(GLOBAL_RNG, sp)
+Base.rand(sp::SamplerWeighted) = rand(default_rng(), sp)
 
 ###################### Generic longsequence methods ############################
 # If no RNG is passed, use the global one
-Random.rand!(seq::LongSequence) = rand!(GLOBAL_RNG, seq)
-Random.rand!(seq::LongSequence, sp::Sampler) = rand!(GLOBAL_RNG, seq, sp)
-randseq(A::Alphabet, len::Integer) = randseq(GLOBAL_RNG, A, len)
-randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(GLOBAL_RNG, A, sp, len)
-randdnaseq(len::Integer) = randdnaseq(GLOBAL_RNG, len)
-randrnaseq(len::Integer) = randrnaseq(GLOBAL_RNG, len)
-randaaseq(len::Integer) = randaaseq(GLOBAL_RNG, len)
+Random.rand!(seq::LongSequence) = rand!(default_rng(), seq)
+Random.rand!(seq::LongSequence, sp::Sampler) = rand!(default_rng(), seq, sp)
+randseq(A::Alphabet, len::Integer) = randseq(default_rng(), A, len)
+randseq(A::Alphabet, sp::Sampler, len::Integer) = randseq(default_rng(), A, sp, len)
+randdnaseq(len::Integer) = randdnaseq(default_rng(), len)
+randrnaseq(len::Integer) = randrnaseq(default_rng(), len)
+randaaseq(len::Integer) = randaaseq(default_rng(), len)
 
 """
     randseq([rng::AbstractRNG], A::Alphabet, len::Integer)
