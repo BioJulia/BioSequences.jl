@@ -152,9 +152,19 @@ end
 # This is used to effectively scan an array of UInt8 for invalid bytes, when one is detected
 @noinline function throw_encode_error(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer)
     for i in 1:div(64, bits_per_symbol(A))
-        sym = src[soff+i-1]
-        ascii_encode(A, sym) & 0x80 == 0x80 && error("Cannot encode $(repr(sym)) to $A")
+        index = soff + i - 1
+        sym = src[index]
+        if ascii_encode(A, sym) & 0x80 == 0x80
+            # If byte is a printable char, also display it
+            repr_char = if sym in UInt8('\a'):UInt8('\r') || sym in UInt8(' '):UInt8('~')
+                " (char '$(Char(sym))')"
+            else
+                ""
+            end
+            error("Cannot encode byte $(repr(sym))$(repr_char) at index $(index) to $A")
+        end
     end
+    @assert false "Expected error in encoding"
 end
 
 @inline function encode_chunk(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer, N::Integer)
