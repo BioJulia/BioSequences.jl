@@ -24,6 +24,15 @@
     @test LongSequence(SimpleSeq("AUCGU")) isa LongRNA{2}
     @test LongSequence(SimpleSeq("AUCGU")) == LongRNA{2}("AUCGU")
     LongDNA{4}(LongRNA{4}("AUCGUA")) == LongDNA{4}("ATCGTA")
+
+    # Displays a nice error when constructed from strings substrings
+    # and bytearrays on encoding error
+    @static if VERSION >= v"1.8"
+        malformed = "ACWpNS"
+        @test_throws "Cannot encode byte $(repr(UInt8('p'))) (char 'p') at index 4 to BioSequences.DNAAlphabet{4}" LongDNA{4}(malformed)
+        malformed = "AGCUGUAGUCGGUAUAUAGGCGCGCUCGAUGAUGAUGCGUGCUGCUATDNANCUG"
+        @test_throws "Cannot encode byte $(repr(UInt8('T'))) (char 'T') at index $(length(malformed) - 7) to BioSequences.RNAAlphabet{2}" LongRNA{2}(malformed)
+    end
 end
 
 @testset "Copy sequence" begin
