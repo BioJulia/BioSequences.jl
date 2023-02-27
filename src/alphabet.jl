@@ -308,3 +308,37 @@ for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
         ascii_encode(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
     end
 end
+
+const GUESS_LUT = let
+    v = zeros(UInt8, 128)
+    for (off, A) in [
+        (0, DNAAlphabet{4}()),
+        (1, RNAAlphabet{4}()),
+        (2, DNAAlphabet{2}()), (2, RNAAlphabet{2}()),
+        (3, AminoAcidAlphabet())
+    ]
+        for i in A
+            for b in (UInt8(lowercase(Char(i))), UInt8(uppercase(Char(i))))
+                v[b + 0x01] |= 0x01 << off
+            end
+        end
+    end
+    NTuple{128, UInt8}(v)
+end
+
+"""
+    possible_encodings(b::UInt8)::UInt8
+
+Returns a `UInt8` with any of the 4 lower bits set:
+* Bit 0: Valid `RNA`
+* Bit 1: Valid `RNA`
+* Bit 2: Valid 2-bit nucleotide
+* Bit 3: Valid `AminoAcidAlphabet`
+"""
+function possible_encodings(b::UInt8)
+    mask = @inbounds GUESS_LUT[(b & 0x7f) + 0x01]
+    # This is just a way to set the result to 0x00 if b > 0x7f
+    # which compiles efficiently
+    mask >> (ifelse(b > 0x7f, 0xff, 0x00) & 0x07)
+end
+
