@@ -8,7 +8,7 @@
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
 @inline function Base.iterate(seq::BioSequence, i::Int = firstindex(seq))
-    (i % UInt) - 1 < lastindex(seq) ? (@inbounds seq[i], i + 1) : nothing
+    (i % UInt) - 1 < (lastindex(seq) % UInt) ? (@inbounds seq[i], i + 1) : nothing
 end
 
 ## Bounds checking
