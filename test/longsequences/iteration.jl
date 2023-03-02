@@ -10,4 +10,13 @@
     aa_seq = aa"ARNPS"
     aa_vec = [AA_A, AA_R, AA_N, AA_P, AA_S]
     @test all([aa == aa_vec[i] for (i, aa) in enumerate(aa_seq)])
+    
+    @test iterate(dna_seq) == iterate(dna_seq, 1) == (DNA_A, 2)
+    @test iterate(dna_seq, 2) == (DNA_C, 3)
+    @test iterate(dna_seq, 3) == (DNA_T, 4)
+    @test iterate(dna_seq, 4) == (DNA_G, 5)
+    
+    @test iterate(dna_seq, -1) == nothing
+    @test iterate(dna_seq, 0) == nothing
+    @test iterate(dna_seq, 5) == nothing
 end
