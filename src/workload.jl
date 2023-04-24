@@ -1,5 +1,5 @@
 using BioSequences
-using SnoopPrecompile
+using PrecompileTools
 
 # BioSequences define a whole bunch of types and methods, most of which is never used in any workload.
 # This workload here uses what I consider to be the most common operations,
@@ -8,7 +8,7 @@ using SnoopPrecompile
 # not wasting time loading code the user will never use.
 # The code not cached here will have to be precompiled in downstream packages
 
-@precompile_all_calls begin
+@compile_workload begin
     seqs = [
         aa"TAGCW"
         dna"ATCGA"
