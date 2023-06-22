@@ -372,7 +372,11 @@ function translate!(aaseq::LongAA,
         a = reinterpret(RNA, ntseq[3i-2])
         b = reinterpret(RNA, ntseq[3i-1])
         c = reinterpret(RNA, ntseq[3i])
-        if isambiguous(a) | isambiguous(b) | isambiguous(c)
+        if isgap(a) | isgap(b) | isgap(c)
+            error("Cannot translate nucleotide sequences with gaps.")
+        elseif iscertain(a) & iscertain(b) & iscertain(c)
+            aaseq[i] = code[unambiguous_codon(a, b, c)]
+        else
             aa = try_translate_ambiguous_codon(code, a, b, c)
             if aa === nothing
                 if allow_ambiguous_codons
@@ -382,8 +386,6 @@ function translate!(aaseq::LongAA,
                 end
             end
             aaseq[i] = aa
-        else
-            aaseq[i] = code[unambiguous_codon(a, b, c)]
         end
     end
     alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
