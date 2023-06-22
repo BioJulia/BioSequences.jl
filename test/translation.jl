@@ -75,6 +75,11 @@
     # can't translate N
     @test_throws Exception translate(rna"ACGUACGNU", allow_ambiguous_codons=false)
 
+    # Can't translate gaps
+    @test_throws Exception translate(dna"A-G")
+    @test_throws Exception translate(dna"---")
+    @test_throws Exception translate(dna"AACGAT-A-")
+
     # issue #133
     @test translate(rna"GAN") == aa"X"
 end
