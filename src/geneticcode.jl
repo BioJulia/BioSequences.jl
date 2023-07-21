@@ -377,50 +377,51 @@ function translate!(aaseq::LongAA,
         elseif iscertain(a) & iscertain(b) & iscertain(c)
             aaseq[i] = code[unambiguous_codon(a, b, c)]
         else
-            aa = try_translate_ambiguous_codon(code, a, b, c)
-            if aa === nothing
-                if allow_ambiguous_codons
-                    aa = AA_X
-                else
-                    error("codon ", a, b, c, " cannot be unambiguously translated")
-                end
-            end
-            aaseq[i] = aa
+            aaseq[i] = try_translate_ambiguous_codon(code, a, b, c, allow_ambiguous_codons)
         end
     end
     alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
     aaseq
 end
 
-
-function try_translate_ambiguous_codon(code::GeneticCode,
-                                       x::RNA,
-                                       y::RNA,
-                                       z::RNA)
-    @inbounds if !isambiguous(x) & !isambiguous(y)
-        # try to translate a codon `(x, y, RNA_N)`
-        aa_a = code[unambiguous_codon(x, y, RNA_A)]
-        aa_c = code[unambiguous_codon(x, y, RNA_C)]
-        aa_g = code[unambiguous_codon(x, y, RNA_G)]
-        aa_u = code[unambiguous_codon(x, y, RNA_U)]
-        if aa_a == aa_c == aa_g == aa_u
-            return aa_a
+function try_translate_ambiguous_codon(
+    code::GeneticCode,
+    x::RNA,
+    y::RNA,
+    z::RNA,
+    allow_ambiguous::Bool
+)::AminoAcid
+    ((a, b, c), unambigs) = Iterators.peel(
+        Iterators.product(map(UnambiguousRNAs, (x, y, z))...)
+    )
+    aa = @inbounds code[unambiguous_codon(a, b, c)]
+    @inbounds for (a, b, c) in unambigs
+        aa_new = code[unambiguous_codon(a, b, c)]
+        aa_new == aa && continue
+        allow_ambiguous || error("codon ", a, b, c, " cannot be unambiguously translated")
+        aa = if aa_new in (AA_N, AA_D) && aa in (AA_N, AA_D, AA_B)
+            AA_B
+        elseif aa_new in (AA_I, AA_L) && aa in (AA_I, AA_L, AA_B)
+            AA_J
+        elseif aa_new in (AA_Q, AA_E) && aa in (AA_Q, AA_E, AA_Z)
+            AA_Z
+        else
+            AA_X
         end
+        aa == AA_X && break    
     end
-
-    found::Union{AminoAcid, Nothing} = nothing
-    for (codon, aa) in code
-        # TODO: Make this more tidy - maybe reuse the decode method for DNAAlph{4}.
-        a = reinterpret(RNA, 0x1 << ((codon >> 4) & 0x3))
-        b = reinterpret(RNA, 0x1 << ((codon >> 2) & 0x3))
-        c = reinterpret(RNA, 0x1 << (codon & 0x3))
-        @inbounds if (iscompatible(x, a) & iscompatible(y, b) & iscompatible(z, c))
-            if found === nothing
-                found = aa
-            elseif aa != found
-                return nothing
-            end
-        end
-    end
-    return found
+    return aa
 end
+
+struct UnambiguousRNAs
+    x::RNA
+end
+
+Base.eltype(::Type{UnambiguousRNAs}) = RNA
+Base.length(x::UnambiguousRNAs) = count_ones(reinterpret(UInt8, x.x))
+function Base.iterate(x::UnambiguousRNAs, state=reinterpret(UInt8, x.x))
+    iszero(state) && return nothing
+    rna = reinterpret(RNA, 0x01 << (trailing_zeros(state) & 7))
+    (rna, state & (state - 0x01))
+end
+

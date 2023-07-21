@@ -5,8 +5,28 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
-### Added
-* Improved error message when encoding LongDNA from byte-like objects
+
+## [3.1.6]
+* The heuristics for translating sequences with ambiguous symbols is now improved.
+  Now, `translate` does not rely on heuristics but uses an algorithm that always
+  returns exactly the right amino acid in the face of ambiguous nucleotides.
+
+## [3.1.5]
+* Attempting to translate a nucleotide sequence with gap symbols now throws an error (#278, see #277)
+
+## [3.1.4]
+* Migrate from SnoopPrecompile to PrecompileTools (#273)
+
+## [3.1.3]
+* Improve error when mis-encoding `LongDNA` from byte-like inputs (#267)
+* Remove references to internal `Random.GLOBAL_RNG` (#265)
+
+## [3.1.2]
+* Fix bug in converting `LongSubSeq` to `LongSequence` (#261)
+
+## [3.1.1]
+* Add `iterate` method for `Alphabets` (#233)
+* Add SnoopPrecompile workload and dependency on SnoopPrecompile (#257)
 
 ## [3.1.0]
 ### Added
