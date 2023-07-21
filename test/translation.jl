@@ -60,6 +60,8 @@
     # ambiguous codons
     @test translate(rna"YUGMGG") == aa"LR"
     @test translate(rna"GAYGARGAM") == aa"DEX"
+    @test translate(rna"MUCGGG") == aa"JG"
+    @test translate(rna"AAASAAUUU") == aa"KZF"
 
     # BioSequences{RNAAlphabet{2}}
     @test translate(LongSequence{RNAAlphabet{2}}("AAAUUUGGGCCC")) == translate(rna"AAAUUUGGGCCC")
