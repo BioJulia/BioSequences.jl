@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
+* Relax requirement of `decode`, such that it no longer needs to check for
+  invalid data. Note that this change is not breaking, since it is not possible
+  for correctly-implemented `Alphabet` and `BioSequence` to store invalid data.
 
 ## [3.1.6]
 * The heuristics for translating sequences with ambiguous symbols is now improved.

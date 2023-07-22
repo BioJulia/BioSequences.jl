@@ -47,7 +47,6 @@ end
 encode = BioSequences.encode
 EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
-DecodeError = BioSequences.DecodeError
 
 # NOTE: See the docs for the interface of Alphabet
 struct ReducedAAAlphabet <: Alphabet end
@@ -76,7 +75,6 @@ function BioSequences.encode(::ReducedAAAlphabet, aa::AminoAcid)
 end
 
 function BioSequences.decode(::ReducedAAAlphabet, x::UInt)
-    x ≥ length(DEC_LUT) && throw(DecodeError(ReducedAAAlphabet(), x))
     DEC_LUT[x + UInt(1)]
 end
 
@@ -100,11 +98,6 @@ end
     @test_throws EncodeError encode(ReducedAAAlphabet(), AA_R)
     @test_throws EncodeError encode(ReducedAAAlphabet(), AA_Gap)
     @test_throws EncodeError encode(ReducedAAAlphabet(), reinterpret(AminoAcid, 0xff))
-
-    @test_throws DecodeError decode(ReducedAAAlphabet(), UInt(16))
-    @test_throws DecodeError decode(ReducedAAAlphabet(), UInt(255))
-    @test_throws DecodeError decode(ReducedAAAlphabet(), UInt(432881))
-    @test_throws DecodeError decode(ReducedAAAlphabet(), typemax(UInt))
 end
 
 @testset "Encoding DNA/RNA/AminoAcid" begin
@@ -158,14 +151,11 @@ end
         @test decode(DNAAlphabet{2}(), 0x01) === DNA_C
         @test decode(DNAAlphabet{2}(), 0x02) === DNA_G
         @test decode(DNAAlphabet{2}(), 0x03) === DNA_T
-        @test_throws DecodeError decode(DNAAlphabet{2}(), 0x04)
-        @test_throws DecodeError decode(DNAAlphabet{2}(), 0x0e)
 
         # 4 bits
         for x in 0b0000:0b1111
             @test decode(DNAAlphabet{4}(), x) === reinterpret(DNA, x)
         end
-        @test_throws DecodeError decode(DNAAlphabet{4}(), 0b10000)
     end
 
     @testset "RNA" begin
@@ -174,14 +164,11 @@ end
         @test decode(RNAAlphabet{2}(), 0x01) === RNA_C
         @test decode(RNAAlphabet{2}(), 0x02) === RNA_G
         @test decode(RNAAlphabet{2}(), 0x03) === RNA_U
-        @test_throws DecodeError decode(RNAAlphabet{2}(), 0x04)
-        @test_throws DecodeError decode(RNAAlphabet{2}(), 0x0e)
 
         # 4 bits
         for x in 0b0000:0b1111
             @test decode(RNAAlphabet{4}(), x) === reinterpret(RNA, x)
         end
-        @test_throws DecodeError decode(RNAAlphabet{4}(), 0b10000)
     end
 
     @testset "AminoAcid" begin
@@ -189,7 +176,6 @@ end
         for x in 0x00:0x1b
             @test decode(AminoAcidAlphabet(), x) === reinterpret(AminoAcid, x)
         end
-        @test_throws BioSequences.DecodeError decode(AminoAcidAlphabet(), 0x1c)
     end
 end
 
