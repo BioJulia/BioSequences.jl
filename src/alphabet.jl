@@ -19,7 +19,7 @@ and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
 * Alphabets span over a *finite* set of biological symbols.
 * The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
   of the alphabet's element type, as well as the decoding, the inverse process.
-* An `Alphabet`'s `encode` and `decode` methods must not produce invalid data. 
+* An `Alphabet`'s `encode` method must not produce invalid data. 
 
 Every subtype `A` of `Alphabet` must implement:
 * `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
@@ -101,19 +101,8 @@ end
     decode(::Alphabet, x::E)
 
 Decode internal representation `E` to a `BioSymbol` using an `Alphabet`.
-This decoding is checked to enforce valid biosymbols.
 """
 function decode end
-
-struct DecodeError{A<:Alphabet,T} <: Exception
-    val::T
-end
-
-DecodeError(::A, val::T) where {A,T} = DecodeError{A,T}(val)
-
-function Base.showerror(io::IO, err::DecodeError{A}) where {A}
-    print(io, "cannot decode ", err.val, " in ", A)
-end
 
 function Base.iterate(a::Alphabet, state = 1)
 	state > length(a) && return nothing
@@ -186,9 +175,6 @@ for A in (DNAAlphabet, RNAAlphabet)
         end
 
         @inline function decode(::$(A){2}, x::UInt)
-            if x > UInt(3)
-                throw(DecodeError($(A){2}(), x))
-            end
             return reinterpret($(T), 0x01 << (x & 0x03))
         end
 
@@ -203,9 +189,6 @@ for A in (DNAAlphabet, RNAAlphabet)
         end
 
         @inline function decode(::$(A){4}, x::UInt)
-            if !isvalid($(T), x)
-                throw(DecodeError($(A){4}(), x))
-            end
             return reinterpret($(T), x % UInt8)
         end
 
@@ -245,9 +228,6 @@ end
 end
 
 @inline function decode(::AminoAcidAlphabet, x::UInt)
-    if x > 0x1b
-        throw(DecodeError(AminoAcidAlphabet(), x))
-    end
     return reinterpret(AminoAcid, x % UInt8)
 end
 
