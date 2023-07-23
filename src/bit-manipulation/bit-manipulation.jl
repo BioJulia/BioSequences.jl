@@ -1,16 +1,34 @@
-@inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: Base.BitUnsigned
+const BitUnsigned = Union{UInt8, UInt16, UInt32, UInt64, UInt128}
+
+@inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: BitUnsigned
      mask = 0x33333333333333333333333333333333 % T
      x = ((x >> 2) & mask) | ((x & mask) << 2)
      return reversebits(x, BitsPerSymbol{4}())
 end
 
-@inline function reversebits(x::T, ::BitsPerSymbol{4}) where T <: Base.BitUnsigned
+@inline function reversebits(x::T, ::BitsPerSymbol{4}) where T <: BitUnsigned
      mask = 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F % T
      x = ((x >> 4) & mask) | ((x & mask) << 4)
-     return bswap(x)
+     return reversebits(x, BitsPerSymbol{8}())
 end
 
-reversebits(x::T, ::BitsPerSymbol{8}) where T <: Base.BitUnsigned = bswap(x)
+@inline reversebits(x::T, ::BitsPerSymbol{8}) where T <: BitUnsigned = bswap(x)
+
+@inline reversebits(x::UInt16, ::BitsPerSymbol{16}) = x
+@inline function reversebits(x::T, ::BitsPerSymbol{16}) where T <: Union{UInt32, UInt64}
+    mask = 0x0000FFFF0000FFFF0000FFFF0000FFFF % T
+    x = ((x >> 16) & mask) | ((x & mask) << 16)
+    reversebits(x, BitsPerSymbol{32}())
+end
+
+@inline reversebits(x::UInt32, ::BitsPerSymbol{32}) = x
+@inline function reversebits(x::T, ::BitsPerSymbol{32}) where T <: Union{UInt64}
+    mask = 0x00000000FFFFFFF00000000FFFFFFFF % T
+    x = ((x >> 32) & mask) | ((x & mask) << 32)
+    reversebits(x, BitsPerSymbol{64}())
+end
+
+@inline reversebits(x::UInt64, ::BitsPerSymbol{64}) = x
 
 @inline function complement_bitpar(x::Unsigned, ::T) where {T<:NucleicAcidAlphabet{2}}
     return ~x
