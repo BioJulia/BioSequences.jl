@@ -176,9 +176,9 @@ end
 
 @testset "BitIndex" begin
     ind = BioSequences.BitIndex{4, UInt64}(16)
-    BioSequences.BitsPerSymbol(ind) = BioSequences.BitsPerSymbol{4}()
-    BioSequences.bitwidth(UInt64) = 64
-    BioSequences.bitwidth(UInt16) = 16
-    BioSequences.prevposition(ind) == BioSequences.BitIndex{4, UInt64}(12)
-    BioSequences.nextposition(ind) == BioSequences.BitIndex{4, UInt64}(20)
+    @test BioSequences.BitsPerSymbol(ind) == BioSequences.BitsPerSymbol{4}()
+    @test BioSequences.bitwidth(UInt64) == 64
+    @test BioSequences.bitwidth(UInt16) == 16
+    @test BioSequences.prevposition(ind) == BioSequences.BitIndex{4, UInt64}(12)
+    @test BioSequences.nextposition(ind) == BioSequences.BitIndex{4, UInt64}(20)
 end
