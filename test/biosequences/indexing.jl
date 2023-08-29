@@ -68,7 +68,7 @@
         @test_throws BoundsError seq[[5, 3, 13]]
 
         seq[[5, 2, 1]] == SimpleSeq([RNA_U, RNA_C, RNA_A])
-        seq[1:2:11] == SimpleSeq(seq.x[1:2:11])
+        seq[1:2:11] == SimpleSeq(collect(seq)[1:2:11])
     end
 end
 
@@ -99,7 +99,7 @@ end
             n = count(mask)
             seq2 = random_simple(n)
             cp = copy(s)
-            @test s[mask] == SimpleSeq(cp.x[mask])
+            @test s[mask] == SimpleSeq(collect(cp)[mask])
         end
 
         random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
