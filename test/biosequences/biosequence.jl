@@ -1,18 +1,22 @@
+struct Unsafe end
+
 # Create new biosequence for testing
 struct SimpleSeq <: BioSequence{RNAAlphabet{2}}
     x::Vector{UInt}
+    
+    SimpleSeq(::Unsafe, x::Vector{UInt}) = new(x)
 end
 
 function SimpleSeq(it)
-    SimpleSeq([BioSequences.encode(Alphabet(SimpleSeq), convert(RNA, i)) for i in it])
+    SimpleSeq(Unsafe(), [BioSequences.encode(Alphabet(SimpleSeq), convert(RNA, i)) for i in it])
 end
-Base.copy(x::SimpleSeq) = SimpleSeq(copy(x.x))
+Base.copy(x::SimpleSeq) = SimpleSeq(Unsafe(), copy(x.x))
 Base.length(x::SimpleSeq) = length(x.x)
 BioSequences.encoded_data_eltype(::Type{SimpleSeq}) = UInt
 BioSequences.extract_encoded_element(x::SimpleSeq, i::Integer) = x.x[i]
 
 BioSequences.encoded_setindex!(x::SimpleSeq, e::UInt, i::Integer) = x.x[i] = e
-SimpleSeq(::UndefInitializer, x::Integer) = SimpleSeq(zeros(UInt, x))
+SimpleSeq(::UndefInitializer, x::Integer) = SimpleSeq(Unsafe(), zeros(UInt, x))
 Base.resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len); x)
 
 # Not part of the API, just used for testing purposes

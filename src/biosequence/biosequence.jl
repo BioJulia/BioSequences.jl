@@ -170,9 +170,9 @@ Base.repeat(chunk::BioSequence, n::Integer) = join(typeof(chunk), (chunk for i i
 Base.:^(x::BioSequence, n::Integer) = repeat(x, n)
 
 # Concatenation and Base.repeat operators
-function Base.:*(chunks::BioSequence...)
-    T = typeof(first(chunks))
-    join(T, chunks)
+function Base.:*(fst::BioSequence, rest::BioSequence...)
+    T = typeof(fst)
+    join(T, (fst, rest...))
 end
 
 """
