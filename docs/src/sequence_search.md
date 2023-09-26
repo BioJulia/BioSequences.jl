@@ -37,7 +37,7 @@ julia> findfirst(DNA_A, seq)
 julia> findlast(DNA_A, seq)
 8
 
-findnext(DNA_A, seq, 2)
+julia> findnext(DNA_A, seq, 2)
 3
 
 julia> findprev(DNA_A, seq, 7)
