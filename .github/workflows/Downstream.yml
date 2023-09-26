@@ -30,7 +30,6 @@ jobs:
           - {user: BioJulia, repo: XAM.jl, group: BioSequences}
           - {user: crsl4, repo: PhyloNetworks.jl, group: BioSequences}
           - {user: JuliaHealth, repo: CAOS.jl, group: BioSequences}
-          - {user: kool7d, repo: BioMakie.jl, group: BioSequences}
           - {user: nguyetdang, repo: BioGraph.jl, group: BioSequences}
           - {user: vanOosterhoutLab, repo: SpeedDate.jl, group: BioSequences}
           - {user: varnerlab, repo: JUGRNModelGenerator.jl, group: BioSequences}
