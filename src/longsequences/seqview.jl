@@ -93,6 +93,12 @@ function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
 	T(seq.data, 1:length(seq))
 end
 
+function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}, part::AbstractUnitRange{<:Integer}) where
+	{N, T<:LongSubSeq{<:NucleicAcidAlphabet{N}}}
+	@boundscheck checkbounds(seq, part)
+	T(seq.data, UnitRange{Int}(part))
+end
+
 function Base.convert(::Type{T1}, seq::T2) where
 	{T1 <: Union{LongSequence, LongSubSeq}, T2 <: Union{LongSequence, LongSubSeq}}
 	return T1(seq)

@@ -24,6 +24,9 @@
 	@test vv == vv2 == vv3
 
 	@test LongSubSeq{AminoAcidAlphabet}(seq) == view(seq, eachindex(seq))
+
+	s = dna"TASCTAWTA"
+	@test collect(LongSubSeq{RNAAlphabet{4}}(s, 3:7)) == collect(LongRNA{4}(s)[3:7])
 end
 
 @testset "Basics" begin

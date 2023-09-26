@@ -329,18 +329,18 @@ result in an error. For organisms that utilize alternative start codons, one
 can set `alternative_start=true`, in which case the first codon will always be
 converted to a methionine.
 """
-function translate(ntseq::LongNuc{N};
+function translate(ntseq::SeqOrView;
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
-) where N
+)
     len = div((length(ntseq) % UInt) * 11, 32)
     translate!(LongAA(undef, len), ntseq; code = code,
     allow_ambiguous_codons = allow_ambiguous_codons, alternative_start = alternative_start)
 end
 
 function translate!(aaseq::LongAA,
-    ntseq::LongNuc{2};#Sequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}};
+    ntseq::SeqOrView{<:NucleicAcidAlphabet{2}};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
@@ -360,7 +360,7 @@ function translate!(aaseq::LongAA,
 end
 
 function translate!(aaseq::LongAA,
-    ntseq::LongNuc{4};#Sequence{<:Union{DNAAlphabet{4}, RNAAlphabet{4}}};
+    ntseq::SeqOrView{<:NucleicAcidAlphabet{4}};
     code::GeneticCode = standard_genetic_code,
     allow_ambiguous_codons::Bool = true,
     alternative_start::Bool = false
@@ -401,7 +401,7 @@ function try_translate_ambiguous_codon(
         allow_ambiguous || error("codon ", a, b, c, " cannot be unambiguously translated")
         aa = if aa_new in (AA_N, AA_D) && aa in (AA_N, AA_D, AA_B)
             AA_B
-        elseif aa_new in (AA_I, AA_L) && aa in (AA_I, AA_L, AA_B)
+        elseif aa_new in (AA_I, AA_L) && aa in (AA_I, AA_L, AA_J)
             AA_J
         elseif aa_new in (AA_Q, AA_E) && aa in (AA_Q, AA_E, AA_Z)
             AA_Z
