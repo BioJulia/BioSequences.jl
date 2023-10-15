@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        # basic
+        target: auto
+        threshold: 10%
+        base: auto 
+        flags: 
+          - unittest
+        paths: 
+          - "src"
+       # advanced settings
+        if_ci_failed: ignore
+        informational: true
