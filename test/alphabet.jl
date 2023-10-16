@@ -212,13 +212,13 @@ end
             end
         end
     end
-    for (char, S) in [
-        ('!', "QMN!KK"),
-        ('?', "ATCGAT???"),
-        (';', ";")
+    for (index, S) in [
+        (4, "QMN!KK"),
+        (7, "ATCGAT???"),
+        (1, ";")
     ]
         for T in [String, SubString, Vector{UInt8}]
-            @test guess_alphabet(T(S)) == UInt8(char)
+            @test guess_alphabet(T(S)) == index
             @test_throws BioSequences.EncodeError guess_parse(T(S))
         end
     end
