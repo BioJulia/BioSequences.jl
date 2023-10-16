@@ -376,5 +376,4 @@ function guess_alphabet(v::AbstractVector{UInt8})
         AminoAcidAlphabet()
     end
 end
-guess_alphabet(s::Union{String, SubString{String}}) = guess_alphabet(codeunits(s))
-guess_alphabet(s::AbstractString) = guess_alphabet(String(s))
+guess_alphabet(s::AbstractString) = guess_alphabet(codeunits(s))
