@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## [3.1.7]
+* Bump Julia to 1.6. BioSequences already required Julia 1.6, and could not be
+  installed on Julia 1.5, so bumping this is a true bugfix and requires no
+  breaking change.
 * Relax requirement of `decode`, such that it no longer needs to check for
   invalid data. Note that this change is not breaking, since it is not possible
   for correctly-implemented `Alphabet` and `BioSequence` to store invalid data.

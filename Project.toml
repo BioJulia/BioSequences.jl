@@ -1,7 +1,7 @@
 name = "BioSequences"
 uuid = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 authors = ["Sabrina Jaye Ward <sabrinajward@protonmail.com>", "Jakob Nissen <jakobnybonissen@gmail.com>"]
-version = "3.1.6"
+version = "3.1.7"
 
 [deps]
 BioSymbols = "3c28c6f8-a34d-59c4-9654-267d177fcfa9"
@@ -15,7 +15,7 @@ PrecompileTools = "1"
 Random = "1.5"
 StableRNGs = "0.1, 1.0"
 Twiddle = "1.1.1"
-julia = "1.5"
+julia = "1.6"
 
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
