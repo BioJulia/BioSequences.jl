@@ -86,3 +86,38 @@ function LongSequence{A}(
 end
 
 Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
+
+"""
+    guess_parse(s::Union{AbstractString, AbstractVector{UInt8}}) -> LongSequence
+
+Parse `s` into a `LongSequence` with an appropriate `Alphabet`, or throw an exception
+if no alphabet matches.
+See [`guess_alphabet`](@ref) for the available alphabets and the alphabet priority.
+
+!!! warning
+    The functions `guess_parse` and `guess_alphabet` are intended for use in interactive
+    sessions, and are not suitable for use in packages or non-ephemeral work.
+    They are type unstable, and their heuristics **are subject to change** in minor versions.
+
+# Examples
+```jldoctest
+julia> guess_parse("QMKLPEEFW")
+9aa Amino Acid Sequence:
+QMKLPEEFW
+
+julia> guess_parse("UAUGCUGUAGG")
+11nt RNA Sequence:
+UAUGCUGUAGG
+
+julia> guess_parse("PKMW#3>>0;kL")
+ERROR: cannot encode 0x23 in AminoAcidAlphabet
+[...]
+```
+"""
+function guess_parse(s::AbstractVector{UInt8})
+    A = guess_alphabet(s)
+    A isa Integer && throw(EncodeError(AminoAcidAlphabet(), s[A]))
+    LongSequence{typeof(A)}(s)
+end
+guess_parse(s::Union{String, SubString{String}}) = guess_parse(codeunits(s))
+guess_parse(s::AbstractString) = guess_parse(String(s))
