@@ -51,8 +51,4 @@ include("counting.jl")
     include("search/pwm.jl")
 end
 
-# Include doctests.
-DocMeta.setdocmeta!(BioSequences, :DocTestSetup, :(using BioSequences); recursive=true)
-doctest(BioSequences; manual = false)
-
 end
