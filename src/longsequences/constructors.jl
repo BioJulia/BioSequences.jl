@@ -119,5 +119,4 @@ function guess_parse(s::AbstractVector{UInt8})
     A isa Integer && throw(EncodeError(AminoAcidAlphabet(), s[A]))
     LongSequence{typeof(A)}(s)
 end
-guess_parse(s::Union{String, SubString{String}}) = guess_parse(codeunits(s))
-guess_parse(s::AbstractString) = guess_parse(String(s))
+guess_parse(s::AbstractString) = guess_parse(codeunits(s))
