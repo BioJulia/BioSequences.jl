@@ -125,3 +125,28 @@ function iscanonical(seq::NucleotideSeq)
     end
     return true
 end
+
+"""
+    hasprematurestop(sequence::LongSequence{DNAAlphabet{4}})::Bool
+
+Determine whether the `sequence` of type `LongSequence{DNAAlphabet{4}}` contains a premature stop codon.
+
+Returns a boolean indicating whether the `sequence` has more than one stop codon.
+"""
+function hasprematurestop(seq::LongSequence{DNAAlphabet{4}})::Bool
+    
+    stopcodons = [dna"TAA", dna"TAG", dna"TGA"]  # Create a set of stop codons
+    
+    length(seq) % 3 == 0 || error("The sequence is not divisible by 3")
+    
+    occursin(biore"T(AG|AA|GA)"dna, sequence[end-2:end]) || error("There is no stop codon at the end of the sequence")
+
+    @inbounds for i in 1:3:length(seq) - 4
+        codon = seq[i:i+2]
+        if codon in stopcodons
+            return true
+        end
+    end
+
+    return false
+end

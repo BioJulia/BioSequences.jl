@@ -79,4 +79,9 @@
     # iscanonical
     @test iscanonical(dna"TCA")
     @test !iscanonical(dna"TGA")
+
+    @test !hasprematurestop(dna"ATGCTTAAACCTTTGACGTAG")
+    @test hasprematurestop(dna"ATGCTTAAACCTTTGACGTAGTAG") # stop (TAG) before last codon
+    @test hasprematurestop(dna"TAGATGCTTAAACCTTTGACGTAG") # stop (TAG) at the beginning
+    
 end

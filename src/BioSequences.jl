@@ -118,6 +118,7 @@ export
     hasambiguity,
     isrepetitive,
     iscanonical,
+    hasprematurestop,
 
     # Transformations
     canonical,
