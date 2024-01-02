@@ -296,6 +296,12 @@ Be careful when you are using sequence literals inside of functions, and inside
 the bodies of things like for loops. And if you use them and are unsure, use the
  's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
 
+```@docs
+@dna_str
+@rna_str
+@aa_str
+```
+
 ## Comparison to other sequence types
 Following Base standards, BioSequences do not compare equal to other containers even if they have the same elements.
 To e.g. compare a BioSequence with a vector of DNA, compare the elements themselves:
