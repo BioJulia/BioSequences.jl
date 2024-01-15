@@ -14,10 +14,10 @@ makedocs(
         "Predicates"                     => "predicates.md",
         "Random sequences"               => "random.md",
         "Pattern matching and searching" => "sequence_search.md",
-        "Iteration"                      => "iteration.md",
         "Counting"                       => "counting.md",
         "I/O"                            => "io.md",
-        "Implementing custom types"      => "interfaces.md"
+        "Implementing custom types"      => "interfaces.md",
+        "Recipes"                        => "recipes.md",
     ],
     authors = "Sabrina Jaye Ward, Jakob Nissen, D.C.Jones, Kenta Sato, The BioJulia Organisation and other contributors.",
     checkdocs = :all,
