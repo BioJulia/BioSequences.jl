@@ -133,6 +133,7 @@ export
     ###
     ### LongSequence
     ###
+    guessparse,
 
     # Type & aliases
     LongSequence,
