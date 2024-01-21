@@ -339,7 +339,7 @@ pick the first from the order below (i.e. `DNAAlphabet{2}()` if possible, otherw
 5. `AminoAcidAlphabet()`
 
 !!! warning
-    The functions `guess_parse` and `guess_alphabet` are intended for use in interactive
+    The functions `bioseq` and `guess_alphabet` are intended for use in interactive
     sessions, and are not suitable for use in packages or non-ephemeral work.
     They are type unstable, and their heuristics **are subject to change** in minor versions.
 

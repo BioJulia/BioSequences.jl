@@ -208,7 +208,7 @@ end
         for S in Ss
             for T in [String, SubString, Vector{UInt8}, Test.GenericString]
                 @test guess_alphabet(T(S)) == A
-                @test guess_parse(T(S)) isa LongSequence{typeof(A)}
+                @test bioseq(T(S)) isa LongSequence{typeof(A)}
             end
         end
     end
@@ -219,7 +219,7 @@ end
     ]
         for T in [String, SubString, Vector{UInt8}, Test.GenericString]
             @test guess_alphabet(T(S)) == index
-            @test_throws BioSequences.EncodeError guess_parse(T(S))
+            @test_throws BioSequences.EncodeError bioseq(T(S))
         end
     end
 end

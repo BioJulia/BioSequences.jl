@@ -303,11 +303,11 @@ the bodies of things like for loops. And if you use them and are unsure, use the
 ```
 
 ## Loose parsing
-As of version 3.2.0, BioSequences.jl provide the [`guess_parse`](@ref) function, which can be used to build a `LongSequence`
+As of version 3.2.0, BioSequences.jl provide the [`guess`](@ref) function, which can be used to build a `LongSequence`
 from a string (or an `AbstractVector{UInt8}`) without knowing the correct `Alphabet`.
 
 ```jldoctest
-julia> guess_parse("ATGTGCTGA")
+julia> guess("ATGTGCTGA")
 9nt DNA Sequence:
 ATGTGCTGA
 ```
@@ -316,7 +316,7 @@ The function will prioritise 2-bit alphabets over 4-bit alphabets, and prefer sm
 If the input cannot be encoded by any of the built-in alphabets, an error is thrown:
 
 ```jldoctest
-julia> guess_parse("0!(CC!;#&&%")
+julia> bioseq("0!(CC!;#&&%")
 ERROR: cannot encode 0x30 in AminoAcidAlphabet
 [...]
 ```
@@ -325,7 +325,7 @@ Note that this function is only intended to be used for interactive, ephemeral w
 The function is necessarily type unstable, and the precise returned alphabet for a given input is a heuristic which is subject to change.
 
 ```@docs
-guess_parse
+bioseq
 guess_alphabet
 ```
 

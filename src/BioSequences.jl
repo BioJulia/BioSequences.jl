@@ -96,7 +96,7 @@ export
     ###
 
     guess_alphabet,
-    guess_parse,
+    bioseq,
 
     # Types & aliases
     Alphabet,
