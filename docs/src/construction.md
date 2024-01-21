@@ -303,11 +303,11 @@ the bodies of things like for loops. And if you use them and are unsure, use the
 ```
 
 ## Loose parsing
-As of version 3.2.0, BioSequences.jl provide the [`guess`](@ref) function, which can be used to build a `LongSequence`
+As of version 3.2.0, BioSequences.jl provide the [`bioseq`](@ref) function, which can be used to build a `LongSequence`
 from a string (or an `AbstractVector{UInt8}`) without knowing the correct `Alphabet`.
 
 ```jldoctest
-julia> guess("ATGTGCTGA")
+julia> bioseq("ATGTGCTGA")
 9nt DNA Sequence:
 ATGTGCTGA
 ```
