@@ -165,7 +165,12 @@ end
     @assert false "Expected error in encoding"
 end
 
-@inline function encode_chunk(A::Alphabet, src::AbstractArray{UInt8}, soff::Integer, N::Integer)
+@inline function encode_chunk(
+    A::Alphabet,
+    src::AbstractArray{UInt8},
+    soff::Integer,
+    N::Integer
+)::Union{UInt64, Int}
     chunk = zero(UInt64)
     check = 0x00
     @inbounds for i in 1:N
@@ -173,24 +178,49 @@ end
         check |= enc
         chunk |= UInt64(enc) << (bits_per_symbol(A) * (i-1))
     end
-    check & 0x80 == 0x00 || throw_encode_error(A, src, soff)
-    return chunk
+    check & 0x80 == 0x00 || return Int(soff)::Int
+    return chunk::UInt64
 end
 
 # Use this for AsiiAlphabet alphabets only, internal use only, no boundschecks.
 # This is preferential to `copyto!` if none of the sequence's original content
 # needs to be kept, since this is faster.
-function encode_chunks!(dst::SeqOrView{A}, startindex::Integer, src::AbstractVector{UInt8},
-                        soff::Integer, N::Integer) where {A <: Alphabet}
+function try_encode_chunks!(
+    dst::SeqOrView{A},
+    startindex::Integer,
+    src::AbstractVector{UInt8},
+    soff::Integer,
+    N::Integer
+)::Union{Int, SeqOrView} where {A <: Alphabet}
     chunks, rest = divrem(N, symbols_per_data_element(dst))
     @inbounds for i in startindex:startindex+chunks-1
-        dst.data[i] = encode_chunk(A(), src, soff, symbols_per_data_element(dst))
+        chunk = encode_chunk(A(), src, soff, symbols_per_data_element(dst))
+        if chunk isa Int
+            return chunk
+        else
+            dst.data[i] = chunk
+        end
         soff += symbols_per_data_element(dst)
     end
     @inbounds if !iszero(rest)
-        dst.data[startindex+chunks] = encode_chunk(A(), src, soff, rest)
+        chunk = encode_chunk(A(), src, soff, rest)
+        if chunk isa Int
+            return chunk
+        else
+            dst.data[startindex+chunks] = chunk
+        end
     end
     return dst
+end
+
+function encode_chunks!(dst::SeqOrView{A},
+    startindex::Integer,
+    src::AbstractVector{UInt8},
+    soff::Integer,
+    N::Integer
+)::SeqOrView where {A <: Alphabet}
+    s = try_encode_chunks!(dst, startindex, src, soff, N)
+    s isa Int ? throw_encode_error(A(), src, s) : s
 end
 
 #########

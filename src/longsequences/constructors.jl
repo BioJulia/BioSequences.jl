@@ -75,17 +75,32 @@ end
 
 Base.parse(::Type{T}, s::AbstractString) where {T <: LongSequence} = parse(T, String(s))
 
-function Base.parse(::Type{LongSequence{A}}, seq::ASCIILike) where {A<:Alphabet}
-    _parse(LongSequence{A}, seq, codetype(A()))
+function Base.parse(T::Type{LongSequence{A}}, s::ASCIILike) where {A<:Alphabet}
+    C = codetype(A())
+    src = C isa AsciiAlphabet ? codeunits(s) : s
+    n = _tryparse(T, s, C)
+    if n isa Int
+        throw_encode_error(A(), src, n)
+    else
+        n
+    end
 end
 
-function _parse(::Type{LongSequence{A}}, s::ASCIILike, ::AlphabetCode) where {A<:Alphabet}
+Base.tryparse(::Type{T}, s::AbstractString) where {T <: LongSequence} = tryparse(T, String(s))
+
+function Base.tryparse(::Type{LongSequence{A}}, s::ASCIILike) where {A <: Alphabet}
+    n = _tryparse(LongSequence{A}, s, codetype(A()))
+    n isa Int ? nothing : n
+end
+
+function _tryparse(::Type{LongSequence{A}}, s::ASCIILike, ::AlphabetCode) where {A<:Alphabet}
     len = length(s)
     seq = LongSequence{A}(undef, len)
+    # TODO!
     return copyto!(seq, 1, s, 1, len)
 end
 
-function _parse(::Type{LongSequence{A}}, s::ASCIILike, ::AsciiAlphabet) where {A<:Alphabet}
+function _tryparse(::Type{LongSequence{A}}, s::ASCIILike, ::AsciiAlphabet) where {A<:Alphabet}
     seq = LongSequence{A}(undef, ncodeunits(s))
-    return encode_chunks!(seq, 1, codeunits(s), 1, ncodeunits(s))
+    try_encode_chunks!(seq, 1, codeunits(s), 1, ncodeunits(s))
 end
