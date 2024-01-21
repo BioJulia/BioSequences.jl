@@ -1,6 +1,4 @@
 
-include("bitindex.jl")
-
 const BitUnsigned = Union{UInt8, UInt16, UInt32, UInt64, UInt128}
 
 @inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: BitUnsigned
