@@ -202,6 +202,9 @@ import Twiddle: enumerate_nibbles,
     repeatpattern
 using Random
 
+const SeqLike = Union{AbstractVector, AbstractString}
+const ASCIILike = Union{String, SubString{String}}
+
 include("alphabet.jl")
 
 # Load the bit-twiddling internals that optimised BioSequences methods depend on.
