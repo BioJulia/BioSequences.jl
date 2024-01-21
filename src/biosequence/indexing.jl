@@ -11,6 +11,9 @@
     (i % UInt) - 1 < (lastindex(seq) % UInt) ? (@inbounds seq[i], i + 1) : nothing
 end
 
+lastbitindex(x::BioSequence) = bitindex(x, lastindex(x))
+firstbitindex(x::BioSequence) = bitindex(x, firstindex(x))
+
 ## Bounds checking
 function Base.checkbounds(x::BioSequence, i::Integer)
     firstindex(x) ≤ i ≤ lastindex(x) || throw(BoundsError(x, i))
