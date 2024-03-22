@@ -59,20 +59,36 @@ end
 
 
 """
-    ispalindromic(seq::BioSequence)
+    ispalindromic(seq::NucSeq) -> Bool
+
+Check if `seq` is palindromic. A palindromic sequence is identical to its
+reverse-complement, so this should be equivalent to checking if
+`seq == reverse_complement(seq)`.
+
+# Examples
+```jldoctest
+julia> ispalindromic(dna"TGCA")
+true
+
+julia> ispalindromic(dna"TCCT")
+false
+
+julia> ispalindromic(rna"ACGGU")
+false
+```
 
 Return `true` if `seq` is a palindromic sequence; otherwise return `false`.
 """
 function ispalindromic(seq::BioSequence{<:NucleicAcidAlphabet})
-    for i in 1:cld(length(seq), 2)
-        if seq[i] != complement(seq[end - i + 1])
-            return false
-        end
-    end
-
-    return true
+	_ispalindromic(seq)
 end
 
+# For two-bit alphabets, all odd-length sequences are not palindromic.
+function ispalindromic(seq::BioSequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}})
+	isodd(length(seq)) ? false : _ispalindromic(seq)
+end
+
+@inline _ispalindromic(seq) = all(seq[i] == complement(seq[end - i + 1]) for i in 1:cld(length(seq), 2))
 
 """
     hasambiguity(seq::BioSequence)
