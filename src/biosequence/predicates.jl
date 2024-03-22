@@ -80,15 +80,21 @@ false
 Return `true` if `seq` is a palindromic sequence; otherwise return `false`.
 """
 function ispalindromic(seq::BioSequence{<:NucleicAcidAlphabet})
-	_ispalindromic(seq)
+    _ispalindromic(seq)
 end
 
 # For two-bit alphabets, all odd-length sequences are not palindromic.
 function ispalindromic(seq::BioSequence{<:Union{DNAAlphabet{2}, RNAAlphabet{2}}})
-	isodd(length(seq)) ? false : _ispalindromic(seq)
+    isodd(length(seq)) ? false : _ispalindromic(seq)
 end
 
-@inline _ispalindromic(seq) = all(seq[i] == complement(seq[end - i + 1]) for i in 1:cld(length(seq), 2))
+@inline function _ispalindromic(seq)
+    L = lastindex(seq)
+    for i in 1:cld(length(seq), 2)
+        seq[i] == complement(seq[L - i + 1]) || return false
+    end
+    true
+end
 
 """
     hasambiguity(seq::BioSequence)
