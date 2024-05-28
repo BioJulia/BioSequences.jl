@@ -83,26 +83,22 @@ function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
         return T(comparator, pat, UInt64(0), 0, 0)
     end
 
-    first = pat[1]
-    last = pat[end]
+    first = @inbounds pat[1]
+    last = @inbounds pat[end]
     bloom_mask = zero(UInt64)
     fshift = bshift = m
+    set_bshift = true
 
-    for i in 1:lastindex(pat)
-        x = pat[i]
+    for (i, x) in enumerate(pat)
         bloom_mask |= _bloom_bits(typeof(comparator), x)
         if comparator(x, last) && i < m
             fshift = m - i
         end
-    end
-
-    for i in lastindex(pat):-1:1
-        x = pat[i]
-        if comparator(x, first) && i > 1
+        if set_bshift && i > 1 && comparator(x, first)
             bshift = i - 1
+            set_bshift = false
         end
     end
-
     return T(comparator, pat, bloom_mask, fshift, bshift)
 end
 
