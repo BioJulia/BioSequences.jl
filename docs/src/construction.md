@@ -302,6 +302,33 @@ the bodies of things like for loops. And if you use them and are unsure, use the
 @aa_str
 ```
 
+## Loose parsing
+As of version 3.2.0, BioSequences.jl provide the [`bioseq`](@ref) function, which can be used to build a `LongSequence`
+from a string (or an `AbstractVector{UInt8}`) without knowing the correct `Alphabet`.
+
+```jldoctest
+julia> bioseq("ATGTGCTGA")
+9nt DNA Sequence:
+ATGTGCTGA
+```
+
+The function will prioritise 2-bit alphabets over 4-bit alphabets, and prefer smaller alphabets (like `DNAAlphabet{4}`) over larger (like `AminoAcidAlphabet`).
+If the input cannot be encoded by any of the built-in alphabets, an error is thrown:
+
+```jldoctest
+julia> bioseq("0!(CC!;#&&%")
+ERROR: cannot encode 0x30 in AminoAcidAlphabet
+[...]
+```
+
+Note that this function is only intended to be used for interactive, ephemeral work.
+The function is necessarily type unstable, and the precise returned alphabet for a given input is a heuristic which is subject to change.
+
+```@docs
+bioseq
+guess_alphabet
+```
+
 ## Comparison to other sequence types
 Following Base standards, BioSequences do not compare equal to other containers even if they have the same elements.
 To e.g. compare a BioSequence with a vector of DNA, compare the elements themselves:
