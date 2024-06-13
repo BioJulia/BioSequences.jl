@@ -86,3 +86,56 @@ function LongSequence{A}(
 end
 
 Base.parse(::Type{LongSequence{A}}, seq::AbstractString) where A = LongSequence{A}(seq)
+
+guess_alphabet(s::Union{String, SubString{String}}) = guess_alphabet(codeunits(s))
+function guess_alphabet(v::AbstractVector{UInt8})
+    mask = mapreduce(possible_encodings, &, v; init=0x0f)
+    dna = isodd(mask >> 0x00)
+    rna = isodd(mask >> 0x01)
+    unambiguous = isodd(mask >> 0x02)
+    aa = isodd(mask >> 0x03)
+    if dna & rna
+        error("Sequences is both valid DNA and RNA")
+    elseif dna
+        unambiguous ? DNAAlphabet{2} : DNAAlphabet{4}
+    elseif rna
+        unambiguous ? RNAAlphabet{2} : RNAAlphabet{4}
+    elseif aa
+        AminoAcidAlphabet
+    else
+        error("Sequence is not valid DNA, RNA or amino acid.")
+    end
+end
+
+"""
+    guessparse(s::AbstractString)::BioSequence
+
+Parse `s` into a `BioSequence`, and tries to guess which kind of biosequence.
+The precise guessing algorithm is an implementation detail and not to be relied on.
+This function is meant to be used in ephemeral REPL work, not in package code.
+Its precise behaviour is subject to change in minor versions.
+
+# Current behaviour (subject to change)
+Currently, `guessparse` will error on sequences that can be either DNA or RNA sequences,
+and on sequences that are neither DNA, RNA or aminoacid sequences.
+It will return a `LongSequence{A}`, where `A` is determined in the following priority:
+2-bit DNA/RNAAlphabet -> 4-bit DNA/RNAAlphabet -> AminoAcidAlphabet
+
+# Examples:
+```
+julia> typeof(guessparse("AGTGCA"))
+LongDNA{2}
+
+julia> typeof(guessparse("AGCGAWSN"))
+Error:
+[...]
+
+julia> typeof(guessparse("UGAUCSSDDC"))
+LongRNA{4}
+
+julia> typeof(guessparse("KLEWSNYKHACQQV"))
+LongAA
+```
+"""
+guessparse(v::Union{SubString{String}, String}) = LongSequence{guess_alphabet(v)}(v)
+guessparse(s::AbstractString) = guessparse(String(s))
