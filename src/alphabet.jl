@@ -85,7 +85,9 @@ iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 Encode BioSymbol `S` to an internal representation using an `Alphabet`.
 This decoding is checked to enforce valid data element.
 """
-function encode end
+function encode(A::Alphabet, x)
+    @something tryencode(A, x) throw(EncodeError(A, x))
+end
 
 struct EncodeError{A<:Alphabet,T} <: Exception
     val::T
@@ -167,11 +169,11 @@ for A in (DNAAlphabet, RNAAlphabet)
     @eval begin
 
 	    # 2-bit encoding
-        @inline function encode(::$(A){2}, nt::$(T))
+        @inline function tryencode(::$(A){2}, nt::$(T))
             if count_ones(nt) != 1 || !isvalid(nt)
-                throw(EncodeError($(A){2}(), nt))
+                return nothing
             end
-            return convert(UInt, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
+            convert(UInt, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
         end
 
         @inline function decode(::$(A){2}, x::UInt)
@@ -181,11 +183,8 @@ for A in (DNAAlphabet, RNAAlphabet)
 	    @inline decode(::$(A){2}, x::Unsigned) = decode($(A){2}(), UInt(x))
 
         # 4-bit encoding
-        @inline function encode(::$(A){4}, nt::$(T))
-            if !isvalid(nt)
-                throw(EncodeError($(A){4}(), nt))
-            end
-            return convert(UInt, reinterpret(UInt8, nt))
+        @inline function tryencode(::$(A){4}, nt::$(T))
+            isvalid(nt) ? convert(UInt, reinterpret(UInt8, nt)) : nothing
         end
 
         @inline function decode(::$(A){4}, x::UInt)
@@ -220,11 +219,11 @@ function symbols(::AminoAcidAlphabet)
     AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
 end
 
-@inline function encode(::AminoAcidAlphabet, aa::AminoAcid)
+@inline function tryencode(::AminoAcidAlphabet, aa::AminoAcid)
     if reinterpret(UInt8, aa) > reinterpret(UInt8, AA_Gap)
-        throw(EncodeError(AminoAcidAlphabet(), aa))
+        return nothing
     end
-    return convert(UInt, reinterpret(UInt8, aa))
+    convert(UInt, reinterpret(UInt8, aa))
 end
 
 @inline function decode(::AminoAcidAlphabet, x::UInt)
