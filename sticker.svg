@@ -1,26 +1,169 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999">
-  <g id="bubble-helix">
-    <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
-    <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
-    <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
-    <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
-    <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
-    <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
-    <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
-    <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
-    <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
-    <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
-    <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
-    <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
-    <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
-    <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
-    <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
-    <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
-    <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
-    <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
-    <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
-    <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
-    <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
-    <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 136.48101 51.472999"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="sticker.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs22" />
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="8.7777784"
+     inkscape:cx="68.240501"
+     inkscape:cy="25.746834"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg22" />
+  <g
+     id="bubble-helix"
+     transform="matrix(1,0,0,-1,0,51.4501)">
+    <circle
+       cx="5.9791999"
+       cy="20.299999"
+       r="5.9791999"
+       fill="#945bb0"
+       id="circle1" />
+    <circle
+       cx="21.316999"
+       cy="39.5"
+       r="4.9393001"
+       fill="#4266d5"
+       id="circle2" />
+    <circle
+       cx="16.378"
+       cy="11.7"
+       r="4.9393001"
+       fill="#c93d39"
+       id="circle3" />
+    <circle
+       cx="35.095001"
+       cy="35.900002"
+       r="5.9791999"
+       fill="#945bb0"
+       id="circle4" />
+    <circle
+       cx="47.183998"
+       cy="23.799999"
+       r="7.4089999"
+       fill="#4266d5"
+       id="circle5" />
+    <circle
+       cx="28.986"
+       cy="9.6999998"
+       r="4.5493999"
+       fill="#3b972e"
+       id="circle6" />
+    <circle
+       cx="89.428001"
+       cy="46.5"
+       r="4.9393001"
+       fill="#c93d39"
+       id="circle7" />
+    <circle
+       cx="71.620003"
+       cy="5.5999999"
+       r="5.5892"
+       fill="#945bb0"
+       id="circle8" />
+    <circle
+       cx="121.01"
+       cy="15.5"
+       r="5.5892"
+       fill="#c93d39"
+       id="circle9" />
+    <circle
+       cx="59.661999"
+       cy="30.299999"
+       r="2.4697001"
+       fill="#4266d5"
+       id="circle10" />
+    <circle
+       cx="103.6"
+       cy="19.9"
+       r="3.2495999"
+       fill="#c93d39"
+       id="circle11" />
+    <circle
+       cx="123.61"
+       cy="36.5"
+       r="2.7296"
+       fill="#4266d5"
+       id="circle12" />
+    <circle
+       cx="127.64"
+       cy="5.1999998"
+       r="3.8994999"
+       fill="#3b972e"
+       id="circle13" />
+    <circle
+       cx="132.58"
+       cy="39.200001"
+       r="3.8994999"
+       fill="#945bb0"
+       id="circle14" />
+    <circle
+       cx="67.591003"
+       cy="37.400002"
+       r="3.3794999"
+       fill="#3b972e"
+       id="circle15" />
+    <circle
+       cx="95.016998"
+       cy="13.9"
+       r="4.2894001"
+       fill="#4266d5"
+       id="circle16" />
+    <circle
+       cx="77.728996"
+       cy="42.900002"
+       r="3.8994999"
+       fill="#945bb0"
+       id="circle17" />
+    <circle
+       cx="102.56"
+       cy="42"
+       r="5.8491998"
+       fill="#4266d5"
+       id="circle18" />
+    <circle
+       cx="113.6"
+       cy="28.799999"
+       r="6.7591"
+       fill="#3b972e"
+       id="circle19" />
+    <circle
+       cx="57.582001"
+       cy="11"
+       r="6.3691001"
+       fill="#c93d39"
+       id="circle20" />
+    <circle
+       cx="38.735001"
+       cy="14.8"
+       r="3.3794999"
+       fill="#c93d39"
+       id="circle21" />
+    <circle
+       cx="84.617996"
+       cy="7.9000001"
+       r="5.3292999"
+       fill="#3b972e"
+       id="circle22" />
   </g>
 </svg>
