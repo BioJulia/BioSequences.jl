@@ -167,6 +167,7 @@ Translation Tables:
  12. The Alternative Yeast Nuclear Code (alternative_yeast_nuclear_genetic_code)
  13. The Ascidian Mitochondrial Code (ascidian_mitochondrial_genetic_code)
  14. The Alternative Flatworm Mitochondrial Code (alternative_flatworm_mitochondrial_genetic_code)
+ 15. Blepharisma Macronuclear Code (blepharisma_macronuclear_genetic_code)
  16. Chlorophycean Mitochondrial Code (chlorophycean_mitochondrial_genetic_code)
  21. Trematode Mitochondrial Code (trematode_mitochondrial_genetic_code)
  22. Scenedesmus obliquus Mitochondrial Code (scenedesmus_obliquus_mitochondrial_genetic_code)
