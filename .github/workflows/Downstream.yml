@@ -19,21 +19,16 @@ jobs:
         package:
           - {user: bioinfologics, repo: Pseudoseq.jl, group: BioSequences}
           - {user: BioJulia, repo: BioAlignments.jl, group: BioSequences}
-          - {user: BioJulia, repo: BioStructures.jl, group: BioSequences}
           - {user: BioJulia, repo: FASTX.jl, group: BioSequences}
           - {user: BioJulia, repo: GenomeGraphs.jl, group: BioSequences}
-          - {user: BioJulia, repo: GenomicAnnotations.jl, group: BioSequences}
           - {user: BioJulia, repo: GFF3.jl, group: BioSequences}
           - {user: BioJulia, repo: KmerAnalysis.jl, group: BioSequences}
           - {user: BioJulia, repo: ReadDatastores.jl, group: BioSequences}
           - {user: BioJulia, repo: TwoBit.jl, group: BioSequences}
           - {user: BioJulia, repo: XAM.jl, group: BioSequences}
-          - {user: crsl4, repo: PhyloNetworks.jl, group: BioSequences}
           - {user: JuliaHealth, repo: CAOS.jl, group: BioSequences}
           - {user: nguyetdang, repo: BioGraph.jl, group: BioSequences}
           - {user: vanOosterhoutLab, repo: SpeedDate.jl, group: BioSequences}
-          - {user: varnerlab, repo: JUGRNModelGenerator.jl, group: BioSequences}
-          - {user: varnerlab, repo: VLConstraintBasedModelGenerationUtilities.jl, group: BioSequences}
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
