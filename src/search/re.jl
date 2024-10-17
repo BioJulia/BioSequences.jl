@@ -51,8 +51,8 @@ import BioSequences
 # -----------
 
 mutable struct SyntaxTree
-    head::Symbol
-    args::Vector{Any}
+    const head::Symbol
+    const args::Vector{Any}
 
     function SyntaxTree(head, args)
         @assert head ∈ (
@@ -805,11 +805,11 @@ end
 
 # simple stack
 mutable struct Stack{T}
+    const data::Vector{T}
     top::Int
-    data::Vector{T}
 
     function Stack{T}(sz::Int=0) where T
-        return new{T}(0, Vector{T}(undef, sz))
+        return new{T}(Vector{T}(undef, sz), 0)
     end
 end
 
