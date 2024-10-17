@@ -8,13 +8,13 @@ Base.summary(seq::BioSequence{<:AminoAcidAlphabet}) = string(length(seq), "aa ",
 # Buffer type. Not exposed to user, so code should be kept simple and performant.
 # B is true if it is buffered and false if it is not
 mutable struct SimpleBuffer{B, T} <: IO
+    const io::T
+    const arr::Vector{UInt8}
     len::UInt
-    arr::Vector{UInt8}
-    io::T
 end
 
-SimpleBuffer(io::IO) = SimpleBuffer{true, typeof(io)}(0, Vector{UInt8}(undef, 1024), io)
-SimpleBuffer(io::IO, len) = SimpleBuffer{false, typeof(io)}(0, Vector{UInt8}(undef, len), io)
+SimpleBuffer(io::IO) = SimpleBuffer{true, typeof(io)}(io, Vector{UInt8}(undef, 1024), 0)
+SimpleBuffer(io::IO, len) = SimpleBuffer{false, typeof(io)}(io, Vector{UInt8}(undef, len), 0)
 
 function Base.write(sb::SimpleBuffer{true}, byte::UInt8)
     sb.len ≥ 1024 && flush(sb)

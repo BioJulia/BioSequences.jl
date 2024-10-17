@@ -84,7 +84,7 @@ The same applies with `LongSequence{RNAAlphabet{4}}`, simply replace the alphabe
 parameter with `RNAAlphabet{2}` in order to benefit.
 """
 mutable struct LongSequence{A <: Alphabet} <: BioSequence{A}
-    data::Vector{UInt64}  # encoded character sequence data
+    const data::Vector{UInt64}  # encoded character sequence data
     len::UInt
 
     function LongSequence{A}(data::Vector{UInt64}, len::UInt) where {A <: Alphabet}
