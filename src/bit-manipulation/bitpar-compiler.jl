@@ -131,9 +131,9 @@ function compile_2seq_bitpar(funcname::Symbol;
         @assert length(seqa) ≤ length(seqb)
         
         nexta = bitindex(seqa, 1)
-        stopa = bitindex(seqa, lastindex(seqa) + 1)
+        stopa = bitindex(seqa, (lastindex(seqa) + 1) % UInt)
         nextb = bitindex(seqb, 1)
-        stopb = bitindex(seqb, lastindex(seqb) + 1)
+        stopb = bitindex(seqb, (lastindex(seqb) + 1) % UInt)
         adata = seqa.data
         bdata = seqb.data
         
@@ -148,8 +148,8 @@ function compile_2seq_bitpar(funcname::Symbol;
         if nexta < stopa && offset(nexta) != 0
             # Here we shift the first data chunks to the right so as the first
             # nucleotide of the seq/subseq is the first nibble / pair of bits.
-            x = adata[index(nexta)] >> offset(nexta)
-            y = bdata[index(nextb)] >> offset(nextb)
+            x = @inbounds adata[index(nexta)] >> offset(nexta)
+            y = @inbounds bdata[index(nextb)] >> offset(nextb)
             # Here it was assumed that there is something to go and get from
             # the next chunk of `b`, yet that may not be true.
             # We know that if this is not true of `b`, then it is certainly not
@@ -160,7 +160,7 @@ function compile_2seq_bitpar(funcname::Symbol;
             # This edge case was found and accounted for by Ben J. Ward @BenJWard.
             # Ask this maintainer for more information.
             if offset(nextb) > offset(nexta) && 64 - offset(nextb) < stopb - nextb
-                y |= bdata[index(nextb) + 1] << (64 - offset(nextb))
+                y |= @inbounds bdata[index(nextb) + 1] << (64 - offset(nextb))
             end
             # Here we need to check something, we need to check if the
             # integer of `a` we are currently aligning contains the end of
@@ -192,8 +192,8 @@ function compile_2seq_bitpar(funcname::Symbol;
         
         if offset(nextb) == 0  # data are aligned with each other
             while stopa - nexta ≥ 64 # Iterate through body of data
-                x = adata[index(nexta)]
-                y = bdata[index(nextb)]
+                x = @inbounds adata[index(nexta)]
+                y = @inbounds bdata[index(nextb)]
                 
                 $(body_code)
                 
@@ -202,8 +202,8 @@ function compile_2seq_bitpar(funcname::Symbol;
             end
 
             if nexta < stopa
-                x = adata[index(nexta)]
-                y = bdata[index(nextb)]
+                x = @inbounds adata[index(nexta)]
+                y = @inbounds bdata[index(nextb)]
 
                 offs = stopa - nexta
                 m = bitmask(offs)
@@ -218,8 +218,8 @@ function compile_2seq_bitpar(funcname::Symbol;
             # Note that here, updating `nextb` by 64, increases the chunk index,
             # but the `offset(nextb)` will remain the same.
             while stopa - nexta ≥ 64 # processing body of data
-                x = adata[index(nexta)]
-                z = bdata[index(nextb)]
+                x = @inbounds adata[index(nexta)]
+                z = @inbounds bdata[index(nextb)]
                 y = y >> offset(nextb) | z << (64 - offset(nextb))
                 
                 $(body_code)
@@ -230,7 +230,7 @@ function compile_2seq_bitpar(funcname::Symbol;
             end
             
             if nexta < stopa # processing tail of data
-                x = adata[index(nexta)]
+                x = @inbounds adata[index(nexta)]
                 y = y >> offset(nextb)
                 if 64 - offset(nextb) < stopa - nexta
                     y |= bdata[index(nextb)] << (64 - offset(nextb))
