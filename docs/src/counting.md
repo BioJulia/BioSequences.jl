@@ -60,3 +60,12 @@ to call an internal `BioSequences.count_*_bitpar` function, which is passed the
 sequence(s). If you want to force BioSequences to use naive counting for the
 purposes of testing or debugging for example, then you can call
 `BioSequences.count_naive` directly.
+
+```@docs
+gc_content
+n_gaps
+n_certain
+n_ambiguous
+matches
+mismatches
+```
