@@ -1,7 +1,3 @@
-
-include("bitindex.jl")
-include("bitpar-compiler.jl")
-
 @inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: Base.BitUnsigned
      mask = 0x33333333333333333333333333333333 % T
      x = ((x >> 2) & mask) | ((x & mask) << 2)
@@ -67,6 +63,10 @@ end
     return count_nonzero_nibbles(enumerate_nibbles(x) & 0xEEEEEEEEEEEEEEEE)
 end
 
+@inline function ambiguous_bitcount(x::UInt64, ::AminoAcidAlphabet)
+    return count_compared_bytes(i -> (i > 0x15) & (i < 0x1a), x)
+end
+
 @inline function ambiguous_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
     return count_nonzero_nibbles((enumerate_nibbles(a) | enumerate_nibbles(b)) & 0xEEEEEEEEEEEEEEEE)
 end
@@ -78,6 +78,11 @@ end
 @inline function gap_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
     # Count the gaps in a, count the gaps in b, subtract the number of shared gaps.
     return count_0000_nibbles(a) + count_0000_nibbles(b) - count_0000_nibbles(a | b)
+end
+
+@inline function count_compared_bytes(f::F, x::UInt64) where F
+    z = @inline reinterpret(NTuple{8, VecElement{UInt8}}, x)
+    @inline sum(map(i -> f(i.value), z))
 end
 
 @inline function certain_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}

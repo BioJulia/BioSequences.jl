@@ -17,9 +17,9 @@ end
         @test count(x -> x in (RNA_A, RNA_C), seq) == count(x -> x in "AC", str)
 
         @test isapprox(gc_content(seq), count(x -> x in "GC", str) / length(seq))
-        @test n_ambiguous(seq) == 0
-        @test n_certain(seq) == length(seq)
-        @test n_gaps(seq) == 0
+        @test count(isambiguous, seq) == 0
+        @test count(iscertain, seq) == length(seq)
+        @test count(isgap, seq) == 0
     end
 end
 
