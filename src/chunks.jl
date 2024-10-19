@@ -138,17 +138,120 @@ end
 # * This does not conform to the count interface, so delete the count overloads
 # * Remove most two-seq methods, these are nonsensical
 
+"""
+    gc_content(seq::BioSequence) -> Float64
+
+Calculate GC content of `seq`, i.e. the number of symbols that is `DNA_C`, `DNA_G`,
+`DNA_C` or `DNA_G` divided by the length of the sequence.
+
+# Examples
+```jldoctest
+julia> gc_content(dna"AGCTA")
+0.4
+
+julia> gc_content(rna"UAGCGA")
+0.5
+```
+"""
 gc_content(seq::NucleotideSeq) = count(isGC, seq) / length(seq)
 
 # Aliases
+"""
+    mismatches(a::BioSequence, b::BioSequences) -> Int
+
+Count the number of positions in where `a` and `b` are equal.
+If `b` is given, and the length of `a` and `b` differ, look only at the indices
+of the shorter sequence.
+
+# Examples
+```jldoctest
+julia> matches(dna"TAGCTA", dna"TACCTA")
+5
+
+julia> matches(dna"AACA", dna"AAG")
+2
+```
+"""
 mismatches(a::BioSequence, b::BioSequence) = count(!=, a, b)
+
+"""
+    mismatches(a::BioSequence, b::BioSequences) -> Int
+
+Count the number of positions in where `a` and `b` differ.
+If `b` is given, and the length of `a` and `b` differ, look only at the indices
+of the shorter sequence.
+
+# Examples
+```jldoctest
+julia> mismatches(dna"TAGCTA", dna"TACCTA")
+1
+
+julia> mismatches(dna"AACA", dna"AAG")
+1
+```
+"""
 matches(a::BioSequence, b::BioSequence) = count(==, a, b)
+
+"""
+    n_gaps(a::BioSequence, [b::BioSequence]) -> Int
+
+Count the number of positions where `a` (or `b`, if present) have gaps.
+If `b` is given, and the length of `a` and `b` differ, look only at the indices
+of the shorter sequence.
+
+# Examples
+```jldoctest
+julia> n_gaps(dna"--TAC-WN-ACY")
+4
+
+julia> n_gaps(dna"TC-AC-", dna"-CACG")
+2
+```
+"""
+function n_gaps end
 
 n_gaps(seq::BioSequence) = count(isgap, seq)
 n_gaps(a::BioSequence, b::BioSequence) = count(isgap, a, b)
 
+"""
+    n_ambiguous(a::BioSequence, [b::BioSequence]) -> Int
+
+Count the number of positions where `a` (or `b`, if present) have ambigious symbols.
+If `b` is given, and the length of `a` and `b` differ, look only at the indices
+of the shorter sequence.
+
+# Examples
+```jldoctest
+julia> n_ambiguous(dna"--TAC-WN-ACY")
+3
+
+julia> n_ambiguous(rna"UAYWW", rna"UAW")
+1
+```
+"""
+function n_ambiguous end
+
 n_ambiguous(seq::BioSequence) = count(isambiguous, seq)
 n_ambiguous(a::BioSequence, b::BioSequence) = count(isambiguous, a, b)
+
+"""
+    n_certain(a::BioSequence, [b::BioSequence]) -> Int
+
+Count the number of positions where `a` (and `b`, if present) have certain (i.e. non-ambigous
+and non-gap) symbols.
+If `b` is given, and the length of `a` and `b` differ, look only at the indices
+of the shorter sequence.
+
+# Examples
+```jldoctest
+julia> n_certain(dna"--TAC-WN-ACY")
+5
+
+julia> n_certain(rna"UAYWW", rna"UAW")
+2
+```
+"""
+function n_certain end
 
 n_certain(seq::BioSequence) = count(iscertain, seq)
 n_certain(a::BioSequence, b::BioSequence) = count(iscertain, a, b)
@@ -197,6 +300,9 @@ function Base.count(
 )
     0
 end
+
+# TODO: For ambiguous, certain, isgap with mixed 2/4 bit nucl, we can take shortcuts
+# TODO: Also implement this for AA sequences
 
 function Base.count(::typeof(==), a::BioSequence, b::BioSequence)
     min(length(a), length(b)) - count(!=, a, b)
