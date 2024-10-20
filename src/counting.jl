@@ -21,16 +21,18 @@ Base.length(it::LongSeqChunks) = it.last_index % Int
 
 function iter_chunks(seq::LongSequence)::Tuple{LongSeqChunks, Tuple{UInt64, UInt8}}
     v = seq.data
-    n_bits = (length(seq) * bits_per_symbol(Alphabet(seq))) % UInt
+    seqlen = length(seq)
+    n_bits = (seqlen * bits_per_symbol(Alphabet(seq))) % UInt
     remaining_bits = (n_bits % UInt(64)) % UInt8
     lst = index(lastbitindex(seq))
+    len = !iszero(seqlen) * (lst - !iszero(remaining_bits))
     start = if iszero(remaining_bits)
         (UInt64(0), 0x00)
     else
         (@inbounds(v[lst]), remaining_bits)
     end
     (
-        LongSeqChunks(v, (lst - !iszero(remaining_bits)) % UInt),
+        LongSeqChunks(v, len % UInt),
         start
     )
 end
@@ -55,6 +57,8 @@ Base.length(it::SubSeqChunks) = (it.last_index - it.first_index) % Int + 1
     iter_inbounds(it, state)
 end
 
+# TODO: We could have one memory load per iteration, and store unused bits in the state
+# for the next iteration
 @inline function iter_inbounds(it::SubSeqChunks, state::UInt)
     chunk = @inbounds(it.v[state]) >> (it.offset & 0x3f)
     chunk |= @inbounds(it.v[state + !iszero(it.offset)]) << ((0x40 - it.offset) & 0x3f)
@@ -99,7 +103,7 @@ end
 function iter_chunks(a::BioSequence, b::BioSequence)
     length(a) == length(b) || throw("Sequences must have same length")
     (ita, (cha, rema)) = iter_chunks(a)
-    (itb, (chb, remb)) = iter_chunks(b)
+    (itb, (chb, _)) = iter_chunks(b)
     (
         PairedChunkIterator{typeof(ita), typeof(itb)}(ita, itb),
         (cha, chb, rema),
@@ -107,16 +111,22 @@ function iter_chunks(a::BioSequence, b::BioSequence)
 end
 
 Base.length(it::PairedChunkIterator) = length(it.a)
-Base.eltype(::Type{<:PairedChunkIterator}) = UInt64
+Base.eltype(::Type{<:PairedChunkIterator}) = NTuple{2, UInt64}
 
-@inline function Base.iterate(it::PairedChunkIterator, state::UInt=first_state(it.a))
-    a = iterate(it.a, state)
+@inline function Base.iterate(
+    it::PairedChunkIterator,
+    state::Tuple{UInt, UInt}=(first_state(it.a), first_state(it.b))
+)
+    a = iterate(it.a, first(state))
     isnothing(a) && return nothing
-    b = iter_inbounds(it.b, state)
-    ((first(a), first(b)), state + one(state))
+    b = iter_inbounds(it.b, last(state))
+    ((first(a), first(b)), (first(state) + 1, last(state) + 1))
 end
 
 @inline function counter_2seq(tail::Function, body::Function, a::SeqOrView, b::SeqOrView)
+    # TODO: Remove these first lines at the API change
+    minlength = min(length(a), length(b))
+    (a, b) = (view(a, 1:minlength), view(b, 1:minlength))
     (it, (ch1, ch2, rm)) = @inline iter_chunks(a, b)
     y = @inline tail(ch1, ch2, rm)
     for (a, b) in it
@@ -153,7 +163,8 @@ julia> gc_content(rna"UAGCGA")
 0.5
 ```
 """
-gc_content(seq::NucleotideSeq) = count(isGC, seq) / length(seq)
+gc_content(seq::NucleotideSeq) = n_gc(seq) / length(seq)
+Base.count(::typeof(isGC), seq::NucleotideSeq) = n_gc(seq)
 
 # Aliases
 """
@@ -172,7 +183,7 @@ julia> matches(dna"AACA", dna"AAG")
 2
 ```
 """
-mismatches(a::BioSequence, b::BioSequence) = count(!=, a, b)
+Base.count(::typeof(!=), a::BioSequence, b::BioSequence) = mismatches(a, b)
 
 """
     mismatches(a::BioSequence, b::BioSequences) -> Int
@@ -190,7 +201,7 @@ julia> mismatches(dna"AACA", dna"AAG")
 1
 ```
 """
-matches(a::BioSequence, b::BioSequence) = count(==, a, b)
+Base.count(::typeof(==), a::BioSequence, b::BioSequence) = matches(a, b)
 
 """
     n_gaps(a::BioSequence, [b::BioSequence]) -> Int
@@ -210,8 +221,8 @@ julia> n_gaps(dna"TC-AC-", dna"-CACG")
 """
 function n_gaps end
 
-n_gaps(seq::BioSequence) = count(isgap, seq)
-n_gaps(a::BioSequence, b::BioSequence) = count(isgap, a, b)
+Base.count(::typeof(isgap), seq::BioSequence) = n_gaps(seq)
+Base.count(::typeof(isgap), a::BioSequence, b::BioSequence) = n_gaps(a, b)
 
 """
     n_ambiguous(a::BioSequence, [b::BioSequence]) -> Int
@@ -231,8 +242,8 @@ julia> n_ambiguous(rna"UAYWW", rna"UAW")
 """
 function n_ambiguous end
 
-n_ambiguous(seq::BioSequence) = count(isambiguous, seq)
-n_ambiguous(a::BioSequence, b::BioSequence) = count(isambiguous, a, b)
+Base.count(::typeof(isambiguous), seq::BioSequence) = n_ambiguous(seq)
+Base.count(::typeof(isambiguous), a::BioSequence, b::BioSequence) = n_ambiguous(a, b)
 
 """
     n_certain(a::BioSequence, [b::BioSequence]) -> Int
@@ -253,8 +264,8 @@ julia> n_certain(rna"UAYWW", rna"UAW")
 """
 function n_certain end
 
-n_certain(seq::BioSequence) = count(iscertain, seq)
-n_certain(a::BioSequence, b::BioSequence) = count(iscertain, a, b)
+Base.count(::typeof(iscertain), seq::BioSequence) = n_certain(seq)
+Base.count(::typeof(iscertain), a::BioSequence, b::BioSequence) = n_certain(a, b)
 
 # Fallback implementation
 # (Urgh, we really shouldn't do these kinds of overloads of Base)
@@ -266,54 +277,59 @@ function count_naive(pred, seqa::BioSequence, seqb::BioSequence)
     return n
 end
 
+function count_naive(pred, seq::BioSequence)
+    n = 0
+    for i in seq
+        n += pred(i)::Bool
+    end
+    return n
+end
+
 Base.count(f::Function, a::BioSequence, b::BioSequence) = count_naive(f, a, b)
 
-# Overloads of count
+mismatches(a::BioSequence, b::BioSequence) = count_naive(!=, a, b)
+
+n_ambiguous(seq::BioSequence) = count_naive(isambiguous, seq)
+function n_ambiguous(a::BioSequence, b::BioSequence)
+    count_naive((x, y) -> isambiguous(x) | isambiguous(y), a, b)
+end
+
+n_gaps(seq::BioSequence) = count_naive(isgap, seq)
+function n_gaps(a::BioSequence, b::BioSequence)
+    count_naive((x, y) -> isgap(x) | isgap(y), a, b)
+end
+
+n_certain(seq::BioSequence) = count_naive(iscertain, seq)
+function n_certain(a::BioSequence, b::BioSequence)
+    count_naive((x, y) -> iscertain(x) & iscertain(y), a, b)
+end
+n_gc(seq::BioSequence) = count_naive(isGC, seq)
+
 const FourBit = SeqOrView{<:NucleicAcidAlphabet{4}}
 const TwoBit = SeqOrView{<:NucleicAcidAlphabet{2}}
 
+const TwoBitSeq = BioSequence{<:NucleicAcidAlphabet{2}}
+const FourBitSeq = BioSequence{<:NucleicAcidAlphabet{4}}
+
 # Trivial overloads
-Base.count(::typeof(iscertain), s::BioSequence{<:NucleicAcidAlphabet{2}}) = length(s)
-Base.count(::typeof(isambiguous), s::BioSequence{<:NucleicAcidAlphabet{2}}) = 0
-Base.count(::typeof(isgap), s::BioSequence{<:NucleicAcidAlphabet{2}}) = 0
+n_certain(s::TwoBitSeq) = length(s)
+n_ambiguous(s::TwoBitSeq) = 0
+n_gaps(s::TwoBitSeq) = 0
 
-function Base.count(
-    ::typeof(iscertain),
-    a::BioSequence{<:NucleicAcidAlphabet{2}},
-    b::BioSequence{<:NucleicAcidAlphabet{2}},
-)
-    min(length(a), length(b))
-end
+n_certain(a::TwoBitSeq, b::TwoBitSeq) = min(length(a), length(b))
+n_gaps(::TwoBitSeq, ::TwoBitSeq) = 0
+n_ambiguous(::TwoBitSeq, ::TwoBitSeq) = 0
 
-function Base.count(
-    ::typeof(isgap),
-    a::BioSequence{<:NucleicAcidAlphabet{2}},
-    b::BioSequence{<:NucleicAcidAlphabet{2}},
-)
-    0
-end
-
-function Base.count(
-    ::typeof(isambiguous),
-    a::BioSequence{<:NucleicAcidAlphabet{2}},
-    b::BioSequence{<:NucleicAcidAlphabet{2}},
-)
-    0
-end
-
-# TODO: For ambiguous, certain, isgap with mixed 2/4 bit nucl, we can take shortcuts
-# TODO: Also implement this for AA sequences
-
-function Base.count(::typeof(==), a::BioSequence, b::BioSequence)
-    min(length(a), length(b)) - count(!=, a, b)
+function matches(a::BioSequence, b::BioSequence)
+    min(length(a), length(b)) - mismatches(a, b)
 end
 
 # Other overloads
-function Base.count(
-    ::typeof(!=),
-    a::TwoBit,
-    b::TwoBit,
-)
+
+# Mismatches is special because DNA_T != RNA_U despite them having the same encoding,
+# so we need to use the fallback
+# TODO: Or have a serious hack counting 1000 nibbles / 11 bitpairs.
+function mismatches(a::SeqOrView{A}, b::SeqOrView{A}) where {A <: NucleicAcidAlphabet{2}}
     tail = (ch1, ch2, rm) -> begin
         mask = UInt64(1) << (rm & 63) - 1
         count_nonzero_bitpairs((ch1 & mask) ⊻ (ch2 & mask))
@@ -322,11 +338,7 @@ function Base.count(
     counter_2seq(tail, body, a, b)
 end
 
-function Base.count(
-    ::typeof(!=),
-    a::FourBit,
-    b::FourBit,
-)
+function mismatches(a::SeqOrView{A}, b::SeqOrView{A}) where {A <: NucleicAcidAlphabet{4}}
     tail = (ch1, ch2, rm) -> begin
         mask = UInt64(1) << (rm & 63) - 1
         count_nonzero_nibbles((ch1 & mask) ⊻ (ch2 & mask))
@@ -335,7 +347,7 @@ function Base.count(
     counter_2seq(tail, body, a, b)
 end
 
-function Base.count(::typeof(isGC), seq::Union{TwoBit, FourBit})
+function n_gc(seq::Union{TwoBit, FourBit})
     tail = (chunk, rm) -> begin
         mask = UInt64(1) << (rm & 63) - 1
         gc_bitcount(chunk & mask, Alphabet(seq))
@@ -344,7 +356,7 @@ function Base.count(::typeof(isGC), seq::Union{TwoBit, FourBit})
     counter_1seq(tail, body, seq)
 end
 
-function Base.count(::typeof(isgap), seq::FourBit)
+function n_gaps(seq::FourBit)
     tail = (chunk, rm) -> begin
         mask = ~(UInt64(1) << (rm & 63) - 1)
         count_0000_nibbles(chunk | mask)
@@ -352,7 +364,7 @@ function Base.count(::typeof(isgap), seq::FourBit)
     counter_1seq(tail, count_0000_nibbles, seq)
 end
 
-function Base.count(::typeof(isgap), a::FourBit, b::FourBit)
+function n_gaps(a::FourBit, b::FourBit)
     tail = (ch1, ch2, rm) -> begin
         mask = ~(UInt64(1) << (rm & 63) - 1)
         gap_bitcount(ch1 | mask, ch2 | mask, Alphabet(a))
@@ -361,7 +373,7 @@ function Base.count(::typeof(isgap), a::FourBit, b::FourBit)
     counter_2seq(tail, body, a, b)
 end
 
-function Base.count(::typeof(isambiguous), seq::FourBit)
+function n_ambiguous(seq::FourBit)
     tail = (chunk, rm) -> begin
         mask = (UInt64(1) << (rm & 63) - 1)
         ambiguous_bitcount(chunk & mask, Alphabet(seq))
@@ -370,16 +382,16 @@ function Base.count(::typeof(isambiguous), seq::FourBit)
     counter_1seq(tail, body, seq)
 end
 
-function Base.count(::typeof(isambiguous), a::FourBit, b::FourBit)
+function n_ambiguous(a::FourBit, b::FourBit)
     tail = (ch1, ch2, rm) -> begin
         mask = (UInt64(1) << (rm & 63) - 1)
-        ambiguous_bitcount(ch1 & mask, ch2 & mask, Alphabet(seq))
+        ambiguous_bitcount(ch1 & mask, ch2 & mask, Alphabet(a))
     end
-    body = (i, j) -> ambiguous_bitcount(i, j, Alphabet(seq))
+    body = (i, j) -> ambiguous_bitcount(i, j, Alphabet(a))
     counter_2seq(tail, body, a, b)
 end
 
-function Base.count(::typeof(iscertain), seq::FourBit)
+function n_certain(seq::FourBit)
     tail = (chunk, rm) -> begin
         mask = (UInt64(1) << (rm & 63) - 1)
         certain_bitcount(chunk & mask, Alphabet(seq))
@@ -388,12 +400,39 @@ function Base.count(::typeof(iscertain), seq::FourBit)
     counter_1seq(tail, body, seq)
 end
 
-function Base.count(::typeof(isambiguous), a::FourBit, b::FourBit)
+function n_certain(a::FourBit, b::FourBit)
     tail = (ch1, ch2, rm) -> begin
         mask = (UInt64(1) << (rm & 63) - 1)
-        certain_bitcount(ch1 & mask, ch2 & mask, Alphabet(seq))
+        certain_bitcount(ch1 & mask, ch2 & mask, Alphabet(a))
     end
-    body = (i, j) -> certain_bitcount(i, j, Alphabet(seq))
+    body = (i, j) -> certain_bitcount(i, j, Alphabet(a))
     counter_2seq(tail, body, a, b)
 end
- 
+
+n_ambiguous(a::TwoBit, b::FourBit) = n_ambiguous(b, a)
+n_certain(a::TwoBit, b::FourBit) = n_certain(b, a)
+n_gaps(a::TwoBit, b::FourBit) = n_gaps(b, a)
+
+function n_ambiguous(a::FourBit, b::TwoBit)
+    n_ambiguous(view(a, 1:min(length(a), length(b))))
+end
+
+function n_certain(a::FourBit, b::TwoBit)
+    minlength = min(length(a), length(b))
+    n_certain(view(a, 1:minlength))
+end
+
+function n_gaps(a::FourBit, b::TwoBit)
+    n_gaps(view(a, 1:min(length(a), length(b))))
+end
+
+# TODO: Also implement this for AA sequences
+# mismatches
+# n_gaps
+# n_ambiguous
+# n_certain
+
+
+# Gap is 0x1b
+# Ambig: 0x16:0x19
+# Stop: 0x1a

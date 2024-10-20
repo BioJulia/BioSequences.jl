@@ -217,7 +217,7 @@ include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
 
-include("chunks.jl")
+include("counting.jl")
 
 include("geneticcode.jl")
 

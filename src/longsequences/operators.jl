@@ -198,7 +198,7 @@ end
 
 ### Comparisons
 function Base.:(==)(seq1::SeqOrView{A}, seq2::SeqOrView{A}) where {A <: Alphabet}
-    length(seq1) == length(seq2) || false
+    length(seq1) == length(seq2) || return false
 
     # If they share the same data
     if seq1.data === seq2.data && firstbitindex(seq1) == firstbitindex(seq2)
