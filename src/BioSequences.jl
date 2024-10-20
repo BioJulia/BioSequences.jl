@@ -205,6 +205,7 @@ using Random
 include("alphabet.jl")
 
 # Load the bit-twiddling internals that optimised BioSequences methods depend on.
+include("bit-manipulation/bitindex.jl")
 include("bit-manipulation/bit-manipulation.jl")
 
 # The generic, abstract BioSequence type
@@ -215,6 +216,8 @@ include("biosequence/biosequence.jl")
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
+
+include("counting.jl")
 
 include("geneticcode.jl")
 

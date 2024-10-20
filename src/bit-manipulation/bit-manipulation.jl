@@ -1,7 +1,3 @@
-
-include("bitindex.jl")
-include("bitpar-compiler.jl")
-
 @inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: Base.BitUnsigned
      mask = 0x33333333333333333333333333333333 % T
      x = ((x >> 2) & mask) | ((x & mask) << 2)
