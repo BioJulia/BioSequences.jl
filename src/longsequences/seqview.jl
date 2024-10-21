@@ -20,11 +20,11 @@ AG
 ```
 """
 struct LongSubSeq{A<:Alphabet} <: BioSequence{A}
-    data::Vector{UInt64}
+    data::Memory{UInt64}
     part::UnitRange{Int}
 
 	# Added to reduce method ambiguities
-	LongSubSeq{A}(data::Vector{UInt64}, part::UnitRange{Int}) where A = new{A}(data, part)
+	LongSubSeq{A}(data::Memory{UInt64}, part::UnitRange{Int}) where A = new{A}(data, part)
 end
 
 # These unions are significant because LongSubSeq and LongSequence have the same

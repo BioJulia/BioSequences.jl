@@ -34,8 +34,12 @@ function Base.copy!(dst::SeqOrView{<:NucleicAcidAlphabet{N}},
 end
 
 function _copy!(dst::LongSequence, src::LongSequence)
-    resize!(dst.data, length(src.data))
-    copyto!(dst.data, src.data)
+    src_data_len = seq_data_len(src)
+    if length(dst.data) ≥ src_data_len
+        unsafe_copyto!(dst.data, 1, src.data, 1, src_data_len)
+    else
+        dst.data = copy(src.data)
+    end
     dst.len = src.len
     return dst
 end
@@ -48,10 +52,11 @@ function _copy!(dst::SeqOrView{A}, src::SeqOrView) where {A <: Alphabet}
 	end
 	if dst.data === src.data
 		longseq = LongSequence{A}(src)
-		src_ = LongSubSeq{A}(longseq.data, 1:length(longseq))
+		src_ = src isa LongSequence ? longseq : LongSubSeq{A}(longseq.data, 1:length(longseq))
 	else
 		src_ = src
 	end
+    typeof(src) == typeof(src_) || error() # unreachable
 	return copyto!(dst, 1, src_, 1, length(src))
 end
 
