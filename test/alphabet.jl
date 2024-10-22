@@ -196,3 +196,30 @@ end
     @test BioSequences.has_interface(Alphabet, RNAAlphabet{4}())
     @test BioSequences.has_interface(Alphabet, AminoAcidAlphabet())
 end
+
+@testset "Guess parsing and guess alphabet" begin
+    for (A, Ss) in [
+        (DNAAlphabet{2}(), ["", "TAGCT", "AAA"]),
+        (RNAAlphabet{2}(), ["U", "CGGUAG", "CCCCU"]),
+        (DNAAlphabet{4}(), ["W", "HKW--", "TAGCTATSG", "TAGC-TAG"]),
+        (RNAAlphabet{4}(), ["WU", "HAUH-CD", "VKMNSU"]),
+        (AminoAcidAlphabet(), ["Q", "PLBMW", "***"])
+    ]
+        for S in Ss
+            for T in [String, SubString, Vector{UInt8}, Test.GenericString]
+                @test guess_alphabet(T(S)) == A
+                @test bioseq(T(S)) isa LongSequence{typeof(A)}
+            end
+        end
+    end
+    for (index, S) in [
+        (4, "QMN!KK"),
+        (7, "ATCGAT???"),
+        (1, ";")
+    ]
+        for T in [String, SubString, Vector{UInt8}, Test.GenericString]
+            @test guess_alphabet(T(S)) == index
+            @test_throws BioSequences.EncodeError bioseq(T(S))
+        end
+    end
+end

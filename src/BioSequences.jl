@@ -95,6 +95,9 @@ export
     ### Alphabets
     ###
 
+    guess_alphabet,
+    bioseq,
+
     # Types & aliases
     Alphabet,
     NucleicAcidAlphabet,

@@ -4,13 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
-
-* Add new `ncbi_tranlation_table` of the 15th genetic code (i.e `blepharisma_macronuclear_genetic_code`)
-
+## [3.3.0]
+* Add functions `bioseq` and `guess_alphabet` to easily construct a biosequence
+  of an unknown alphabet from e.g. a string.
 * Relax requirement of `decode`, such that it no longer needs to check for
   invalid data. Note that this change is not breaking, since it is not possible
   for correctly-implemented `Alphabet` and `BioSequence` to store invalid data.
+
+## [3.2.0]
+* Dropped support for Julia versions older than 1.10.0
+* Added a 'Recipes' page to the documentation
+* Add new genetic code: `blepharisma_macronuclear_genetic_code`
+* Improve documentation of sequence count methods and sequence string literals
+* Various performance improvements to counting, `ExactSearchQuery` and
+  `ispalindromic`
 
 ## [3.1.6]
 * The heuristics for translating sequences with ambiguous symbols is now improved.

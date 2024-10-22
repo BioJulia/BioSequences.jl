@@ -111,7 +111,7 @@ end
 EncodeError(::A, val::T) where {A,T} = EncodeError{A,T}(val)
 
 function Base.showerror(io::IO, err::EncodeError{A}) where {A}
-    print(io, "cannot encode ", err.val, " in ", A)
+    print(io, "cannot encode ", repr(err.val), " in ", A)
 end
 
 """
@@ -305,3 +305,75 @@ for (anum, atype) in enumerate((DNAAlphabet{4}, DNAAlphabet{2}, RNAAlphabet{4},
         ascii_encode(::$(atype), x::UInt8) = @inbounds $(tablename)[x + 1]
     end
 end
+
+const GUESS_ALPHABET_LUT = let
+    v = zeros(UInt8, 64)
+    for (offset, A) in [
+        (0, DNAAlphabet{2}()),
+        (0, RNAAlphabet{2}()),
+        (1, DNAAlphabet{4}()),
+        (1, RNAAlphabet{4}()),
+        (2, DNAAlphabet{4}()),
+        (3, AminoAcidAlphabet())
+    ]
+        for symbol in A
+            for byte in (UInt8(uppercase(Char(symbol))), UInt8(lowercase(Char(symbol))))
+                v[div(byte, 2) + 1] |= 0x01 << (4*isodd(byte) + offset)
+            end
+        end
+    end
+    Tuple(v)
+end
+
+"""
+    guess_alphabet(s::Union{AbstractString, AbstractVector{UInt8}}) -> Union{Integer, Alphabet}
+
+Pick an `Alphabet` that can encode input `s`.  If no `Alphabet` can, return the index of the first
+byte of the input which is not encodable in any alphabet.
+This function only knows about the alphabets listed below. If multiple alphabets are possible,
+pick the first from the order below (i.e. `DNAAlphabet{2}()` if possible, otherwise `RNAAlphabet{2}()` etc).
+1. `DNAAlphabet{2}()`
+2. `RNAAlphabet{2}()`
+3. `DNAAlphabet{4}()`
+4. `RNAAlphabet{4}()`
+5. `AminoAcidAlphabet()`
+
+!!! warning
+    The functions `bioseq` and `guess_alphabet` are intended for use in interactive
+    sessions, and are not suitable for use in packages or non-ephemeral work.
+    They are type unstable, and their heuristics **are subject to change** in minor versions.
+
+# Examples
+```jldoctest
+julia> guess_alphabet("AGGCA")
+DNAAlphabet{2}()
+
+julia> guess_alphabet("WKLQSTV")
+AminoAcidAlphabet()
+
+julia> guess_alphabet("QAWT+!")
+5
+
+julia> guess_alphabet("UAGCSKMU")
+RNAAlphabet{4}()
+```
+"""
+function guess_alphabet(v::AbstractVector{UInt8})
+    possibilities = 0x0f
+    for (index, byte) in pairs(v)
+        lut_byte = @inbounds GUESS_ALPHABET_LUT[div(byte & 0x7f, 2) + 0x01]
+        lut_value = (lut_byte >>> (4 * isodd(byte))) & 0x0f
+        possibilities &= (lut_value * (byte < 0x80))
+        iszero(possibilities) && return index
+    end
+    dna = !iszero(possibilities & 0b0100)
+    @assert !iszero(possibilities) # We checked that in the loop above
+    if !iszero(possibilities & 0b0001)
+        dna ? DNAAlphabet{2}() : RNAAlphabet{2}()
+    elseif !iszero(possibilities & 0b0010)
+        dna ? DNAAlphabet{4}() : RNAAlphabet{4}()
+    else
+        AminoAcidAlphabet()
+    end
+end
+guess_alphabet(s::AbstractString) = guess_alphabet(codeunits(s))
