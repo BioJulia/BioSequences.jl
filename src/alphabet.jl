@@ -79,14 +79,31 @@ iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 ## Encoders & Decoders
 
 """
-    encode(::Alphabet, x::S)
+    encode(::Alphabet, s::BioSymbol)
 
-
-Encode BioSymbol `S` to an internal representation using an `Alphabet`.
+Internal function, do not use in user code.
+Encode BioSymbol `s` to an internal representation using an [`Alphabet`](@ref).
 This decoding is checked to enforce valid data element.
-"""
-function encode end
+If `s` cannot be encoded to the given alphabet, throw an `EncodeError`
 
+"""
+encode(A::Alphabet, s::BioSymbol) = throw(EncodeError(A, s))
+
+"""
+    EncodeError
+
+Exception thrown when a `BioSymbol` cannot be encoded to a given [`Alphabet`](@ref).
+
+# Examples
+```
+julia> try
+           BioSequences.encode(DNAAlphabet{2}(), DNA_N)
+       catch err
+           println(err isa BioSequences.EncodeError)
+       end
+true
+```
+"""
 struct EncodeError{A<:Alphabet,T} <: Exception
     val::T
 end

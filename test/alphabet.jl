@@ -48,6 +48,16 @@ encode = BioSequences.encode
 EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
 
+@testset "EncodeError" begin
+    @test_throws EncodeError encode(DNAAlphabet{4}(), RNA_U)
+    @test_throws EncodeError encode(DNAAlphabet{2}(), DNA_M)
+    @test_throws EncodeError encode(DNAAlphabet{4}(), AA_C)
+    @test_throws EncodeError encode(AminoAcidAlphabet(), DNA_C)
+    @test_throws EncodeError encode(AminoAcidAlphabet(), RNA_N)
+    @test_throws EncodeError encode(RNAAlphabet{2}(), DNA_C)
+    @test_throws EncodeError encode(RNAAlphabet{2}(), RNA_K)
+end
+
 # NOTE: See the docs for the interface of Alphabet
 struct ReducedAAAlphabet <: Alphabet end
 
