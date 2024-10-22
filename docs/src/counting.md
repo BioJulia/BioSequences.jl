@@ -6,7 +6,7 @@ end
 ```
 
 # Counting
-`BioSequences` contain functionality to efficiently count biosymbols in a biosequence
+`BioSequences` contains functionality to efficiently count biosymbols in a biosequence
 that satisfies some predicate.
 
 Consider a naive counting function like this:
@@ -20,8 +20,8 @@ function count_Ns(seq::BioSequence{<:DNAAlphabet})
 end 
 ```
 
-This function can be more efficient implemented by exploiting the internal
-data encoding of certain biosequences.
+This function can be more efficiently implemented by exploiting the internal
+data layout of certain biosequences.
 Therefore, Julia provides optimised methods for `Base.count`, such that `count_Ns`
 above can be more efficiently expressed `count(==(DNA_N), seq)`.
 
@@ -33,8 +33,8 @@ above can be more efficiently expressed `count(==(DNA_N), seq)`.
     `count(i -> i == DNA_N, seq)` is not, as this is a different method.
 
 ## Currently optimised methods
-By default, only `LongSequence` and `LongSubSeq` have optimised methods. Downstream
-implementers of new `BioSequence`s may not be optimised.
+By default, only the `BioSequence` and `Alphabet` types found in `BioSequences.jl`
+have optimised methods.
 
 * `count(isGC, seq)`
 * `count(isambiguous, seq)`
