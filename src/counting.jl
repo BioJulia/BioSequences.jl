@@ -240,24 +240,22 @@ function mismatches_inner(a::BioSequence, b::BioSequence)
     count_naive(!=, a, b)
 end
 
-function _isdisjoint(a::Alphabet, b::Alphabet)
+# Compile-time check with conservative fallback to `false`
+# for unknown alphabets
+Base.@assume_effects :foldable function known_disjoint(a::KNOWN_ALPHABETS, b::KNOWN_ALPHABETS)
     for i in a, j in b
         i == j && return false
     end
     true
 end
 
-Base.@assume_effects :foldable function Base.isdisjoint(a::KNOWN_ALPHABETS, b::KNOWN_ALPHABETS)
-     _isdisjoint(a, b)
-end
-
-Base.isdisjoint(a::Alphabet, b::Alphabet) = _isdisjoint(a, b)
+known_disjoint(::Alphabet, ::Alphabet) = false
 
 # For the known alphabets (vast majojrity of cases), we can tell statically
 # if the alphabets don't overlap, e.g. DNAAlphabet{2} and RNAAlphabet{4}.
 # In this case, the result will always be zero.
 function mismatches(a::BioSequence{A}, b::BioSequence{B}) where {A, B}
-    isdisjoint(A(), B()) ? min(length(a), length(b)) : mismatches_inner(a, b)
+    known_disjoint(A(), B()) ? min(length(a), length(b)) : mismatches_inner(a, b)
 end
 
 _n_ambiguous(seq::BioSequence) = count_naive(isambiguous, seq)
