@@ -6,7 +6,7 @@ using Documenter
 using Random
 using StableRNGs
 using LinearAlgebra: normalize
-import BioSymbols
+using BioSymbols
 using BioSequences
 using StatsBase
 using YAML
