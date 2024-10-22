@@ -96,3 +96,46 @@ end
     y = enumerate_nibbles(b) ⊻ 0x1111111111111111
     return count_0000_nibbles(x | y)
 end
+
+@inline function four_to_two_bits(x::UInt64)::UInt32
+    m1 = 0x1111111111111111
+    m2 = m1 << 1
+    m3 = m1 | m2
+    y  = (x >> 3) & m1
+    y |= (x >> 2) & m2
+    y |= (x >> 1) & m3
+    pack(y)
+end
+
+@inline function pack(x::UInt64)::UInt32
+    m1 = 0x0f0f0f0f0f0f0f0f
+    m2 = 0x00ff00ff00ff00ff
+    m3 = 0x0000ffff0000ffff
+    m4 = 0x00000000ffffffff
+    x = (x & m1) | (x & ~m1) >> 2
+    x = (x & m2) | (x & ~m2) >> 4
+    x = (x & m3) | (x & ~m3) >> 8
+    x = (x & m4) | (x & ~m4) >> 16
+    x % UInt32
+end
+
+@inline function two_to_four_bits(x::UInt32)::UInt64
+    m = 0x1111111111111111
+    y = expand(x)
+    z = (y & m) << 1 | (m & ~y)
+    m2 = y & (m << 1)
+    m2 = m2 | m2 >> 1
+    (z & m2) << 2 | (z & ~m2)
+end
+
+@inline function expand(x::UInt32)::UInt64
+    m1 = 0x000000000000ffff
+    m2 = 0x000000ff000000ff
+    m3 = 0x000f000f000f000f
+    m4 = 0x0303030303030303
+    y = x % UInt64
+    y = (y & m1) | (y & ~m1) << 16
+    y = (y & m2) | (y & ~m2) << 8
+    y = (y & m3) | (y & ~m3) << 4
+        (y & m4) | (y & ~m4) << 2
+end

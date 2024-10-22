@@ -56,7 +56,7 @@ LongSequence{A}(seq::LongSequence{A}) where {A <: Alphabet} = copy(seq)
 
 function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
          {N, T<:LongSequence{<:NucleicAcidAlphabet{N}}}
-    return T(copy(seq.data), seq.len)
+    return T(seq.data[1:seq_data_len(seq)], seq.len)
 end
 
 # Constructors from strings
