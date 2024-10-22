@@ -72,6 +72,58 @@ LongSubSeq(seq::BioSequence{A}) where A = LongSubSeq{A}(seq)
 
 Base.view(seq::SeqOrView, part::AbstractUnitRange) = LongSubSeq(seq, part)
 
+function (::Type{T})(seq::SeqOrView{<:NucleicAcidAlphabet{2}}) where
+         {T<:LongSequence{<:NucleicAcidAlphabet{4}}}
+    res = T(undef, length(seq))
+    v = res.data
+    (it, (ch, rm)) = iter_chunks(seq)
+    i = 1
+    for chunk in it
+        @inbounds v[i] = two_to_four_bits(chunk % UInt32)
+        @inbounds v[i + 1] = two_to_four_bits((chunk >> 32) % UInt32)
+        i += 2
+    end
+    mask = UInt64(1) << (rm & 63) - 1
+    ch &= mask
+    rm = Int(rm)
+    while rm > 0
+        @inbounds v[i] = two_to_four_bits(ch % UInt32)
+        ch >>= 32
+        rm -= 32
+        i += 1
+    end
+    res
+end
+
+function (::Type{T})(seq::SeqOrView{<:NucleicAcidAlphabet{4}}) where
+         {T<:LongSequence{<:NucleicAcidAlphabet{2}}}
+    # Throw an error if the sequence contains gaps or ambiguous nucleotides.
+    if count(iscertain, seq) != length(seq)
+        throw(EncodeError(Alphabet(T), first(Iterators.filter(!iscertain, seq))))
+    end
+    res = T(undef, length(seq))
+    v = res.data
+    (it, (ch, rm)) = iter_chunks(seq)
+    i = 1
+    new_chunk = zero(UInt)
+    shift = 0
+    for chunk in it
+        new_chunk |= (four_to_two_bits(chunk) % UInt64) << (shift & 63)
+        shift ⊻= 32
+        if iszero(shift)
+            @inbounds v[i] = new_chunk
+            new_chunk ⊻= new_chunk
+            i += 1
+        end
+    end
+    if !iszero(rm) || !iszero(shift)
+        mask = UInt64(1) << (rm & 63) - 1
+        new_chunk |= (four_to_two_bits(ch & mask) % UInt64) << (shift & 63)
+        @inbounds v[i] = new_chunk
+    end
+    res
+end
+
 # Conversion
 function LongSequence(s::LongSubSeq{A}) where A
 	_copy_seqview(LongSequence{A}, s)

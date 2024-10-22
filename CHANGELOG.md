@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.4.0]
+* Deprecate functions `n_ambiguous`, `n_gaps` and `n_certain`. Instead, use the
+  equivalent methods `count(f, seq)` with the appropriate function `f`.
+* Deprecate method `Base.count(::Function, ::BioSequence, ::BioSequence)`, and
+  the other methods of `count` which are subtypes of this.
+* Deprecate use of functions `matches` and `mismatches` where the input seqs
+  have different lengths.
+* Optimise `count(==(biosymbol), biosequence)` and `count(==(biosymbol),
+  biosequence)`
+* Optimise contruction of `LongSequence` nucleotide sequences from sequences
+  with a different bit-number (e.g. two-bit seqs from four-bit seqs)
+
 ## [3.3.0]
 * Add functions `bioseq` and `guess_alphabet` to easily construct a biosequence
   of an unknown alphabet from e.g. a string.
