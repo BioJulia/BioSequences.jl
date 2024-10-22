@@ -1,143 +1,112 @@
-@testset "Counting" begin
+# Collection of BioSequence, LongSequence w. differing alphabets, and SubSequence
+bio_seqs = BioSequence[
+    SimpleSeq("UGAUCUGUAGU"),
+    SimpleSeq("")
+]
 
-    @testset "GC content" begin
-        @test gc_content(dna"") === 0.0
-        @test gc_content(dna"AATA") === 0.0
-        @test gc_content(dna"ACGT") === 0.5
-        @test gc_content(dna"CGGC") === 1.0
-        @test gc_content(dna"ACATTGTGTATAACAAAAGG") === 6 / 20
-        @test gc_content(dna"GAGGCGTTTATCATC"[2:end]) === 6 / 14
-        
-        @test gc_content(rna"") === 0.0
-        @test gc_content(rna"AAUA") === 0.0
-        @test gc_content(rna"ACGU") === 0.5
-        @test gc_content(rna"CGGC") === 1.0
-        @test gc_content(rna"ACAUUGUGUAUAACAAAAGG") === 6 / 20
-        @test gc_content(rna"GAGGCGUUUAUCAUC"[2:end]) === 6 / 14
-        
-        @test_throws Exception gc_content(aa"ARN")
-        
-        Random.seed!(1234)
-        for _ in 1:200
-            s = randdnaseq(rand(1:100))
-            @test gc_content(s) === count(isGC, s) / length(s)
-            @test gc_content(LongSequence{DNAAlphabet{2}}(s)) === count(isGC, s) / length(s)
-            i = rand(1:lastindex(s))
-            j = rand(i-1:lastindex(s))
-            @test gc_content(s[i:j]) === (j < i ? 0.0 : count(isGC, s[i:j]) / (j - i + 1))
+long_nucs = [
+    dna"",
+    dna"TAGAGGAC",
+    dna"WSCGCTYCG",
+    dna"ATGC-CAACC",
+    dna"TAGCGA--TCCGAA-TCGAAGC",
+    dna"TCG-GTWYCYGYA-KKKAKCK--KNAWSSSTAGTCYKMNNACYWS",
+    rna"",
+    rna"UAGUGCUGAG",
+    rna"WSUACGYKMNAC",
+    rna"UGAUCGUAGUAGUCGUCGUGUC",
+    rna"UBBSSDMHGVBRHA-YNKYDKAWSDYWC-VDCDUKCY"
+]
+
+strip_type(::Type{<:DNAAlphabet}) = DNAAlphabet
+strip_type(::Type{<:RNAAlphabet}) = RNAAlphabet
+
+for i in 1:lastindex(long_nucs)
+    sq = long_nucs[i]
+    if all(iscertain, sq)
+        push!(long_nucs, LongSequence{strip_type(typeof(Alphabet(sq))){2}}(sq))
+    end
+end
+
+long_aa = [
+    aa"",
+    aa"ATYCISL",
+    aa"-PYCOSL",
+    aa"LDJFDODIVLJK",
+    aa"OIDHEOU-JNFDEDWQ",
+    aa"OIDFENU-JDFDWDWQA",
+    aa"WQKPC--LELIFEJ--",
+]
+
+sub_nucs = [
+    view(dna"", 1:0),
+    view(rna"UAGUC", 1:0),
+    view(LongDNA{2}("TAGTCGTAGGCTGCGTGATGATGATAGTCGTGTCGTAGTA"), 2:38),
+    view(dna"TAGTGCTATK-GAMTTWGTWSGTA-GCCCTAS-GAGTCTTA-W", 19:42),
+    view(dna"TCG-GTWYCYGYA-KKKAKCK--KNAWSSSTAGTCYKMNNACYWS", 4:45)
+]
+
+for seq in long_nucs
+    for span in [3:19, 7:31, 1:length(seq)]
+        last(span) > length(seq) && continue
+        push!(sub_nucs, view(seq, span))
+    end
+end
+
+all_nucs = append!(copy(bio_seqs), long_nucs, sub_nucs)
+all_seqs = append!(BioSequence[], all_nucs, long_aa)
+
+@testset failfast=true "Counting" begin
+    # GC content
+    for i in all_nucs
+        gcc = gc_content(i)
+        @test isempty(i) ? isnan(gcc) : isapprox(gcc, sum(isGC, i; init=0) / length(i))
+        @test count(isGC, i) == sum(isGC, i; init=0)
+    end
+
+    # Matches / mismatches
+    for i in 1:length(all_seqs)-1, j in i+1:length(all_seqs)
+        a = all_seqs[i]
+        b = all_seqs[j]
+
+        # We do this gymnastics because we want to throw depwarns when seeing
+        # sequences of differing lengths, and we can't throw depwarns during test.
+        (a, b) = length(a) <  length(b) ? (a, b) : (b, a)
+        b = if length(b) == length(a)
+            b
+        elseif b isa SimpleSeq
+            # Can't take view of a SimpleSeq
+            continue
+        else
+            view(b, 1:length(a))
+        end
+        @test mismatches(a, b) == sum(splat(!=), zip(a, b); init=0)
+        @test matches(a, b) == sum(splat(==), zip(a, b); init=0)
+    end
+
+    # Gaps
+    for i in all_seqs
+        @test count(isgap, i) == sum(isgap, i; init=0)
+    end
+
+    # Ambiguous
+    for i in all_seqs
+        @test count(isambiguous, i) == sum(isambiguous, i; init=0)
+    end
+
+    # Certain
+    for i in all_seqs
+        @test count(iscertain, i) == sum(iscertain, i; init=0)
+    end
+
+    # Count symbol
+    for seq in all_seqs
+        for symbol in Alphabet(seq)
+            @test count(==(symbol), seq) == sum(i == symbol for i in seq; init=0)
         end
     end
-    
-    function testcounter(
-        pred::Function,
-        alias::Function,
-        seqa::BioSequence,
-        seqb::BioSequence,
-        singlearg::Bool,
-        multi_alias::Function
-    )
-        # Test that order does not matter.
-        @test count(pred, seqa, seqb) == count(pred, seqb, seqa)
-        @test BioSequences.count_naive(multi_alias, seqa, seqb) == BioSequences.count_naive(multi_alias, seqb, seqa)
-        @test alias(seqa, seqb) == alias(seqb, seqa)
-        # Test that result is the same as counting naively.
-        @test count(pred, seqa, seqb) == BioSequences.count_naive(multi_alias, seqa, seqb)
-        @test count(pred, seqb, seqa) == BioSequences.count_naive(multi_alias, seqb, seqa)
-        # Test that the alias function works.
-        @test count(pred, seqa, seqb) == alias(seqa, seqb)
-        @test count(pred, seqb, seqa) == alias(seqb, seqa)
-        if singlearg
-            @test count(pred, seqa) == count(pred, (i for i in seqa))
-            @test BioSequences.count_naive(pred, seqa) == BioSequences.count(pred, seqa)
-        end
-    end
-    
-    function counter_random_tests(
-        pred::Function,
-        alias::Function,
-        alphx::Type{<:Alphabet},
-        alphy::Type{<:Alphabet},
-        subset::Bool,
-        singlearg::Bool,
-        multi_alias::Function
-    )
-        for _ in 1:10
-            seqA = random_seq(alphx, rand(10:100))
-            seqB = random_seq(alphy, rand(10:100))
-            sa = seqA
-            sb = seqB
-            if subset
-                intA = random_interval(1, length(seqA))
-                intB = random_interval(1, length(seqB))
-                subA = view(seqA, intA)
-                subB = view(seqB, intB)
-                sa = subA
-                sb = subB
-            end
-            testcounter(pred, alias, sa, sb, singlearg, multi_alias)
-        end
-    end
-    
-    @testset "Mismatches" begin
-        for a in (DNAAlphabet, RNAAlphabet)
-            # Can't promote views
-            for sub in (true, false)
-                for n in (4, 2)
-                    counter_random_tests(!=, mismatches, a{n}, a{n}, sub, false, !=)
-                end
-            end
-            counter_random_tests(!=, mismatches, a{4}, a{2}, false, false, !=)
-            counter_random_tests(!=, mismatches, a{2}, a{4}, false, false, !=)
-        end
-    end
-    
-    @testset "Matches" begin
-        for a in (DNAAlphabet, RNAAlphabet)
-            for sub in (true, false)
-                for n in (4, 2)
-                    counter_random_tests(==, matches, a{n}, a{n}, sub, false, ==)
-                end
-            end
-            counter_random_tests(==, matches, a{4}, a{2}, false, false, ==)
-            counter_random_tests(==, matches, a{2}, a{4}, false, false, ==)
-        end
-    end
-    
-    @testset "Ambiguous" begin
-        for a in (DNAAlphabet, RNAAlphabet)
-            # Can't promote views
-            for n in (4, 2)
-                for sub in (true, false)
-                    counter_random_tests(isambiguous, n_ambiguous, a{n}, a{n}, sub, false, BioSequences.isambiguous_or)
-                end
-            end
-            counter_random_tests(isambiguous, n_ambiguous, a{4}, a{2}, false, true, BioSequences.isambiguous_or)
-            counter_random_tests(isambiguous, n_ambiguous, a{2}, a{4}, false, true, BioSequences.isambiguous_or)
-        end
-    end
-    
-    @testset "Certain" begin
-        for a in (DNAAlphabet, RNAAlphabet)
-            for n in (4, 2)
-                for sub in (true, false)
-                    counter_random_tests(iscertain, n_certain, a{n}, a{n}, sub, true, BioSequences.iscertain_and)
-                end
-            end
-            counter_random_tests(iscertain, n_certain, a{4}, a{2}, false, true, BioSequences.iscertain_and)
-            counter_random_tests(iscertain, n_certain, a{2}, a{4}, false, true, BioSequences.iscertain_and)
-        end
-    end
-    
-    @testset "Gap" begin
-        for a in (DNAAlphabet, RNAAlphabet)
-            for n in (4, 2)
-                for sub in (true, false)
-                    counter_random_tests(isgap, n_gaps, a{n}, a{n}, sub, true, BioSequences.isgap_or)
-                end
-            end
-            counter_random_tests(isgap, n_gaps, a{4}, a{2}, false, true, BioSequences.isgap_or)
-            counter_random_tests(isgap, n_gaps, a{2}, a{4}, false, true, BioSequences.isgap_or)
-        end
-    end
-    
+    @test_throws EncodeError count(==(DNA_A), rna"UAG")
+    @test_throws EncodeError count(==(DNA_M), LongDNA{2}(dna"TAG"))
+    @test_throws EncodeError count(==(AA_C), dna"TAG")
+    @test_throws EncodeError count(==(RNA_U), dna"TAG")
 end

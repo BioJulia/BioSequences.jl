@@ -10,8 +10,8 @@
     bitindex(N, encoded_data_eltype(typeof(x)), i)
 end
 
-firstbitindex(s::SeqOrView) = bitindex(s, firstindex(s))
-lastbitindex(s::SeqOrView) = bitindex(s, lastindex(s))
+firstbitindex(s::SeqOrView) = bitindex(s, firstindex(s) % UInt)
+lastbitindex(s::SeqOrView) = bitindex(s, lastindex(s) % UInt)
 
 @inline function extract_encoded_element(x::SeqOrView, i::Integer)
     bi = bitindex(x, i % UInt)
