@@ -59,7 +59,9 @@ all_seqs = append!(BioSequence[], all_nucs, long_aa)
 @testset failfast=true "Counting" begin
     # GC content
     for i in all_nucs
-        @test gc_content(i) === sum(isGC, i; init=0) / length(i)
+        gcc = gc_content(i)
+        @test isempty(i) ? isnan(gcc) : isapprox(gcc, sum(isGC, i; init=0) / length(i))
+        @test count(isGC, i) == sum(isGC, i; init=0)
     end
 
     # Matches / mismatches
