@@ -9,13 +9,10 @@
 
 const XNA = Union{DNA, RNA}
 function unambiguous_codon(a::XNA, b::XNA, c::XNA)
-    @inbounds begin
-    bits = twobitnucs[reinterpret(UInt8, a) + 0x01] << 4 |
-    twobitnucs[reinterpret(UInt8, b) + 0x01] << 2 |
-    twobitnucs[reinterpret(UInt8, c) + 0x01]
-    end
-    #reinterpret(RNACodon, bits % UInt64)
-    return bits % UInt64
+    bits = (trailing_zeros(reinterpret(UInt8, a)) << 4) |
+        (trailing_zeros(reinterpret(UInt8, b)) << 2) |
+        (trailing_zeros(reinterpret(UInt8, c)) << 0)
+    bits % UInt64
 end
 
 # A genetic code is a table mapping RNA 3-mers (i.e. RNAKmer{3}) to AminoAcids.

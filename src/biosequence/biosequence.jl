@@ -41,6 +41,20 @@ For compatibility with existing `Alphabet`s, the encoded data eltype must be `UI
 """
 abstract type BioSequence{A<:Alphabet} end
 
+function (::Type{S})(seq::BioSequence) where {S <: AbstractString}
+    _string(S, seq, codetype(Alphabet(seq)))
+end
+
+Base.LazyString(seq::BioSequence) = LazyString(string(seq))
+
+function _string(::Type{S}, seq::BioSequence, ::AlphabetCode) where {S<:AbstractString}
+    return S([Char(x) for x in seq])
+end
+
+function _string(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
+    String([stringbyte(s) for s in seq])
+end
+
 """
     has_interface(::Type{BioSequence}, ::T, syms::Vector, mutable::Bool, compat::Bool=true)
 
@@ -230,7 +244,6 @@ const AASeq = BioSequence{AminoAcidAlphabet}
 
 # The generic functions for any BioSequence...
 include("indexing.jl")
-include("conversion.jl")
 include("predicates.jl")
 include("find.jl")
 include("printing.jl")

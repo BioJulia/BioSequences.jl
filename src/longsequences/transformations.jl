@@ -3,10 +3,14 @@
 ###
 
 """
-    resize!(seq, size, [force::Bool])
+    resize!(seq, size, [force::Bool=false])
 
 Resize a biological sequence `seq`, to a given `size`. Does not resize the underlying data
 array unless the new size does not fit. If `force`, always resize underlying data array.
+
+Note that resizing to a larger size, and then loading from uninitialized positions
+is not allowed and may cause undefined behaviour. 
+Make sure to always fill any uninitialized biosymbols after resizing.
 """
 function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) where {A}
     if size < 0
@@ -67,9 +71,8 @@ end
 # all chunks by up to 63 bits.
 # This is written so it SIMD parallelizes - careful with changes
 @inline function zero_offset!(seq::LongSequence{A}) where A <: Alphabet
-    isempty(seq) && return seq
     offs = (64 - offset(bitindex(seq, length(seq)) + bits_per_symbol(A()))) % UInt
-    zero_offset!(seq, offs) 
+    zero_offset!(seq, offs)
 end
 
 @inline function zero_offset!(seq::LongSequence{A}, offs::UInt) where A <: Alphabet
