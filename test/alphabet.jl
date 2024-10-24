@@ -125,7 +125,6 @@ end
         for nt in BioSymbols.alphabet(DNA)
             @test encode(DNAAlphabet{4}(), nt) === UInt(reinterpret(UInt8, nt))
         end
-        @test_throws EncodeError encode(DNAAlphabet{4}(), reinterpret(DNA, 0b10000))
     end
 
     @testset "RNA" begin
@@ -142,7 +141,6 @@ end
         for nt in BioSymbols.alphabet(RNA)
             @test encode(RNAAlphabet{4}(), nt) === UInt(reinterpret(UInt8, nt))
         end
-        @test_throws EncodeError encode(RNAAlphabet{4}(), reinterpret(RNA, 0b10000))
     end
 
     @testset "AminoAcid" begin

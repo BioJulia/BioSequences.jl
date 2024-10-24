@@ -171,24 +171,17 @@ BitsPerSymbol(::A) where A <: NucleicAcidAlphabet{4} = BitsPerSymbol{4}()
 
 
 ## Encoding and decoding DNA and RNA alphabet symbols
-
-# A nucleotide with bitvalue B has kmer-bitvalue kmerbits[B+1].
-# ambiguous nucleotides have no kmervalue, here set to 0xff
-const twobitnucs = (0xff, 0x00, 0x01, 0xff,
-                    0x02, 0xff, 0xff, 0xff,
-                    0x03, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff)
-
 for A in (DNAAlphabet, RNAAlphabet)
     T = eltype(A)
     @eval begin
 
 	    # 2-bit encoding
         @inline function encode(::$(A){2}, nt::$(T))
-            if count_ones(nt) != 1 || !isvalid(nt)
+            u = reinterpret(UInt8, nt)
+            if count_ones(u) != 1
                 throw(EncodeError($(A){2}(), nt))
             end
-            return convert(UInt, @inbounds twobitnucs[reinterpret(UInt8, nt) + 0x01])
+            trailing_zeros(u) % UInt
         end
 
         @inline function decode(::$(A){2}, x::UInt)
@@ -199,9 +192,6 @@ for A in (DNAAlphabet, RNAAlphabet)
 
         # 4-bit encoding
         @inline function encode(::$(A){4}, nt::$(T))
-            if !isvalid(nt)
-                throw(EncodeError($(A){4}(), nt))
-            end
             return convert(UInt, reinterpret(UInt8, nt))
         end
 

@@ -32,8 +32,10 @@ end
 BitsPerSymbol(::BitIndex{N, W}) where {N,W} = BitsPerSymbol{N}()
 bits_per_symbol(::BitIndex{N, W}) where {N,W} = N
 
-@inline function bitindex(::BitsPerSymbol{N}, ::Type{W}, i) where {N,W}
-    return BitIndex{N, W}((i - 1) << trailing_zeros(N))
+bitindex(B::BitsPerSymbol, ::Type{W}, i::Integer) where W = bitindex(B, W, Int(i)::Int)
+
+@inline function bitindex(::BitsPerSymbol{N}, ::Type{W}, i::Union{Int, UInt}) where {N,W}
+    return BitIndex{N, W}(((i - 1) % UInt) << trailing_zeros(N))
 end
 
 bitwidth(::Type{W}) where W = 8*sizeof(W)

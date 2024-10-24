@@ -7,6 +7,27 @@
 ### This file is a part of BioJulia.
 ### License is MIT: https://github.com/BioJulia/BioSequences.jl/blob/master/LICENSE.md
 
+###
+### Promotion
+###
+for alph in (DNAAlphabet, RNAAlphabet)
+    @eval function Base.promote_rule(::Type{LongSequence{A}}, ::Type{LongSequence{B}}) where {A<:$alph,B<:$alph}
+        return LongSequence{promote_rule(A, B)}
+    end
+end
+
+###
+### Conversion
+###
+Base.convert(::Type{T}, seq::T) where {T <: LongSequence} = seq
+Base.convert(::Type{T}, seq::T) where {T <: LongSequence{<:NucleicAcidAlphabet}} = seq
+
+function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
+         {T<:LongSequence{<:NucleicAcidAlphabet}}
+    return T(seq)
+end
+
+
 @inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
 
 @inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet

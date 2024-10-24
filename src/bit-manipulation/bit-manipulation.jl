@@ -38,46 +38,12 @@ end
     return count_ones((c | g) & ~(a | t))
 end
 
-@inline a_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_00_bitpairs(x)
-@inline c_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_01_bitpairs(x)
-@inline g_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_10_bitpairs(x)
-@inline t_bitcount(x::Unsigned, ::NucleicAcidAlphabet{2}) = count_11_bitpairs(x)
-
-@inline function mismatch_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    return count_nonzero_nibbles(a ⊻ b)
-end
-
-@inline function mismatch_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{2}}
-    return count_nonzero_bitpairs(a ⊻ b)
-end
-
-@inline function match_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    return count_0000_nibbles(a ⊻ b)
-end
-
-@inline function match_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{2}}
-    return count_00_bitpairs(a ⊻ b)
-end
-
 @inline function ambiguous_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
     return count_nonzero_nibbles(enumerate_nibbles(x) & 0xEEEEEEEEEEEEEEEE)
 end
 
 @inline function ambiguous_bitcount(x::UInt64, ::AminoAcidAlphabet)
     return count_compared_bytes(i -> (i > 0x15) & (i < 0x1a), x)
-end
-
-@inline function ambiguous_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    return count_nonzero_nibbles((enumerate_nibbles(a) | enumerate_nibbles(b)) & 0xEEEEEEEEEEEEEEEE)
-end
-
-@inline function gap_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    return count_0000_nibbles(x)
-end
-
-@inline function gap_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    # Count the gaps in a, count the gaps in b, subtract the number of shared gaps.
-    return count_0000_nibbles(a) + count_0000_nibbles(b) - count_0000_nibbles(a | b)
 end
 
 @inline function count_compared_bytes(f::F, x::UInt64) where F
@@ -89,12 +55,6 @@ end
     x = enumerate_nibbles(x)
     x = x ⊻ 0x1111111111111111
     return count_0000_nibbles(x)
-end
-
-@inline function certain_bitcount(a::UInt64, b::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
-    x = enumerate_nibbles(a) ⊻ 0x1111111111111111
-    y = enumerate_nibbles(b) ⊻ 0x1111111111111111
-    return count_0000_nibbles(x | y)
 end
 
 @inline function four_to_two_bits(x::UInt64)::UInt32

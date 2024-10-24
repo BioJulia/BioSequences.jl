@@ -201,15 +201,20 @@ function Base.:(==)(seq1::SeqOrView{A}, seq2::SeqOrView{A}) where {A <: Alphabet
     length(seq1) == length(seq2) || return false
 
     # If they share the same data
+    isempty(seq1) && return true
     if seq1.data === seq2.data && firstbitindex(seq1) == firstbitindex(seq2)
         return true
     end
 
-    # Fallback
-    for (i, j) in zip(seq1, seq2)
+    # Check all filled UInts
+    (it, (ch1, ch2, rem)) = iter_chunks(seq1, seq2)
+    for (i, j) in it
         i == j || return false
     end
-    return true
+
+    # Check last coding UInt (or compare two zeros, if none)
+    mask = UInt64(1) << (rem & 63) - 1
+    return (ch1 & mask) == (ch2 & mask)
 end
 
 function Base.:(==)(seq1::LongSequence{A}, seq2::LongSequence{A}) where {A <: Alphabet}
