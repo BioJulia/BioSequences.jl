@@ -3,8 +3,6 @@
 # Instead, we could emit the head and tail chunk seperately, then an iterator of
 # all the full chunks loaded as single elements from the underlying vector.
 
-const KNOWN_ALPHABETS = Union{DNAAlphabet, RNAAlphabet, AminoAcidAlphabet}
-
 trunc_seq(x::LongSequence, len::Int) = typeof(x)(x.data, len % UInt)
 trunc_seq(x::LongSubSeq, len::Int) = typeof(x)(x.data, first(x.part):first(x.part)+len-1)
 

@@ -52,25 +52,25 @@ function LongSubSeq{A}(seq::LongSubSeq{A}) where A
     return LongSubSeq{A}(seq.data, seq.part)
 end
 
-function LongSubSeq{A}(seq::LongSequence{A}, part::AbstractUnitRange{<:Integer}) where A
+Base.@propagate_inbounds function LongSubSeq{A}(seq::LongSequence{A}, part::AbstractUnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
     return LongSubSeq{A}(seq.data, UnitRange{Int}(part))
 end
 
-function LongSubSeq{A}(seq::LongSubSeq{A}, part::AbstractUnitRange{<:Integer}) where A
+Base.@propagate_inbounds function LongSubSeq{A}(seq::LongSubSeq{A}, part::AbstractUnitRange{<:Integer}) where A
     @boundscheck checkbounds(seq, part)
     newpart = first(part) + first(seq.part) - 1 : last(part) + first(seq.part) - 1
     return LongSubSeq{A}(seq.data, newpart)
 end
 
-function LongSubSeq(seq::SeqOrView{A}, i) where A
+Base.@propagate_inbounds function LongSubSeq(seq::SeqOrView{A}, i) where A
 	return LongSubSeq{A}(seq, i)
 end
 
-LongSubSeq(seq::SeqOrView, ::Colon) = LongSubSeq(seq, 1:lastindex(seq))
-LongSubSeq(seq::BioSequence{A}) where A = LongSubSeq{A}(seq)
+Base.@propagate_inbounds LongSubSeq(seq::SeqOrView, ::Colon) = LongSubSeq(seq, 1:lastindex(seq))
+Base.@propagate_inbounds LongSubSeq(seq::BioSequence{A}) where A = LongSubSeq{A}(seq)
 
-Base.view(seq::SeqOrView, part::AbstractUnitRange) = LongSubSeq(seq, part)
+Base.@propagate_inbounds Base.view(seq::SeqOrView, part::AbstractUnitRange) = LongSubSeq(seq, part)
 
 function (::Type{T})(seq::SeqOrView{<:NucleicAcidAlphabet{2}}) where
          {T<:LongSequence{<:NucleicAcidAlphabet{4}}}
@@ -145,7 +145,7 @@ function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}) where
 	T(seq.data, 1:length(seq))
 end
 
-function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}, part::AbstractUnitRange{<:Integer}) where
+Base.@propagate_inbounds function (::Type{T})(seq::LongSequence{<:NucleicAcidAlphabet{N}}, part::AbstractUnitRange{<:Integer}) where
 	{N, T<:LongSubSeq{<:NucleicAcidAlphabet{N}}}
 	@boundscheck checkbounds(seq, part)
 	T(seq.data, UnitRange{Int}(part))
