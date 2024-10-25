@@ -102,7 +102,7 @@ If `s` cannot be encoded to the given alphabet, throw an `EncodeError`
     return y === nothing ? throw(EncodeError(A, s)) : y
 end
 
-tryencode(A::Alphabet, s::BioSymbol) = nothing
+tryencode(A::Alphabet, s::Any) = nothing
 
 """
     tryencode(::Alphabet, x::S)
