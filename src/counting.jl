@@ -18,12 +18,14 @@ trunc_seq(x::LongSubSeq, len::Int) = typeof(x)(x.data, first(x.part):first(x.par
     y 
 end
 
-@inline function counter_1seq(tail::Function, body::Function, seq::SeqOrView)
-    (it, (chunk, rm)) = @inline iter_chunks(seq)
-    y = @inline tail(chunk, rm)
-    for i in it
-        y += @inline body(i)
+@inline function counter_1seq(partial::Function, body::Function, seq::SeqOrView)
+    ((head, head_bits), (chunk_start, chunk_end), (tail, tail_bits)) = parts(seq)
+    y = @inline partial(head, head_bits) + @inline partial(tail, tail_bits)
+    data = seq.data
+    @inbounds for i in chunk_start:chunk_end
+        y += @inline body(data[i])
     end
+    y
     y
 end
 
