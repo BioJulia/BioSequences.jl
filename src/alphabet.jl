@@ -21,6 +21,7 @@ and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
   of the alphabet's element type, as well as the decoding, the inverse process.
 * An `Alphabet`'s `encode` method must not produce invalid data. 
 
+### Required methods
 Every subtype `A` of `Alphabet` must implement:
 * `Base.eltype(::Type{A})::Type{S}` for some eltype `S`, which must be a `BioSymbol`.
 * `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
@@ -34,7 +35,10 @@ the encoded representation `E` must be of type `UInt`, and you must also impleme
 * `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
   or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
 
-For increased performance, see [`BioSequences.AsciiAlphabet`](@ref)
+### Optional methods
+* `BitsPerSymbol` for compatibility with existing `BioSequence`s
+* `AsciiAlphabet` for increased printing/writing efficiency
+* `tryencode` for fallible encoding.
 """
 abstract type Alphabet end
 
@@ -68,8 +72,14 @@ The number of bits required to represent a packed symbol encoding in a vector of
 bits_per_symbol(A::Alphabet) = bits_per_symbol(BitsPerSymbol(A))
 Base.length(A::Alphabet) = length(symbols(A))
 
-## Bits per symbol
-
+"""
+    BitsPerSymbol{N}
+A trait object specifying the number of bits it takes to encode a biosymbol in an `Alphabet`
+Alphabets `A` should implement `BitsPerSymbol(::A)`.
+For compatibility with existing BioSequences, the number of bits should be a power of two
+between 1 and 32, both inclusive.
+See also: [`Alphabet`](@ref)
+"""
 struct BitsPerSymbol{N} end
 bits_per_symbol(::BitsPerSymbol{N}) where N = N
 
@@ -87,7 +97,21 @@ This decoding is checked to enforce valid data element.
 If `s` cannot be encoded to the given alphabet, throw an `EncodeError`
 
 """
-encode(A::Alphabet, s::BioSymbol) = throw(EncodeError(A, s))
+@inline function encode(A::Alphabet, s::BioSymbol)
+    y = @inline tryencode(A, s)
+    return y === nothing ? throw(EncodeError(A, s)) : y
+end
+
+tryencode(A::Alphabet, s::BioSymbol) = throw(EncodeError(A, s))
+
+"""
+    tryencode(::Alphabet, x::S)
+Try encoding BioSymbol `S` to the internal representation of [`Alphabet`](@ref),
+returning `nothing` if not successful.
+
+See also: `encode`[@ref], `decode`[@ref]
+"""
+function tryencode end
 
 """
     EncodeError
@@ -176,11 +200,9 @@ for A in (DNAAlphabet, RNAAlphabet)
     @eval begin
 
 	    # 2-bit encoding
-        @inline function encode(::$(A){2}, nt::$(T))
+        function tryencode(::$(A){2}, nt::$(T))
             u = reinterpret(UInt8, nt)
-            if count_ones(u) != 1
-                throw(EncodeError($(A){2}(), nt))
-            end
+            isone(count_ones(u)) || return nothing
             trailing_zeros(u) % UInt
         end
 
@@ -191,7 +213,7 @@ for A in (DNAAlphabet, RNAAlphabet)
 	    @inline decode(::$(A){2}, x::Unsigned) = decode($(A){2}(), UInt(x))
 
         # 4-bit encoding
-        @inline function encode(::$(A){4}, nt::$(T))
+        function tryencode(::$(A){4}, nt::$(T))
             return convert(UInt, reinterpret(UInt8, nt))
         end
 
@@ -227,10 +249,8 @@ function symbols(::AminoAcidAlphabet)
     AA_Y, AA_V, AA_O, AA_U, AA_B, AA_J, AA_Z, AA_X, AA_Term, AA_Gap)
 end
 
-@inline function encode(::AminoAcidAlphabet, aa::AminoAcid)
-    if reinterpret(UInt8, aa) > reinterpret(UInt8, AA_Gap)
-        throw(EncodeError(AminoAcidAlphabet(), aa))
-    end
+function tryencode(::AminoAcidAlphabet, aa::AminoAcid)
+    reinterpret(UInt8, aa) > reinterpret(UInt8, AA_Gap) && return nothing
     return convert(UInt, reinterpret(UInt8, aa))
 end
 
