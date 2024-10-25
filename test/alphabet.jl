@@ -45,6 +45,7 @@ end
 end
 
 encode = BioSequences.encode
+tryencode = BioSequences.tryencode
 EncodeError = BioSequences.EncodeError
 decode = BioSequences.decode
 
@@ -121,6 +122,15 @@ end
         @test_throws EncodeError encode(DNAAlphabet{2}(), DNA_N)
         @test_throws EncodeError encode(DNAAlphabet{2}(), DNA_Gap)
 
+        @test tryencode(DNAAlphabet{2}(), DNA_A) == UInt(0x00)
+        @test tryencode(DNAAlphabet{2}(), DNA_C) == UInt(0x01)
+        @test tryencode(DNAAlphabet{2}(), DNA_G) == UInt(0x02)
+        @test tryencode(DNAAlphabet{2}(), DNA_T) == UInt(0x03)
+        @test tryencode(DNAAlphabet{2}(), DNA_M) === nothing
+        @test tryencode(DNAAlphabet{2}(), DNA_N) === nothing
+        @test tryencode(DNAAlphabet{2}(), DNA_Gap) === nothing
+        @test_throws EncodeError tryencode(DNAAlphabet{2}(), RNA_G)
+
         # 4 bits
         for nt in BioSymbols.alphabet(DNA)
             @test encode(DNAAlphabet{4}(), nt) === UInt(reinterpret(UInt8, nt))
@@ -137,9 +147,19 @@ end
         @test_throws EncodeError encode(RNAAlphabet{2}(), RNA_N)
         @test_throws EncodeError encode(RNAAlphabet{2}(), RNA_Gap)
 
+        @test tryencode(RNAAlphabet{2}(), RNA_A) == UInt(0x00)
+        @test tryencode(RNAAlphabet{2}(), RNA_C) == UInt(0x01)
+        @test tryencode(RNAAlphabet{2}(), RNA_G) == UInt(0x02)
+        @test tryencode(RNAAlphabet{2}(), RNA_U) == UInt(0x03)
+        @test tryencode(RNAAlphabet{2}(), RNA_M) === nothing
+        @test tryencode(RNAAlphabet{2}(), RNA_N) === nothing
+        @test tryencode(RNAAlphabet{2}(), RNA_Gap) === nothing
+        @test_throws EncodeError tryencode(RNAAlphabet{2}(), DNA_G)
+
         # 4 bits
         for nt in BioSymbols.alphabet(RNA)
             @test encode(RNAAlphabet{4}(), nt) === UInt(reinterpret(UInt8, nt))
+            @test tryencode(RNAAlphabet{4}(), nt) ===  UInt(reinterpret(UInt8, nt))
         end
     end
 
@@ -147,8 +167,11 @@ end
         @test encode(AminoAcidAlphabet(), AA_A) === UInt(0x00)
         for aa in BioSymbols.alphabet(AminoAcid)
             @test encode(AminoAcidAlphabet(), aa) === convert(UInt, reinterpret(UInt8, aa))
+            @test tryencode(AminoAcidAlphabet(), aa) === convert(UInt, reinterpret(UInt8, aa))
         end
         @test_throws BioSequences.EncodeError encode(AminoAcidAlphabet(), BioSymbols.AA_INVALID)
+        @test tryencode(AminoAcidAlphabet(), reinterpret(AminoAcid, typemax(UInt8))) === nothing
+        @test tryencode(AminoAcidAlphabet(), BioSymbols.AA_INVALID) === nothing
     end
 end
 
