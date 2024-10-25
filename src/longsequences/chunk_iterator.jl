@@ -161,7 +161,7 @@ function parts(seq::LongSequence)
     end
     # If we have bits in the tail, then clearly those bits means the last bitindex
     # points to one past the last full chunk
-    body = (1, lbii - !iszero(bits_in_tail))
+    body = (UInt(1), (lbii - !iszero(bits_in_tail)) % UInt)
     (head, body, tail)
 end
 
