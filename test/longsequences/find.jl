@@ -35,6 +35,25 @@
     @test findnext(==(AA_C), seq, 1) === nothing
     @test findnext(==(19), seq, 1) === nothing
 
+    @test findprev(==(AA_R), seq, 20) == 2
+    @test findprev(==(AA_K), seq, 15) == 14
+    @test findprev(==(AA_Y), seq, 20) == 18
+    @test findprev(==(AA_Y), seq, 17) == 4
+    @test findlast(==(AA_Q), seq) == 11
+    @test findprev(==(AA_J), seq, 16) == 6
+    @test findprev(==(AA_Gap), seq, 9) == 5
+    @test findprev(==(AA_O), seq, 3) === nothing
+    @test findprev(==(AA_L), seq, 2) === nothing
+    @test findprev(==(AA_H), seq, 17) === nothing
+
+    seq = LongRNA{2}(rna"UAGUCGUAGC")
+    @test findfirst(==(RNA_U), seq) == 1
+    @test findfirst(==(RNA_A), seq) == 2
+    @test findfirst(==(RNA_G), seq) == 3
+    @test findfirst(==(RNA_C), seq) == 5
+    @test findfirst(==(RNA_Gap), seq) === nothing
+    @test findlast(==(RNA_G), seq) == 9
+
     # View with head and chunk only
     #                        1   5    10   15   20 
     seq = view(dna"TAGTCKYDDBN--ACGKMYAGCTATAYYKKM-", 11:32)
