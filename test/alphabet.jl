@@ -129,7 +129,7 @@ end
         @test tryencode(DNAAlphabet{2}(), DNA_M) === nothing
         @test tryencode(DNAAlphabet{2}(), DNA_N) === nothing
         @test tryencode(DNAAlphabet{2}(), DNA_Gap) === nothing
-        @test_throws EncodeError tryencode(DNAAlphabet{2}(), RNA_G)
+        @test tryencode(DNAAlphabet{2}(), RNA_G) === nothing
 
         # 4 bits
         for nt in BioSymbols.alphabet(DNA)
@@ -154,7 +154,7 @@ end
         @test tryencode(RNAAlphabet{2}(), RNA_M) === nothing
         @test tryencode(RNAAlphabet{2}(), RNA_N) === nothing
         @test tryencode(RNAAlphabet{2}(), RNA_Gap) === nothing
-        @test_throws EncodeError tryencode(RNAAlphabet{2}(), DNA_G)
+        @test tryencode(RNAAlphabet{2}(), DNA_G) === nothing
 
         # 4 bits
         for nt in BioSymbols.alphabet(RNA)

@@ -236,3 +236,140 @@ function Base.:(==)(seq1::LongSequence{A}, seq2::LongSequence{A}) where {A <: Al
 
     return true
 end
+
+## Search
+
+# We only dispatch on known alphabets, because new alphabets may implement == in surprising ways
+function Base.findnext(
+    cmp::Base.Fix2{<:Union{typeof(==), typeof(isequal)}},
+    seq::SeqOrView{<:KNOWN_ALPHABETS},
+    i::Integer,
+)
+    i = max(Int(i)::Int, 1)
+    i > length(seq) && return nothing
+    symbol = cmp.x
+    enc = tryencode(Alphabet(seq), symbol)
+    enc === nothing && return nothing
+    vw = @inbounds view(seq, i:lastindex(seq))
+    res = _findfirst(vw, enc)
+    res === nothing ? nothing : res + i - 1
+end
+
+function _findfirst(seq::SeqOrView{<:KNOWN_ALPHABETS}, enc::UInt64)
+    data = seq.data
+    enc *= encoding_expansion(BitsPerSymbol(seq))
+    ((head, head_bits), (body_i, body_stop), (tail, tail_bits)) = parts(seq)
+    symbols_in_head = div(head_bits, bits_per_symbol(Alphabet(seq))) % Int
+    # The idea here is that we xor with the coding elements, then check for the first
+    # occurrence of a zerod symbol, if any.
+    if !iszero(head_bits)
+        tu = trailing_unsets(BitsPerSymbol(seq), head ⊻ enc)
+        tu < symbols_in_head && return tu + 1
+    end
+    i = symbols_in_head + 1
+    while body_i ≤ body_stop
+        chunk = @inbounds data[body_i] ⊻ enc
+        ze = set_zero_encoding(BitsPerSymbol(seq), chunk)
+        if !iszero(ze)
+            return i + div(trailing_zeros(ze) % UInt, bits_per_symbol(Alphabet(seq))) % Int
+        end 
+        body_i += 1
+        i += symbols_per_data_element(seq)
+    end
+    if !iszero(tail_bits)
+        tu = trailing_unsets(BitsPerSymbol(seq), tail ⊻ enc)
+        tu < div(tail_bits, bits_per_symbol(Alphabet(seq))) && return tu + i
+    end
+    nothing
+end
+
+function Base.findprev(
+    cmp::Base.Fix2{<:Union{typeof(==), typeof(isequal)}},
+    seq::SeqOrView{<:KNOWN_ALPHABETS},
+    i::Integer,
+)
+    i = Int(i)::Int
+    i < 1 && return nothing
+    symbol = cmp.x
+    enc = tryencode(Alphabet(seq), symbol)
+    enc === nothing && return nothing
+    vw = @inbounds view(seq, 1:i)
+    _findlast(vw, enc)
+end
+
+# See comments in findfirst
+function _findlast(seq::SeqOrView{<:KNOWN_ALPHABETS}, enc::UInt64)
+    data = seq.data
+    enc *= encoding_expansion(BitsPerSymbol(seq))
+    ((head, head_bits), (body_stop, body_i), (tail, tail_bits)) = parts(seq)
+    i = lastindex(seq)
+    # This part is slightly different, because the coding bits are shifted to the right,
+    # but we need to count the leading bits.
+    # So, we need to mask off the top bits by OR'ing them with a bunch of 1's,
+    # and then ignore the number of symbols we've masked off when counting the number
+    # of leading nonzero symbols un the encoding
+    if !iszero(tail_bits)
+        symbols_in_tail = div(tail_bits, bits_per_symbol(Alphabet(seq))) % Int
+        tail = (tail ⊻ enc) | ~(UInt64(1) << (tail_bits & 0x3f) - 1)
+        masked_unsets = div((0x40 - tail_bits), bits_per_symbol(Alphabet(seq)))
+        lu = leading_unsets(BitsPerSymbol(seq), tail) - masked_unsets
+        lu < symbols_in_tail && return (i - lu) % Int
+        i -= lu
+    end
+    while body_i ≥ body_stop
+        chunk = @inbounds data[body_i] ⊻ enc
+        ze = set_zero_encoding(BitsPerSymbol(seq), chunk)
+        if !iszero(ze)
+            return i - div(leading_zeros(ze) % UInt, bits_per_symbol(Alphabet(seq))) % Int
+        end 
+        body_i -= 1
+        i -= symbols_per_data_element(seq)
+    end
+    if !iszero(head_bits)
+        symbols_in_head = div(head_bits, bits_per_symbol(Alphabet(seq))) % Int
+        head = (head ⊻ enc) | ~(UInt64(1) << (head_bits & 0x3f) - 1)
+        masked_unsets = div((0x40 - head_bits), bits_per_symbol(Alphabet(seq)))
+        lu = leading_unsets(BitsPerSymbol(seq), head) - masked_unsets
+        lu < symbols_in_head && return (i - lu) % Int
+    end
+    nothing
+end
+
+encoding_expansion(::BitsPerSymbol{8}) = 0x0101010101010101
+encoding_expansion(::BitsPerSymbol{4}) = 0x1111111111111111
+encoding_expansion(::BitsPerSymbol{2}) = 0x5555555555555555
+
+# For every 8-bit chunk, if the chunk is all zeros, set the lowest bit in the chunk,
+# else, zero the chunk.
+# E.g. 0x_0a_b0_0c_00_fe_00_ff_4e -> 0x_00_00_00_01_00_01_00_00
+function set_zero_encoding(B::BitsPerSymbol{8}, enc::UInt64)
+    enc = ~enc
+    enc &= enc >> 4
+    enc &= enc >> 2
+    enc &= enc >> 1
+    enc & encoding_expansion(B)
+end
+
+function set_zero_encoding(B::BitsPerSymbol{4}, enc::UInt64)
+    enc = ~enc
+    enc &= enc >> 2
+    enc &= enc >> 1
+    enc & encoding_expansion(B)
+end
+
+function set_zero_encoding(B::BitsPerSymbol{2}, enc::UInt64)
+    enc = ~enc
+    enc &= enc >> 1
+    enc & encoding_expansion(B)
+end
+
+# Count how many trailing chunks of B bits in encoding that are not all zeros
+function trailing_unsets(::BitsPerSymbol{B}, enc::UInt64) where B
+    u = set_zero_encoding(BitsPerSymbol{B}(), enc)
+    div(trailing_zeros(u) % UInt, B) % Int
+end
+
+function leading_unsets(::BitsPerSymbol{B}, enc::UInt64) where B
+    u = set_zero_encoding(BitsPerSymbol{B}(), enc)
+    div(leading_zeros(u) % UInt, B) % Int
+end

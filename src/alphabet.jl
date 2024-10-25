@@ -102,7 +102,7 @@ If `s` cannot be encoded to the given alphabet, throw an `EncodeError`
     return y === nothing ? throw(EncodeError(A, s)) : y
 end
 
-tryencode(A::Alphabet, s::BioSymbol) = throw(EncodeError(A, s))
+tryencode(A::Alphabet, s::Any) = nothing
 
 """
     tryencode(::Alphabet, x::S)
@@ -387,3 +387,5 @@ function guess_alphabet(v::AbstractVector{UInt8})
     end
 end
 guess_alphabet(s::AbstractString) = guess_alphabet(codeunits(s))
+
+const KNOWN_ALPHABETS = Union{DNAAlphabet, RNAAlphabet, AminoAcidAlphabet}

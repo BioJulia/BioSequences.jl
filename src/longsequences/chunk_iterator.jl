@@ -130,3 +130,78 @@ Base.eltype(::Type{<:PairedChunkIterator}) = NTuple{2, UInt64}
     b = iter_inbounds(it.b, last(state))
     ((first(a), first(b)), (last(a), last(b)))
 end
+
+# This returns (head, body, tail), where:
+# - head and tail are Tuple{UInt64, UInt8}, with a coding element and the number
+#   of coding bits in that element. Head is the partial coding element before any
+#   full elements, and tail is the partial after any coding elements.
+#   If head or tail is empty, the UInt8 is set to zero. By definition, it can be
+#   at most set to 63.
+#   If the sequence is composed of only one partial element, tail is nonempty
+#   and head is empty.
+# - body is a Tuple{UInt, UInt} with the (start, stop) indices of coding elements.
+#   If stop < start, there are no such elements.
+# TODO: The body should probably be a MemoryView in 1.11
+function parts(seq::LongSequence)
+    # LongSequence never has coding bits before the first chunks
+    head = (zero(UInt64), zero(UInt8))
+    len = length(seq)
+    # Shortcut to prevent annoying edge cases in the rest of the code
+    if iszero(len)
+        return (head, (UInt(1), UInt(0)), (zero(UInt64), zero(UInt8)))
+    end
+    lastbitindex(seq)
+    bits_in_tail = (offset(bitindex(seq, len + 1)) % UInt8) & 0x3f
+    lbi = bitindex(seq, len)
+    lbii = index(lbi)
+    tail = if iszero(bits_in_tail)
+        head
+    else
+        (@inbounds(seq.data[lbii]), bits_in_tail)
+    end
+    # If we have bits in the tail, then clearly those bits means the last bitindex
+    # points to one past the last full chunk
+    body = (UInt(1), (lbii - !iszero(bits_in_tail)) % UInt)
+    (head, body, tail)
+end
+
+function parts(seq::LongSubSeq)
+    data = seq.data
+    zero_end = (zero(UInt64), zero(UInt8))
+    len = length(seq)
+    # Again: Avoid annoying edge cases later
+    if iszero(len)
+        return (zero_end, (UInt(1), UInt(0)), zero_end)
+    end
+    lastbitindex(seq)
+    lbi = bitindex(seq, len)
+    lbii = index(lbi)
+    fbi = firstbitindex(seq)
+    fbii = index(fbi)
+    bits_in_head_naive = (((64 - offset(fbi)) % UInt8) & 0x3f)
+    # If first and last chunk index is the same, there are actually zero
+    # bits in head, as they are all in the tail
+    bits_in_head = bits_in_head_naive * (lbii != fbii)
+    # For the head, there are some uncoding lower bits. We need to shift
+    # the head right with this number.
+    head_shift = ((0x40 - bits_in_head_naive) & 0x3f)
+    head = if iszero(bits_in_head)
+        zero_end
+    else
+        chunk = @inbounds(data[fbii]) >> head_shift
+        (chunk, bits_in_head)
+    end
+    # However, if last and first chunk index is the same, there is no head
+    # chunk, and thus no head chunk to shift, but the TAIL chunk may not have coding bits at the lowest
+    # position.
+    tail_shift = (head_shift * (lbii == fbii)) & 63
+    bits_in_tail = (offset(bitindex(seq, len + 1)) % UInt8) & 0x3f
+    bits_in_tail -= tail_shift % UInt8
+    tail = if iszero(bits_in_tail)
+        zero_end
+    else
+        (@inbounds(data[lbii]) >> tail_shift, bits_in_tail)
+    end
+    body = (fbii + !iszero(bits_in_head), lbii - !iszero(bits_in_tail))
+    (head, body, tail)
+end
