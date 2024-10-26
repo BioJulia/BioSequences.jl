@@ -74,7 +74,7 @@ function has_interface(
         isempty(syms) && error("Vector syms must not be empty")
         first(syms) isa eltype(T) || error("Vector is of wrong element type")
         seq = T((i for i in syms))
-        length(seq) > 0 || return false
+        length(seq) == length(syms) || return false
         eachindex(seq) === Base.OneTo(length(seq)) || return false
         E = encoded_data_eltype(T)
         e = extract_encoded_element(seq, 1)
@@ -101,13 +101,14 @@ Base.nextind(::BioSequence, i::Integer) = Int(i) + 1
 Base.prevind(::BioSequence, i::Integer) = Int(i) - 1
 Base.size(x::BioSequence) = (length(x),)
 Base.eltype(::Type{<:BioSequence{A}}) where {A <: Alphabet} = eltype(A)
-Base.eltype(x::BioSequence) = eltype(typeof(x))
 Alphabet(::Type{<:BioSequence{A}}) where {A <: Alphabet} = A()
 Alphabet(x::BioSequence) = Alphabet(typeof(x))
 Base.isempty(x::BioSequence) = iszero(length(x))
 Base.empty(::Type{T}) where {T <: BioSequence} = T(eltype(T)[])
 Base.empty(x::BioSequence) = empty(typeof(x))
 BitsPerSymbol(x::BioSequence) = BitsPerSymbol(Alphabet(typeof(x)))
+bits_per_symbol(::Type{T}) where {T <: BioSequence} = bits_per_symbol(Alphabet(T))
+bits_per_symbol(x::BioSequence) = bits_per_symbol(typeof(x))
 Base.hash(s::BioSequence, x::UInt) = foldl((a, b) -> hash(b, a), s, init=x)
 
 function Base.similar(seq::BioSequence, len::Integer=length(seq))
