@@ -362,7 +362,7 @@ function _findlast(seq::SeqOrView{<:KNOWN_ALPHABETS}, enc::UInt64)
     while body_i - unroll + 2 > body_stop
         u = zero(UInt64)
         for j in 0:unroll - 1
-            u |= set_zero_encoding(BitsPerSymbol(seq), @inbounds(data[body_i + j]) ⊻ enc)
+            u |= set_zero_encoding(BitsPerSymbol(seq), @inbounds(data[body_i - j]) ⊻ enc)
         end
         iszero(u) || break
         i -= symbols_per_data_element(seq) * unroll

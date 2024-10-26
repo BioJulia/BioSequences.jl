@@ -64,6 +64,16 @@
     @test findnext(==(DNA_M), seq, 8) == 8
     @test findnext(==(DNA_M), seq, 9) == 21
 
+    # Very large sequence so it hits the inner SIMD loop
+    seq = randdnaseq(541)
+    seq[100] = DNA_Gap
+    @test findfirst(==(DNA_Gap), seq) == findfirst(isgap, seq) == 100
+    seq[100] = DNA_A
+    seq[500] = DNA_Gap
+    @test findlast(==(DNA_Gap), seq) == findlast(isgap, seq) == 500
+    seq[500] = DNA_A
+    @test findfirst(==(DNA_Gap), seq) == findlast(isgap, seq) == nothing
+
     # View with only tail
     #               1234
     seq = view(aa"KWYPAV-L", 3:6)
