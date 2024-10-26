@@ -44,6 +44,20 @@ end
 	@test String(seq) == "ANKYH"
 end
 
+@testset "Equality" begin
+    for size in [41, 504, 7]
+        for offset in [0, 3, 32]
+            seq = randrnaseq(size)
+            seq2 = view(randrnaseq(offset) * seq * randrnaseq(15), offset+1:offset+size)
+            @test seq == seq2
+            seq[4] = RNA_Gap
+            @test seq != seq2
+            seq3 = view(seq, 1:size)
+            @test seq == seq3
+        end
+    end
+end
+
 # Added after issue 260
 @testset "Random construction" begin
 	for i in 1:100

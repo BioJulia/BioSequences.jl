@@ -341,6 +341,13 @@ end
         ACGTN
         """
         @test a == b
+
+        a = randdnaseq(512)
+        a[111] = DNA_G
+        b = copy(a)
+        @test a == b
+        a[111] = DNA_C
+        @test a != b
     end
 
     @testset "RNA" begin
@@ -372,6 +379,10 @@ end
         LKMFPSTWYV
         X
         """
+        @test a == b
+
+        a = randaaseq(131)
+        b = copy(a)
         @test a == b
     end
 end
