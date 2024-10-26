@@ -47,7 +47,7 @@ end
 @testset "Equality" begin
     for size in [41, 504, 7]
         for offset in [0, 3, 32]
-			seq = randrnaseq(size)
+            seq = randrnaseq(size)
             seq2 = view(randrnaseq(offset) * seq * randrnaseq(15), offset+1:offset+size)
             @test seq == seq2
             seq[4] = RNA_Gap

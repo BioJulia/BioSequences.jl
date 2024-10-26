@@ -122,11 +122,7 @@ Base.length(it::PairedChunkIterator) = length(it.a)
 Base.eltype(::Type{<:PairedChunkIterator}) = NTuple{2, UInt64}
 first_state(x::PairedChunkIterator) = (first_state(x.a), first_state(x.b))
 
-
-@inline function Base.iterate(
-    it::PairedChunkIterator,
-    state=(first_state(it.a), first_state(it.b))
-)
+@inline function Base.iterate(it::PairedChunkIterator, state=first_state(it))
     a = iterate(it.a, first(state))
     isnothing(a) && return nothing
     b = iter_inbounds(it.b, last(state))
