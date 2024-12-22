@@ -135,7 +135,15 @@ end
 EncodeError(::A, val::T) where {A,T} = EncodeError{A,T}(val)
 
 function Base.showerror(io::IO, err::EncodeError{A}) where {A}
-    print(io, "cannot encode ", repr(err.val), " in ", A)
+    val = err.val
+    char_repr = if val isa Integer && val < 0x80
+        repr(val) * " (Char '" * Char(val) * "')"
+    elseif val isa Union{AbstractString, AbstractChar}
+        repr(val)
+    else
+        string(err.val)
+    end
+    print(io, "cannot encode " * char_repr * " in ", A)
 end
 
 """

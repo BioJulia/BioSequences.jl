@@ -194,3 +194,20 @@ end
     cp = copy(seq)
     @test ungap!(seq) == cp
 end
+
+# Ideally, we'd not test this internal function, but instead the code that
+# relies on this, but this is only called if you have custom alphabets, and
+# creating these alphabets of different sizes is a hassle
+@testset "bitreverse" begin
+    bps8 = BioSequences.BitsPerSymbol{8}()
+    bps16 = BioSequences.BitsPerSymbol{16}()
+    bps32 = BioSequences.BitsPerSymbol{32}()
+    bps64 = BioSequences.BitsPerSymbol{64}()
+    reversebits = BioSequences.reversebits
+    @test reversebits(0x0102, bps16) === 0x0102
+    @test reversebits(0x01020304, bps16) === 0x03040102
+    @test reversebits(0x0102030405060708, bps16) === 0x0708050603040102
+    @test reversebits(0x01020304, bps32) === 0x01020304
+    @test reversebits(0x0102030405060708, bps32) === 0x0506070801020304
+    @test reversebits(0x0102030405060708, bps64) === 0x0102030405060708 
+end

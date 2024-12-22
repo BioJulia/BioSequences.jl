@@ -317,7 +317,7 @@ If the input cannot be encoded by any of the built-in alphabets, an error is thr
 
 ```jldoctest
 julia> bioseq("0!(CC!;#&&%")
-ERROR: cannot encode 0x30 in AminoAcidAlphabet
+ERROR: cannot encode 0x30 (Char '0') in AminoAcidAlphabet
 [...]
 ```
 

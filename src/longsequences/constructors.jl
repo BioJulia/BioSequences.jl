@@ -131,7 +131,7 @@ julia> bioseq("UAUGCUGUAGG")
 UAUGCUGUAGG
 
 julia> bioseq("PKMW#3>>0;kL")
-ERROR: cannot encode 0x23 in AminoAcidAlphabet
+ERROR: cannot encode 0x23 (Char '#') in AminoAcidAlphabet
 [...]
 ```
 """
