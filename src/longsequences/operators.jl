@@ -263,17 +263,13 @@ function Base.:(==)(seq1::LongSequence{A}, seq2::LongSequence{A}) where {A <: Al
 end
 
 ## Search
-function Base.findnext(::typeof(isgap), seq::SeqOrView{<:KNOWN_ALPHABETS}, i::Integer)
-    findnext(==(gap(eltype(seq))), seq, i)
-end
-
 # We only dispatch on known alphabets, because new alphabets may implement == in surprising ways
-function Base.findnext(
+function _findnext(
     cmp::Base.Fix2{<:Union{typeof(==), typeof(isequal)}},
     seq::SeqOrView{<:KNOWN_ALPHABETS},
-    i::Integer,
+    i::Int,
 )
-    i = max(Int(i)::Int, 1)
+    i = max(i, 1)
     i > length(seq) && return nothing
     symbol = cmp.x
     enc = tryencode(Alphabet(seq), symbol)
@@ -320,16 +316,11 @@ function _findfirst(seq::SeqOrView{<:KNOWN_ALPHABETS}, enc::UInt64)
     nothing
 end
 
-function Base.findprev(::typeof(isgap), seq::SeqOrView{<:KNOWN_ALPHABETS}, i::Integer)
-    findprev(==(gap(eltype(seq))), seq, i)
-end
-
-function Base.findprev(
+function _findprev(
     cmp::Base.Fix2{<:Union{typeof(==), typeof(isequal)}},
     seq::SeqOrView{<:KNOWN_ALPHABETS},
-    i::Integer,
+    i::Int,
 )
-    i = Int(i)::Int
     i < 1 && return nothing
     symbol = cmp.x
     enc = tryencode(Alphabet(seq), symbol)
