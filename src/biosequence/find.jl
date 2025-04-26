@@ -12,12 +12,14 @@ Base.findlast(f::Function, seq::BioSequence) = findprev(f, seq, lastindex(seq))
 
 function Base.findnext(f::Function, seq::BioSequence, start::Integer)
     start = Int(start)::Int
+    start > lastindex(seq) && return nothing
     @boundscheck (start < 1 && throw(BoundsError(seq, start)))
     @inline _findnext(f, seq, start)
 end
 
 function Base.findprev(f::Function, seq::BioSequence, start::Integer)
     start = Int(start)::Int
+    start < 1 && return nothing
     @boundscheck (start > lastindex(seq) && throw(BoundsError(seq, start)))
     @inline _findprev(f, seq, start)
 end
@@ -48,13 +50,8 @@ _findnext(::typeof(isgap), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = not
 _findprev(::typeof(isambiguous), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
 _findprev(::typeof(isgap), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
 
-function _findnext(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int)
-    from ≤ lastindex(seq) ? from : nothing
-end
-
-function _findprev(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int)
-    from ≥ 1 ? from : nothing
-end
+_findnext(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
+_findprev(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
 
 # Finding specific symbols
 Base.findnext(x::DNA, seq::BioSequence{<:DNAAlphabet}, start::Integer) = findnext(isequal(x), seq, start)
@@ -76,3 +73,11 @@ Base.findlast(x::AminoAcid, seq::BioSequence{AminoAcidAlphabet}) = findlast(iseq
 # Finding gaps
 _findnext(::typeof(isgap), seq::BioSequence, i::Int) = _findnext(==(gap(eltype(seq))), seq, i)
 _findprev(::typeof(isgap), seq::BioSequence, i::Int) = _findprev(==(gap(eltype(seq))), seq, i)
+
+function _findnext(::ComposedFunction{typeof(!), typeof(isgap)}, seq::BioSequence, i::Int)
+    _findnext(!=(gap(eltype(seq))), seq, i)
+end
+
+function _findprev(::ComposedFunction{typeof(!), typeof(isgap)}, seq::BioSequence, i::Int)
+    _findprev(!=(gap(eltype(seq))), seq, i)
+end
