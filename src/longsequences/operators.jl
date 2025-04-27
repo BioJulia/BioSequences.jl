@@ -273,9 +273,7 @@ function _findnext(
     enc === nothing && return nothing
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> set_zero_encoding(BitsPerSymbol(seq), x ⊻ u_enc)
-    vw = @inbounds view(seq, i:lastindex(seq))
-    res = _findfirst_nonzero(f, vw)
-    res === nothing ? nothing : res + i - 1
+    _findnext_nonzero(f, seq, i)
 end
 
 function _findnext(
@@ -287,10 +285,19 @@ function _findnext(
     enc === nothing && return nothing
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> x ⊻ u_enc
+    _findnext_nonzero(f, seq, i)
+end
+
+@inline function _findnext_nonzero(
+    f,
+    seq::SeqOrView{<:KNOWN_ALPHABETS},
+    i::Int,
+)
     vw = @inbounds view(seq, i:lastindex(seq))
     res = _findfirst_nonzero(f, vw)
     res === nothing ? nothing : res + i - 1
 end
+
 
 # Find first index of seq, where f is a function that takes an encodung UInt64
 # and will zero out every coding element we are not looking for.
@@ -348,8 +355,7 @@ function _findprev(
     enc === nothing && return nothing
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> set_zero_encoding(BitsPerSymbol(seq), x ⊻ u_enc)
-    vw = @inbounds view(seq, 1:i)
-    _findlast_nonzero(f, vw)
+    _findprev_nonzero(f, seq, i)
 end
 
 function _findprev(
@@ -361,6 +367,14 @@ function _findprev(
     enc === nothing && return nothing
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> x ⊻ u_enc
+    _findprev_nonzero(f, seq, i)
+end
+
+function _findprev_nonzero(
+    f,
+    seq::SeqOrView{<:KNOWN_ALPHABETS},
+    i::Int,
+)
     vw = @inbounds view(seq, 1:i)
     _findlast_nonzero(f, vw)
 end
