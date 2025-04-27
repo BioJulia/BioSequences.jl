@@ -97,6 +97,122 @@
     end
 end
 
+@testset "SIMD find" begin
+    # We exploit that all the following methods make use of the same
+    # functions.
+    # So, we first thoroughly check one of the methods for correctness,
+    # and then we only need to check that the bitwise kernel of the rest is correct
+
+    # The thorough one - test the right indices are found, given that the kernel
+    # is correct
+    @testset "isambiguous 4bit" begin
+        seq = randdnaseq(400)
+        indices = [1, 2, 5, 11, 21, 50, 211, 380, 391, 399, 400]
+        @test isnothing(findfirst(isambiguous, seq))
+        for i in indices
+            seq[i] = DNA_W
+        end
+        for i in indices
+            @test findfirst(isambiguous, seq) == i
+            seq[i] = DNA_A
+        end
+        for i in indices
+            seq[i] = DNA_K
+        end
+        for i in reverse(indices)
+            @test findlast(isambiguous, seq) == i
+            seq[i] = DNA_T
+        end
+        @test isnothing(findfirst(isambiguous, seq))
+
+        # Some random tests
+        @test findnext(isambiguous, dna"ATGCTGTA", 2) === nothing
+
+        seq = dna"ATSCTGCA"
+        @test findnext(isambiguous, seq, 2) === 3
+        @test findnext(isambiguous, seq, 3) === 3
+        @test findnext(isambiguous, seq, 4) === nothing
+        @test findprev(isambiguous, seq, 8) === 3
+        @test findprev(isambiguous, seq, 3) === 3
+        @test findprev(isambiguous, seq, 2) === nothing
+        @test_throws BoundsError findnext(isambiguous, seq, 0)
+        @test_throws BoundsError findprev(isambiguous, seq, 10)
+
+        seq = dna"ATSCTGMA"
+        @test findnext(isambiguous, seq, 3) === 3
+        @test findnext(isambiguous, seq, 4) === 7
+        @test findnext(isambiguous, seq, 8) === nothing
+        @test findprev(isambiguous, seq, 8) === 7
+        @test findprev(isambiguous, seq, 7) === 7
+        @test findprev(isambiguous, seq, 6) === 3
+        @test findprev(isambiguous, seq, 2) === nothing
+    end
+
+    @testset "Various kernels" begin
+        for (f, A) in Any[
+            (isambiguous, DNAAlphabet{4}()),
+            (isambiguous, AminoAcidAlphabet()),
+            (!isambiguous, DNAAlphabet{4}()),
+            (!isambiguous, AminoAcidAlphabet()),
+            (iscertain, DNAAlphabet{4}()),
+            (!iscertain, AminoAcidAlphabet()),
+            (isgap, DNAAlphabet{4}()),
+            (!isgap, AminoAcidAlphabet()),
+        ]
+            yes, no = Any[], Any[]
+            for i in A
+                push!(f(i) ? yes : no, i)
+            end
+            seq = LongSequence{typeof(A)}(undef, 3)
+            for i in eachindex(seq)
+                seq[i] = first(no)
+            end
+
+            @test isnothing(findfirst(f, seq))
+            @test isnothing(findlast(f, seq))
+
+            # Test validity of all 'yes'
+            for i in yes
+                seq[2] = i
+                @test findfirst(f, seq) === 2
+                @test findlast(f, seq) === 2
+            end
+
+            # Test validity of all 'no'
+            for i in no
+                seq[1] = i
+                seq[3] = i
+                @test findfirst(f, seq) === 2
+                @test findlast(f, seq) === 2
+            end
+        end
+    end
+
+    @testset "Noop find methods" begin
+        for s in Any[randseq(DNAAlphabet{2}(), 256), randseq(RNAAlphabet{2}(), 256), SimpleSeq(randdnaseq(256))]
+            @test isnothing(findfirst(isgap, s))
+            @test isnothing(findlast(isgap, s))
+
+            @test isnothing(findfirst(isambiguous, s))
+            @test isnothing(findlast(isambiguous, s))
+
+            @test isnothing(findfirst(!iscertain, s))
+            @test isnothing(findlast(!iscertain, s))
+
+            for f in [iscertain, !isambiguous, !isgap]
+                for i in [10, 41, 256, 1]
+                    @test findnext(f, s, i) === i
+                    @test findprev(f, s, i) === i
+                    @test_throws BoundsError findnext(f, s, 0)
+                    @test_throws BoundsError findprev(f, s, lastindex(s) + 1)
+                    @test isnothing(findnext(f, s, lastindex(s) + 1))
+                    @test isnothing(findprev(f, s, 0))
+                end
+            end
+        end
+    end
+end
+
 @testset "Search" begin
     #         0000000001111
     #         1234567890123

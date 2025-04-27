@@ -388,11 +388,10 @@ function _findlast_nonzero(f::Function, seq::SeqOrView{<:KNOWN_ALPHABETS})
     # This part is slightly different, because the coding bits are shifted to the right,
     # but we need to count the leading bits.
     # So, we set all the unused bits to zero, then count leading zeros, and then
-    # ignore the unused zero bits.
+    # subtract the unused bits from the leading zero count
     mask = (UInt(1) << (tail_bits & 63)) - 1
     lz = leading_zeros(f(tail) & mask)
     if lz < 64
-        # Compensate for@inbounds(data[body_i]) noncoding zero bits
         zero_symbols = div((lz - (64 - tail_bits)) % UInt, bps) % Int
         return i - zero_symbols
     end
