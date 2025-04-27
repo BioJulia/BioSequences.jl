@@ -155,8 +155,12 @@ end
             (!isambiguous, DNAAlphabet{4}()),
             (!isambiguous, AminoAcidAlphabet()),
             (iscertain, DNAAlphabet{4}()),
+            (iscertain, AminoAcidAlphabet()),
+            (!iscertain, DNAAlphabet{4}()),
             (!iscertain, AminoAcidAlphabet()),
             (isgap, DNAAlphabet{4}()),
+            (isgap, AminoAcidAlphabet()),
+            (!isgap, DNAAlphabet{4}()),
             (!isgap, AminoAcidAlphabet()),
         ]
             yes, no = Any[], Any[]
