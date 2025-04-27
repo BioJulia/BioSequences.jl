@@ -219,6 +219,7 @@ include("biosequence/biosequence.jl")
 include("longsequences/longsequence.jl")
 include("longsequences/hash.jl")
 include("longsequences/randseq.jl")
+include("longsequences/find.jl")
 
 include("counting.jl")
 

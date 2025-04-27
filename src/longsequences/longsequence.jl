@@ -120,3 +120,9 @@ include("copying.jl")
 include("stringliterals.jl")
 include("transformations.jl")
 include("operators.jl")
+
+const FourBit = SeqOrView{<:NucleicAcidAlphabet{4}}
+const TwoBit = SeqOrView{<:NucleicAcidAlphabet{2}}
+
+const TwoBitSeq = BioSequence{<:NucleicAcidAlphabet{2}}
+const FourBitSeq = BioSequence{<:NucleicAcidAlphabet{4}}

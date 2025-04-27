@@ -259,12 +259,6 @@ _n_certain(seq::BioSequence) = count_naive(iscertain, seq)
 
 _n_gc(seq::BioSequence) = count_naive(isGC, seq)
 
-const FourBit = SeqOrView{<:NucleicAcidAlphabet{4}}
-const TwoBit = SeqOrView{<:NucleicAcidAlphabet{2}}
-
-const TwoBitSeq = BioSequence{<:NucleicAcidAlphabet{2}}
-const FourBitSeq = BioSequence{<:NucleicAcidAlphabet{4}}
-
 # Trivial overloads
 _n_certain(s::TwoBitSeq) = length(s)
 _n_ambiguous(s::TwoBitSeq) = 0
