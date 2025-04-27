@@ -46,12 +46,16 @@ end
 # N.B: The isgap and isambiguous have identical definitions but are separate methods to avoid
 # ambiguity errors.
 _findnext(::typeof(isambiguous), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
-_findnext(::typeof(isgap), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
 _findprev(::typeof(isambiguous), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
+_findnext(::typeof(isgap), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
 _findprev(::typeof(isgap), ::BioSequence{<:NucleicAcidAlphabet{2}}, ::Int) = nothing
 
 _findnext(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
 _findprev(::typeof(iscertain), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
+_findnext(::typeof(!isambiguous), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
+_findprev(::typeof(!isambiguous), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
+_findnext(::typeof(!isgap), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
+_findprev(::typeof(!isgap), seq::BioSequence{<:NucleicAcidAlphabet{2}}, from::Int) = from
 
 # Finding specific symbols
 Base.findnext(x::DNA, seq::BioSequence{<:DNAAlphabet}, start::Integer) = findnext(isequal(x), seq, start)
