@@ -109,7 +109,9 @@ Base.empty(x::BioSequence) = empty(typeof(x))
 BitsPerSymbol(x::BioSequence) = BitsPerSymbol(Alphabet(typeof(x)))
 bits_per_symbol(::Type{T}) where {T <: BioSequence} = bits_per_symbol(Alphabet(T))
 bits_per_symbol(x::BioSequence) = bits_per_symbol(typeof(x))
-Base.hash(s::BioSequence, x::UInt) = foldl((a, b) -> hash(b, a), s, init=x)
+
+const biosequencehash_seed = 0xd3f2809990a31c79
+Base.hash(s::BioSequence, x::UInt) = Base.hash_shaped(s, x ⊻ biosequencehash_seed)
 
 function Base.similar(seq::BioSequence, len::Integer=length(seq))
     return typeof(seq)(undef, len)
