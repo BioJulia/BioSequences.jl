@@ -109,7 +109,12 @@ Base.empty(x::BioSequence) = empty(typeof(x))
 BitsPerSymbol(x::BioSequence) = BitsPerSymbol(Alphabet(typeof(x)))
 bits_per_symbol(::Type{T}) where {T <: BioSequence} = bits_per_symbol(Alphabet(T))
 bits_per_symbol(x::BioSequence) = bits_per_symbol(typeof(x))
-Base.hash(s::BioSequence, x::UInt) = Base.hash_shaped(s, x)
+
+@static if isdefined(Base, :hash_shaped)
+    Base.hash(s::BioSequence, x::UInt) = Base.hash_shaped(s, x)
+else
+    Base.hash(s::BioSequence, x::UInt) = foldl((a, b) -> hash(b, a), s, init=x)
+end
 
 function Base.similar(seq::BioSequence, len::Integer=length(seq))
     return typeof(seq)(undef, len)
