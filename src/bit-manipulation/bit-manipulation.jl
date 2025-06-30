@@ -68,6 +68,26 @@ end
     @inline sum(map(i -> f(i.value), z))
 end
 
+pattern(::BitsPerSymbol{1})   = typemax(UInt128)
+pattern(::BitsPerSymbol{2})   = 0x55555555555555555555555555555555
+pattern(::BitsPerSymbol{4})   = 0x11111111111111111111111111111111
+pattern(::BitsPerSymbol{8})   = 0x01010101010101010101010101010101
+pattern(::BitsPerSymbol{16})  = 0x00010001000100010001000100010001
+pattern(::BitsPerSymbol{32})  = 0x00000001000000010000000100000001
+pattern(::BitsPerSymbol{64})  = 0x00000000000000010000000000000001
+pattern(::BitsPerSymbol{128}) = 0x00000000000000000000000000000001
+
+function count_encoding(chunk::T, encoding::T, b::BitsPerSymbol{B}) where {T <: Unsigned, B}
+    pat = pattern(b) % typeof(encoding)
+    u = chunk ⊻ (encoding * pat)
+    for i in 1:trailing_zeros(B)
+        shift = (1 << (i - 1)) & (8*sizeof(T) - 1)
+        u |= (u >> shift)
+    end
+    u = ~u & pat
+    return count_ones(u)
+end
+
 @inline function certain_bitcount(x::UInt64, ::T) where {T<:NucleicAcidAlphabet{4}}
     x = enumerate_nibbles(x)
     x = x ⊻ 0x1111111111111111
