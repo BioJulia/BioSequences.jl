@@ -21,7 +21,6 @@ end
         y += @inline body(data[i])
     end
     y
-    y
 end
 
 """
@@ -356,44 +355,22 @@ function count_symbol(seq::BioSequence, sym::BioSymbol)
     n
 end
 
+function count_symbol(seq::Union{LongSubSeq, LongSequence}, sym::BioSymbol)
+    enc = encode(Alphabet(seq), sym)
+    tail = (chunk, rm) -> begin
+        mask = UInt64(1) << (rm & 63) - 1
+        masked = iszero(enc) ? chunk | ~mask : mask & chunk
+        count_encoding(masked, enc, BitsPerSymbol(seq))
+    end
+    body = i -> count_encoding(i, enc, BitsPerSymbol(seq))
+    counter_1seq(tail, body, seq)
+end
+
 function Base.count(
     pred::Base.Fix2{<:Union{typeof(==), typeof(isequal)}, <: BioSymbol},
     s::BioSequence
 )
     count_symbol(s, pred.x)
-end
-
-function count_symbol(seq::FourBit, s::Union{RNA, DNA})
-    pattern = encode(Alphabet(seq), s)::UInt64 * 0x1111111111111111
-    tail = (chunk, rm) -> begin
-        mask = UInt64(1) << (rm & 63) - 1
-        masked = iszero(pattern) ? chunk | ~mask : mask & chunk
-        count_0000_nibbles(masked ⊻ pattern)
-    end
-    body = i -> count_0000_nibbles(i ⊻ pattern)
-    counter_1seq(tail, body, seq)
-end
-
-function count_symbol(seq::TwoBit, s::Union{RNA, DNA})
-    pattern = encode(Alphabet(seq), s)::UInt64 * 0x5555555555555555
-    tail = (chunk, rm) -> begin
-        mask = UInt64(1) << (rm & 63) - 1
-        masked = iszero(pattern) ? chunk | ~mask : mask & chunk
-        count_00_bitpairs(masked ⊻ pattern)
-    end
-    body = i -> count_00_bitpairs(i ⊻ pattern)
-    counter_1seq(tail, body, seq)
-end
-
-function count_symbol(seq::SeqOrView{AminoAcidAlphabet}, s::AminoAcid)
-    byte = encode(Alphabet(seq), s) % UInt8
-    tail = (chunk, rm) -> begin
-        mask = UInt64(1) << (rm & 63) - 1
-        masked = iszero(byte) ? chunk | ~mask : mask & chunk
-        count_compared_bytes(==(byte), masked)
-    end
-    body = i -> count_compared_bytes(==(byte), i)
-    counter_1seq(tail, body, seq)
 end
 
 ## Deprecate weird two-arg methods
