@@ -30,22 +30,22 @@ end
 
 @inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
 
-@inline function seq_data_len(::Type{A}, len::Integer) where A <: Alphabet
+@inline function seq_data_len(::Type{A}, len::Integer)::Int where A <: Alphabet
     iszero(bits_per_symbol(A())) && return 0
-    return cld(len, div(64, bits_per_symbol(A())))
+    return cld(len % UInt, div(64, bits_per_symbol(A())) % UInt) % Int
 end
 
 function LongSequence{A}(::UndefInitializer, len::Integer) where {A<:Alphabet}
     if len < 0
         throw(ArgumentError("len must be non-negative"))
     end
-    return LongSequence{A}(Vector{UInt64}(undef, seq_data_len(A, len)), UInt(len))
+    return LongSequence{A}(Memory{UInt64}(undef, seq_data_len(A, len)), UInt(len))
 end
 
 # Generic constructor
 function LongSequence{A}(it) where {A <: Alphabet}
     len = length(it)
-    data = Vector{UInt64}(undef, seq_data_len(A, len))
+    data = Memory{UInt64}(undef, seq_data_len(A, len))
     bits = zero(UInt)
     bitind = bitindex(BitsPerSymbol(A()), encoded_data_eltype(LongSequence{A}), 1)
     @inbounds for x in it
@@ -62,7 +62,7 @@ function LongSequence{A}(it) where {A <: Alphabet}
     LongSequence{A}(data, len % UInt)
 end
 
-Base.empty(::Type{T}) where {T <: LongSequence} = T(UInt[], UInt(0))
+Base.empty(::Type{T}) where {T <: LongSequence} = T(Memory{UInt64}(), UInt(0))
 (::Type{T})() where {T <: LongSequence} = empty(T)
 
 # Constructors from other sequences

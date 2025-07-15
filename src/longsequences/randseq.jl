@@ -165,8 +165,9 @@ end
 # the non-ambiguous ones
 function Random.rand!(rng::AbstractRNG, seq::LongSequence{<:NucleicAcidAlphabet{4}})
     data = seq.data
-    rand!(rng, data)
-    @inbounds for i in eachindex(data)
+    len = seq_data_len(seq)
+    rand!(rng, view(data, 1:len))
+    @inbounds for i in 1:len
         nuc = 0x1111111111111111
         mask = data[i]
         nuc = ((nuc & mask) << 1) | (nuc & ~mask)

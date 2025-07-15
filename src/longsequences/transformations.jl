@@ -2,6 +2,15 @@
 ### LongSequence specific specializations of src/biosequence/transformations.jl
 ###
 
+@noinline function resize_memory!(seq::LongSequence, n_chunks::UInt)
+    oldmem = seq.data
+    newmem = Memory{UInt64}(undef, n_chunks % Int)
+    unsafe_copyto!(newmem, 1, oldmem, 1, min(seq_data_len(seq), n_chunks))
+    seq.data = newmem
+    seq
+end
+
+# TODO for new breaking version: Do not allow this API, since we can have invalid symbols in encoding?
 """
     resize!(seq, size, [force::Bool=false])
 
@@ -13,15 +22,13 @@ is not allowed and may cause undefined behaviour.
 Make sure to always fill any uninitialized biosymbols after resizing.
 """
 function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) where {A}
-    if size < 0
-        throw(ArgumentError("size must be non-negative"))
-    else
-        if force | (seq_data_len(A, size) > seq_data_len(A, length(seq)))
-            resize!(seq.data, seq_data_len(A, size))
-        end
-        seq.len = size
-        return seq
+    size < 0 && throw(ArgumentError("size must be non-negative"))
+    usize = UInt(size)::UInt
+    if force || (seq_data_len(A, usize) > seq_data_len(A, length(seq) % UInt))
+        @noinline resize_memory!(seq, seq_data_len(A, usize) % UInt)
     end
+    seq.len = size
+    return seq
 end
 
 """
@@ -95,7 +102,7 @@ end
 
 # Reverse chunks in data vector and each symbol within a chunk. Chunks may have nonzero
 # offset after use, so use zero_offset!
-@inline function reverse_data!(pred, data::Vector{UInt64}, len::UInt, B::BT) where {
+@inline function reverse_data!(pred, data::Memory{UInt64}, len::UInt, B::BT) where {
     BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     @inbounds @simd ivdep for i in 1:len >>> 1
         data[i], data[len-i+1] = pred(reversebits(data[len-i+1], B)), pred(reversebits(data[i], B))
@@ -105,7 +112,7 @@ end
     end
 end
 
-@inline function reverse_data_copy!(pred, dst::Vector{UInt64}, src::Vector{UInt64}, len::UInt,
+@inline function reverse_data_copy!(pred, dst::Memory{UInt64}, src::Memory{UInt64}, len::UInt,
     B::BT) where {BT <: Union{BitsPerSymbol{2}, BitsPerSymbol{4}, BitsPerSymbol{8}}}
     @inbounds @simd for i in eachindex(dst)
         dst[i] = pred(reversebits(src[len - i + 1], B))
@@ -119,7 +126,7 @@ Make a complement sequence of `seq` in place.
 """
 function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     seqdata = seq.data
-    @inbounds for i in eachindex(seqdata)
+    @inbounds for i in 1:seq_data_len(seq)
         seqdata[i] = complement_bitpar(seqdata[i], Alphabet(seq))
     end
     return seq
