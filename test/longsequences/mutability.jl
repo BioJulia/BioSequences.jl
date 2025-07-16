@@ -122,6 +122,8 @@
         seq = dna"ACGT"
         @test insert!(seq, 2, DNA_G) == dna"AGCGT"
         @test insert!(seq, 5, DNA_A) == dna"AGCGAT"
+        @test insert!(seq, 1, 'G') == dna"GAGCGAT"
+        @test insert!(seq, length(seq) + 1, 'C') == dna"GAGCGATC"
         @test_throws BoundsError insert!(seq, 10, DNA_T)
     end
 

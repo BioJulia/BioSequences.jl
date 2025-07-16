@@ -57,11 +57,7 @@ julia> insert!(seq, 3, 'A')
 ATAGCA
 ```
 """
-function Base.insert!(
-        seq::BioSequence,
-        i::Integer,
-        x
-    )
+function Base.insert!(seq::BioSequence, i::Integer, x)
     i == length(seq) + 1 && return push!(seq, x)
     checkbounds(seq, i)
     resize!(seq, length(seq) + 1)
