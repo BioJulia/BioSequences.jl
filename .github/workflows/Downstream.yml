@@ -44,6 +44,7 @@ jobs:
       - name: Load this and run the downstream tests
         shell: julia --color=yes --project=downstream {0}
         run: |
+          ENV["JULIA_PKG_PRECOMPILE_AUTO"] = 0
           using Pkg
           try
             # force it to use this PR's version of the package
