@@ -66,6 +66,8 @@ deleteat!(::BioSequences.BioSequence, ::Integer)
 append!(::BioSequences.BioSequence, ::BioSequences.BioSequence)
 resize!(::BioSequences.LongSequence, ::Integer)
 empty!(::BioSequences.BioSequence)
+spliceinto!(::BioSequence, ::Integer, ::Any)
+spliceinto!(::BioSequence, ::UnitRange, ::Any)
 ```
 
 Here are some examples:

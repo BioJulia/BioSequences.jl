@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.5.0]
+* Add `spliceinto!`. This function inserts a sequence into a biosequence,
+  and optionally deletes part of the original sequence. The naming difference
+  from `Base.splice!` reflects is slightly different API.
+* Optimise various methods
+
 ## [3.4.0]
 * Deprecate functions `n_ambiguous`, `n_gaps` and `n_certain`. Instead, use the
   equivalent methods `count(f, seq)` with the appropriate function `f`.

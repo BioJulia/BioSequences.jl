@@ -122,7 +122,86 @@
         seq = dna"ACGT"
         @test insert!(seq, 2, DNA_G) == dna"AGCGT"
         @test insert!(seq, 5, DNA_A) == dna"AGCGAT"
+        @test insert!(seq, 1, 'G') == dna"GAGCGAT"
+        @test insert!(seq, length(seq) + 1, 'C') == dna"GAGCGATC"
         @test_throws BoundsError insert!(seq, 10, DNA_T)
+    end
+
+    @testset "spliceinto!" begin
+        @testset "spliceinto integer" begin
+            function manual_spliceinto(seq, i, x)
+                s = typeof(seq)(undef, length(seq) + length(x))
+                copyto!(s, 1, seq, 1, i-1)
+                copyto!(s, i, x, 1, length(x))
+                copyto!(s, i + length(x), seq, i, length(seq)-i+1)
+                return s
+            end
+
+            seq = dna"TAGTGCA"
+            @test spliceinto!(seq, 2, "CA") === seq
+            @test seq == dna"TCAAGTGCA"
+
+            str = "ATGTGCTCGTGTCGTGATAGTGAGTAGTAGTCGTAGTAGTGATTGCTGTAGTA"
+            seq = LongDNA{2}(str)
+
+            @test_throws BoundsError spliceinto!(seq, 0, "CA")
+            @test_throws BoundsError spliceinto!(seq, -1, "CA")
+            @test_throws BoundsError spliceinto!(seq, length(seq) + 2, "CA")
+
+            for (i, s) in Any[
+                (1, ""),
+                (1, "CAC"),
+                (1, "ATGCTGCTGATGTGATGA"),
+                (2, dna"ATGTCGA"),
+                (15, rna"AUGUCGUAGUAACCAACA"),
+                (16, dna"ATGTCGTGATGATGTAGTGTCGTA"),
+                (18, b"ATGCTGTGATGATGTCC"),
+                (length(seq), dna"TAGCGGAGA"),
+                (length(seq) + 1, "AGCGGGAGA"),
+            ]
+                copy!(seq, str)
+                cp = copy(seq)
+                @test spliceinto!(seq, i, s) == manual_spliceinto(cp, i, s)
+            end
+        end
+
+        @testset "spliceinto span" begin
+            function manual_spliceinto(seq, span, x)
+                deleteat!(seq, span)
+                spliceinto!(seq, first(span), x)
+                return seq
+            end
+
+            seq = dna"ATGTCGTGA"
+            @test spliceinto!(seq, 2:2, "CA") === seq
+            @test seq == dna"ACAGTCGTGA"
+
+            str = "ATGTGCTCGTGTCGTGATAGTGAGTAGTAGTCGTAGTAGTGATTGCTGTAGTA"
+            seq = LongDNA{2}(str)
+
+            @test_throws ArgumentError spliceinto!(seq, 0:-1, "CA")
+            @test_throws ArgumentError spliceinto!(seq, 1:0, "CA")
+            @test_throws ArgumentError spliceinto!(seq, lastindex(seq):5, "CA")
+
+            @test_throws BoundsError spliceinto!(seq, 0:0, "CA")
+            @test_throws BoundsError spliceinto!(seq, 0:1, "CA")
+            @test_throws BoundsError spliceinto!(seq, 4:100, "CA")
+            @test_throws BoundsError spliceinto!(seq, length(seq):length(seq)+1, "CA")
+
+            for (i, s) in Any[
+                (1:1, ""),
+                (4:6, "T"),
+                (4:9, "ATGCGTA"),
+                (3:6, "AGCA"),
+                (30:35, "ATGTCGTAG"),
+                (15:20, rna"UAGC"),
+                (9:40, dna"ATGTCGTGATGAA")
+            ]
+                copy!(seq, str)
+                cp = copy(seq)
+                @test spliceinto!(seq, i, s) == manual_spliceinto(cp, i, s)
+            end
+        end
     end
 
     @testset "deleteat!" begin

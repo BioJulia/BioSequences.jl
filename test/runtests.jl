@@ -1,7 +1,6 @@
 module TestBioSequences
 
 using Test
-using Documenter
 
 using Random
 using StableRNGs
