@@ -44,13 +44,98 @@ end
     insert!(seq::BioSequence, i, x)
 
 Insert a biological symbol `x` into a biological sequence `seq`, at the given
-index `i`.
+index `i`. Returns the mutated `seq`.
+
+# Examples
+```jldoctest
+julia> seq = dna"ATGCA"
+5nt DNA Sequence:
+ATGCA
+
+julia> insert!(seq, 3, 'A')
+6nt DNA Sequence:
+ATAGCA
+```
 """
-function Base.insert!(seq::BioSequence, i::Integer, x)
+function Base.insert!(
+        seq::BioSequence,
+        i::Integer,
+        x
+    )
+    i == length(seq) + 1 && return push!(seq, x)
     checkbounds(seq, i)
     resize!(seq, length(seq) + 1)
     copyto!(seq, i + 1, seq, i, lastindex(seq) - i)
     @inbounds seq[i] = x
+    return seq
+end
+
+"""
+    spliceinto!(seq::BioSequence, i::Integer, x)
+
+Insert the sequence `x` into a biological sequence `seq`, at the given index `i`.
+After splicing, the `seq`'s symbols at indices `i:i+length(x)-1` are equal to `x`,
+and the the symbols that were previously there are moved to the right.
+
+# Examples
+```jldoctest
+julia> seq = dna"TAGTGCA";
+
+julia> spliceinto!(seq, 3, "CAGGA")
+12nt DNA sequence:
+TACAGGAGTGCA
+```
+"""
+function spliceinto!(seq::BioSequence, i::Integer, x)
+    oldlen = length(seq)
+    i == oldlen + 1 && return append!(seq, x)
+    @boundscheck checkbounds(seq, i)
+    resize!(seq, oldlen + length(x))
+    copyto!(seq, i + length(x), seq, i, oldlen - i + 1)
+    copyto!(seq, i, x, 1, length(x))
+    return seq
+end
+
+"""
+    spliceinto!(seq::BioSequence, span::UnitRange, x)
+
+Delete the symbols at indices `span` in `seq`, and then copy `x` into the
+first deleted position, then return `seq`.
+
+This is equivalent to `deleteat!(seq, span); spliceinto!(seq, first(span), x)`,
+but is more efficient.
+`span` must be nonempty, or this function will throw an `ArgumentError`. To handle
+potentially empty spans, check if the span is empty, and if so use `spliceinto(seq, first(span), x)`.
+
+# Examples
+```jldoctest
+julia> seq = dna"TAGTGCA";
+
+julia> spliceinto!(seq, 3:5, "CAGGA")
+9nt DNA sequence:
+TACAGGACA
+```
+"""
+function spliceinto!(seq::BioSequence, span::UnitRange, x)
+    isempty(span) && throw(ArgumentError("span cannot be empty"))
+    @boundscheck checkbounds(seq, span)
+    oldlen = length(seq)
+    xlen = length(x)
+    if length(span) == xlen
+        # Same lengths: Just copy in x
+        copyto!(seq, first(span), x, 1, length(span))
+    elseif length(span) < xlen
+        # x is longer. Resize and shift to make room for more symbols,
+        # then copy in x
+        resize!(seq, oldlen + xlen - length(span))
+        copyto!(seq, first(span) + xlen, seq, last(span) + 1, oldlen - last(span))
+        copyto!(seq, first(span), x, 1, xlen)
+    else
+        # Span is longer. Delete the rightmost bases (to cause the smallest possible shift),
+        # then copy in
+        deleteat!(seq, first(span) + xlen:last(span))
+        copyto!(seq, first(span), x, 1, xlen)
+    end
     return seq
 end
 

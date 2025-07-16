@@ -132,6 +132,7 @@ export
     ungap,
     ungap!,
     join!,
+    spliceinto!,
 
     ###
     ### LongSequence
