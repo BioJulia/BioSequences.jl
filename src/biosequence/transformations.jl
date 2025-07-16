@@ -170,7 +170,7 @@ end
 Add a biological sequence `other` onto the end of biological sequence `seq`.
 Modifies and returns `seq`.
 """
-function Base.append!(seq::BioSequence, other::BioSequence)
+function Base.append!(seq::BioSequence, other)
     resize!(seq, length(seq) + length(other))
     copyto!(seq, lastindex(seq) - length(other) + 1, other, 1, length(other))
     return seq
