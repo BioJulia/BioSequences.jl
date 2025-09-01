@@ -173,3 +173,88 @@ function molecular_weight(aa_seq::AASeq, n_start::Integer, n_end::Integer)
     println("$(round(sum(AA_vector) - ((n_end - n_start - 1) * WATER_MW); digits = 3)) g/mol")
     println("$(round(((sum(AA_vector) - ((n_end - n_start - 1) * WATER_MW))/1000); digits = 3)) kDa")
 end
+
+# Definning const of molecular weight of monophosphate in g/mol to account for the loss of water and PPi during synthesis
+const DNA_A_MW = 331.22 - WATER_MW          # DNA Adenine                 dAMP ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/12599
+const RNA_A_MW = 347.22 - WATER_MW          # RNA Adenine                 AMP  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6083
+const DNA_C_MW = 307.20 - WATER_MW          # DNA Cytosine                dCMP ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/13945
+const RNA_C_MW = 323.20 - WATER_MW          # RNA Cytosine                CMP  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6131  
+const DNA_G_MW = 347.22 - WATER_MW          # DNA Guanine                 dGMP ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/1135398597
+const RNA_G_MW = 363.22 - WATER_MW          # RNA Guanine                 GMP  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/135398631
+const DNA_T_MW = 322.21 - WATER_MW          # DNA Thymine                 dTMP ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/9700
+const RNA_U_MW = 324.18 - WATER_MW          # RNA Uracil                  UMP  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6030
+
+# Calculations following the following guidelines: https://ymc.eu/files/imported/publications/556/documents/YMC-Expert-Tip---How-to-calculate-the-MW-of-nucleic-acids.pdf
+# Defining a function, which accepts DNA sequences
+function molecular_weight(aa_seq::NucSeq{4, DNAAlphabet{4}}, unit=:"gmol", five_terminal_state=:"Hydroxyl")
+    AA_vector = Vector{Float64}(undef, 0)
+    i = 1
+    while i <= length(aa_seq)
+        if aa_seq[i] == DNA_A
+            push!(AA_vector, DNA_A_MW)
+        elseif aa_seq[i] == DNA_C
+            push!(AA_vector, DNA_C_MW)
+        elseif aa_seq[i] == DNA_G
+            push!(AA_vector, DNA_G_MW)
+        elseif aa_seq[i] == DNA_T
+            push!(AA_vector, DNA_T_MW)                       
+        else
+            println("Error due to unknown nucleotide at $i position")
+            return nothing
+        end
+        i = i+1
+    end
+        if unit == "gmol" && five_terminal_state == "Phosphate"
+            return round(sum(AA_vector) + 79; digits = 3)
+        elseif unit == "gmol" && five_terminal_state == "Hydroxyl"
+            return round(sum(AA_vector) - 62; digits = 3)
+        elseif unit == "gmol" && five_terminal_state == "Triphosphate"
+            return round(sum(AA_vector) + 178; digits = 3)
+        elseif unit == "kDa" && five_terminal_state == "Phosphate"
+            return (round(sum(AA_vector) + 79; digits = 3))/1000
+        elseif unit == "kDa" && five_terminal_state == "Hydroxyl"
+            return (round(sum(AA_vector) - 62; digits = 3))/1000
+        elseif unit == "kDa" && five_terminal_state == "Triphosphate"
+            return (round(sum(AA_vector) + 178; digits = 3))/1000        
+        else 
+            println("Error")
+            return nothing
+        end
+end
+
+# Defining a function, which accepts a RNA sequences
+function molecular_weight(aa_seq::NucSeq{4, RNAAlphabet{4}}, unit=:"gmol", five_terminal_state=:"Triphosphate")
+    AA_vector = Vector{Float64}(undef, 0)
+    i = 1
+    while i <= length(aa_seq)
+        if aa_seq[i] == RNA_A
+            push!(AA_vector, RNA_A_MW)
+        elseif aa_seq[i] == RNA_C
+            push!(AA_vector, RNA_C_MW)
+        elseif aa_seq[i] == RNA_G
+            push!(AA_vector, RNA_G_MW)
+        elseif aa_seq[i] == RNA_U
+            push!(AA_vector, RNA_U_MW)                       
+        else
+            println("Error due to unknown nucleotide at $i position")
+            return nothing
+        end
+        i = i+1
+    end
+        if unit == "gmol" && five_terminal_state == "Triphosphate"
+            return round(sum(AA_vector) + 178; digits = 3)
+        elseif unit == "gmol" && five_terminal_state == "Phosphate"
+            return round(sum(AA_vector) + 79; digits = 3)            
+        elseif unit == "gmol" && five_terminal_state == "Hydroxyl"
+            return round(sum(AA_vector) - 62; digits = 3)
+        elseif unit == "kDa" && five_terminal_state == "Triphosphate"
+            return (round(sum(AA_vector) - 62; digits = 3))/1000  
+        elseif unit == "kDa" && five_terminal_state == "Phosphate"
+            return (round(sum(AA_vector) + 79; digits = 3))/1000
+        elseif unit == "kDa" && five_terminal_state == "Hydroxyl"
+            return (round(sum(AA_vector) - 62; digits = 3))/1000        
+        else 
+            println("Error")
+            return nothing
+        end
+end
