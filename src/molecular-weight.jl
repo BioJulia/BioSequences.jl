@@ -32,7 +32,7 @@ const AA_X_MW_MW  = 110                       # Any amino acid (average)    ->  
 const AA_O_Gap_MW = 0                         # Consider gap as 0       
 
 # Defining the function molecular_weight, which accepts a AA sequence and units ("gmol", "KDa") as input and return molecular weight in either g/mol or kDa. If not specified it returns in g/mol
-function molecular_weight(aa_seq::LongAA, unit=:"gmol")
+function molecular_weight(aa_seq::AASeq, unit=:"gmol")
     AA_vector = Vector{Float64}(undef, 0)
     i = 1
     while i <= length(aa_seq)
@@ -106,7 +106,7 @@ function molecular_weight(aa_seq::LongAA, unit=:"gmol")
 end
 
 # Defining a function, which accepts a AA sequence and print the molecular weight in g/mol and kDa from a given n_start position in the sequence until a n_end given position in the sequence
-function molecular_weight(aa_seq::LongAA, n_start::Integer, n_end::Integer)
+function molecular_weight(aa_seq::AASeq, n_start::Integer, n_end::Integer)
     AA_vector = Vector{Float64}(undef, 0)
     i = n_start
     while i <= n_end
