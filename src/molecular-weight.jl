@@ -26,7 +26,7 @@
 # Water                                ->  Source = https://www.cmu.edu/gelfand/k12-educational-resources/polymers/what-is-polymer/molecular-weight-calculation.html 
 
 # Creating the array AA_WEIGHTS of length 28 to list all weights. In ambigous cases, let's list the string "Undefined", so if called, it returns an error
-AA_WEIGHTS = [89.09, 174.20, 132.12, 133.10, 121.16, 146.14, 147.13, 75.07, 155.15, 131.17, 131.17, 146.19, 149.21, 165.19, 115.13, 105.09, 119.12, 204.22, 181.19, 117.15, 255.31, 168.06, "Undefined", 131.17, "Undefined", "Undefined", 0, "Undefined"]
+AA_WEIGHTS = [89.09, 174.20, 132.12, 133.10, 121.16, 146.14, 147.13, 75.07, 155.15, 131.17, 131.17, 146.19, 149.21, 165.19, 115.13, 105.09, 119.12, 204.22, 181.19, 117.15, 255.31, 168.06, "Undefined", 131.17, "Undefined", "Undefined", 0, 0]
 
 # Defining the function molecular_weight, which accepts an amino acid sequence and return molecular weight in  g/mol. Note that the function also account for lost of water for each peptide bond formation 
 function molecular_weight(aa_seq::AASeq)
