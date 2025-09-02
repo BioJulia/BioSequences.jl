@@ -1,6 +1,6 @@
 # Sources of the molecular weights of each defined amino acid in g/mol
 # AA_A   # Alanine                     ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/5950
-# AA_R   # Arginine                   ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6322
+# AA_R   # Arginine                    ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6322
 # AA_N   # Asparagine                  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6267
 # AA_D   # Aspartate                   ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/5960
 # AA_C   # Cysteine                    ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/5862
