@@ -113,7 +113,7 @@ function molecular_weight(nucseq::NucSeq, alphabet=:DNA, five_terminal_state=:hy
         elseif five_terminal_state == :triphosphate
         com_weight = com_weight + 178 
         end
-        return com_weight + weight
+        return com_weight + weight - (2 * length(nucseq) * 18.02)
     else 
         throw(ArgumentError("Unknown strand_number. Must be :single or :double. Or trying to use double as strand_number with a RNA sequence"))
     end    
