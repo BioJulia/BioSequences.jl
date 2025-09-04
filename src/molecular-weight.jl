@@ -30,6 +30,7 @@
 const AA_WEIGHTS = [89.09, 174.20, 132.12, 133.10, 121.16, 146.14, 147.13, 75.07, 155.15, 131.17, 131.17, 146.19, 149.21, 165.19, 115.13, 105.09, 119.12, 204.22, 181.19, 117.15, 255.31, 168.06, -1.0, 131.17, -1.0, -1.0, 0, 0]
 
 # Defining the function molecular_weight, which accepts an amino acid sequence and return molecular weight in  g/mol. Note that the function also account for lost of water for each peptide bond formation 
+# Results are consistent with the one of of this website: https://www.bioinformatics.org/sms/prot_mw.html
 function molecular_weight(aa_seq::AASeq)
     weight = 0.0
     for aa in aa_seq
@@ -54,39 +55,46 @@ end
 # RNA Uracil                  UMP  ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6030
 # Calculations following the following guidelines: https://ymc.eu/files/imported/publications/556/documents/YMC-Expert-Tip---How-to-calculate-the-MW-of-nucleic-acids.pdf
 
-# Creating the arrays DNA_WEIGHTS and RNA_WEIGHTS to list all weights. In ambigous cases, let's list -1.0, so if called
-# The listed values does not account for the loss of water and it will be taken into consideration later
-# In the function, if the weight is -1, then it will trow an error
+# Creating the arrays DNA_WEIGHTS and RNA_WEIGHTS to list all weights. In ambigous cases, let's list -1.0, so if called it trows an error
+# The listed values does not account for the loss of water and it will be taken into consideration in the _molecular weight function. The used value for water weight is the same as above
 const DNA_WEIGHTS = [0, 331.22, 307.20, -1.0, 347.22, -1.0, -1.0, -1.0, 322.21, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
 
 const RNA_WEIGHTS = [0, 347.22, 323.20, -1.0, 363.22, -1.0, -1.0, -1.0, 324.18 , -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
 
-# Defining a function that accepts nucleotide sequences (either DNA or RNA) and calculate the molecular weight in g/mol
-# Note the additional keywords alphabet, five_terminal_state and strand_number, which have default cases, if not specified
-# In case of using double strand, the five_terminal_state of the complmentary strand is assumed to be the same as the input strand
-# Function only accepts double as strand_number for DNA sequences
-function molecular_weight(nucseq::NucSeq, alphabet=:DNA, five_terminal_state=:hydroxyl, strand_number=:single)
+# Creating 3 functions which can process DNA or RNA seqeunces, with variable five_terminal_state and strand_number
+# If not specified the assumption are single stranded and hydroxyl as terminal 5' functional group
+# Results are consistent with the one of of this website: https://molbiotools.com/dnacalculator.php
+function molecular_weight(dna_seq::LongSequence{DNAAlphabet{4}}, five_terminal_state=:hydroxyl, strand_number=:single)
+    if strand_number == :single
+        return _molecular_weight(dna_seq, DNA_WEIGHTS, five_terminal_state)
+    elseif strand_number == :double
+        com_dna_seq = complement(dna_seq)
+        return _molecular_weight(dna_seq, DNA_WEIGHTS, five_terminal_state) + _molecular_weight(com_dna_seq, DNA_WEIGHTS, five_terminal_state)     
+    else
+        throw(ArgumentError("Unknown strand_number $strand_number. Must be :single or :double"))
+    end
+end
+
+function molecular_weight(rna_seq::LongSequence{RNAAlphabet{4}}, five_terminal_state=:hydroxyl, strand_number=:single)
+    if strand_number == :single
+        return _molecular_weight(rna_seq, RNA_WEIGHTS, five_terminal_state)
+    elseif strand_number == :double
+        com_rna_seq = complement(rna_seq)
+        return _molecular_weight(rna_seq, RNA_WEIGHTS, five_terminal_state) + _molecular_weight(com_rna_seq, RNA_WEIGHTS, five_terminal_state)     
+    else
+        throw(ArgumentError("Unknown strand_number $strand_number. Must be :single or :double"))
+    end
+end
+
+function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state=:hydroxyl)
     weight = 0.0
-    if alphabet == :DNA
-      for dnucleotide in nucseq
-        if DNA_WEIGHTS[reinterpret(UInt8, dnucleotide) + 1] == -1.0
-            throw(ArgumentError("nucleotide $dnucleotide weight is ambiguous"))
-        else
-            dna_weight = DNA_WEIGHTS[reinterpret(UInt8, dnucleotide) + 1]
-            weight += dna_weight
-        end
-       end
-    elseif alphabet == :RNA
-      for nucleotide in nucseq
-        if RNA_WEIGHTS[reinterpret(UInt8, nucleotide) + 1] == -1.0
+    for nucleotide in nucseq
+        if array[reinterpret(UInt8, nucleotide) + 1] == -1.0
             throw(ArgumentError("nucleotide $nucleotide weight is ambiguous"))
         else
-            rna_weight = RNA_WEIGHTS[reinterpret(UInt8, nucleotide) + 1]
-            weight += rna_weight
+            dna_weight = array[reinterpret(UInt8, nucleotide) + 1]
+            weight += dna_weight
         end
-      end 
-    else 
-        throw(ArgumentError("Unknown Alphabet. Must be :DNA or :RNA"))
     end
     if five_terminal_state == :hydroxyl
         weight =  weight - 62
@@ -95,26 +103,7 @@ function molecular_weight(nucseq::NucSeq, alphabet=:DNA, five_terminal_state=:hy
     elseif five_terminal_state == :triphosphate 
         weight = weight + 178
     else
-        throw(ArgumentError("Unknown five_terminal_state. Must be :hydroxyl, :phosphate or :triphosphate"))  
+        throw(ArgumentError("Unknown five_terminal_state $five_terminal_state. Must be :hydroxyl, :phosphate or :triphosphate"))  
     end
-    if strand_number == :single
-        return weight - (length(nucseq) * 18.02) 
-    elseif strand_number == :double && alphabet == :DNA
-        com_seq = complement(nucseq)
-        com_weight = 0.0
-        for c_dnucleotide in com_seq
-            com_dna_weight = DNA_WEIGHTS[reinterpret(UInt8, c_dnucleotide) + 1]
-            com_weight += com_dna_weight
-        end
-        if five_terminal_state == :hydroxyl
-        com_weight =  com_weight - 62
-        elseif five_terminal_state == :phosphate
-        com_weight = com_weight + 79
-        elseif five_terminal_state == :triphosphate
-        com_weight = com_weight + 178 
-        end
-        return com_weight + weight - (2 * length(nucseq) * 18.02)
-    else 
-        throw(ArgumentError("Unknown strand_number. Must be :single or :double. Or trying to use double as strand_number with a RNA sequence"))
-    end    
+    return  weight - (length(nucseq) * 18.02)
 end
