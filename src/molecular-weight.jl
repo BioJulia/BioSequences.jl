@@ -27,10 +27,28 @@
 
 # Creating the array AA_WEIGHTS of length 28 to list all weights. In ambigous cases, let's list -1.0 
 # In the function, if the weight is -1, then it will trow an error
-const AA_WEIGHTS = [89.09, 174.20, 132.12, 133.10, 121.16, 146.14, 147.13, 75.07, 155.15, 131.17, 131.17, 146.19, 149.21, 165.19, 115.13, 105.09, 119.12, 204.22, 181.19, 117.15, 255.31, 168.06, -1.0, 131.17, -1.0, -1.0, 0, 0]
+# Note that for gap and terminal codon, the value is 18.02 intead of 0 to account for the substraction of water in the function
+const AA_WEIGHTS = [89.09, 174.20, 132.12, 133.10, 121.16, 146.14, 147.13, 75.07, 155.15, 131.17, 131.17, 146.19, 149.21, 165.19, 115.13, 105.09, 119.12, 204.22, 181.19, 117.15, 255.31, 168.06, -1.0, 131.17, -1.0, -1.0, 18.02, 18.02]
 
 # Defining the function molecular_weight, which accepts an amino acid sequence and return molecular weight in  g/mol. Note that the function also account for lost of water for each peptide bond formation 
 # Results are consistent with the one of of this website: https://www.bioinformatics.org/sms/prot_mw.html
+
+"""
+    molecular_weight(aa_seq::AASeq) -> Float64
+
+Calculate molecular weight of `aa_seq`in g/mol, i.e. 
+Sum of the weights of all the amino acids of the sequence minus water lost per peptide bond. 
+Values of each amino acid were obtained from PubChem 2.1, values are listed in the vector{Float64} AA_WEIGHTS.
+
+# Examples
+```jldoctest
+julia> molecular_weight(aa"PKLEQ")
+613.68
+
+julia> molecular_weight(aa"ETIWS*")
+634.65
+```
+"""
 function molecular_weight(aa_seq::AASeq)
     weight = 0.0
     for aa in aa_seq
@@ -64,6 +82,26 @@ const RNA_WEIGHTS = [0, 347.22, 323.20, -1.0, 363.22, -1.0, -1.0, -1.0, 324.18 ,
 # Creating 3 functions which can process DNA or RNA seqeunces, with variable five_terminal_state and strand_number
 # If not specified the assumption are single stranded and hydroxyl as terminal 5' functional group
 # Results are consistent with the one of of this website: https://molbiotools.com/dnacalculator.php
+
+"""
+    molecular_weight(rna_seq::LongSequence{DNAAlphabet{4}}, five_terminal_state::Symbol, strand_number::Symbol) -> Float64
+
+Calculate molecular weight of `dna_seq`in g/mol, i.e. Sum of the weights of all the nucleotides of the sequence, 
+minus water lost per bond formation. 
+Values of nucleotides were obtained from PubChem 2.1 and are listed in the vector{Float64} DNA_WEIGHTS.
+Also possible to define the 5' state as (:hydroxyl, :phosphate or :triphosphate) and strand number as (:single or :double).
+If not defined, the default values are :hydroxyl and :single
+
+# Examples
+```jldoctest
+julia> molecular_weight(dna"GCAGCCATAG")
+3036.930000000001
+
+julia> molecular_weight(dna"ACACCATTTG", :phosphate, :double)
+6335.8600000000015
+```
+"""
+
 function molecular_weight(dna_seq::LongSequence{DNAAlphabet{4}}, five_terminal_state=:hydroxyl, strand_number=:single)
     if strand_number == :single
         return _molecular_weight(dna_seq, DNA_WEIGHTS, five_terminal_state)
@@ -75,6 +113,25 @@ function molecular_weight(dna_seq::LongSequence{DNAAlphabet{4}}, five_terminal_s
     end
 end
 
+"""
+    molecular_weight(rna_seq::LongSequence{RNAAlphabet{4}}, five_terminal_state::Symbol, strand_number::Symbol) -> Float64
+
+Calculate molecular weight of `rna_seq`in g/mol, i.e. Sum of the weights of all the nucleotides of the sequence, 
+minus water lost per bond formation. 
+Values of nucleotides were obtained from PubChem 2.1 and are listed in the vector{Float64} RNA_WEIGHTS.
+Also possible to define the 5' state as (:hydroxyl, :phosphate or :triphosphate) and strand number as (:single or :double).
+If not defined, the default values are :hydroxyl and :single
+
+# Examples
+```jldoctest
+julia> molecular_weight(rna"GGGCGGACCU")
+3214.9
+
+julia> molecular_weight(rna"CGAUUUUCGG", :triphosphate, :double)
+6784.700000000001
+```
+"""
+
 function molecular_weight(rna_seq::LongSequence{RNAAlphabet{4}}, five_terminal_state=:hydroxyl, strand_number=:single)
     if strand_number == :single
         return _molecular_weight(rna_seq, RNA_WEIGHTS, five_terminal_state)
@@ -85,6 +142,25 @@ function molecular_weight(rna_seq::LongSequence{RNAAlphabet{4}}, five_terminal_s
         throw(ArgumentError("Unknown strand_number $strand_number. Must be :single or :double"))
     end
 end
+
+"""
+    _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state::Symbol) -> Float64
+
+Calculate molecular weight of `rnucseq`in g/mol, i.e. Sum of the weights of all the nucleotides of the sequence, 
+minus water lost per bond. Values of nucleotides were obtained from PubChem 2.1. 
+Values are listed in the vectors{Float64} RNA_WEIGHTS and DNA_WEIGHTS.
+Also possible to define the 5' state as (:hydroxyl, :phosphate or :triphosphate), If not defined, 
+hydroxyl is the default option. Not possible to calculate weights for double stranded sequences.
+
+# Examples
+```jldoctest
+julia> _molecular_weight(dna"GTTGCCCGGC",DNA_WEIGHTS)
+3019.9000000000005
+
+julia> _molecular_weight(rna"GUCUGACGCG",RNA_WEIGHTS, :triphosphate)
+3415.8600000000006
+```
+"""
 
 function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state=:hydroxyl)
     weight = 0.0
