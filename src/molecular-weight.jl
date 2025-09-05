@@ -1,9 +1,8 @@
-# Source of the used water molecular weight = 18.02 gmol for calculations
-# Water                                ->  Source = https://www.cmu.edu/gelfand/k12-educational-resources/polymers/what-is-polymer/molecular-weight-calculation.html
+# Source = https://www.cmu.edu/gelfand/k12-educational-resources/polymers/what-is-polymer/molecular-weight-calculation.html
+const WATER_WEIGHT = 18.02
 
 # Creating the array AA_WEIGHTS of length 28 to list all weights. In ambigous cases, let's list -1.0
 # In the function, if the weight is -1, then it will trow an error
-# Note that for gap and terminal codon, the value is 18.02 intead of 0 to account for the substraction of water in the function
 const AA_WEIGHTS = [
     89.09,  # AA_A : Alanine                     ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/5950
     174.2, # AA_R : Arginine                    ->  Source = https://pubchem.ncbi.nlm.nih.gov/compound/6322
@@ -31,8 +30,9 @@ const AA_WEIGHTS = [
     131.17, # AA_J : Ambiguous, but weight is known (same as AA_I and AA_L)
     -1.0,   # AA_Z : Ambiguous
     -1.0,   # AA_X : Ambiguous
-    18.02,   # AA_Term
-    18.02,    # AA_Gap
+    -1.0,   # AA_Term
+    # The calculations below subtract 1 water per AA. Since a gap weighs nothing, this nets to zero.
+    WATER_WEIGHT, # AA_Gap
 ]
 
 # Defining the function molecular_weight, which accepts an amino acid sequence and return molecular weight in  g/mol. Note that the function also account for lost of water for each peptide bond formation
@@ -64,7 +64,7 @@ function molecular_weight(aa_seq::AASeq)
             weight += aa_weight
         end
     end
-    return weight - ((length(aa_seq) - 1) * 18.02)
+    return weight - ((length(aa_seq) - 1) * WATER_WEIGHT)
 end
 
 # Calculations following the following guidelines: https://ymc.eu/files/imported/publications/556/documents/YMC-Expert-Tip---How-to-calculate-the-MW-of-nucleic-acids.pdf
@@ -211,5 +211,5 @@ function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal
     else
         throw(ArgumentError("Unknown five_terminal_state $five_terminal_state. Must be :hydroxyl, :phosphate or :triphosphate"))
     end
-    return weight - (length(nucseq) * 18.02)
+    return weight - (length(nucseq) * WATER_WEIGHT)
 end
