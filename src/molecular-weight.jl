@@ -97,8 +97,8 @@ If not defined, the default values are :hydroxyl and :single
 julia> molecular_weight(dna"GCAGCCATAG")
 3036.930000000001
 
-julia> molecular_weight(dna"ACACCATTTG", :phosphate, :double)
-6335.8600000000015
+julia> mmolecular_weight(dna"TCCCAGACTG", :phosphate, :double)
+6215.960000000001
 ```
 """
 
@@ -175,7 +175,7 @@ function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal
     if five_terminal_state == :hydroxyl
         weight =  weight - 62
     elseif five_terminal_state == :phosphate
-        weight = weight + 79
+        weight = weight + 18.06
     elseif five_terminal_state == :triphosphate 
         weight = weight + 178
     else
