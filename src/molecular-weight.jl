@@ -132,14 +132,16 @@ julia> mmolecular_weight(dna"TCCCAGACTG", :phosphate, :double)
 ```
 """
 
-function molecular_weight(dna_seq::LongSequence{DNAAlphabet{4}}, five_terminal_state = :hydroxyl, strand_number = :single)
-    if strand_number == :single
+function molecular_weight(
+        dna_seq::BioSequence{<:DNAAlphabet},
+        five_terminal_state::Symbol = :hydroxyl,
+        double_stranded::Bool = false
+    )
+    if !double_stranded
         return _molecular_weight(dna_seq, DNA_WEIGHTS, five_terminal_state)
-    elseif strand_number == :double
+    else
         com_dna_seq = complement(dna_seq)
         return _molecular_weight(dna_seq, DNA_WEIGHTS, five_terminal_state) + _molecular_weight(com_dna_seq, DNA_WEIGHTS, five_terminal_state)
-    else
-        throw(ArgumentError("Unknown strand_number $strand_number. Must be :single or :double"))
     end
 end
 
@@ -162,14 +164,16 @@ julia> molecular_weight(rna"CGAUUUUCGG", :triphosphate, :double)
 ```
 """
 
-function molecular_weight(rna_seq::LongSequence{RNAAlphabet{4}}, five_terminal_state = :hydroxyl, strand_number = :single)
-    if strand_number == :single
+function molecular_weight(
+        rna_seq::BioSequence{<:RNAAlphabet},
+        five_terminal_state::Symbol = :hydroxyl,
+        double_stranded::Bool = false
+    )
+    if !double_stranded == :single
         return _molecular_weight(rna_seq, RNA_WEIGHTS, five_terminal_state)
-    elseif strand_number == :double
+    else
         com_rna_seq = complement(rna_seq)
         return _molecular_weight(rna_seq, RNA_WEIGHTS, five_terminal_state) + _molecular_weight(com_rna_seq, RNA_WEIGHTS, five_terminal_state)
-    else
-        throw(ArgumentError("Unknown strand_number $strand_number. Must be :single or :double"))
     end
 end
 
@@ -192,7 +196,7 @@ julia> _molecular_weight(rna"GUCUGACGCG",RNA_WEIGHTS, :triphosphate)
 ```
 """
 
-function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state = :hydroxyl)
+function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state::Symbol)
     weight = 0.0
     for nucleotide in nucseq
         nuc_weight = array[reinterpret(UInt8, nucleotide) + 1]
