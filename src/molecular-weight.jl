@@ -57,10 +57,10 @@ julia> molecular_weight(aa"ETIWS*")
 function molecular_weight(aa_seq::AASeq)
     weight = 0.0
     for aa in aa_seq
-        if AA_WEIGHTS[reinterpret(UInt8, aa) + 1] == -1.0
+        aa_weight = AA_WEIGHTS[reinterpret(UInt8, aa) + 1]
+        if aa_weight == -1.0
             throw(ArgumentError("amino acid $aa weight is ambiguous"))
         else
-            aa_weight = AA_WEIGHTS[reinterpret(UInt8, aa) + 1]
             weight += aa_weight
         end
     end
@@ -195,11 +195,11 @@ julia> _molecular_weight(rna"GUCUGACGCG",RNA_WEIGHTS, :triphosphate)
 function _molecular_weight(nucseq::NucSeq, array::Vector{Float64}, five_terminal_state = :hydroxyl)
     weight = 0.0
     for nucleotide in nucseq
-        if array[reinterpret(UInt8, nucleotide) + 1] == -1.0
+        nuc_weight = array[reinterpret(UInt8, nucleotide) + 1]
+        if nuc_weight == -1.0
             throw(ArgumentError("nucleotide $nucleotide weight is ambiguous"))
         else
-            dna_weight = array[reinterpret(UInt8, nucleotide) + 1]
-            weight += dna_weight
+            weight += nuc_weight
         end
     end
     if five_terminal_state == :hydroxyl
