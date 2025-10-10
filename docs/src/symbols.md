@@ -7,7 +7,7 @@ end
 # Biological symbols
 
 The `BioSequences` module reexports the biological symbol (character) types
-that are provided by [BioSymbols.jl:](https://biojulia.dev/BioSymbols.jl/)
+that are provided by [BioSymbols.jl:](https://biojulia.dev/BioSymbols.jl/stable)
 
 | Type            | Meaning        |
 | :-------------- | :------------- |
