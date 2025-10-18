@@ -42,6 +42,7 @@ end
 end
 include("translation.jl")
 include("counting.jl")
+include("weights.jl")
 
 @testset "Search" begin
     include("search/ExactSearchQuery.jl")
