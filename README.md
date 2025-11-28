@@ -16,8 +16,20 @@ biological sequences, including DNA, RNA, and amino acid sequences.
 You can install BioSequences from the julia
 REPL. Press `]` to enter pkg mode, and enter the following:
 
-```julia
+```julia 
 add BioSequences
+```
+## Example
+```julia
+using BioSequences
+
+# Create a DNA sequence
+seq = DNASequence("ACGTACGT")
+println(seq)
+
+# Get the reverse complement
+revcomp = reverse_complement(seq)
+println(revcomp)
 ```
 
 If you are interested in the cutting edge of the development, please check out
@@ -31,14 +43,26 @@ BioSequences is tested against Julia `1.X` on Linux, OS X, and Windows.
 [![](https://codecov.io/gh/BioJulia/BioSequences.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BioJulia/BioSequences.jl)
 [![Downstream](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml/badge.svg)](https://github.com/BioJulia/BioSequences.jl/actions/workflows/Downstream.yml)
 
+Run tests from the Julia REPL:
 
+```julia
+using Pkg
+Pkg.test("BioSequences")
+```
 ## Contributing
 
 We appreciate contributions from users including reporting bugs, fixing
 issues, improving performance and adding new features.
 
-Take a look at the [contributing files](https://github.com/BioJulia/Contributing)
-detailed contributor and maintainer guidelines, and code of conduct.
+Take a look at the [contributing files](https://github.com/BioJulia/Contributing) for detailed contributor and maintainer guidelines, and code of conduct.
+
+Steps to contribute:
+
+1. Fork the repository
+2. Clone your fork locally
+3. Make your changes
+4. Commit & push to your fork
+5. Open a Pull Request
 
 
 ## Backers & Sponsors
