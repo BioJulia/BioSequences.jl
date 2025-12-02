@@ -24,7 +24,7 @@ add BioSequences
 using BioSequences
 
 # Create a DNA sequence
-seq = DNASequence("ACGTACGT")
+seq = DNASequence("ACGTACGT") # or dna"ACGTACGT"
 println(seq)
 
 # Get the reverse complement
