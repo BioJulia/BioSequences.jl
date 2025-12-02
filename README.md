@@ -16,7 +16,7 @@ biological sequences, including DNA, RNA, and amino acid sequences.
 You can install BioSequences from the julia
 REPL. Press `]` to enter pkg mode, and enter the following:
 
-```julia 
+```julia
 add BioSequences
 ```
 ## Example
