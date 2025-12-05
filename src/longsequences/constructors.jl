@@ -19,13 +19,13 @@ end
 ###
 ### Conversion
 ###
-Base.convert(::Type{T}, seq::T) where {T <: LongSequence} = seq
-Base.convert(::Type{T}, seq::T) where {T <: LongSequence{<:NucleicAcidAlphabet}} = seq
+#Base.convert(::Type{T}, seq::T) where {T <: LongSequence} = seq
+#Base.convert(::Type{T}, seq::T) where {T <: LongSequence{<:NucleicAcidAlphabet}} = seq
 
-function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
-         {T<:LongSequence{<:NucleicAcidAlphabet}}
-    return T(seq)
-end
+#function Base.convert(::Type{T}, seq::LongSequence{<:NucleicAcidAlphabet}) where
+ #        {T<:LongSequence{<:NucleicAcidAlphabet}}
+  #  return T(seq)
+#end
 
 
 @inline seq_data_len(s::LongSequence{A}) where A = seq_data_len(A, length(s))
