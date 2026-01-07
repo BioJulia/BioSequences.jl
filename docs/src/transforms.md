@@ -151,6 +151,7 @@ provides all NCBI defined genetic codes and they are registered in
 
 ```@docs
 translate
+translate!
 ncbi_trans_table
 ```
 

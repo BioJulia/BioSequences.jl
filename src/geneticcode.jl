@@ -324,17 +324,9 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 ###
 
 """
-    translate(seq, code=standard_genetic_code, allow_ambiguous_codons=true, alternative_start=false)
+    translate(seq; kwargs...)::LongAA
 
-Translate an `LongRNA` or a `LongDNA` to an `LongAA`.
-
-Translation uses genetic code `code` to map codons to amino acids. See
-`ncbi_trans_table` for available genetic codes.
-If codons in the given sequence cannot determine a unique amino acid, they
-will be translated to `AA_X` if `allow_ambiguous_codons` is `true` and otherwise
-result in an error. For organisms that utilize alternative start codons, one
-can set `alternative_start=true`, in which case the first codon will always be
-converted to a methionine.
+Same as [`translate!`](@ref), but allocate a new `LongAA` to hold the result. 
 """
 function translate(ntseq::SeqOrView;
     code::GeneticCode = standard_genetic_code,
@@ -346,6 +338,58 @@ function translate(ntseq::SeqOrView;
     allow_ambiguous_codons = allow_ambiguous_codons, alternative_start = alternative_start)
 end
 
+"""
+    translate!(
+        aaseq::LongAA,
+        seq::Union{LongSequence, LongSubSeq};
+        code::BioSequences.GeneticCode=BioSequences.standard_genetic_code,
+        allow_ambiguous_codons::Bool=true,
+        alternative_start::Bool=false
+    ) -> aaseq
+
+Translate a nucleotide sequence in-place into `aaseq`, resizing `aaseq` to fit,
+and return `aaseq`.
+
+# Examples
+```jldoctest
+julia> translate!(aa"", dna"TCTACACCCTAG")
+4aa Amino Acid Sequence:
+STP*
+
+julia> translate!(aa"", dna"TA")
+ERROR: LongRNA length is not divisible by three. Cannot translate.
+[...]
+
+julia> translate!(aa"", dna"A-A")
+ERROR: Cannot translate nucleotide sequences with gaps.
+[...]
+
+julia> translate!(aa"", dna"AAAACWGCSWTARACADA"; alternative_start=true)
+6aa Amino Acid Sequence:
+MTAJBX
+```
+
+# Extended help
+
+`seq` must be either `LongSequence` or `LongSubSeq`
+of alphabets either `DNAAlphabet` or `RNAAlphabet`.
+
+Translation is done using genetic code `code`, which defaults to the standard
+genetic code.
+
+If the length of `seq` is not divisible by 3, throw an error.
+
+If `seq` contains any gaps (i.e. `DNA_Gap` or `RNA_Gap`), throw an error.
+
+If `allow_ambiguous_codons` is set (default), codons with ambiguous nucleotides
+such as `DNA_W` will be translated to the most narrow amino acid which covers all
+non-ambiguous codons encompassed by the ambiguous codon. This process might slow
+translation down.
+If not `allow_ambiguous_codons`, ambiguous codons will error.
+
+If `alternative_start` is set, the leading methionine will be set to `AA_M`, no
+matter the starting codon, or the code.
+"""
 function translate!(aaseq::LongAA,
     ntseq::SeqOrView{<:NucleicAcidAlphabet{2}};
     code::GeneticCode = standard_genetic_code,
