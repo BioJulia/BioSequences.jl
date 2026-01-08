@@ -1,34 +1,58 @@
-const BitUnsigned = Union{UInt8, UInt16, UInt32, UInt64, UInt128}
+const BitUnsigned = Union{UInt8, UInt16, UInt32, UInt64}
+
+@inline reversebits(x::Unsigned, ::BitsPerSymbol{8}) = bswap(x)
 
 @inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: BitUnsigned
-     mask = 0x33333333333333333333333333333333 % T
-     x = ((x >> 2) & mask) | ((x & mask) << 2)
-     return reversebits(x, BitsPerSymbol{4}())
+    mask = 0x3333333333333333 % T
+    x = ((x >> 2) & mask) | ((x & mask) << 2)
+    return reversebits(x, BitsPerSymbol{4}())
 end
 
 @inline function reversebits(x::T, ::BitsPerSymbol{4}) where T <: BitUnsigned
-     mask = 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F % T
+     mask = 0x0F0F0F0F0F0F0F0F % T
      x = ((x >> 4) & mask) | ((x & mask) << 4)
      return reversebits(x, BitsPerSymbol{8}())
 end
 
-@inline reversebits(x::T, ::BitsPerSymbol{8}) where T <: BitUnsigned = bswap(x)
-
 @inline reversebits(x::UInt16, ::BitsPerSymbol{16}) = x
 @inline function reversebits(x::T, ::BitsPerSymbol{16}) where T <: Union{UInt32, UInt64}
-    mask = 0x0000FFFF0000FFFF0000FFFF0000FFFF % T
+    mask = 0x0000FFFF0000FFFF % T
     x = ((x >> 16) & mask) | ((x & mask) << 16)
     reversebits(x, BitsPerSymbol{32}())
 end
 
 @inline reversebits(x::UInt32, ::BitsPerSymbol{32}) = x
-@inline function reversebits(x::T, ::BitsPerSymbol{32}) where T <: Union{UInt64}
-    mask = 0x00000000FFFFFFF00000000FFFFFFFF % T
+@inline function reversebits(x::UInt64, ::BitsPerSymbol{32})
+    mask = 0x00000000FFFFFFF
     x = ((x >> 32) & mask) | ((x & mask) << 32)
     reversebits(x, BitsPerSymbol{64}())
 end
 
 @inline reversebits(x::UInt64, ::BitsPerSymbol{64}) = x
+
+# Generic method for large integers, or odd-sized integers
+@inline function reversebits(x::Unsigned, b::BitsPerSymbol)
+    if sizeof(x) < 8
+        # If smaller than UInt64, we convert to UInt64, reverse, and then
+        # shift down and truncate.
+        u = reversebits(x % UInt64, b)
+        u >>= 64 - 8 * sizeof(x)
+        return u % typeof(x)
+    else
+        # Else, we reverse 64 bits at a time
+        (d, r) = divrem(sizeof(x), 8)
+        iszero(r) || error("Can only work with Unsigned types a multiple of 8 bytes, or smaller than UInt64")
+        u = zero(typeof(x))
+        shiftmask = 8 * sizeof(x) - 1
+        for i in 0:d-1
+            shift = i * 64
+            rv = reversebits((x >> (shift & shiftmask)) % UInt64, b)
+            u |= (rv % typeof(x)) << ((8 * sizeof(x) - 64 - shift) & shiftmask)
+        end
+        return u
+    end
+end
+
 
 @inline function complement_bitpar(x::Unsigned, ::T) where {T<:NucleicAcidAlphabet{2}}
     return ~x
@@ -68,17 +92,17 @@ end
     @inline sum(map(i -> f(i.value), z))
 end
 
-pattern(::BitsPerSymbol{1})   = typemax(UInt128)
-pattern(::BitsPerSymbol{2})   = 0x55555555555555555555555555555555
-pattern(::BitsPerSymbol{4})   = 0x11111111111111111111111111111111
-pattern(::BitsPerSymbol{8})   = 0x01010101010101010101010101010101
-pattern(::BitsPerSymbol{16})  = 0x00010001000100010001000100010001
-pattern(::BitsPerSymbol{32})  = 0x00000001000000010000000100000001
-pattern(::BitsPerSymbol{64})  = 0x00000000000000010000000000000001
-pattern(::BitsPerSymbol{128}) = 0x00000000000000000000000000000001
+pattern(::BitsPerSymbol{1})   = 0xff
+pattern(::BitsPerSymbol{2})   = 0x55
+pattern(::BitsPerSymbol{4})   = 0x11
+pattern(::BitsPerSymbol{8})   = 0x01
+pattern(::BitsPerSymbol{16})  = 0x0001
+pattern(::BitsPerSymbol{32})  = 0x00000001
+pattern(::BitsPerSymbol{64})  = 0x0000000000000001
 
+# Count the number of times the B lower bits of `encoding` is present in `chunk`
 function count_encoding(chunk::T, encoding::T, b::BitsPerSymbol{B}) where {T <: Unsigned, B}
-    pat = pattern(b) % typeof(encoding)
+    pat = repeatpattern(typeof(encoding), pattern(b))
     u = chunk ⊻ (encoding * pat)
     for i in 1:trailing_zeros(B)
         shift = (1 << (i - 1)) & (8*sizeof(T) - 1)
