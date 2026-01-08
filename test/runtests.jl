@@ -15,6 +15,7 @@ using YAML
 
 # Test utils not dependent on BioSymbols
 include("utils.jl")
+include("bit-manipulation.jl")
 
 @testset "Alphabet" begin
     include("alphabet.jl")

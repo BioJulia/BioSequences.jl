@@ -1,6 +1,7 @@
 const BitUnsigned = Union{UInt8, UInt16, UInt32, UInt64}
 
 @inline reversebits(x::Unsigned, ::BitsPerSymbol{8}) = bswap(x)
+@inline reversebits(x::Unsigned, ::BitsPerSymbol{1}) = bitreverse(x)
 
 @inline function reversebits(x::T, ::BitsPerSymbol{2}) where T <: BitUnsigned
     mask = 0x3333333333333333 % T
@@ -23,7 +24,7 @@ end
 
 @inline reversebits(x::UInt32, ::BitsPerSymbol{32}) = x
 @inline function reversebits(x::UInt64, ::BitsPerSymbol{32})
-    mask = 0x00000000FFFFFFF
+    mask = 0x00000000FFFFFFFF
     x = ((x >> 32) & mask) | ((x & mask) << 32)
     reversebits(x, BitsPerSymbol{64}())
 end
@@ -31,7 +32,10 @@ end
 @inline reversebits(x::UInt64, ::BitsPerSymbol{64}) = x
 
 # Generic method for large integers, or odd-sized integers
-@inline function reversebits(x::Unsigned, b::BitsPerSymbol)
+@inline function reversebits(x::Unsigned, b::BitsPerSymbol{B}) where B
+    if B > 8 * sizeof(x)
+        throw(MethodError(reversebits, (x, b)))
+    end
     if sizeof(x) < 8
         # If smaller than UInt64, we convert to UInt64, reverse, and then
         # shift down and truncate.
