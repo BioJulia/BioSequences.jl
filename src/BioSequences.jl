@@ -248,7 +248,7 @@ search(query, itr; overlap = DEFAULT_OVERLAP) = Search(query, itr, overlap)
 function Base.iterate(itr::Search, state=firstindex(itr.itr))
     val = findnext(itr.query, itr.itr, state)
     val === nothing && return nothing
-    state = itr.overlap ? first(val) + 1 : last(val) + 1
+    state = itr.overlap ? first(val) + 1 : max(first(val), last(val)) + 1
     return val, state
 end
 

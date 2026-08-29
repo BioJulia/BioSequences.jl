@@ -767,8 +767,9 @@ function advance!(threads, captured, s, re, seq, overlap)
         if runmatch!(threads, captured, re, seq)
             if !overlap
                 empty!(threads)
-                s = captured[2]
-                if s <= lastindex(seq)
+                s = max(captured[1] + 1, captured[2])
+                if s <= lastindex(seq) ||
+                    (captured[1] == captured[2] && s == lastindex(seq) + 1)
                     push!(threads, (1, s))
                 end
             end

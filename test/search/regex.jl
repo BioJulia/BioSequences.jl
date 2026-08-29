@@ -88,6 +88,7 @@
     for (i, m) in enumerate(collect(eachmatch(biore"GC|CG"d, dna"ACGTTATGCATGGCG", false)))
         @test matched(m) == matches[i]
     end
+    @test matched.(collect(eachmatch(BioRegex{DNA}(""), dna"AC", false))) == [dna"", dna"", dna""]
 
     # matchall
     matchall(pat, seq, overlap=true) =

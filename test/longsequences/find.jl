@@ -229,6 +229,7 @@ end
     # Check overlap key argument.
     @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap = false) == [1:4, 6:9, 10:13]
     @test findall(ExactSearchQuery(dna"GATC", iscompatible), seq; overlap = true) == [1:4, 2:5, 6:9, 10:13]
+    @test findall(ExactSearchQuery(dna""), dna"AC"; overlap = false) == [1:0, 2:1, 3:2]
 
     # Check mapping of indices.
     @test findall(DNA_A, seq, 7:11) == [7, 11]
