@@ -68,7 +68,7 @@ function Base.iterate(code::GeneticCode, x = UInt64(0))
     if x > UInt64(0b111111)
         return nothing
     else
-        return (x, getindex_encoding(code, x)), x + 1
+        return x => getindex_encoding(code, x), x + 1
     end
 end
 

@@ -66,6 +66,12 @@
     @test length(BioSequences.standard_genetic_code) == 64
     @test_throws KeyError BioSequences.standard_genetic_code[UInt64(64)]
     @test_throws KeyError BioSequences.standard_genetic_code[typemax(UInt64)]
+    code = BioSequences.standard_genetic_code
+    entries = collect(code)
+    @test entries == collect(pairs(code))
+    @test eltype(entries) == Pair{UInt64,AminoAcid}
+    @test collect(keys(code)) == UInt64.(0:63)
+    @test collect(values(code)) == [code[key] for key in UInt64.(0:63)]
     buf = IOBuffer()
     show(buf, BioSequences.standard_genetic_code)
     @test !iszero(length(take!(buf))) # just test it doesn't error
