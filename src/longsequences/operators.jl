@@ -281,8 +281,9 @@ function _findnext(
     seq::SeqOrView{<:KNOWN_ALPHABETS},
     i::Int,
 )
-    enc = tryencode(Alphabet(seq), cmp.x)
-    enc === nothing && return nothing
+    x = cmp isa Base.Fix2 ? cmp.x : cmp.inner.x
+    enc = tryencode(Alphabet(seq), x)
+    enc === nothing && return i
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> x ⊻ u_enc
     _findnext_nonzero(f, seq, i)
@@ -363,8 +364,9 @@ function _findprev(
     seq::SeqOrView{<:KNOWN_ALPHABETS},
     i::Int,
 )
-    enc = tryencode(Alphabet(seq), cmp.x)
-    enc === nothing && return nothing
+    x = cmp isa Base.Fix2 ? cmp.x : cmp.inner.x
+    enc = tryencode(Alphabet(seq), x)
+    enc === nothing && return i
     u_enc = enc * encoding_expansion(BitsPerSymbol(seq))
     f = x -> x ⊻ u_enc
     _findprev_nonzero(f, seq, i)

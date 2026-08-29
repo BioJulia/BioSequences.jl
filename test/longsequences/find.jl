@@ -13,6 +13,13 @@
     @test findfirst(==(AA_W), seq) === nothing
     @test findfirst(==('C'), seq) === nothing
 
+    # An unencodable symbol is unequal to every element of a two-bit sequence.
+    shortseq = LongDNA{2}("AC")
+    @test findnext(!=(DNA_N), shortseq, 1) === 1
+    @test findprev(!=(DNA_N), shortseq, 2) === 2
+    @test findnext(!isequal(DNA_N), shortseq, 1) === 1
+    @test findprev(!isequal(DNA_N), shortseq, 2) === 2
+
     @test findlast(isequal(DNA_C), seq) == 14
     @test findlast(isequal(DNA_G), seq) == 15
     @test findlast(isequal(DNA_Y), seq) == 11
