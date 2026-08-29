@@ -1,6 +1,15 @@
 @testset "Approximate" begin
     seq = dna"ACGTACG"
 
+    @testset "findall" begin
+        query = ApproximateSearchQuery(dna"ACA")
+        @test findall(query, 0, dna"ACACA") == [1:3, 3:5]
+        @test findall(query, 0, dna"ACACA"; overlap=false) == [1:3]
+        @test findall(ApproximateSearchQuery(dna"ACG"), 1, seq) == [1:2, 2:3, 5:6, 6:7]
+        @test findall(ApproximateSearchQuery(dna""), 0, dna"AC") == [1:0, 2:1, 3:2]
+        @test findall(query, 0, dna"GGGG") isa Vector{UnitRange{Int}}
+    end
+
     @testset "iscompatible" begin
         @testset "forward" begin
             @test findnext(ApproximateSearchQuery(dna"", iscompatible), 0, seq, 1) === 1:0

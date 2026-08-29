@@ -134,6 +134,24 @@ Base.findfirst(query::ApproximateSearchQuery, k::Integer, seq::BioSequence) = fi
 Base.findlast(query::ApproximateSearchQuery, k::Integer, seq::BioSequence) = findprev(query, k, seq, lastindex(seq))
 Base.occursin(query::ApproximateSearchQuery, k::Integer, seq::BioSequence) = !isnothing(_approxsearch(query, k, seq, 1, lastindex(seq), true))
 
+"""
+    findall(query, k, seq; overlap=true)
+
+Return all occurrences of `query` in `seq` allowing up to `k` errors.
+"""
+function Base.findall(query::ApproximateSearchQuery, k::Integer, seq::BioSequence; overlap::Bool = true)
+    matches = UnitRange{Int}[]
+    start = firstindex(seq)
+    stop = lastindex(seq) + 1
+    while start <= stop
+        match = findnext(query, k, seq, start)
+        match === nothing && return matches
+        push!(matches, match)
+        start = overlap ? first(match) + 1 : max(first(match), last(match)) + 1
+    end
+    return matches
+end
+
 function _approxsearch(query::ApproximateSearchQuery, k::Integer, seq::BioSequence, start::Integer, stop::Integer, forward::Bool)
     checkeltype(query.seq, seq)
     if k ≥ length(query.seq)
