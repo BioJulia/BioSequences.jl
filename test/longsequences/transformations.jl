@@ -138,6 +138,12 @@
         @test filter!(x -> x != DNA_N, seq) == seq
         @test seq == dna"ACGTACGT"
 
+        # A view cannot be resized, so filtering it must fail before compaction
+        # can overwrite its parent.
+        seq = dna"ACGT"
+        @test_throws ArgumentError filter!(x -> x == DNA_G, view(seq, 1:4))
+        @test seq == dna"ACGT"
+
         for len in [1, 2, 3, 5, 8, 9, 15, 19, 31, 32, 33, 50], _ in 1:5
             str = random_dna(len)
             seq = LongDNA{4}(str)

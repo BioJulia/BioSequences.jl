@@ -24,6 +24,12 @@ function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) wh
     end
 end
 
+# A view may mutate its elements, but cannot change its length.  Reject length-
+# changing operations before the generic `filter!` implementation compacts data.
+function Base.filter!(f, seq::LongSubSeq)
+    throw(ArgumentError("filter! cannot change the length of a LongSubSeq; use filter instead"))
+end
+
 """
     reverse!(seq::LongSequence)
 
