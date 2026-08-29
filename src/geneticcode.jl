@@ -16,6 +16,8 @@ function unambiguous_codon(a::XNA, b::XNA, c::XNA)
 end
 
 # A genetic code is a table mapping RNA 3-mers (i.e. RNAKmer{3}) to AminoAcids.
+# TODO: In the next breaking release, stop making GeneticCode an
+# AbstractDict{UInt64, AminoAcid}; UInt64 codon encodings are an internal detail.
 "Type representing a Genetic Code"
 struct GeneticCode <: AbstractDict{UInt64, AminoAcid}
     name::String
@@ -26,8 +28,13 @@ end
 ### Basic Functions
 ###
 
+@inline function getindex_encoding(code::GeneticCode, encoding::UInt64)
+    return @inbounds code.tbl[encoding + one(UInt64)]
+end
+
 function Base.getindex(code::GeneticCode, codon::UInt64)
-    return @inbounds code.tbl[codon + one(UInt64)]
+    codon < 64 || throw(KeyError(codon))
+    return getindex_encoding(code, codon)
 end
 
 Base.copy(code::GeneticCode) = code
@@ -43,7 +50,7 @@ function Base.show(io::IO, ::MIME"text/plain", code::GeneticCode)
         print(io, "  ")
         for z in rna
             codon = unambiguous_codon(x, y, z)
-            aa = code[codon]
+            aa = getindex_encoding(code, codon)
             print(io, x, y, z, ": ", aa)
             if z != RNA_U
                 print(io, "    ")
@@ -61,7 +68,7 @@ function Base.iterate(code::GeneticCode, x = UInt64(0))
     if x > UInt64(0b111111)
         return nothing
     else
-        return (x, @inbounds code[x]), x + 1
+        return (x, getindex_encoding(code, x)), x + 1
     end
 end
 
@@ -93,11 +100,11 @@ function Base.show(io::IO, trans::TransTables)
 end
 
 """
-Genetic code list of NCBI.
+List of genetic codes from NCBI.
 
 The standard genetic code is `ncbi_trans_table[1]` and others can be shown by
 `show(ncbi_trans_table)`.
-For more details, consult the next link:
+For more details, consult the following link:
 http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes.
 """
 const ncbi_trans_table = TransTables()
@@ -326,7 +333,7 @@ Base3  = TCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAGTCAG
 """
     translate(seq; kwargs...)::LongAA
 
-Same as [`translate!`](@ref), but allocate a new `LongAA` to hold the result. 
+Same as [`translate!`](@ref), but allocate a new `LongAA` to hold the result.
 """
 function translate(ntseq::SeqOrView;
     code::GeneticCode = standard_genetic_code,
@@ -372,7 +379,7 @@ MTAJBX
 # Extended help
 
 `seq` must be either `LongSequence` or `LongSubSeq`
-of alphabets either `DNAAlphabet` or `RNAAlphabet`.
+with an alphabet of either `DNAAlphabet` or `RNAAlphabet`.
 
 Translation is done using genetic code `code`, which defaults to the standard
 genetic code.
@@ -381,14 +388,14 @@ If the length of `seq` is not divisible by 3, throw an error.
 
 If `seq` contains any gaps (i.e. `DNA_Gap` or `RNA_Gap`), throw an error.
 
-If `allow_ambiguous_codons` is set (default), codons with ambiguous nucleotides
-such as `DNA_W` will be translated to the most narrow amino acid which covers all
+If `allow_ambiguous_codons` is set (the default), codons with ambiguous nucleotides
+such as `DNA_W` will be translated to the narrowest amino acid that covers all
 non-ambiguous codons encompassed by the ambiguous codon. This process might slow
 translation down.
-If not `allow_ambiguous_codons`, ambiguous codons will error.
+If `allow_ambiguous_codons` is not set, ambiguous codons will cause an error.
 
 If `alternative_start` is set, the leading methionine will be set to `AA_M`, no
-matter the starting codon, or the code.
+matter the starting codon or the code.
 """
 function translate!(aaseq::LongAA,
     ntseq::SeqOrView{<:NucleicAcidAlphabet{2}};
@@ -404,7 +411,7 @@ function translate!(aaseq::LongAA,
         b = ntseq[3i-1]
         c = ntseq[3i]
         codon = unambiguous_codon(a, b, c)
-        aaseq[i] = code[codon]
+        aaseq[i] = getindex_encoding(code, codon)
     end
     alternative_start && !isempty(aaseq) && (@inbounds aaseq[1] = AA_M)
     aaseq
@@ -426,7 +433,7 @@ function translate!(aaseq::LongAA,
         if isgap(a) | isgap(b) | isgap(c)
             error("Cannot translate nucleotide sequences with gaps.")
         elseif iscertain(a) & iscertain(b) & iscertain(c)
-            aaseq[i] = code[unambiguous_codon(a, b, c)]
+            aaseq[i] = getindex_encoding(code, unambiguous_codon(a, b, c))
         else
             aaseq[i] = try_translate_ambiguous_codon(code, a, b, c, allow_ambiguous_codons)
         end
@@ -445,9 +452,9 @@ function try_translate_ambiguous_codon(
     ((a, b, c), unambigs) = Iterators.peel(
         Iterators.product(map(UnambiguousRNAs, (x, y, z))...)
     )
-    aa = @inbounds code[unambiguous_codon(a, b, c)]
+    aa = getindex_encoding(code, unambiguous_codon(a, b, c))
     @inbounds for (a, b, c) in unambigs
-        aa_new = code[unambiguous_codon(a, b, c)]
+        aa_new = getindex_encoding(code, unambiguous_codon(a, b, c))
         aa_new == aa && continue
         allow_ambiguous || error("codon ", a, b, c, " cannot be unambiguously translated")
         aa = if aa_new in (AA_N, AA_D) && aa in (AA_N, AA_D, AA_B)
@@ -475,4 +482,3 @@ function Base.iterate(x::UnambiguousRNAs, state=reinterpret(UInt8, x.x))
     rna = reinterpret(RNA, 0x01 << (trailing_zeros(state) & 7))
     (rna, state & (state - 0x01))
 end
-

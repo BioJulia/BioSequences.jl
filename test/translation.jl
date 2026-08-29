@@ -64,6 +64,8 @@
 
     # Basics
     @test length(BioSequences.standard_genetic_code) == 64
+    @test_throws KeyError BioSequences.standard_genetic_code[UInt64(64)]
+    @test_throws KeyError BioSequences.standard_genetic_code[typemax(UInt64)]
     buf = IOBuffer()
     show(buf, BioSequences.standard_genetic_code)
     @test !iszero(length(take!(buf))) # just test it doesn't error
