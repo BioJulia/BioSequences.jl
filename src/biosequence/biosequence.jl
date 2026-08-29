@@ -115,9 +115,11 @@ function Base.similar(seq::BioSequence, len::Integer=length(seq))
     return typeof(seq)(undef, len)
 end
 
-# Fast path for iterables we know are stateless
-function join!(seq::BioSequence, it::Union{Vector, Tuple, Set})
-    _join!(resize!(seq, reduce((a, b) -> a + joinlen(b), it, init=0)), it, Val(true))
+# Fast path for collection types that can be iterated twice.
+function join!(seq::BioSequence, it::Union{AbstractArray, AbstractSet, Tuple})
+    len = sum(joinlen, it, init=0)
+    resize!(seq, len)
+    _join!(seq, it, len)
 end
 
 """
@@ -134,25 +136,23 @@ TAGAAC
 
 See also [`join`](@ref).
 """
-join!(seq::BioSequence, it) = _join!(seq, it, Val(false))
+join!(seq::BioSequence, it) = join!(seq, collect(it)::AbstractArray)
 
-# B is whether the size of the destination seq is already
-# known to be the final size
-function _join!(seq::BioSequence, it, ::Val{B}) where B
+function _join!(seq::BioSequence, it, target_len::Int)
     len = 0
-    oldlen = length(seq)
     for i in it
         pluslen = joinlen(i)
-        if !B && oldlen < (len + pluslen)
-            resize!(seq, len + pluslen)
+        if len + pluslen > target_len
+            throw(ArgumentError("collection changed while joining"))
         end
         if i isa BioSymbol
             seq[len + 1] = i
         else
-            copyto!(seq, len + 1, i, 1, length(i))
+            copyto!(seq, len + 1, i, 1, pluslen)
         end
         len += pluslen
     end
+    len == target_len || throw(ArgumentError("collection changed while joining"))
     seq
 end
 
@@ -170,16 +170,16 @@ TAGAAC
 
 See also [`join!`](@ref).
 """
-function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
-    _join!(T(undef, reduce((a, b) -> a + joinlen(b), it, init=0)), it, Val(true))
+function Base.join(::Type{T}, it::Union{AbstractArray, AbstractSet, Tuple}) where {T <: BioSequence}
+    len = sum(joinlen, it, init=0)
+    _join!(T(undef, len), it, len)
 end
 
 # length is intentionally not implemented for BioSymbol
-joinlen(x::Union{BioSequence, BioSymbol}) = x isa BioSymbol ? 1 : length(x)
+joinlen(::BioSymbol) = 1
+joinlen(seq::BioSequence) = length(seq)
 
-function Base.join(::Type{T}, it) where {T <: BioSequence}
-    _join!(empty(T), it, Val(false))
-end
+Base.join(::Type{T}, it) where {T <: BioSequence} = join(T, collect(it)::AbstractArray)
 
 Base.repeat(chunk::BioSequence, n::Integer) = join(typeof(chunk), (chunk for i in 1:n))
 Base.:^(x::BioSequence, n::Integer) = repeat(x, n)

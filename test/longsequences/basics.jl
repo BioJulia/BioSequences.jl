@@ -277,6 +277,15 @@ end
     test_join(LongAA, [AA_G, AA_P, AA_L, aa"MNVWEED", AA_K], aa"GPLMNVWEEDK")
     test_join(LongRNA{4}, [RNA_M, RNA_U, RNA_S, rna"AGCGSK"], rna"MUSAGCGSK")
     test_join(LongDNA{2}, [dna"ATGCTTA", DNA_G, DNA_G, DNA_A, DNA_A, DNA_A], dna"ATGCTTAGGAAA")
+
+    # Arbitrary iterators are collected before joining and resize an existing
+    # destination to their final length.
+    for (n, result) in [(0, dna""), (1, dna"C"), (4, dna"CCCC"), (6, dna"CCCCCC")]
+        @test join(LongDNA{4}, (dna"C" for _ in 1:n)) == result
+        seq = LongDNA{4}("AAAA")
+        @test join!(seq, (dna"C" for _ in 1:n)) == result
+        @test length(seq) == n
+    end
 end
 
 @testset "Length" begin

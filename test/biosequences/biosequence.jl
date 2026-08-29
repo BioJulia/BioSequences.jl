@@ -19,6 +19,9 @@ BioSequences.encoded_setindex!(x::SimpleSeq, e::UInt, i::Integer) = x.x[i] = e
 SimpleSeq(::UndefInitializer, x::Integer) = SimpleSeq(Unsafe(), zeros(UInt, x))
 Base.resize!(x::SimpleSeq, len::Int) = (resize!(x.x, len); x)
 
+struct BadCollectIterator end
+Base.collect(::BadCollectIterator) = BadCollectIterator()
+
 # Not part of the API, just used for testing purposes
 random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
 
@@ -63,6 +66,8 @@ random_simple(len::Integer) = SimpleSeq(rand([RNA_A, RNA_C, RNA_G, RNA_U], len))
     @test join(SimpleSeq, [seq, seq2]) == join!(SimpleSeq([]), [seq, seq2])
     @test join(SimpleSeq, gen) == join!(SimpleSeq([]), gen)
     @test join(SimpleSeq, [RNA_U, RNA_G, seq, RNA_U]) == SimpleSeq([RNA(i) for i in "UGCGUU"]) 
+    @test_throws TypeError join!(SimpleSeq([]), BadCollectIterator())
+    @test_throws TypeError join(SimpleSeq, BadCollectIterator())
 
     @test copy!(SimpleSeq([]), seq) == seq
     seq3 = copy(seq2)
