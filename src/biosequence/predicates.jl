@@ -118,7 +118,7 @@ end
 Returns `true` if `seq` is canonical.
 
 For any sequence, there is a reverse complement, which is the same sequence, but
-on the complimentary strand of DNA:
+on the complementary strand of DNA:
 
 ```
 ------->
@@ -128,11 +128,11 @@ CGATCGAT
 ```
 
 !!! note
-    Using the [`reverse_complement`](@ref) of a DNA sequence will give give this
+    Using the [`reverse_complement`](@ref) of a DNA sequence will give this
     reverse complement.
 
-Of the two sequences, the *canonical* of the two sequences is the lesser of the
-two i.e. `canonical_seq < other_seq`.
+Of the two sequences, the *canonical* one is the lesser of the two, i.e.
+`canonical_seq < other_seq`.
 """
 function iscanonical(seq::NucleotideSeq)
     i = 1

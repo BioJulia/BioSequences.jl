@@ -5,11 +5,11 @@
 """
     resize!(seq, size, [force::Bool=false])
 
-Resize a biological sequence `seq`, to a given `size`. Does not resize the underlying data
-array unless the new size does not fit. If `force`, always resize underlying data array.
+Resize a biological sequence `seq` to a given `size`. Does not resize the underlying data
+array unless the new size does not fit. If `force`, always resize the underlying data array.
 
-Note that resizing to a larger size, and then loading from uninitialized positions
-is not allowed and may cause undefined behaviour. 
+Note that resizing to a larger size and then loading from uninitialized positions
+is not allowed and may cause undefined behaviour.
 Make sure to always fill any uninitialized biosymbols after resizing.
 """
 function Base.resize!(seq::LongSequence{A}, size::Integer, force::Bool=false) where {A}
@@ -115,7 +115,7 @@ end
 """
     complement!(seq)
 
-Make a complement sequence of `seq` in place.
+Complement the biological sequence `seq` in place.
 """
 function complement!(seq::LongSequence{A}) where {A<:NucleicAcidAlphabet}
     seqdata = seq.data

@@ -9,7 +9,7 @@
 """
     empty!(seq::BioSequence)
 
-Completely empty a biological sequence `seq` of nucleotides.
+Completely empty the biological sequence `seq`.
 """
 Base.empty!(seq::BioSequence) = resize!(seq, 0)
 
@@ -43,7 +43,7 @@ end
 """
     insert!(seq::BioSequence, i, x)
 
-Insert a biological symbol `x` into a biological sequence `seq`, at the given
+Insert a biological symbol `x` into a biological sequence `seq` at the given
 index `i`. Returns the mutated `seq`.
 
 # Examples
@@ -69,9 +69,9 @@ end
 """
     spliceinto!(seq::BioSequence, i::Integer, x)
 
-Insert the sequence `x` into a biological sequence `seq`, at the given index `i`.
+Insert the sequence `x` into a biological sequence `seq` at the given index `i`.
 After splicing, the `seq`'s symbols at indices `i:i+length(x)-1` are equal to `x`,
-and the the symbols that were previously there are moved to the right.
+and the symbols that were previously there are moved to the right.
 
 # Examples
 ```jldoctest
@@ -95,8 +95,8 @@ end
 """
     spliceinto!(seq::BioSequence, span::UnitRange, x)
 
-Delete the symbols at indices `span` in `seq`, and then copy `x` into the
-first deleted position, then return `seq`.
+Delete the symbols at indices `span` in `seq`, then copy `x` into the
+first deleted position, and return `seq`.
 
 This is equivalent to `deleteat!(seq, span); spliceinto!(seq, first(span), x)`,
 but is more efficient.
@@ -138,7 +138,7 @@ end
 """
     deleteat!(seq::BioSequence, range::UnitRange{<:Integer})
 
-Deletes a defined `range` from a biological sequence `seq`.
+Delete the specified `range` from a biological sequence `seq`.
 
 Modifies the input sequence.
 """
@@ -252,7 +252,7 @@ end
 """
     complement(seq)
 
-Make a complement sequence of `seq`.
+Create a complement sequence of `seq`.
 """
 function BioSymbols.complement(seq::NucleotideSeq)
     return complement!(copy(seq))
@@ -263,7 +263,7 @@ complement!(seq::NucleotideSeq) = map!(complement, seq)
 """
     reverse_complement!(seq)
 
-Make a reversed complement sequence of `seq` in place.
+Create a reverse-complement sequence of `seq` in place.
 """
 function reverse_complement!(seq::NucleotideSeq)
     return complement!(reverse!(seq))
@@ -272,7 +272,7 @@ end
 """
     reverse_complement(seq)
 
-Make a reversed complement sequence of `seq`.
+Create a reverse-complement sequence of `seq`.
 """
 function reverse_complement(seq::NucleotideSeq)
     return complement!(reverse(seq))
@@ -281,11 +281,11 @@ end
 """
     canonical!(seq::NucleotideSeq)
 
-Transforms the `seq` into its canonical form, if it is not already canonical.
-Modifies the input sequence inplace.
+Transform the `seq` into its canonical form if it is not already canonical.
+Modify the input sequence in place.
 
 For any sequence, there is a reverse complement, which is the same sequence, but
-on the complimentary strand of DNA:
+on the complementary strand of DNA:
 
 ```
 ------->
@@ -295,13 +295,13 @@ CGATCGAT
 ```
 
 !!! note
-    Using the [`reverse_complement`](@ref) of a DNA sequence will give give this
+    Using the [`reverse_complement`](@ref) of a DNA sequence will give this
     reverse complement.
 
-Of the two sequences, the *canonical* of the two sequences is the lesser of the
-two i.e. `canonical_seq < other_seq`.
+Of the two sequences, the *canonical* one is the lesser of the two, i.e.
+`canonical_seq < other_seq`.
 
-Using this function on a `seq` will ensure it is the canonical version.
+Using this function on `seq` will ensure it is the canonical version.
 """
 function canonical!(seq::NucleotideSeq)
     if !iscanonical(seq)

@@ -7,7 +7,7 @@ end
 # Biological symbols
 
 The `BioSequences` module reexports the biological symbol (character) types
-that are provided by [BioSymbols.jl:](https://biojulia.dev/BioSymbols.jl/stable)
+that are provided by [BioSymbols.jl](https://biojulia.dev/BioSymbols.jl/stable):
 
 | Type            | Meaning        |
 | :-------------- | :------------- |
@@ -21,7 +21,7 @@ elements of strings.
 
 ## DNA and RNA nucleotides
 
-Set of nucleotide symbols in BioSequences covers IUPAC nucleotide base plus
+The set of nucleotide symbols in BioSequences covers the IUPAC nucleotide bases plus
 a gap symbol:
 
 | Symbol | Constant              | Meaning                    |
@@ -81,7 +81,7 @@ true
 
 ## Amino acids
 
-Set of amino acid symbols also covers IUPAC amino acid symbols plus a gap symbol:
+The set of amino acid symbols also covers the IUPAC amino acid symbols plus a gap symbol:
 
 | Symbol       | Constant        | Meaning                     |
 | :----------- | :-------------- | :-------------------------- |

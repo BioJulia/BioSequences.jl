@@ -15,21 +15,21 @@ and is parameterized by an `Alphabet`, which controls the element type.
 Its subtypes are characterized by:
 * Being a linear container type with random access and indices `Base.OneTo(length(x))`.
 * Containing zero or more internal data elements of type `encoded_data_eltype(typeof(x))`.
-* Being associated with an `Alphabet`, `A` by being a subtype of `BioSequence{A}`.
+* Being associated with an `Alphabet`, `A`, by being a subtype of `BioSequence{A}`.
 
-A `BioSequence{A}` is indexed by an integer. The biosequence subtype, the index
+A `BioSequence{A}` is indexed by an integer. The `BioSequence` subtype, the index
 and the alphabet `A` determine how to extract the internal encoded data.
 The alphabet decides how to decode the data to the element type of the biosequence.
 Hence, the element type and container type of a `BioSequence` are separated.
 
-Subtypes `T` of `BioSequence` must implement the following, with `E` begin an
+Subtypes `T` of `BioSequence` must implement the following, with `E` being an
 encoded data type:
 
 * `Base.length(::T)::Int`
 * `encoded_data_eltype(::Type{T})::Type{E}`
 * `extract_encoded_element(::T, ::Integer)::E`
 * `copy(::T)`
-* T must be able to be constructed from any iterable with `length` defined and
+* `T` must be able to be constructed from any iterable with `length` defined and
   with a known, compatible element type.
 
 Furthermore, mutable sequences should implement
@@ -58,8 +58,8 @@ end
 """
     has_interface(::Type{BioSequence}, ::T, syms::Vector, mutable::Bool, compat::Bool=true)
 
-Check if type `T` conforms to the `BioSequence` interface. A `T` is constructed from the vector
-of element types `syms` which must not be empty.
+Check if type `T` conforms to the `BioSequence` interface. A value of type `T` is
+constructed from the vector of elements `syms`, which must not be empty.
 If the `mutable` flag is set, also check the mutable interface.
 If the `compat` flag is set, check for compatibility with existing alphabets.
 """
@@ -123,7 +123,7 @@ end
 """
     join!(seq::BioSequence, iter)
 
-Concatenate all biosequences/biosymbols in `iter` into `seq`, resizing it to fit.
+Concatenate all biosequences or biosymbols in `iter` into `seq`, resizing it to fit.
 
 # Examples
 ```
@@ -132,7 +132,7 @@ julia> join(LongDNA(), [dna"TAG", dna"AAC"])
 TAGAAC
 ```
 
-see also [`join`](@ref)
+See also [`join`](@ref).
 """
 join!(seq::BioSequence, it) = _join!(seq, it, Val(false))
 
@@ -159,7 +159,7 @@ end
 """
     join(::Type{T <: BioSequence}, seqs)
 
-Concatenate all the biosequences/biosymbols in `seqs` to a biosequence of type `T`.
+Concatenate all the biosequences or biosymbols in `seqs` to a biosequence of type `T`.
 
 # Examples
 ```
@@ -168,7 +168,7 @@ julia> join(LongDNA, [dna"TAG", dna"AAC"])
 TAGAAC
 ```
 
-see also [`join!`](@ref)
+See also [`join!`](@ref).
 """
 function Base.join(::Type{T}, it::Union{Vector, Tuple, Set}) where {T <: BioSequence}
     _join!(T(undef, reduce((a, b) -> a + joinlen(b), it, init=0)), it, Val(true))
@@ -197,7 +197,7 @@ Returns the element type of the encoded data of the `BioSequence`.
 This is the return type of `extract_encoded_element`, i.e. the data
 type that stores the biological symbols in the biosequence.
 
-See also: [`BioSequence`](@ref) 
+See also: [`BioSequence`](@ref)
 """
 function encoded_data_eltype end
 
@@ -208,7 +208,7 @@ Returns the encoded element at position `i`. This data can be
 decoded using `decode(A(), data)` to yield the element type of
 the biosequence.
 
-See also: [`BioSequence`](@ref) 
+See also: [`BioSequence`](@ref)
 """
 function extract_encoded_element end
 
@@ -217,9 +217,9 @@ function extract_encoded_element end
     encoded_setindex!(seq::BioSequence, x::E, i::Integer)
 
 Given encoded data `x` of type `encoded_data_eltype(typeof(seq))`,
-sets the internal sequence data at the given index.
+set the internal sequence data at the given index.
 
-See also: [`BioSequence`](@ref) 
+See also: [`BioSequence`](@ref)
 """
 function encoded_setindex! end
 

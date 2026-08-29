@@ -6,8 +6,8 @@ end
 ```
 
 # Counting
-`BioSequences` contains functionality to efficiently count biosymbols in a biosequence
-that satisfies some predicate.
+`BioSequences` contains functionality to efficiently count biosymbols in a
+biosequence that satisfies some predicate.
 
 Consider a naive counting function like this:
 ```julia
@@ -17,18 +17,18 @@ function count_Ns(seq::BioSequence{<:DNAAlphabet})
         ns += (i == DNA_N)::Bool
     end
     ns
-end 
+end
 ```
 
 This function can be more efficiently implemented by exploiting the internal
 data layout of certain biosequences.
 Therefore, Julia provides optimised methods for `Base.count`, such that `count_Ns`
-above can be more efficiently expressed `count(==(DNA_N), seq)`.
+above can be more efficiently expressed as `count(==(DNA_N), seq)`.
 
 !!! note
     It is important to understand that this speed is achieved with custom methods of
     `Base.count`, and not by a generic mechanism that improves the speed of counting
-    symbols in `BioSequence `in general.
+    symbols in a `BioSequence` in general.
     Hence, while `count(==(DNA_N), seq)` may be optimised,
     `count(i -> i == DNA_N, seq)` is not, as this is a different method.
 
@@ -44,7 +44,7 @@ have optimised methods.
 
 ## Matches and mismatches
 The methods `matches` and `mismatches` take two
-sequences and count the number of positions where the sequences are unequal or equal, respectively.
+sequences and count the number of positions where the sequences are equal or unequal, respectively.
 
 They are equivalent to `matches(a, b) = count(splat(==), zip(a, b))`
 (and with `!=`, respectively).
@@ -62,7 +62,7 @@ gc_content
 ```
 
 ## Deprecated aliases
-Several of the optimised `count` methods have function names, which are deprecated:
+Several of the optimised `count` methods have function names that are deprecated:
 
 | Deprecated function  | Instead use               |
 | :------------------- | :------------------------ |

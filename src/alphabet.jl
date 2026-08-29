@@ -11,15 +11,15 @@
     Alphabet
 
 `Alphabet` is the most important type trait for `BioSequence`. An `Alphabet`
-represents a set of biological symbols encoded by a sequence, e.g. A, C, G
-and T for a DNA Alphabet that requires only 2 bits to represent each symbol.
+represents a set of biological symbols encoded by a sequence, e.g. A, C, G,
+and T for a DNA alphabet that requires only 2 bits to represent each symbol.
 
 # Extended help
-* Subtypes of Alphabet are singleton structs that may or may not be parameterized.
-* Alphabets span over a *finite* set of biological symbols.
-* The alphabet controls the encoding from some internal "encoded data" to a BioSymbol 
+* Subtypes of `Alphabet` are singleton structs that may or may not be parameterized.
+* Alphabets span a *finite* set of biological symbols.
+* The alphabet controls the encoding from some internal "encoded data" to a `BioSymbol`
   of the alphabet's element type, as well as the decoding, the inverse process.
-* An `Alphabet`'s `encode` method must not produce invalid data. 
+* An `Alphabet`'s `encode` method must not produce invalid data.
 
 ### Required methods
 Every subtype `A` of `Alphabet` must implement:
@@ -27,13 +27,13 @@ Every subtype `A` of `Alphabet` must implement:
 * `symbols(::A)::Tuple{Vararg{S}}`. This gives tuples of all symbols in the set of `A`.
 * `encode(::A, ::S)::E` encodes a symbol to an internal data eltype `E`.
 * `decode(::A, ::E)::S` decodes an internal data eltype `E` to a symbol `S`.
-* Except for `eltype` which must follow Base conventions, all functions operating
+* Except for `eltype`, which must follow `Base` conventions, all functions operating
   on `Alphabet` should operate on instances of the alphabet, not the type.
 
 If you want interoperation with existing subtypes of `BioSequence`,
 the encoded representation `E` must be of type `UInt`, and you must also implement:
-* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where the `N` must be zero
-  or a power of two in [1, 2, 4, 8, 16, 32, [64 for 64-bit systems]].
+* `BitsPerSymbol(::A)::BitsPerSymbol{N}`, where `N` must be zero
+  or a power of two in [1, 2, 4, 8, 16, 32] (or 64 on 64-bit systems).
 
 ### Optional methods
 * `BitsPerSymbol` for compatibility with existing `BioSequence`s
@@ -74,10 +74,10 @@ Base.length(A::Alphabet) = length(symbols(A))
 
 """
     BitsPerSymbol{N}
-A trait object specifying the number of bits it takes to encode a biosymbol in an `Alphabet`
-Alphabets `A` should implement `BitsPerSymbol(::A)`.
+A trait object specifying the number of bits it takes to encode a biosymbol in an `Alphabet`.
+An alphabet `A` should implement `BitsPerSymbol(::A)`.
 For compatibility with existing BioSequences, the number of bits should be a power of two
-between 1 and 32, both inclusive.
+between 1 and 32, inclusive.
 See also: [`Alphabet`](@ref)
 """
 struct BitsPerSymbol{N} end
@@ -91,10 +91,10 @@ iscomplete(A::Alphabet) = Val(length(symbols(A)) === 1 << bits_per_symbol(A))
 """
     encode(::Alphabet, s::BioSymbol)
 
-Internal function, do not use in user code.
-Encode BioSymbol `s` to an internal representation using an [`Alphabet`](@ref).
-This decoding is checked to enforce valid data element.
-If `s` cannot be encoded to the given alphabet, throw an `EncodeError`
+Internal function; do not use it in user code.
+Encode the `BioSymbol` `s` to an internal representation using an [`Alphabet`](@ref).
+This encoding is checked to enforce valid data elements.
+If `s` cannot be encoded to the given alphabet, throw an `EncodeError`.
 
 """
 @inline function encode(A::Alphabet, s::BioSymbol)
@@ -106,10 +106,10 @@ tryencode(A::Alphabet, s::Any) = nothing
 
 """
     tryencode(::Alphabet, x::S)
-Try encoding BioSymbol `S` to the internal representation of [`Alphabet`](@ref),
+Try to encode a `BioSymbol` `x` to the internal representation of [`Alphabet`](@ref),
 returning `nothing` if not successful.
 
-See also: `encode`[@ref], `decode`[@ref]
+See also: [`encode`](@ref), [`decode`](@ref)
 """
 function tryencode end
 
@@ -162,8 +162,8 @@ end
 ## Nucleic acid alphabets
 
 """
-Alphabet of nucleic acids. Parameterized by the number of bits per symbol, by
-default only `2` or `4`-bit variants exists.
+Alphabet of nucleic acids. Parameterized by the number of bits per symbol; by
+default, only `2`- or `4`-bit variants exist.
 """
 abstract type NucleicAcidAlphabet{N} <: Alphabet end
 
@@ -278,8 +278,8 @@ abstract type AlphabetCode end
 """
     AsciiAlphabet
 
-Trait for alphabet using ASCII characters as String representation.
-Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` A to gain speed.
+Trait for an alphabet that uses ASCII characters as its string representation.
+Define `codetype(A) = AsciiAlphabet()` for a user-defined `Alphabet` `A` to gain speed.
 Methods needed: `BioSymbols.stringbyte(::eltype(A))` and `ascii_encode(A, ::UInt8)`.
 """
 struct AsciiAlphabet <: AlphabetCode end
@@ -299,7 +299,7 @@ codetype(::Alphabet) = UnicodeAlphabet()
 
 Encode the ASCII character represented by `b` to the internal alphabet encoding.
 For example, the input byte `UInt8('C')` is encoded to `0x01` and `0x02` for
-2- and 4-bit DNA alphabets, reprectively.
+2- and 4-bit DNA alphabets, respectively.
 This method is only needed if the `Alphabet` is an `AsciiAlphabet`.
 
 See also: [`BioSequences.AsciiAlphabet`](@ref)
@@ -346,10 +346,10 @@ end
 """
     guess_alphabet(s::Union{AbstractString, AbstractVector{UInt8}}) -> Union{Integer, Alphabet}
 
-Pick an `Alphabet` that can encode input `s`.  If no `Alphabet` can, return the index of the first
-byte of the input which is not encodable in any alphabet.
+Pick an `Alphabet` that can encode input `s`. If no `Alphabet` can encode it, return the index of the first
+byte in the input that is not encodable in any alphabet.
 This function only knows about the alphabets listed below. If multiple alphabets are possible,
-pick the first from the order below (i.e. `DNAAlphabet{2}()` if possible, otherwise `RNAAlphabet{2}()` etc).
+pick the first from the order below (i.e. `DNAAlphabet{2}()` if possible, otherwise `RNAAlphabet{2}()`, etc.).
 1. `DNAAlphabet{2}()`
 2. `RNAAlphabet{2}()`
 3. `DNAAlphabet{4}()`

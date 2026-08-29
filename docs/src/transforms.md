@@ -9,7 +9,7 @@ end
 
 ## Indexing
 
-Most `BioSequence` concrete subtypes for the most part behave like other vector
+Most `BioSequence` concrete subtypes behave like other vector
 or string types. They can be indexed using integers or ranges:
 
 For example, with `LongSequence`s:
@@ -29,7 +29,7 @@ TANAGTNNAGTACC
 ```
 
 The biological symbol at a given locus in a biological sequence can be set using
-setindex:
+`setindex!`:
 
 ```jldoctest
 julia> seq = dna"ACGTTTANAGTNNAGTACC"
@@ -42,9 +42,8 @@ DNA_A
 ```
 
 !!! note
-    Some types such can be indexed using integers but not using ranges.
+    Some types can be indexed using integers but not using ranges.
 
-    
 For `LongSequence` types, indexing a sequence by range creates a copy of the
 original sequence, similar to `Array` in Julia's `Base` library. If you find yourself
 slowed down by the allocation of these subsequences, consider using a sequence view
@@ -52,9 +51,9 @@ instead.
 
 ## Modifying sequences
 
-In addition to `setindex`, many other modifying operations are possible for
+In addition to `setindex!`, many other modifying operations are possible for
 biological sequences such as `push!`, `pop!`, and `insert!`, which should be
-familiar to anyone used to editing arrays.
+familiar to anyone who has used arrays.
 
 ```@docs
 push!(::BioSequences.BioSequence, ::Any)
@@ -134,19 +133,19 @@ ACGTAT
 
 ```
 
-Many of these methods also have a version which makes a copy of the input
+Many of these methods also have a version that makes a copy of the input
 sequence, so you get a modified copy, and don't alter the original sequence.
 Such methods are named the same, but without the exclamation mark.
-E.g. `reverse` instead of `reverse!`, and `ungap` instead of `ungap!`.  
+E.g. `reverse` instead of `reverse!`, and `ungap` instead of `ungap!`.
 
 #### Translation
 
-Translation is a slightly more complex transformation for RNA Sequences and so
+Translation is a slightly more complex transformation for RNA sequences, and so
 we describe it here in more detail.
 
-The [`translate`](@ref) function translates a sequence of codons in a RNA sequence
-to a amino acid sequence based on a genetic code. The `BioSequences` package
-provides all NCBI defined genetic codes and they are registered in
+The [`translate`](@ref) function translates a sequence of codons in an RNA sequence
+to an amino acid sequence based on a genetic code. The `BioSequences` package
+provides all NCBI-defined genetic codes, and they are registered in
 [`ncbi_trans_table`](@ref).
 
 ```@docs

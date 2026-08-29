@@ -26,8 +26,8 @@ end
 """
     gc_content(seq::BioSequence) -> Float64
 
-Calculate GC content of `seq`, i.e. the number of symbols that is `DNA_C`, `DNA_G`,
-`DNA_C` or `DNA_G` divided by the length of the sequence.
+Calculate GC content of `seq`, i.e. the number of symbols that are `DNA_C` or `DNA_G`
+divided by the length of the sequence.
 
 # Examples
 ```jldoctest
@@ -43,9 +43,9 @@ Base.count(::typeof(isGC), seq::NucleotideSeq) = _n_gc(seq)
 
 # Aliases
 """
-    matches(a::BioSequence, b::BioSequences) -> Int
+    matches(a::BioSequence, b::BioSequence) -> Int
 
-Count the number of positions in where `a` and `b` are equal.
+Count the number of positions where `a` and `b` are equal.
 If `b` is given, and the length of `a` and `b` differ, look only at the indices
 of the shorter sequence.
 This function does not provide any special handling of ambiguous symbols,
@@ -73,9 +73,9 @@ function matches end
 )
 
 """
-    mismatches(a::BioSequence, b::BioSequences) -> Int
+    mismatches(a::BioSequence, b::BioSequence) -> Int
 
-Count the number of positions in where `a` and `b` differ.
+Count the number of positions where `a` and `b` differ.
 If `b` is given, and the length of `a` and `b` differ, look only at the indices
 of the shorter sequence.
 This function does not provide any special handling of ambiguous symbols,
@@ -111,7 +111,7 @@ of the shorter sequence.
 
 !!! warning
     Passing in two sequences is deprecated. In a future, breaking release of
-    BioSequences, this will throw a `MethodError`
+    BioSequences, this will throw a `MethodError`.
 
 # Examples
 ```jldoctest
@@ -135,14 +135,14 @@ Base.count(::typeof(isgap), seq::BioSequence) = _n_gaps(seq)
 """
     n_ambiguous(a::BioSequence, [b::BioSequence]) -> Int
 
-Count the number of positions where `a` (or `b`, if present) have ambigious symbols.
+Count the number of positions where `a` (or `b`, if present) have ambiguous symbols.
 If `b` is given, and the length of `a` and `b` differ, look only at the indices
 of the shorter sequence.
-Gaps are not ambigous.
+Gaps are not ambiguous.
 
 !!! warning
     Passing in two sequences is deprecated. In a future, breaking release of
-    BioSequences, this will throw a `MethodError`
+    BioSequences, this will throw a `MethodError`.
 
 
 # Examples
@@ -167,7 +167,7 @@ Base.count(::typeof(isambiguous), seq::BioSequence) = _n_ambiguous(seq)
 """
     n_certain(a::BioSequence, [b::BioSequence]) -> Int
 
-Count the number of positions where `a` (and `b`, if present) have certain (i.e. non-ambigous
+Count the number of positions where `a` (and `b`, if present) have certain (i.e. non-ambiguous
 and non-gap) symbols.
 If `b` is given, and the length of `a` and `b` differ, look only at the indices
 of the shorter sequence.
@@ -175,7 +175,7 @@ Gaps are not certain.
 
 !!! warning
     Passing in two sequences is deprecated. In a future, breaking release of
-    BioSequences, this will throw a `MethodError`
+    BioSequences, this will throw a `MethodError`.
 
 
 # Examples
@@ -395,4 +395,3 @@ for (sym, op, joiner) in [
         @eval(@deprecate($(sym)(a::$(T)), count($(op), a)))
     end
 end
-

@@ -140,7 +140,7 @@ end
 
 Create a position weight matrix from a position frequency matrix `pfm`.
 
-The positive weight matrix will be `log2.((pfm ./ sum(pfm, 1)) ./ prior)`.
+The position weight matrix will be `log2.((pfm ./ sum(pfm, 1)) ./ prior)`.
 """
 function PWM(pfm::PFM{S}; prior = fill(1/4, 4)) where S <: Union{DNA,RNA}
     if !all(x -> x > 0, prior)

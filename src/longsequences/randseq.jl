@@ -12,7 +12,7 @@ import Random: Sampler, rand!, default_rng
 """
     SamplerUniform{T}
 
-Uniform sampler of type T. Instantiate with a collection of eltype T containing
+Uniform sampler of type `T`. Instantiate with a collection with eltype `T` containing
 the elements to sample.
 
 # Examples
@@ -41,8 +41,8 @@ const DefaultAASampler = SamplerUniform(aa"ACDEFGHIKLMNPQRSTVWY")
 """
     SamplerWeighted{T}
 
-Weighted sampler of type T. Instantiate with a collection of eltype T containing
-the elements to sample, and an orderen collection of probabilities to sample
+Weighted sampler of type `T`. Instantiate with a collection with eltype `T` containing
+the elements to sample and an ordered collection of probabilities to sample
 each element except the last. The last probability is the remaining probability
 up to 1.
 
@@ -106,17 +106,17 @@ randaaseq(len::Integer) = randaaseq(default_rng(), len)
 """
     randseq([rng::AbstractRNG], A::Alphabet, len::Integer)
 
-Generate a LongSequence{A} of length `len` from the specified alphabet, drawn
+Generate a `LongSequence{A}` of length `len` from the specified alphabet, drawn
 from the default distribution. User-defined alphabets should implement this
-method to implement random LongSequence generation.
+method for random `LongSequence` generation.
 
 For RNA and DNA alphabets, the default distribution is uniform across A, C, G,
 and T/U.
 For AminoAcidAlphabet, it is uniform across the 20 standard amino acids.
-For a user-defined alphabet A, default is uniform across all elements of
+For a user-defined alphabet `A`, the default is uniform across all elements of
 `symbols(A)`.
 
-# Example:
+# Examples
 ```
 julia> seq = randseq(AminoAcidAlphabet(), 50)
 50aa Amino Acid Sequence:
@@ -133,7 +133,7 @@ end
 Generate a LongSequence{A} of length `len` with elements drawn from
 the given sampler.
 
-# Example:
+# Examples
 ```
 # Generate 1000-length RNA with 4% chance of N, 24% for A, C, G, or U
 julia> sp = SamplerWeighted(rna"ACGUN", fill(0.24, 4))
@@ -199,23 +199,23 @@ end
 """
     randdnaseq([rng::AbstractRNG], len::Integer)
 
-Generate a random LongSequence{DNAAlphabet{4}} sequence of length `len`,
-with bases sampled uniformly from [A, C, G, T]
+Generate a random `LongSequence{DNAAlphabet{4}}` sequence of length `len`,
+with bases sampled uniformly from [`A`, `C`, `G`, `T`].
 """
 randdnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, DNAAlphabet{4}(), len)
 
 """
     randrnaseq([rng::AbstractRNG], len::Integer)
 
-Generate a random LongSequence{RNAAlphabet{4}} sequence of length `len`,
-with bases sampled uniformly from [A, C, G, U]
+Generate a random `LongSequence{RNAAlphabet{4}}` sequence of length `len`,
+with bases sampled uniformly from [`A`, `C`, `G`, `U`].
 """
 randrnaseq(rng::AbstractRNG, len::Integer) = randseq(rng, RNAAlphabet{4}(), len)
 
 """
     randaaseq([rng::AbstractRNG], len::Integer)
 
-Generate a random LongSequence{AminoAcidAlphabet} sequence of length `len`,
+Generate a random `LongSequence{AminoAcidAlphabet}` sequence of length `len`,
 with amino acids sampled uniformly from the 20 standard amino acids.
 """
 randaaseq(rng::AbstractRNG, len::Integer) = randseq(rng, AminoAcidAlphabet(), len)

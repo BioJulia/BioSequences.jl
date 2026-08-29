@@ -19,6 +19,10 @@
     @test string(biore"A+"rna) == "biore\"A+\"rna"
     @test string(biore"A+"aa) == "biore\"A+\"aa"
 
+    m = match(biore"A+C*"dna, dna"AAAACC")
+    @test sprint(show, m) == sprint(Base.show_default, m)
+    @test startswith(sprint(show, m), "BioSequences.RE.RegexMatch")
+
     @test  occursin(biore"A"d, dna"A")
     @test !occursin(biore"A"d, dna"C")
     @test !occursin(biore"A"d, dna"G")

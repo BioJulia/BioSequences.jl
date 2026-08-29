@@ -5,25 +5,25 @@ DocTestSetup = quote
 end
 ```
 
-# Custom BioSequences types
+# Custom BioSequence types
 
-If you're a developing your own Bioinformatics package or method, you may find
-that the reference implementation of concrete `LongSequence` types provided in
+If you're developing your own bioinformatics package or method, you may find
+that the reference implementations of concrete `LongSequence` types provided in
 this package are not optimal for your purposes.
 
-This page describes the interfaces for BioSequences' core types for
-developers or other packages implementing their own sequence types or extending
+This page describes the interfaces for BioSequences' core types, for developers
+and other packages implementing their own sequence types or extending
 BioSequences functionality.
 
 ## Implementing custom Alphabets
 
-Recall the required methods that define the [`Alphabet`](@ref) interface. 
+Recall the required methods that define the [`Alphabet`](@ref) interface.
 
-To create an example custom alphabet, we need to create a singleton type, that
+To create an example custom alphabet, we need to create a singleton type that
 implements a few methods in order to conform to the interface as described in the
 [`Alphabet`](@ref) documentation.
 
-Let's do that for a restricted Amino Acid alphabet. We can test that it conforms
+Let's do that for a restricted amino acid alphabet. We can test that it conforms
 to the interface with the [`BioSequences.has_interface`](@ref) function.
 
 ```jldoctest
@@ -67,14 +67,14 @@ true
 
 ## Implementing custom BioSequences
 
-Recall the required methods that define the [`BioSequence`](@ref) interface. 
+Recall the required methods that define the [`BioSequence`](@ref) interface.
 
-To create an example custom alphabet, we need to create a singleton type, that
+To create an example custom sequence type, we need to create a singleton type that
 implements a few methods in order to conform to the interface as described in the
 [`BioSequence`](@ref) documentation.
 
 Let's do that for a custom sequence type that is optimised to represent a small
-sequence: A Codon. We can test that it conforms to the interface with the
+sequence: a codon. We can test that it conforms to the interface with the
 [`BioSequences.has_interface`](@ref) function.
 
 ```jldoctest

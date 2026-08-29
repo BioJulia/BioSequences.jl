@@ -8,8 +8,8 @@ end
 
 ## Long sequences
 
-You can generate random long sequences using the `randdna` function and the
-`Sampler`'s implemented in BioSequences:
+You can generate random long sequences using the `randdnaseq` function and the
+samplers implemented in BioSequences:
 
 ```@docs
 randseq

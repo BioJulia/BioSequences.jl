@@ -11,14 +11,14 @@ biological sequences, including DNA, RNA, and amino acid sequences.
 
 
 ## Installation
-You can install BioSequences from the julia
-REPL. Press `]` to enter pkg mode again, and enter the following:
+You can install BioSequences from the Julia
+REPL. Press `]` to enter pkg mode, and enter the following:
 
 ```julia
 add BioSequences
 ```
 
-If you are interested in the cutting edge of the development, please check out
+If you are interested in the cutting edge of development, please check out
 the master branch to try new features before release.
 
 
@@ -39,5 +39,5 @@ detailed contributor and maintainer guidelines, and code of conduct.
 
 ## Questions?
 If you have a question about contributing or using BioJulia software, come
-on over and chat to us on [the #biology channel on the Julia SLack](https://julialang.org/slack/), or you can try the
+on over and chat to us on [the #biology channel on the Julia Slack](https://julialang.org/slack/), or you can try the
 [Bio category of the Julia discourse site](https://discourse.julialang.org/c/domain/bio).

@@ -7,17 +7,17 @@
 
 Construct a matrix of nucleotides or amino acids from a vector of `BioSequence`s.
 
-If parameter `major` is set to `:site`, the matrix is created such that one
-nucleotide from each sequence is placed in each column i.e. the matrix is laid
+If the parameter `major` is set to `:site`, the matrix is created such that one
+nucleotide from each sequence is placed in each column, i.e. the matrix is laid
 out in site-major order.
 This means that iteration over one position of many sequences is efficient,
-as julia arrays are laid out in column major order.
+as Julia arrays are laid out in column-major order.
 
 If the parameter `major` is set to `:seq`, the matrix is created such that each
-sequence is placed in one column i.e. the matrix is laid out in sequence-major
+sequence is placed in one column, i.e. the matrix is laid out in sequence-major
 order.
 This means that iteration across each sequence in turn is efficient,
-as julia arrays are laid out in column major order.
+as Julia arrays are laid out in column-major order.
 
 # Examples
 ```julia
@@ -75,17 +75,17 @@ end
 
 Construct a matrix of `T` from a vector of `BioSequence`s.
 
-If parameter `major` is set to `:site`, the matrix is created such that one
-nucleotide from each sequence is placed in each column i.e. the matrix is laid
+If the parameter `major` is set to `:site`, the matrix is created such that one
+nucleotide from each sequence is placed in each column, i.e. the matrix is laid
 out in site-major order.
 This means that iteration over one position of many sequences is efficient,
-as julia arrays are laid out in column major order.
+as Julia arrays are laid out in column-major order.
 
 If the parameter `major` is set to `:seq`, the matrix is created such that each
-sequence is placed in one column i.e. the matrix is laid out in sequence-major
+sequence is placed in one column, i.e. the matrix is laid out in sequence-major
 order.
 This means that iteration across each sequence in turn is efficient,
-as julia arrays are laid out in column major order.
+as Julia arrays are laid out in column-major order.
 
 # Examples
 ```julia
@@ -146,13 +146,13 @@ end
 
 Construct a sequence that is a consensus of a vector of sequences.
 
-The consensus is established by a simple majority vote rule, where ambiguous
+The consensus is established by a simple majority-vote rule, where ambiguous
 nucleotides cast an equal vote for each of their possible states.
-For each site a winner(s) out of A, T(U), C, or G is determined, in the cases
-of ties the ambiguity symbol that unifies all the winners is returned.
-E.g if A and T tie, then W is inserted in the consensus. If all A, T, C, and G
-tie at a site, then N is inserted in the consensus. Note this means that if a
-nucletide e.g. 'C' and a gap '-' draw, the nucleotide will always win over the
+For each site, one or more winners from A, T(U), C, or G are determined; in cases
+of ties, the ambiguity symbol that unifies all the winners is returned.
+E.g., if A and T tie, then W is inserted in the consensus. If all A, T, C, and G
+tie at a site, then N is inserted in the consensus. Note that this means that if a
+nucleotide (e.g. 'C') and a gap ('-') draw, the nucleotide will always win over the
 gap, even though they tied.
 
 # Examples

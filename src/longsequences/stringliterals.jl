@@ -15,26 +15,26 @@ remove_newlines(s) = replace(s, r"\r|\n" => "")
 Create a `LongDNA{4}` sequence at parse time from string `seq`.
 If `flag` is `"s"` ('static', the default), the sequence is created at parse time,
 and inserted directly into the returned expression.
-A static string ought not to be mutated
+A static sequence ought not to be mutated.
 Alternatively, if `flag` is `"d"` (dynamic), a new sequence is parsed and created
-whenever the code where is macro is placed is run.
+whenever the code where the macro is placed is run.
 
 See also: [`@aa_str`](@ref), [`@rna_str`](@ref)
 
 # Examples
 In the example below, the static sequence is created once, at parse time, NOT
-when the function `f` is run. This means it is the _same_  sequence that is
-pushed to repeatedly.
+when the function `f` is run. This means it is the _same_ sequence that is
+repeatedly appended to.
 ```jldoctest
 julia> f() = dna"TAG";
 
-julia> string(push!(f(), DNA_A)) # NB: Mutates static string!
+julia> string(push!(f(), DNA_A)) # NB: Mutates static sequence!
 "TAGA"
 
 julia> string(push!(f(), DNA_A))
 "TAGAA"
 
-julia> f() = dna"TAG"d; # dynamically make seq
+julia> f() = dna"TAG"d; # dynamically make a sequence
 
 julia> string(push!(f(), DNA_A))
 "TAGA"

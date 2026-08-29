@@ -15,7 +15,7 @@ These queries are used as a predicate for the `Base.findnext`, `Base.findprev`,
 `Base.occursin`, `Base.findfirst`, and `Base.findlast` functions.
 
 Using these functions with these queries allows you to search a given sequence
-for a sub-sequence, whilst allowing a specific number of errors.
+for a subsequence, whilst allowing a specific number of errors.
 
 In other words they find a subsequence of the target sequence within a specific
 [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) of the
@@ -75,10 +75,10 @@ end
 """
     ApproximateSearchQuery(pat::S, comparator::F = isequal) where {F<:Function,S<:BioSequence}
 
-Construct an [`ApproximateSearchQuery`](@ref) predicate for use with Base find functions.
+Construct an [`ApproximateSearchQuery`](@ref) predicate for use with `Base` find functions.
 
 # Arguments
-- `pat`: A concrete BioSequence that is the sub-sequence you want to search for.
+- `pat`: A concrete `BioSequence` that is the subsequence you want to search for.
 - `comparator`: A function used to compare the symbols between sequences. `isequal` by default.
 """
 function ApproximateSearchQuery(pat::S, comparator::F = isequal) where {F<:Function,S<:BioSequence}
@@ -107,7 +107,7 @@ end
 """
     findnext(query, k, seq, start)
 
-Return the range of the first occurrence of `pat` in `seq[start:stop]` allowing
+Return the range of the first occurrence of `query` in `seq[start:stop]` allowing
 up to `k` errors.
 
 Symbol comparison is done using the predicate supplied to the query.

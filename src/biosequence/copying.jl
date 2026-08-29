@@ -14,12 +14,12 @@ function Base.copyto!(dst::BioSequence, src::BioSequence)
 end
 
 """
-    copyto!(dst::BioSequence, soff, src::BioSequence, doff, N)
+    copyto!(dst::BioSequence, doff, src::BioSequence, soff, N)
 
-In-place copy `N` elements from `src` starting at `soff` to `dst`, starting at `doff`.
+Copy `N` elements in place from `src`, starting at `soff`, to `dst`, starting at `doff`.
 The length of `dst` must be greater than or equal to `N + doff - 1`.
-The first N elements of `dst` are overwritten,
-the other elements are left untouched. The alphabets of `src` and `dst` must be compatible.
+The `N` elements of `dst` starting at `doff` are overwritten; the other elements
+are left untouched. The alphabets of `src` and `dst` must be compatible.
 
 # Examples
 ```

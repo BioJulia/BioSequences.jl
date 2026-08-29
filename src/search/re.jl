@@ -581,9 +581,9 @@ end
 """
     Regex{T}(pattern::AbstractString, syntax=:pcre)
 
-Biological regular expression to seatch for `pattern` in sequences of type `T`, where
-`T` can be `DNA`, `RNA`, and `AminoAcid`. `syntax` can be `:pcre` or `:prosite` for AminoAcid
-acids.
+Biological regular expression to search for `pattern` in sequences of type `T`, where
+`T` can be `DNA`, `RNA`, or `AminoAcid`. `syntax` can be `:pcre` or `:prosite` for amino
+acid sequences.
 """
 struct Regex{T <: Union{BioSequences.DNA, BioSequences.RNA, BioSequences.AminoAcid}}
     pat::String       # regular expression pattern (for printing)
@@ -632,27 +632,19 @@ end
 
 Result of matching by `Regex`.
 
+# Examples
+```jldoctest
 julia> match(biore"A(C[TG])+N(CA)"d, dna"ACGACA")
-RegexMatch("ACGACA", 1="CG", 2="", 3="CA")
+BioSequences.RE.RegexMatch{LongSequence{DNAAlphabet{4}}}(ACGACA, [1, 7, 2, 4, 4, 0, 5, 7])
+```
 """
 struct RegexMatch{S}
     seq::S
     captured::Vector{Int}
 end
 
-function Base.show(io::IO, m::RegexMatch)
-    print(io, "RegexMatch(")
-    for k in 1:div(length(m.captured), 2)
-        if k > 1
-            print(io, ", ", k - 1, '=')
-        end
-        print(io, '"', m.seq[m.captured[2k-1]:m.captured[2k]-1], '"')
-    end
-    print(io, ')')
-end
-
 """
-    matched(match::BioRegexMatch)
+    matched(match::RegexMatch)
 
 Return the matched pattern as a `BioSequence`.
 """
@@ -662,13 +654,13 @@ end
 
 
 """
-    captured(match::BioRegexMatch)
+    captured(match::RegexMatch)
 
 Return a vector of the captured patterns, where a pattern not captured is `nothing`.
 
-# Examples:
+# Examples
 ```
-julia> captured(biore"A(C[TG])+N"d, dna"ACGAA"")
+julia> captured(biore"A(C[TG])+N"d, dna"ACGAA")
 2-element Vector{Union{Nothing, LongDNA{4}, LongNuc{4, DNAAlphabet{4}}}}:
  CG
  nothing

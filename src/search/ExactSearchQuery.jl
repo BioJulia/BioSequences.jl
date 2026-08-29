@@ -3,8 +3,8 @@
 
 Query type for exact sequence search.
 
-An exact search, is one where are you are looking in some given sequence, for
-exact instances of some given substring.
+An exact search is one where you are looking in a given sequence for exact
+instances of a given substring.
 
 These queries are used as a predicate for the `Base.findnext`, `Base.findprev`,
 `Base.occursin`, `Base.findfirst`, and `Base.findlast` functions.
@@ -69,10 +69,10 @@ end
 """
     ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
 
-Construct an [`ExactSearchQuery`](@ref) predicate for use with Base find functions.
+Construct an [`ExactSearchQuery`](@ref) predicate for use with `Base` find functions.
 
 # Arguments
-- `pat`: A concrete BioSequence that is the sub-sequence you want to search for.
+- `pat`: A concrete `BioSequence` that is the subsequence you want to search for.
 - `comparator`: A function used to compare the symbols between sequences. `isequal` by default.
 """
 function ExactSearchQuery(pat::BioSequence, comparator::Function = isequal)
@@ -221,7 +221,7 @@ end
 """
     findnext(query::ExactSearchQuery, seq::BioSequence, start::Integer)
 
-Return the index of the first occurrence of `query` in `seq`.
+Return the range of the first occurrence of `query` in `seq`.
 
 Symbol comparison is done using the predicate supplied to the query.
 By default, `ExactSearchQuery`'s predicate is `isequal`.
@@ -240,7 +240,7 @@ Base.findfirst(pat::ExactSearchQuery, seq::BioSequence) = findnext(pat, seq, fir
 """
     findprev(query::ExactSearchQuery, seq::BioSequence, start::Integer)
 
-Return the index of the last occurrence of `query` in `seq`.
+Return the range of the last occurrence of `query` in `seq`.
 
 Symbol comparison is done using the predicate supplied to the query.
 By default, `ExactSearchQuery`'s predicate is `isequal`.
@@ -259,6 +259,6 @@ Base.findlast(query::ExactSearchQuery, seq::BioSequence) = findprev(query, seq, 
 """
     occursin(x::ExactSearchQuery, y::BioSequence)
 
-Return Bool indicating presence of exact match of x in y.
+Return a `Bool` indicating the presence of an exact match of `x` in `y`.
 """
 Base.occursin(x::ExactSearchQuery, y::BioSequence) = quicksearch(x, y, 1, lastindex(y)) != 0

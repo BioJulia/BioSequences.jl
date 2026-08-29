@@ -7,8 +7,8 @@ end
 
 # Construction & conversion
 
-Here we will showcase the various ways you can construct the various sequence
-types in BioSequences.
+Here we will showcase the various ways you can construct the sequence types in
+BioSequences.
 
 ## Constructing sequences
 
@@ -35,7 +35,7 @@ UUAGC
 
 ```
 
-Type alias' can also be used for brevity.
+Type aliases can also be used for brevity.
 
 ```jldoctest
 julia> LongDNA{4}("TTANC")
@@ -72,7 +72,8 @@ TTAGC
 
 ### Constructing sequences from other sequences
 
-You can create sequences, by concatenating other sequences together:
+You can create sequences by concatenating other sequences together:
+
 ```jldoctest
 julia> LongDNA{2}("ACGT") * LongDNA{2}("TGCA")
 8nt DNA Sequence:
@@ -88,7 +89,7 @@ TATATATATATATATATATA
 
 ```
 
-Sequence views (`LongSubSeq`s) are special, in that they do not own their own data,
+Sequence views (`LongSubSeq`s) are special in that they do not own their own data,
 and must be constructed from a `LongSequence` or another `LongSubSeq`:
 
 ```jldoctest
@@ -112,7 +113,9 @@ true
 
 ## Conversion of sequence types
 
-You can convert between sequence types, if the sequences are compatible - that is, if the source sequence does not contain symbols that are un-encodable by the destination type.
+You can convert between sequence types if the sequences are compatible—that is,
+if the source sequence does not contain symbols that are unencodable by the
+destination type.
 ```jldoctest
 julia> dna = dna"TTACGTAGACCG"
 12nt DNA Sequence:
@@ -201,7 +204,7 @@ CTTA
 
 ```
 
-However, this is not what happens, instead the following happens:
+However, this is not what happens; instead, the following happens:
 
 ```@meta
 DocTestSetup = quote
@@ -228,21 +231,21 @@ CTTAAA
 
 ```
 
-The reason for this is because the sequence literal is allocated only once
-before the first time the function `foo` is called and run. Therefore, `s` in
+The reason for this is that the sequence literal is allocated only once
+before the first time the function `foo` is called. Therefore, `s` in
 `foo` is always a reference to that one sequence that was allocated.
-So one sequence is created before `foo` is called, and then it is pushed to
-every time `foo` is called. Thus, that one allocated sequence grows with every
-call of `foo`.
+So one sequence is created before `foo` is called, and then a nucleotide is appended
+to it on every call to `foo`. Thus, that one allocated sequence grows with every
+call to `foo`.
 
-If you wanted `foo` to create a new sequence each time it is called,
+If you want `foo` to create a new sequence each time it is called,
 then you can add a flag to the end of the sequence literal to dictate behaviour:
-A flag of 's' means 'static': the sequence will be allocated before code is run,
+A flag of `s` means 'static': the sequence will be allocated before the code is run,
 as is the default behaviour described above.
-However providing 'd' flag changes the behaviour: 'd' means 'dynamic':
+However, providing the `d` flag changes the behaviour: `d` means 'dynamic':
 the sequence will be allocated whilst the code is running, and not before.
-So to change `foo` so as it creates a new sequence
-each time it is called, simply add the 'd' flag to the sequence literal:
+So to change `foo` so that it creates a new sequence
+each time it is called, simply add the `d` flag to the sequence literal:
 ```@meta
 DocTestSetup = quote
     using BioSequences
@@ -290,11 +293,11 @@ DocTestSetup = quote
 end
 ```
 
-So the take home message of sequence literals is this:
+So the take-home message of sequence literals is this:
 
 Be careful when you are using sequence literals inside of functions, and inside
 the bodies of things like for loops. And if you use them and are unsure, use the
- 's' and 'd' flags to ensure the behaviour you get is the behaviour you intend.
+the `s` and `d` flags to ensure the behaviour you get is the behaviour you intend.
 
 ```@docs
 @dna_str
@@ -303,7 +306,7 @@ the bodies of things like for loops. And if you use them and are unsure, use the
 ```
 
 ## Loose parsing
-As of version 3.2.0, BioSequences.jl provide the [`bioseq`](@ref) function, which can be used to build a `LongSequence`
+As of version 3.2.0, BioSequences.jl provides the [`bioseq`](@ref) function, which can be used to build a `LongSequence`
 from a string (or an `AbstractVector{UInt8}`) without knowing the correct `Alphabet`.
 
 ```jldoctest
@@ -312,7 +315,9 @@ julia> bioseq("ATGTGCTGA")
 ATGTGCTGA
 ```
 
-The function will prioritise 2-bit alphabets over 4-bit alphabets, and prefer smaller alphabets (like `DNAAlphabet{4}`) over larger (like `AminoAcidAlphabet`).
+The function will prioritise 2-bit alphabets over 4-bit alphabets, and prefer
+smaller alphabets (like `DNAAlphabet{4}`) over larger (like
+`AminoAcidAlphabet`).
 If the input cannot be encoded by any of the built-in alphabets, an error is thrown:
 
 ```jldoctest
@@ -321,8 +326,9 @@ ERROR: cannot encode 0x30 (Char '0') in AminoAcidAlphabet
 [...]
 ```
 
-Note that this function is only intended to be used for interactive, ephemeral work.
-The function is necessarily type unstable, and the precise returned alphabet for a given input is a heuristic which is subject to change.
+Note that this function is only intended to be used for interactive, ephemeral
+work. The function is necessarily type unstable, and the precise returned
+alphabet for a given input is a heuristic that is subject to change.
 
 ```@docs
 bioseq
@@ -331,7 +337,7 @@ guess_alphabet
 
 ## Comparison to other sequence types
 Following Base standards, BioSequences do not compare equal to other containers even if they have the same elements.
-To e.g. compare a BioSequence with a vector of DNA, compare the elements themselves:
+To compare a BioSequence with a vector of DNA, for example, compare the elements themselves:
 ```jldoctest
 julia> seq = dna"GAGCTGA"; vec = collect(seq);
 
@@ -339,5 +345,5 @@ julia> seq == vec, isequal(seq, vec)
 (false, false)
 
 julia> length(seq) == length(vec) && all(i == j for (i, j) in zip(seq, vec))
-true 
+true
 ```

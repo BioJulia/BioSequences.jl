@@ -10,7 +10,7 @@
 """
     copy!(dst::LongSequence, src::BioSequence)
 
-In-place copy content of `src` to `dst`, resizing `dst` to fit.
+Copy the content of `src` to `dst` in place, resizing `dst` to fit.
 The alphabets of `src` and `dst` must be compatible.
 
 # Examples
@@ -220,12 +220,12 @@ function Base.copyto!(dst::SeqOrView{<:Alphabet}, src::SeqLike, C::AlphabetCode)
 end
 
 """
-    copyto!(dst::LongSequence, soff, src, doff, N)
+    copyto!(dst::LongSequence, doff, src, soff, N)
 
-In-place encode `N` elements from `src` starting at `soff` to `dst`, starting at `doff`.
+Encode `N` elements in place from `src`, starting at `soff`, to `dst`, starting at `doff`.
 The length of `dst` must be greater than or equal to `N + doff - 1`.
-The first N elements of `dst` are overwritten,
-the other elements are left untouched. The content of `src` must be able to be encoded to
+The `N` elements of `dst` starting at `doff` are overwritten; the other elements
+are left untouched. The content of `src` must be able to be encoded to
 the alphabet of `dst`.
 
 # Examples

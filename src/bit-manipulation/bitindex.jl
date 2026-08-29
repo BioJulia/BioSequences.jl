@@ -14,7 +14,7 @@
 """
     BitIndex
 
-`BitIndex` is an internal type used in BioSequences.It contains
+`BitIndex` is an internal type used in BioSequences. It contains
 a bit offset. For biosequences with an internal array of coding units,
 it can be used to obtain the array index and element bit offset.
 

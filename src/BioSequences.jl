@@ -259,19 +259,19 @@ Base.eltype(::Type{<:Search}) = Int
 Base.IteratorSize(::Type{<:Search}) = Base.SizeUnknown()
 
 """
-    findall(pattern, sequence::BioSequence[,rng::UnitRange{Int}]; overlap::Bool=true)::Vector
+    findall(pattern, sequence::BioSequence[, rng::UnitRange{Int}]; overlap::Bool=true)::Vector
 
 Find all occurrences of `pattern` in `sequence`.
 
-The return value is a vector of ranges of indices where the matching sequences were found.
+The return value is a vector of ranges of indices where matching sequences were found.
 If there are no matching sequences, the return value is an empty vector.
 
 The search is restricted to the specified range when `rng` is set.
 
-With the keyword argument `overlap` set as `true`, the start index for the next search gets set to the start of the current match plus one; if set to `false`, the start index for the next search gets set to the end of the current match plus one.
+With the keyword argument `overlap` set to `true`, the start index for the next search is set to the start of the current match plus one; if set to `false`, the start index for the next search is set to the end of the current match plus one.
 The default value for the keyword argument `overlap` is `true`.
 
-The `pattern` can be a `Biosymbol` or a search query.
+The `pattern` can be a `BioSymbol` or a search query.
 
 See also [`ExactSearchQuery`](@ref), [`ApproximateSearchQuery`](@ref), [`PWMSearchQuery`](@ref).
 
