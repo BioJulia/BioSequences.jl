@@ -223,6 +223,7 @@ include("longsequences/randseq.jl")
 include("longsequences/find.jl")
 
 include("counting.jl")
+include("molecular-weight.jl")
 
 include("geneticcode.jl")
 
