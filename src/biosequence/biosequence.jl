@@ -41,19 +41,19 @@ For compatibility with existing `Alphabet`s, the encoded data eltype must be `UI
 """
 abstract type BioSequence{A<:Alphabet} end
 
-function (::Type{S})(seq::BioSequence) where {S <: AbstractString}
-    _string(S, seq, codetype(Alphabet(seq)))
-end
+Base.String(seq::BioSequence) = _string(seq, codetype(Alphabet(seq)))
+
+# Generic fallback for other string types. Slow, as it materializes a String first.
+(::Type{S})(seq::BioSequence) where {S <: AbstractString} = S(String(seq))
+
+# Resolve ambiguity with Base. The generic AbstractString constructor above
+# should be removed in the next breaking release, which will make this unnecessary.
+Base.SubstitutionString{T}(seq::BioSequence) where {T <: AbstractString} = SubstitutionString{T}(String(seq))
 
 Base.LazyString(seq::BioSequence) = LazyString(string(seq))
 
-function _string(::Type{S}, seq::BioSequence, ::AlphabetCode) where {S<:AbstractString}
-    return S([Char(x) for x in seq])
-end
-
-function _string(::Type{String}, seq::BioSequence, ::AsciiAlphabet)
-    String([stringbyte(s) for s in seq])
-end
+_string(seq::BioSequence, ::AlphabetCode) = String([Char(x) for x in seq])
+_string(seq::BioSequence, ::AsciiAlphabet) = String([stringbyte(s) for s in seq])
 
 """
     has_interface(::Type{BioSequence}, ::T, syms::Vector, mutable::Bool, compat::Bool=true)

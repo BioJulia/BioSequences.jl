@@ -9,6 +9,19 @@ using BioSymbols
 using BioSequences
 using StatsBase
 using YAML
+using Aqua
+
+@testset "Aqua" begin
+    # On some Julia versions (e.g. 1.10), Core.Compiler has its own LazyString, which
+    # is ambiguous with BioSequences' generic AbstractString constructor.
+    # This can't be resolved without pirating Core.Compiler.
+    # Remove this exclusion when the generic constructor is removed.
+    ambiguity_exclude = Any[]
+    if isdefined(Core.Compiler, :LazyString) && Core.Compiler.LazyString !== LazyString
+        push!(ambiguity_exclude, Core.Compiler.LazyString)
+    end
+    Aqua.test_all(BioSequences; ambiguities=(exclude=ambiguity_exclude,))
+end
 
 # Test for the absence of ubound type parameters in the package
 @test length(Test.detect_unbound_args(BioSequences, recursive=true)) == 0
