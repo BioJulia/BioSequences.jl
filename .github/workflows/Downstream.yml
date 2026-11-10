@@ -5,6 +5,10 @@ on:
     tags: [v*]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: ${{ matrix.package.repo }}/${{ matrix.package.group }}
@@ -30,14 +34,15 @@ jobs:
           - {user: nguyetdang, repo: BioGraph.jl, group: BioSequences}
           - {user: vanOosterhoutLab, repo: SpeedDate.jl, group: BioSequences}
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
           arch: x64
-      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
       - name: Clone Downstream
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ${{ matrix.package.user }}/${{ matrix.package.repo }}
           path: downstream
