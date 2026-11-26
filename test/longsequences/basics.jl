@@ -230,6 +230,12 @@ end
 end
 
 @testset "Repetition" begin
+    sample = dna"AC"
+    negative_count = -1
+    @test_throws ArgumentError repeat(sample, negative_count)
+    @test_throws ArgumentError sample ^ negative_count
+    @test repeat(sample, 0) == dna""
+
     function test_repetition(A, chunk)
         start = rand(1:length(chunk))
         stop = rand(start:length(chunk))

@@ -181,7 +181,11 @@ joinlen(seq::BioSequence) = length(seq)
 
 Base.join(::Type{T}, it) where {T <: BioSequence} = join(T, collect(it)::AbstractArray)
 
-Base.repeat(chunk::BioSequence, n::Integer) = join(typeof(chunk), (chunk for i in 1:n))
+function Base.repeat(chunk::BioSequence, n::Integer)
+    n >= 0 || throw(ArgumentError("repetition count must be non-negative"))
+    return join(typeof(chunk), (chunk for _ in 1:n))
+end
+
 Base.:^(x::BioSequence, n::Integer) = repeat(x, n)
 
 # Concatenation and Base.repeat operators
