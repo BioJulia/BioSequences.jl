@@ -89,6 +89,8 @@ TATATATATATATATATATA
 
 ```
 
+Both forms take a non-negative repetition count.
+
 Sequence views (`LongSubSeq`s) are special in that they do not own their own data,
 and must be constructed from a `LongSequence` or another `LongSubSeq`:
 
